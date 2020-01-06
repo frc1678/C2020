@@ -54,7 +54,6 @@ public class Drive extends Subsystem {
     private Rotation2d mGyroOffset = Rotation2d.identity();
     private boolean mOverrideTrajectory = false;
 
-    private final LimelightManager mLLManager = LimelightManager.getInstance();
     private final SynchronousPIDF throttlePID = new SynchronousPIDF(.15, 0.00, 0.0);
     private final SynchronousPIDF steeringPID = new SynchronousPIDF(.3, 0.00, 0.03);    
 
