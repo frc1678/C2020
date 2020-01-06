@@ -78,8 +78,8 @@ public class RobotState {
     private GoalTracker vision_target_low_ = new GoalTracker();
     private GoalTracker vision_target_high_ = new GoalTracker();
 
-    Translation2d mCameraToVisionTargetPoseLow = null;
-    Translation2d mCameraToVisionTargetPoseHigh = null;
+    List<Translation2d> mCameraToVisionTargetPosesLow = new ArrayList<>();
+    List<Translation2d> mCameraToVisionTargetPosesHigh = new ArrayList<>();
 
     private RobotState() {
         reset(0.0, Pose2d.identity(), Rotation2d.identity());
@@ -204,29 +204,36 @@ public class RobotState {
         return null;
     }
 
-    private void updatePortGoalTracker(double timestamp, Translation2d cameraToVisionTargetPose, GoalTracker tracker, Limelight source) {
-        if (cameraToVisionTargetPose == null) return;
-        Pose2d cameraToVisionTarget = Pose2d.fromTranslation(cameraToVisionTargetPose);
+    private void updatePortGoalTracker(double timestamp, List<Translation2d> cameraToVisionTargetPoses, GoalTracker tracker, Limelight source) {
+        if (cameraToVisionTargetPoses.size() != 2 ||
+                cameraToVisionTargetPoses.get(0) == null ||
+                cameraToVisionTargetPoses.get(1) == null) return;
+        Pose2d cameraToVisionTarget = Pose2d.fromTranslation(cameraToVisionTargetPoses.get(0).interpolate(
+                cameraToVisionTargetPoses.get(1), 0.5));
 
         Pose2d fieldToVisionTarget = getFieldToTurret(timestamp).transformBy(source.getTurretToLens()).transformBy(cameraToVisionTarget);
         tracker.update(timestamp, List.of(new Pose2d(fieldToVisionTarget.getTranslation(), Rotation2d.identity())));
     }
 
-    public synchronized void addVisionUpdate(double timestamp, TargetInfo observation, Limelight source) {
-        mCameraToVisionTargetPoseLow = null;
-        mCameraToVisionTargetPoseHigh = null;
+    public synchronized void addVisionUpdate(double timestamp, List<TargetInfo> observations) {
+        mCameraToVisionTargetPosesLow.clear();
+        mCameraToVisionTargetPosesHigh.clear();
 
-        if (observation == null) {
+        if (observations == null || observations.isEmpty()) {
             vision_target_low_.update(timestamp, new ArrayList<>());
             vision_target_high_.update(timestamp, new ArrayList<>());
             return;
         }
 
-        mCameraToVisionTargetPoseLow = getCameraToVisionTargetPose(observation, false, source);
-        mCameraToVisionTargetPoseHigh = getCameraToVisionTargetPose(observation, true, source);
+        Limelight source = Limelight.getInstance();
 
-        updatePortGoalTracker(timestamp, mCameraToVisionTargetPoseLow, vision_target_low_, source);
-        updatePortGoalTracker(timestamp, mCameraToVisionTargetPoseHigh, vision_target_high_, source);
+        for (TargetInfo target : observations) {
+            mCameraToVisionTargetPosesLow.add(getCameraToVisionTargetPose(target, false, source));
+            mCameraToVisionTargetPosesHigh.add(getCameraToVisionTargetPose(target, true, source));
+        }
+
+        updatePortGoalTracker(timestamp, mCameraToVisionTargetPosesLow, vision_target_low_, source);
+        updatePortGoalTracker(timestamp, mCameraToVisionTargetPosesHigh, vision_target_high_, source);
     }
 
     // use known field target orientations to compensate for inaccuracy, assumes robot starts pointing directly away
