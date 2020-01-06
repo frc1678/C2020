@@ -34,16 +34,18 @@ import java.util.List;
 
 public class Hood extends Subsystem {
 
-    //public static double kVoltage;
+    public static double riseVoltage;
+    public static double dropVoltage;
+    public static double holdVoltage;
 
     private static Hood mInstance;
 
     public enum WantedAction {
-        NONE, UP, DOWN,
+        NONE, AIMED, UP, DOWN,
     }
 
     private enum State {
-        IDLE, IN_PROGRESS, UP,
+        IDLE, UPING, DOWNING, AIMED, MAX,
     }
 
     private State mState = State.IDLE;
@@ -59,9 +61,8 @@ public class Hood extends Subsystem {
     private ReflectingCSVWriter<PeriodicIO> mCSVWriter = null;
 
     private Hood() {
-        mMaster = new LazyTalonSRX(Ports.HOOD)
-
-        mProxy = new DigitalInput(Ports.HOOD_PROXY)
+        mMaster = new LazyTalonSRX(Ports.HOOD);
+        mMaster.configFactoryDefault();
     }
 
     public synchronized static Hood getInstance() {
@@ -75,6 +76,7 @@ public class Hood extends Subsystem {
     public synchronized void outputTelemetry() {
 
          SmartDashboard.putNumber("MotorSetpoint", mPeriodicIO.demand);
+         SmartDashboard.putBoolean("Aimed", mPeriodicIO.isReady)
 
         if (mCSVWriter != null) {
             mCSVWriter.write();
@@ -95,21 +97,27 @@ public class Hood extends Subsystem {
         enabledLooper.register(new Loop() {
             @Override
             public void onStart(final double timestamp) {
+                mRunningManual = false;
                 mState =  State.IDLE;
-                // startLogging();
+                startLogging();
             }
 
             @Override
             public void onLoop(final double timestamp) {
                 synchronized (Hood.this) {
-                 // What happens while the robot is on. This is usually a state machine
+                    if (mRunningManual) {
+                        runStateMachine(false);
+                        return;
+                    } else {
+                        runStateMachine(true);
+                    }
                 }
             }
 
             @Override
             public void onStop(final double timestamp) {
                 mRunningManual = false;
-                mState = /*Whatever state you want the robot to be when it stops*/;
+                mState = State.IDLE;
                 stopLogging();
             }
         });
@@ -118,8 +126,19 @@ public class Hood extends Subsystem {
 
     public void runStateMachine() {
         switch (mState) {
-        // Cases for each state and what the actuators should be at those states
+        case IDLE:
+            mPeriodicIO.demand = 0;
+            mPeriodicIO.isReady = false;
+        case IN_PROGRESS:
+            mPeriodicIO.demand = riseVoltage;
+            mPeriodicIO.isReady = false;
+        case AIMED:
+            mPeriodicIO.demand = holdVoltage;
+            mPeriodicIO.isReady = true;
+        case UP:
+            mPeriodicIO.demand = 
         }
+
     }
 
 
@@ -171,11 +190,11 @@ public class Hood extends Subsystem {
     public static class PeriodicIO {
         // INPUTS
         public double timestamp;
-        public double motorTempature;
+        // public double motorTempature;
   
         // OUTPUTS
         public double demand;
-        public double isReady;
+        public boolean isReady;
     }
 
 
