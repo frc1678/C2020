@@ -9,34 +9,44 @@ import com.team254.lib.util.Util;
 import com.team254.lib.vision.TargetInfo;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
-import com.ctre.phoenix.motorcontrol.*;
-import com.ctre.phoenix.motorcontrol.can.TalonSRX;
+//import com.ctre.phoenix.motorcontrol.*;
+//import com.ctre.phoenix.motorcontrol.can.TalonSRX;
+//import com.ctre.phoenix.motorcontrol.can.TalonFX;
+//import com.team254.drivers.LazyTalonSRX;
+import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkMax.IdleMode;
+import com.revrobotics.ControlType;
 import com.team1678.frc2020.loops.ILooper;
 import com.team1678.frc2020.loops.Loop;
 import com.team254.lib.drivers.TalonSRXFactory;
 import com.team254.lib.drivers.TalonUtil;
-import com.team254.drivers.LazyTalonSRX;
 import com.team254.lib.motion.MotionProfileConstraints;
 import com.team254.lib.motion.MotionProfileGoal;
 import com.team254.lib.motion.MotionState;
 import com.team254.lib.motion.SetpointGenerator;
 import com.team254.lib.motion.SetpointGenerator.Setpoint;
 import com.team254.lib.util.ReflectingCSVWriter;
+import com.team254.lib.drivers.LazySparkMax;
 
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import java.util.ArrayList;
+import edu.wpi.first.wpilibj.Encoder;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 
 public class Hood extends Subsystem {
 
+
+
     public static double riseVoltage;
     public static double dropVoltage;
     public static double holdVoltage;
+
+    public boolean aimed = false;
 
     private static Hood mInstance;
 
@@ -56,18 +66,22 @@ public class Hood extends Subsystem {
     private final PeriodicIO mPeriodicIO = new PeriodicIO();
 
     // Motors, sensors, and the solenoids
-    private final LazyTalonSRX mMaster;
+    //private final LazyTalonSRX mMaster;
+    private final LazySparkMax mMaster;
+    private final Encoder mEncoder;
 
     private ReflectingCSVWriter<PeriodicIO> mCSVWriter = null;
 
     private Hood() {
-        mMaster = new LazyTalonSRX(Ports.HOOD);
+        mMaster = new LazySparkMax(Ports.HOOD);
         mMaster.configFactoryDefault();
+        HoodEncoder encoderRead = talon.configSelectedFeedbackSensor(FeedbackDevice
+        .CTRE_MagEncoder_Relative, 0, 100); //primary closed-loop, 100 ms timeout
     }
 
     public synchronized static Hood getInstance() {
      if (mInstance == null) {
-            mInstance = new  Hood();
+            mInstance = new Hood();
         }
         return mInstance;
     }
@@ -76,11 +90,16 @@ public class Hood extends Subsystem {
     public synchronized void outputTelemetry() {
 
          SmartDashboard.putNumber("MotorSetpoint", mPeriodicIO.demand);
-         SmartDashboard.putBoolean("Aimed", mPeriodicIO.isReady)
+         SmartDashboard.putBoolean("Aimed", mPeriodicIO.isReady);
 
         if (mCSVWriter != null) {
             mCSVWriter.write();
         }
+    }
+
+    @Override
+    public void Aim(){
+
     }
 
     @Override
@@ -90,6 +109,7 @@ public class Hood extends Subsystem {
 
     @Override
     public void zeroSensors() {
+        mPeriodicInputs = new PeriodicInputs();
     }
 
     @Override
@@ -129,14 +149,23 @@ public class Hood extends Subsystem {
         case IDLE:
             mPeriodicIO.demand = 0;
             mPeriodicIO.isReady = false;
-        case IN_PROGRESS:
+            mPeriodicIO.maxed = false;
+        case UPING:
             mPeriodicIO.demand = riseVoltage;
             mPeriodicIO.isReady = false;
+            mPeriodicIO.maxed = false;
+        case DOWNING:
+            mPeriodicIO.demand = dropVoltae;
+            mPeriodicIO.isReady = false;
+            mPeriodicIO.maxed = false;
         case AIMED:
             mPeriodicIO.demand = holdVoltage;
             mPeriodicIO.isReady = true;
-        case UP:
-            mPeriodicIO.demand = 
+            mPeriodicIO.maxed = false;
+        case MAX:
+            mPeriodicIO.demand = 0;
+            mPeriodicIO.isReady = false;
+            mPeriodicIO.maxed = true;
         }
 
     }
@@ -144,7 +173,22 @@ public class Hood extends Subsystem {
 
     public void setState(final WantedAction wanted_state) {
         switch (wanted_state) {
-        // Cases to switch 
+        case NONE:
+            if (mState == State.AIMED){
+                mState = State.IDLE;
+            }
+        case AIMED:
+            if (mState == State.IDLE && aimed == true){
+                mState = State.AIMED;
+            }
+        case UP:
+            if (mState == State.UPING){
+                mState = State.IDLE;
+            }
+        case DOWN:
+            if (mState == State.DOWN){
+                mState = State.IDLE;
+            }
         }
     }
 
@@ -195,6 +239,7 @@ public class Hood extends Subsystem {
         // OUTPUTS
         public double demand;
         public boolean isReady;
+        public boolean maxed;
     }
 
 
