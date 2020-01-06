@@ -15,6 +15,7 @@ import com.team1678.frc2020.loops.ILooper;
 import com.team1678.frc2020.loops.Loop;
 import com.team254.lib.drivers.TalonSRXFactory;
 import com.team254.lib.drivers.TalonUtil;
+import com.team254.drivers.LazyTalonSRX;
 import com.team254.lib.motion.MotionProfileConstraints;
 import com.team254.lib.motion.MotionProfileGoal;
 import com.team254.lib.motion.MotionState;
@@ -48,17 +49,19 @@ public class Hood extends Subsystem {
     private State mState = State.IDLE;
 
     // private variables
+    private boolean mRunningManual = false;
 
     private final PeriodicIO mPeriodicIO = new PeriodicIO();
 
     // Motors, sensors, and the solenoids
-    private final TalonSRX mMaster;
+    private final LazyTalonSRX mMaster;
 
     private ReflectingCSVWriter<PeriodicIO> mCSVWriter = null;
 
     private Hood() {
-        m
+        mMaster = new LazyTalonSRX(Ports.HOOD)
 
+        mProxy = new DigitalInput(Ports.HOOD_PROXY)
     }
 
     public synchronized static Hood getInstance() {
@@ -70,7 +73,8 @@ public class Hood extends Subsystem {
 
     @Override
     public synchronized void outputTelemetry() {
-        // Anything you want displayed on the SmartDashboard
+
+         SmartDashboard.putNumber("MotorSetpoint", mPeriodicIO.demand);
 
         if (mCSVWriter != null) {
             mCSVWriter.write();
@@ -79,6 +83,7 @@ public class Hood extends Subsystem {
 
     @Override
     public void stop() {
+        setOpenLoop(0);
     }
 
     @Override
@@ -90,7 +95,7 @@ public class Hood extends Subsystem {
         enabledLooper.register(new Loop() {
             @Override
             public void onStart(final double timestamp) {
-                mState =  State./*default state usually but what state the robot is at when it first enables*/;
+                mState =  State.IDLE;
                 // startLogging();
             }
 
@@ -122,6 +127,11 @@ public class Hood extends Subsystem {
         switch (wanted_state) {
         // Cases to switch 
         }
+    }
+
+    public synchronized void setOpenLoop(double percentage) {
+        mRunningManual = true;
+        mPeriodicIO.demand = percentage;
     }
 
     @Override
@@ -161,8 +171,11 @@ public class Hood extends Subsystem {
     public static class PeriodicIO {
         // INPUTS
         public double timestamp;
+        public double motorTempature;
   
         // OUTPUTS
+        public double demand;
+        public double isReady;
     }
 
 
