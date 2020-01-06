@@ -10,6 +10,9 @@ import com.team254.lib.vision.TargetInfo;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import com.team1678.frc2020.loops.Loop;
+import com.team1678.frc2020.loops.ILooper;
+import com.team1678.frc2020.RobotState;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -20,8 +23,10 @@ import java.util.List;
  * Subsystem for interacting with the Limelight 2
  */
 public class Limelight extends Subsystem {
-    public final static int kHighGoalPipeline = 0;
-    public final static int kLowGoalPipeline = 1;
+    public final static int kDefaultPipeline = 0;
+    public final static int kSortTopPipeline = 1;
+
+    private static Limelight mInstance = null;
 
     public static class LimelightConstants {
         public String kName = "";
@@ -33,9 +38,43 @@ public class Limelight extends Subsystem {
 
     private NetworkTable mNetworkTable;
 
-    public Limelight(LimelightConstants constants) {
-        mConstants = constants;
-        mNetworkTable = NetworkTableInstance.getDefault().getTable(constants.kTableName);
+    private Limelight() {
+        mConstants = Constants.kTopLimelightConstants;
+        mNetworkTable = NetworkTableInstance.getDefault().getTable(mConstants.kTableName);
+    }
+
+    public static Limelight getInstance() {
+        if (mInstance == null) {
+            mInstance = new Limelight();
+        }
+
+        return mInstance;
+    }
+
+    @Override
+    public void registerEnabledLoops(ILooper mEnabledLooper) {
+        Loop mLoop = new Loop() {
+            @Override
+            public void onStart(double timestamp) {
+                RobotState.getInstance().resetVision();
+            }
+
+            @Override
+            public void onLoop(double timestamp) {
+                synchronized (this) {
+                    RobotState.getInstance().addVisionUpdate(
+                            timestamp - getLatency(),
+                            getTarget());
+                }
+
+            }
+
+            @Override
+            public void onStop(double timestamp) {
+                stop();
+            }
+        };
+        mEnabledLooper.register(mLoop);
     }
 
     public static class PeriodicIO {
@@ -58,7 +97,8 @@ public class Limelight extends Subsystem {
     private LimelightConstants mConstants = null;
     private PeriodicIO mPeriodicIO = new PeriodicIO();
     private boolean mOutputsHaveChanged = true;
-    private TargetInfo mTarget = null;
+    private double[] mZeroArray = new double[]{0, 0, 0, 0, 0, 0, 0, 0};
+    private List<TargetInfo> mTargets = new ArrayList<>();
     private boolean mSeesTarget = false;
 
     public Pose2d getTurretToLens() {
@@ -152,13 +192,100 @@ public class Limelight extends Subsystem {
     /**
      * @return two targets that make up one hatch/port or null if less than two targets are found
      */
-    public synchronized TargetInfo getTarget() {
-        if (seesTarget()) {
-            return new TargetInfo(
-                    Math.tan(Math.toRadians(mPeriodicIO.xOffset)), Math.tan(Math.toRadians(mPeriodicIO.yOffset)));
+    public synchronized List<TargetInfo> getTarget() {
+        List<TargetInfo> targets = getRawTargetInfos();
+        if (seesTarget() && targets != null) {
+            return targets;
         }
 
         return null;
+    }
+
+    private synchronized List<TargetInfo> getRawTargetInfos() {
+        List<double[]> corners = getTopCorners();
+        if (corners == null) {
+            return null;
+        }
+
+        double slope = 1.0;
+        if (Math.abs(corners.get(1)[0] - corners.get(0)[0]) > Util.kEpsilon) {
+            slope = (corners.get(1)[1] - corners.get(0)[1]) /
+                    (corners.get(1)[0] - corners.get(0)[0]);
+        }
+
+        mTargets.clear();
+        for (int i = 0; i < 2; ++i) {
+            // Average of y and z;
+            double y_pixels = corners.get(i)[0];
+            double z_pixels = corners.get(i)[1];
+
+            // Redefine to robot frame of reference.
+            double nY = -((y_pixels - 160.0) / 160.0);
+            double nZ = -((z_pixels - 120.0) / 120.0);
+
+            double y = Constants.kVPW / 2 * nY;
+            double z = Constants.kVPH / 2 * nZ;
+
+            TargetInfo target = new TargetInfo(y, z);
+            target.setSkew(slope);
+            mTargets.add(target);
+        }
+
+        return mTargets;
+    }
+
+    /**
+     * Returns raw top-left and top-right corners
+     *
+     * @return list of corners: index 0 - top left, index 1 - top right
+     */
+    private List<double[]> getTopCorners() {
+        double[] xCorners = mNetworkTable.getEntry("tcornx").getDoubleArray(mZeroArray);
+        double[] yCorners = mNetworkTable.getEntry("tcorny").getDoubleArray(mZeroArray);
+        mSeesTarget = mNetworkTable.getEntry("tv").getDouble(0) == 1.0;
+
+        // something went wrong
+        if (!mSeesTarget ||
+                Arrays.equals(xCorners, mZeroArray) || Arrays.equals(yCorners, mZeroArray)
+                || xCorners.length != 8 || yCorners.length != 8) {
+            return null;
+        }
+
+        return extractTopCornersFromBoundingBoxes(xCorners, yCorners);
+    }
+
+    private static final Comparator<Translation2d> xSort = Comparator.comparingDouble(Translation2d::x);
+    private static final Comparator<Translation2d> ySort = Comparator.comparingDouble(Translation2d::y);
+
+    /**
+     * Returns raw top-left and top-right corners
+     *
+     * @return list of corners: index 0 - top left, index 1 - top right
+     */
+    public static List<double[]> extractTopCornersFromBoundingBoxes(double[] xCorners, double[] yCorners) {
+        List<Translation2d> corners = new ArrayList<>();
+        for (int i = 0; i < xCorners.length; i++) {
+            corners.add(new Translation2d(xCorners[i], yCorners[i]));
+        }
+
+        corners.sort(xSort);
+
+        List<Translation2d> left = corners.subList(0, 4);
+        List<Translation2d> right = corners.subList(4, 8);
+
+        left.sort(ySort);
+        right.sort(ySort);
+
+        List<Translation2d> leftTop = left.subList(0, 2);
+        List<Translation2d> rightTop = right.subList(0, 2);
+
+        leftTop.sort(xSort);
+        rightTop.sort(xSort);
+
+        Translation2d leftCorner = leftTop.get(0);
+        Translation2d rightCorner = rightTop.get(1);
+
+        return List.of(new double[]{leftCorner.x(), leftCorner.y()}, new double[]{rightCorner.x(), rightCorner.y()});
     }
 
     public double getLatency() {

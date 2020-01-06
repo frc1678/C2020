@@ -1,13 +1,23 @@
 /*----------------------------------------------------------------------------*/
-/* Copyright (c) 2018 FIRST. All Rights Reserved.                             */
-/* Open Source Software - may be modified and shared by FRC teams. The code   */
+/* Copyright (c) 2018 FIRST. All Rights Reserved.                                                         */
+/* Open Source Software - may be modified and shared by FRC teams. The code     */
 /* must be accompanied by the FIRST BSD license file in the root directory of */
-/* the project.                                                               */
+/* the project.                                                                                                                             */
 /*----------------------------------------------------------------------------*/
 
 package com.team1678.frc2020;
 
-import edu.wpi.first.wpilibj.TimedRobot;
+import com.team1678.frc2020.loops.Looper;
+import com.team1678.frc2020.subsystems.Limelight;
+import com.team1678.frc2020.controlboard.ControlBoard;
+import com.team1678.frc2020.controlboard.IControlBoard;
+import com.team254.lib.wpilib.TimedRobot;
+import com.team1678.frc2020.SubsystemManager;
+import com.team1678.frc2020.subsystems.*;
+import com.team254.lib.util.*;
+import com.team254.lib.geometry.Rotation2d;
+import com.team254.lib.geometry.Pose2d;
+import edu.wpi.first.wpilibj.Timer;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -17,36 +27,102 @@ import edu.wpi.first.wpilibj.TimedRobot;
  * project.
  */
 public class Robot extends TimedRobot {
-  /**
-   * This function is run when the robot is first started up and should be used
-   * for any initialization code.
-   */
-  @Override
-  public void robotInit() {
-  }
+    /**
+     * This function is run when the robot is first started up and should be used
+     * for any initialization code.
+     */
 
-  @Override
-  public void autonomousInit() {
-  }
+    private final Looper mEnabledLooper = new Looper();
+    private final Looper mDisabledLooper = new Looper();
 
-  @Override
-  public void autonomousPeriodic() {
-  }
+    private final IControlBoard mControlBoard = ControlBoard.getInstance();
 
-  @Override
-  public void teleopInit() {
-  }
+    private final SubsystemManager mSubsystemManager = SubsystemManager.getInstance();
+    private final Drive mDrive = Drive.getInstance();
+    private final Limelight mLimelight = Limelight.getInstance();
 
-  @Override
-  public void teleopPeriodic() {
-  }
+    private final RobotState mRobotState = RobotState.getInstance();
+    private final RobotStateEstimator mRobotStateEstimator = RobotStateEstimator.getInstance();
 
-  @Override
-  public void testInit() {
-  }
+    @Override
+    public void robotInit() {
+        try {
+            CrashTracker.logRobotInit();
 
-  @Override
-  public void testPeriodic() {
-  }
+            mSubsystemManager.setSubsystems(mRobotStateEstimator, mDrive, mLimelight);
 
+            mSubsystemManager.registerEnabledLoops(mEnabledLooper);
+            mSubsystemManager.registerDisabledLoops(mDisabledLooper);
+
+            // Robot starts forwards.
+            mRobotState.reset(Timer.getFPGATimestamp(), Pose2d.identity(), Rotation2d.identity());
+            mDrive.setHeading(Rotation2d.identity());
+
+            mLimelight.setLed(Limelight.LedMode.OFF);
+        } catch (Throwable t) {
+            CrashTracker.logThrowableCrash(t);
+            throw t;
+        }
+    }
+
+    @Override
+    public void autonomousInit() {
+    }
+
+    @Override
+    public void autonomousPeriodic() {
+    }
+
+    @Override
+    public void teleopInit() {
+        try {
+            CrashTracker.logTeleopInit();
+            mDisabledLooper.stop();
+
+            mEnabledLooper.start();
+            mLimelight.setPipeline(Constants.kPortPipeline);
+
+            mControlBoard.reset();
+        } catch (Throwable t) {
+            CrashTracker.logThrowableCrash(t);
+            throw t;
+        }
+    }
+
+    @Override
+    public void teleopPeriodic() {
+        try {
+            
+        } catch (Throwable t) {
+            CrashTracker.logThrowableCrash(t);
+            throw t;
+        }
+    }
+
+    @Override
+    public void testInit() {
+    }
+
+    @Override
+    public void testPeriodic() {
+    }
+
+    @Override
+    public void disabledInit() {
+        try {
+            CrashTracker.logDisabledInit();
+            mEnabledLooper.stop();
+
+            mDisabledLooper.start();
+
+            mLimelight.setLed(Limelight.LedMode.OFF);
+            mLimelight.triggerOutputs();
+
+            mDrive.setBrakeMode(false);
+            mLimelight.writePeriodicOutputs();
+        } catch (Throwable t) {
+            CrashTracker.logThrowableCrash(t);
+            throw t;
+        }
+    }
 }
