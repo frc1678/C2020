@@ -1,5 +1,7 @@
 package com.team1678.frc2020.subsystems;
 
+import com.team1678.frc2020.loops.ILooper;
+import com.team1678.frc2020.loops.Loop;
 import com.team1678.frc2020.Constants;
 import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -43,6 +45,28 @@ public class DiskBrake extends Subsystem {
 
     @Override
     public void zeroSensors() {
+    }
+
+    @Override
+    public void registerEnabledLoops(ILooper enabledLooper) {
+        enabledLooper.register(new Loop() {
+            @Override
+            public void onStart(double timestamp) {
+                mState = State.DISENGAGED;
+            }
+
+            @Override
+            public void onLoop(double timestamp) {
+                synchronized (DiskBrake.this) {
+                    runStateMachine(true);
+                }
+            }
+
+            @Override
+            public void onStop(double timestamp) {
+                mState = State.DISENGAGED;
+            }
+        });
     }
 
     public synchronized boolean getDiskBrakeEngaged() {
