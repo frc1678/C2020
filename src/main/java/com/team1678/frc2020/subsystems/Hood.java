@@ -16,6 +16,7 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.ControlType;
+import com.revrobotics.CANEncoder;
 import com.team1678.frc2020.loops.ILooper;
 import com.team1678.frc2020.loops.Loop;
 import com.team254.lib.drivers.TalonSRXFactory;
@@ -75,8 +76,7 @@ public class Hood extends Subsystem {
     private Hood() {
         mMaster = new LazySparkMax(Ports.HOOD);
         mMaster.configFactoryDefault();
-        HoodEncoder encoderRead = talon.configSelectedFeedbackSensor(FeedbackDevice
-        .CTRE_MagEncoder_Relative, 0, 100); //primary closed-loop, 100 ms timeout
+        Encoder mEncoder;
     }
 
     public synchronized static Hood getInstance() {

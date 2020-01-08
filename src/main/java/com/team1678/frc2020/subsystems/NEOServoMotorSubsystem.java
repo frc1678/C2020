@@ -1,12 +1,12 @@
 package com.team1678.frc2020.subsystems;
 
 import com.ctre.phoenix.motorcontrol.*;
-import com.ctre.phoenix.motorcontrol.can.TalonSRX;
+// import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.team1678.frc2020.Constants;
 import com.team1678.frc2020.loops.ILooper;
 import com.team1678.frc2020.loops.Loop;
-import com.team254.lib.drivers.TalonSRXFactory;
-import com.team254.lib.drivers.TalonUtil;
+import com.team254.lib.drivers.SparkMaxFactory;
+import com.team254.lib.drivers.SparkMaxUtil;
 import com.team254.lib.motion.MotionProfileConstraints;
 import com.team254.lib.motion.MotionProfileGoal;
 import com.team254.lib.motion.MotionState;
@@ -27,7 +27,7 @@ public abstract class NEOServoMotorSubsystem extends Subsystem {
     private static final int kPositionPIDSlot = 1;
 
     // Recommend initializing in a static block!
-    public static class SparkMAXConstants {
+    public static class SparkMaxConstants {
         public int id = -1;
         public boolean invert_motor = false;
         public boolean invert_sensor_phase = false;
@@ -37,7 +37,7 @@ public abstract class NEOServoMotorSubsystem extends Subsystem {
     public static class NEOServoMotorSubsystemConstants {
         public String kName = "ERROR_ASSIGN_A_NAME";
 
-        public TalonSRXConstants kMasterConstants = new TalonSRXConstants();
+        public SparkMaxConstants kMasterConstants = new SparkMaxConstants();
 
         public double kHomePosition = 0.0; // Units
         public double kTicksPerUnitDistance = 1.0;
@@ -73,104 +73,104 @@ public abstract class NEOServoMotorSubsystem extends Subsystem {
         public boolean kRecoverPositionOnReset = false;
     }
 
-    protected final ServoMotorSubsystemConstants mConstants;
-    protected final TalonSRX mMaster;
+    protected final NEOServoMotorSubsystemConstants mConstants;
+    protected final SparkMaxConstants mMaster;
 
     protected final int mForwardSoftLimitTicks;
     protected final int mReverseSoftLimitTicks;
 
-    protected ServoMotorSubsystem(final ServoMotorSubsystemConstants constants) {
+    protected NEOServoMotorSubsystem(final NEOServoMotorSubsystemConstants constants) {
         mConstants = constants;
-        mMaster = TalonSRXFactory.createDefaultTalon(mConstants.kMasterConstants.id);
+        mMaster = SparkMaxFactory.createSparkMax(mConstants.kMasterConstants.id);
 
-        TalonUtil.checkError(mMaster.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, 0,
+        SparkMaxUtil.checkError(mMaster.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, 0,
                 Constants.kLongCANTimeoutMs), mConstants.kName + ": Could not detect encoder: ");
 
         mForwardSoftLimitTicks = (int) ((mConstants.kMaxUnitsLimit - mConstants.kHomePosition) * mConstants.kTicksPerUnitDistance);
-        TalonUtil.checkError(
+        SparkMaxUtil.checkError(
                 mMaster.configForwardSoftLimitThreshold(mForwardSoftLimitTicks, Constants.kLongCANTimeoutMs),
                 mConstants.kName + ": Could not set forward soft limit: ");
 
-        TalonUtil.checkError(mMaster.configForwardSoftLimitEnable(true, Constants.kLongCANTimeoutMs),
+        SparkMaxUtil.checkError(mMaster.configForwardSoftLimitEnable(true, Constants.kLongCANTimeoutMs),
                 mConstants.kName + ": Could not enable forward soft limit: ");
 
         mReverseSoftLimitTicks = (int) ((mConstants.kMinUnitsLimit - mConstants.kHomePosition) * mConstants.kTicksPerUnitDistance);
-        TalonUtil.checkError(
+        SparkMaxUtil.checkError(
                 mMaster.configReverseSoftLimitThreshold(mReverseSoftLimitTicks, Constants.kLongCANTimeoutMs),
                 mConstants.kName + ": Could not set reverse soft limit: ");
 
-        TalonUtil.checkError(mMaster.configReverseSoftLimitEnable(true, Constants.kLongCANTimeoutMs),
+        SparkMaxUtil.checkError(mMaster.configReverseSoftLimitEnable(true, Constants.kLongCANTimeoutMs),
                 mConstants.kName + ": Could not enable reverse soft limit: ");
 
-        TalonUtil.checkError(mMaster.configVoltageCompSaturation(12.0, Constants.kLongCANTimeoutMs),
+        SparkMaxUtil.checkError(mMaster.configVoltageCompSaturation(12.0, Constants.kLongCANTimeoutMs),
                 mConstants.kName + ": Could not set voltage compensation saturation: ");
 
-        TalonUtil.checkError(mMaster.config_kP(kMotionProfileSlot, mConstants.kKp, Constants.kLongCANTimeoutMs),
+        SparkMaxUtil.checkError(mMaster.config_kP(kMotionProfileSlot, mConstants.kKp, Constants.kLongCANTimeoutMs),
                 mConstants.kName + ": could not set kP: ");
 
-        TalonUtil.checkError(mMaster.config_kI(kMotionProfileSlot, mConstants.kKi, Constants.kLongCANTimeoutMs),
+        SparkMaxUtil.checkError(mMaster.config_kI(kMotionProfileSlot, mConstants.kKi, Constants.kLongCANTimeoutMs),
                 mConstants.kName + ": could not set kI: ");
 
-        TalonUtil.checkError(mMaster.config_kD(kMotionProfileSlot, mConstants.kKd, Constants.kLongCANTimeoutMs),
+        SparkMaxUtil.checkError(mMaster.config_kD(kMotionProfileSlot, mConstants.kKd, Constants.kLongCANTimeoutMs),
                 mConstants.kName + ": could not set kD: ");
 
-        TalonUtil.checkError(mMaster.config_kF(kMotionProfileSlot, mConstants.kKf, Constants.kLongCANTimeoutMs),
+        SparkMaxUtil.checkError(mMaster.config_kF(kMotionProfileSlot, mConstants.kKf, Constants.kLongCANTimeoutMs),
                 mConstants.kName + ": Could not set kF: ");
 
-        TalonUtil.checkError(mMaster.configMaxIntegralAccumulator(kMotionProfileSlot, mConstants.kMaxIntegralAccumulator,
+        SparkMaxUtil.checkError(mMaster.configMaxIntegralAccumulator(kMotionProfileSlot, mConstants.kMaxIntegralAccumulator,
                 Constants.kLongCANTimeoutMs), mConstants.kName + ": Could not set max integral: ");
 
-        TalonUtil.checkError(mMaster.config_IntegralZone(kMotionProfileSlot, mConstants.kIZone, Constants.kLongCANTimeoutMs),
+        SparkMaxUtil.checkError(mMaster.config_IntegralZone(kMotionProfileSlot, mConstants.kIZone, Constants.kLongCANTimeoutMs),
                 mConstants.kName + ": Could not set i zone: ");
 
-        TalonUtil.checkError(
+        SparkMaxUtil.checkError(
                 mMaster.configAllowableClosedloopError(kMotionProfileSlot, mConstants.kDeadband, Constants.kLongCANTimeoutMs),
                 mConstants.kName + ": Could not set deadband: ");
 
-        TalonUtil.checkError(mMaster.config_kP(kPositionPIDSlot, mConstants.kPositionKp, Constants.kLongCANTimeoutMs),
+        SparkMaxUtil.checkError(mMaster.config_kP(kPositionPIDSlot, mConstants.kPositionKp, Constants.kLongCANTimeoutMs),
                 mConstants.kName + ": could not set kP: ");
 
-        TalonUtil.checkError(mMaster.config_kI(kPositionPIDSlot, mConstants.kPositionKi, Constants.kLongCANTimeoutMs),
+        SparkMaxUtil.checkError(mMaster.config_kI(kPositionPIDSlot, mConstants.kPositionKi, Constants.kLongCANTimeoutMs),
                 mConstants.kName + ": could not set kI: ");
 
-        TalonUtil.checkError(mMaster.config_kD(kPositionPIDSlot, mConstants.kPositionKd, Constants.kLongCANTimeoutMs),
+        SparkMaxUtil.checkError(mMaster.config_kD(kPositionPIDSlot, mConstants.kPositionKd, Constants.kLongCANTimeoutMs),
                 mConstants.kName + ": could not set kD: ");
 
-        TalonUtil.checkError(mMaster.config_kF(kPositionPIDSlot, mConstants.kPositionKf, Constants.kLongCANTimeoutMs),
+        SparkMaxUtil.checkError(mMaster.config_kF(kPositionPIDSlot, mConstants.kPositionKf, Constants.kLongCANTimeoutMs),
                 mConstants.kName + ": Could not set kF: ");
 
-        TalonUtil.checkError(mMaster.configMaxIntegralAccumulator(kPositionPIDSlot, mConstants.kPositionMaxIntegralAccumulator,
+        SparkMaxUtil.checkError(mMaster.configMaxIntegralAccumulator(kPositionPIDSlot, mConstants.kPositionMaxIntegralAccumulator,
                 Constants.kLongCANTimeoutMs), mConstants.kName + ": Could not set max integral: ");
 
-        TalonUtil.checkError(mMaster.config_IntegralZone(kPositionPIDSlot, mConstants.kPositionIZone, Constants.kLongCANTimeoutMs),
+        SparkMaxUtil.checkError(mMaster.config_IntegralZone(kPositionPIDSlot, mConstants.kPositionIZone, Constants.kLongCANTimeoutMs),
                 mConstants.kName + ": Could not set i zone: ");
 
-        TalonUtil.checkError(
+        SparkMaxUtil.checkError(
                 mMaster.configAllowableClosedloopError(kPositionPIDSlot, mConstants.kPositionDeadband, Constants.kLongCANTimeoutMs),
                 mConstants.kName + ": Could not set deadband: ");
 
-        TalonUtil.checkError(
+        SparkMaxUtil.checkError(
                 mMaster.configMotionCruiseVelocity(mConstants.kCruiseVelocity, Constants.kLongCANTimeoutMs),
                 mConstants.kName + ": Could not set cruise velocity: ");
 
-        TalonUtil.checkError(mMaster.configMotionAcceleration(mConstants.kAcceleration, Constants.kLongCANTimeoutMs),
+        SparkMaxUtil.checkError(mMaster.configMotionAcceleration(mConstants.kAcceleration, Constants.kLongCANTimeoutMs),
                 mConstants.kName + ": Could not set acceleration: ");
 
-        TalonUtil.checkError(mMaster.configOpenloopRamp(mConstants.kRampRate, Constants.kLongCANTimeoutMs),
+        SparkMaxUtil.checkError(mMaster.configOpenloopRamp(mConstants.kRampRate, Constants.kLongCANTimeoutMs),
                 mConstants.kName + ": Could not set voltage ramp rate: ");
 
-        TalonUtil.checkError(mMaster.configClosedloopRamp(mConstants.kRampRate, Constants.kLongCANTimeoutMs),
+        SparkMaxUtil.checkError(mMaster.configClosedloopRamp(mConstants.kRampRate, Constants.kLongCANTimeoutMs),
                 mConstants.kName + ": Could not set closed loop ramp rate: ");
 
-        TalonUtil.checkError(
+        SparkMaxUtil.checkError(
                 mMaster.configContinuousCurrentLimit(mConstants.kContinuousCurrentLimit, Constants.kLongCANTimeoutMs),
                 mConstants.kName + ": Could not set continuous current limit.");
 
-        TalonUtil.checkError(
+        SparkMaxUtil.checkError(
                 mMaster.configPeakCurrentLimit(mConstants.kPeakCurrentLimit, Constants.kLongCANTimeoutMs),
                 mConstants.kName + ": Could not set peak current limit.");
 
-        TalonUtil.checkError(
+        SparkMaxUtil.checkError(
                 mMaster.configPeakCurrentDuration(mConstants.kPeakCurrentDuration, Constants.kLongCANTimeoutMs),
                 mConstants.kName + ": Could not set peak current duration.");
         mMaster.enableCurrentLimit(true);
@@ -178,7 +178,7 @@ public abstract class NEOServoMotorSubsystem extends Subsystem {
         mMaster.configVoltageMeasurementFilter(8);
 
 
-        TalonUtil.checkError(
+        SparkMaxUtil.checkError(
                 mMaster.configVoltageCompSaturation(mConstants.kMaxVoltage, Constants.kLongCANTimeoutMs),
                 mConstants.kName + ": Could not set voltage comp saturation.");
         mMaster.enableVoltageCompensation(true);
@@ -242,7 +242,7 @@ public abstract class NEOServoMotorSubsystem extends Subsystem {
         mPeriodicIO.timestamp = Timer.getFPGATimestamp();
 
         if (mMaster.hasResetOccurred()) {
-            DriverStation.reportError(mConstants.kName + ": Talon Reset! ", false);
+            DriverStation.reportError(mConstants.kName + ": Spark MAX Reset! ", false);
             mPeriodicIO.reset_occured = true;
             return;
         } else {
@@ -251,7 +251,7 @@ public abstract class NEOServoMotorSubsystem extends Subsystem {
 
         mMaster.getStickyFaults(mFaults);
         if (mFaults.hasAnyFault()) {
-            DriverStation.reportError(mConstants.kName + ": Talon Fault! " + mFaults.toString(), false);
+            DriverStation.reportError(mConstants.kName + ": Spark MAX Fault! " + mFaults.toString(), false);
             mMaster.clearStickyFaults(0);
         }
         if (mMaster.getControlMode() == ControlMode.MotionMagic) {
@@ -348,7 +348,7 @@ public abstract class NEOServoMotorSubsystem extends Subsystem {
             @Override
             public void onLoop(double timestamp) {
                 if (mPeriodicIO.reset_occured) {
-                    System.out.println(mConstants.kName + ": Master Talon reset occurred; resetting frame rates.");
+                    System.out.println(mConstants.kName + ": Master Spark MAX reset occurred; resetting frame rates.");
                     mMaster.setStatusFramePeriod(StatusFrameEnhanced.Status_2_Feedback0, 10, 20);
                     mMaster.setStatusFramePeriod(StatusFrameEnhanced.Status_10_MotionMagic, 10, 20);
                     mMaster.setStatusFramePeriod(StatusFrameEnhanced.Status_8_PulseWidth, mConstants.kStastusFrame8UpdateRate, 20);
