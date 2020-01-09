@@ -24,7 +24,6 @@ public class Elevator extends ServoMotorSubsystem {
         if (mInstance == null) {
             mInstance = new Elevator(Constants.kElevatorConstants);
         }
-
         return mInstance;
     }
 

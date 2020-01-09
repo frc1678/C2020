@@ -8,6 +8,8 @@ import com.team1678.frc2020.subsystems.DiskBrake;
 import com.team1678.frc2020.subsystems.Canifier;
 import com.team254.lib.util.Util;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
 public class Climber extends Subsystem  {
     static Climber mInstance = null;
     private Elevator mElevator = Elevator.getInstance();
@@ -18,11 +20,11 @@ public class Climber extends Subsystem  {
     private DiskBrake.WantedAction mDiskBrakeGoal = DiskBrake.WantedAction.RELEASE;
     
     public enum WantedAction {
-        NONE, SECURE, REACH, HOOK, ADJUST, CLIMB, BRAKE,
+        NONE, SECURE, REACH, HOOK, ADJUST, WRANGLE, CLIMB, BRAKE,
     }
 
     private enum State {
-        IDLE, SECURING, REACHING, HOOKING, ADJUSTING, CLIMBING, BRAKING,
+        IDLE, SECURING, REACHING, HOOKING, ADJUSTING, WRANGLING, CLIMBING, BRAKING,
     }
 
     private State mState = State.IDLE;
@@ -41,6 +43,7 @@ public class Climber extends Subsystem  {
 
     @Override
     public void outputTelemetry() {
+        SmartDashboard.putString("ClimberState", mState.name());
     }
 
     @Override

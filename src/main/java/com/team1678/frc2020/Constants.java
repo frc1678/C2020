@@ -51,12 +51,14 @@ public class Constants {
     public static final int kDriveVelocityIZone = 0;
     public static final double kDriveVoltageRampRate = 0.0;
 
-    // drive
+    // motor IDs
     public static final int kLeftDriveMasterId = 1;
     public static final int kLeftDriveSlaveId = 2;
 
     public static final int kRightDriveMasterId = 3;
     public static final int kRightDriveSlaveId = 4;
+
+    public static final int kWranglerId = 5;
 
     // elevator
     public static final ServoMotorSubsystemConstants kElevatorConstants = new ServoMotorSubsystemConstants();
@@ -121,6 +123,7 @@ public class Constants {
     // solenoids
     public static final int kPCMId = 1;
     public static final int kDiskBrakeSolenoidId = 0;
+    public static final int kDeployerSolenoidId = 2;
 
     // limelight
     public static final double kHorizontalFOV = 59.6; // degrees

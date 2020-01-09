@@ -5,7 +5,7 @@ public class ClimberConstants { // TODO(Hanson) tune everything
     // Godmode multiplier ratio
     public final static double kElevatorGodmodeThrottle = 60. / 50.;
 
-    // elevator constants, in inches
+    // Elevator constants, in inches
     public static double kElevatorMinHeight = 0.;
     public static double kElevatorMaxHeight = 69.;
     public static double kGroundHeight = 0.;
