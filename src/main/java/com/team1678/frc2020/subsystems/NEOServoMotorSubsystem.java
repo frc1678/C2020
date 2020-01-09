@@ -1,5 +1,9 @@
 package com.team1678.frc2020.subsystems;
 
+import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkMax.IdleMode;
+import com.revrobotics.ControlType;
+import com.revrobotics.CANEncoder;
 //import com.ctre.phoenix.motorcontrol.*;
 //import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.team1678.frc2020.Constants;
@@ -88,14 +92,16 @@ public abstract class NEOServoMotorSubsystem extends Subsystem {
         mMaster.enableVoltageCompensation(1);
 
         mMaster.setInverted(mConstants.kMasterConstants.invert_motor);
-        mMaster.setSensorPhase(mConstants.kMasterConstants.invert_sensor_phase);
-        mMaster.setNeutralMode(NeutralMode.Brake);
-        mMaster.setStatusFramePeriod(StatusFrameEnhanced.Status_2_Feedback0, 10, 20);
-        mMaster.setStatusFramePeriod(StatusFrameEnhanced.Status_10_MotionMagic, 10, 20);
-        mMaster.setStatusFramePeriod(StatusFrameEnhanced.Status_8_PulseWidth, mConstants.kStastusFrame8UpdateRate, 20);
+
+        //  All these are for Talons
+        //mMaster.setSensorPhase(mConstants.kMasterConstants.invert_sensor_phase);
+        //mMaster.setNeutralMode(NeutralMode.Brake);
+        //mMaster.setStatusFramePeriod(StatusFrameEnhanced.Status_2_Feedback0, 10, 20);
+        //mMaster.setStatusFramePeriod(StatusFrameEnhanced.Status_10_MotionMagic, 10, 20);
+        //mMaster.setStatusFramePeriod(StatusFrameEnhanced.Status_8_PulseWidth, mConstants.kStastusFrame8UpdateRate, 20);
 
         // Start with kMotionProfileSlot.
-        mMaster.selectProfileSlot(kMotionProfileSlot, 0);
+        //mMaster.selectProfileSlot(kMotionProfileSlot, 0);
 
         // The accel term can re-use the velocity unit conversion because both input and output units are per second.
         mMotionProfileConstraints = new MotionProfileConstraints(ticksPer100msToUnitsPerSecond(mConstants.kCruiseVelocity), ticksPer100msToUnitsPerSecond(mConstants.kAcceleration));
@@ -137,7 +143,7 @@ public abstract class NEOServoMotorSubsystem extends Subsystem {
     protected ControlState mControlState = ControlState.OPEN_LOOP;
     protected ReflectingCSVWriter<PeriodicIO> mCSVWriter = null;
     protected boolean mHasBeenZeroed = false;
-    protected StickyFaults mFaults = new StickyFaults();
+    //protected StickyFaults mFaults = new StickyFaults();
     protected SetpointGenerator mSetpointGenerator = new SetpointGenerator();
     protected MotionProfileConstraints mMotionProfileConstraints;
 

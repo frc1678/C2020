@@ -28,6 +28,7 @@ import com.team254.lib.motion.SetpointGenerator;
 import com.team254.lib.motion.SetpointGenerator.Setpoint;
 import com.team254.lib.util.ReflectingCSVWriter;
 import com.team254.lib.drivers.LazySparkMax;
+import com.team254.lib.drivers.SparkMaxFactory;
 
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
@@ -56,7 +57,7 @@ public class Hood extends Subsystem {
     }
 
     private enum State {
-        IDLE, UPING, DOWNING, AIMED, MAX,
+        IDLE, UPING, DOWNING, AIMED, MAX, MIN,
     }
 
     private State mState = State.IDLE;
@@ -73,10 +74,15 @@ public class Hood extends Subsystem {
 
     private ReflectingCSVWriter<PeriodicIO> mCSVWriter = null;
 
+    private void configureSpark(LazySparkMax sparkMax, boolean left, boolean master) {
+        sparkMax.setInverted(!left);
+        sparkMax.enableVoltageCompensation(12.0);
+        sparkMax.setClosedLoopRampRate(Constants.kDriveVoltageRampRate);
+    }
+
     private Hood() {
-        mMaster = new LazySparkMax(Ports.HOOD);
-        mMaster.configFactoryDefault();
-        Encoder mEncoder;
+        mMaster = SparkMaxFactory.createDefaultSparkMax(Constants.kLeftDriveMasterId)
+        configureSpark(mMaster, true, true);
     }
 
     public synchronized static Hood getInstance() {
@@ -95,11 +101,6 @@ public class Hood extends Subsystem {
         if (mCSVWriter != null) {
             mCSVWriter.write();
         }
-    }
-
-    @Override
-    public double Aim(){
-
     }
 
     @Override
@@ -143,7 +144,7 @@ public class Hood extends Subsystem {
     }
 
 
-    public void runStateMachine() {
+    public void runStateMachine(boolean modifyOutputs) {
         switch (mState) {
         case IDLE:
             mPeriodicIO.demand = 0;
@@ -151,10 +152,11 @@ public class Hood extends Subsystem {
             mPeriodicIO.maxed = false;
         case UPING:
             mPeriodicIO.demand = riseVoltage;
+            //mMaster.
             mPeriodicIO.isReady = false;
             mPeriodicIO.maxed = false;
         case DOWNING:
-            mPeriodicIO.demand = dropVoltae;
+            mPeriodicIO.demand = dropVoltage;
             mPeriodicIO.isReady = false;
             mPeriodicIO.maxed = false;
         case AIMED:
@@ -162,6 +164,10 @@ public class Hood extends Subsystem {
             mPeriodicIO.isReady = true;
             mPeriodicIO.maxed = false;
         case MAX:
+            mPeriodicIO.demand = 0;
+            mPeriodicIO.isReady = false;
+            mPeriodicIO.maxed = true;
+        case MIN:
             mPeriodicIO.demand = 0;
             mPeriodicIO.isReady = false;
             mPeriodicIO.maxed = true;
@@ -185,7 +191,7 @@ public class Hood extends Subsystem {
                 mState = State.IDLE;
             }
         case DOWN:
-            if (mState == State.DOWN){
+            if (mState == State.DOWNING){
                 mState = State.IDLE;
             }
         }
@@ -207,7 +213,11 @@ public class Hood extends Subsystem {
 
     @Override
     public synchronized void writePeriodicOutputs() {
-
+        if (mPeriodicIO.currentPos > mPeriodicIO.wantedPos){
+            setState(WantedAction.DOWN);
+        } else {
+            setState(WantedAction.UP);
+        }
         // Use .set on each of your actuators to whatever output you have been setting from periodicIO. This is also a good place to add limits to your code. 
     
     }
@@ -215,11 +225,12 @@ public class Hood extends Subsystem {
     @Override
     public boolean checkSystem() {
     // Use CheckMotor function on any motor you have that uses PID, else just return true in this block
+    return true;
     }
 
     public synchronized void startLogging() {
         if (mCSVWriter == null) {
-            mCSVWriter = new ReflectingCSVWriter<>("/home/lvuser//*SUBSYSTEM XXXXXXXXX, make sure it is in CAPS*/-LOGS.csv", PeriodicIO.class);
+            mCSVWriter = new ReflectingCSVWriter<>("/home/lvuser/HOOD-LOGS.csv", PeriodicIO.class);
         }
     }
 
@@ -234,7 +245,10 @@ public class Hood extends Subsystem {
         // INPUTS
         public double timestamp;
         // public double motorTempature;
+        public double currentPos;
+        public double wantedPos;
   
+
         // OUTPUTS
         public double demand;
         public boolean isReady;
