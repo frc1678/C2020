@@ -115,6 +115,7 @@ public class Climber extends Subsystem  {
         case BRAKING:
             mHeightGoal = ClimberConstants.kClimbHeight;
             if (mElevator.getPosition() <= ClimberConstants.kClimbHeight + 1.) {
+                mHeightGoal = mElevator.getPosition();
                 mDiskBrakeGoal = DiskBrake.WantedAction.BRAKE;
             }
             break;
@@ -148,6 +149,8 @@ public class Climber extends Subsystem  {
         case BRAKE:
             mState = State.BRAKING;
             break;
+        default:
+            System.out.println("No climber goal!");
         }
     }
 
