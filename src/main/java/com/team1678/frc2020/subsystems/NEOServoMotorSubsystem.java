@@ -1,14 +1,16 @@
 package com.team1678.frc2020.subsystems;
 
-// import com.ctre.phoenix.motorcontrol.*;
-// import com.ctre.phoenix.motorcontrol.can.TalonSRX;
+//import com.ctre.phoenix.motorcontrol.*;
+//import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.team1678.frc2020.Constants;
 import com.team1678.frc2020.loops.ILooper;
 import com.team1678.frc2020.loops.Loop;
 import com.team254.lib.drivers.SparkMaxFactory;
 import com.team254.lib.drivers.SparkMaxUtil;
 import com.team254.lib.motion.MotionProfileConstraints;
+//import com.ctre.phoenix.motorcontrol.can.BaseMotorController;
 import com.team254.lib.motion.MotionProfileGoal;
+import com.team254.lib.drivers.LazySparkMax;
 import com.team254.lib.motion.MotionState;
 import com.team254.lib.motion.SetpointGenerator;
 import com.team254.lib.motion.SetpointGenerator.Setpoint;
@@ -74,114 +76,16 @@ public abstract class NEOServoMotorSubsystem extends Subsystem {
     }
 
     protected final NEOServoMotorSubsystemConstants mConstants;
-    protected final SparkMaxConstants mMaster;
+    protected final LazySparkMax mMaster;
 
     protected final int mForwardSoftLimitTicks;
     protected final int mReverseSoftLimitTicks;
 
     protected NEOServoMotorSubsystem(final NEOServoMotorSubsystemConstants constants) {
         mConstants = constants;
-        mMaster = SparkMaxFactory.createSparkMax(mConstants.kMasterConstants.id);
+        mMaster = SparkMaxFactory.createDefaultSparkMax(mConstants.kMasterConstants.id);
 
-        SparkMaxUtil.checkError(mMaster.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, 0,
-                Constants.kLongCANTimeoutMs), mConstants.kName + ": Could not detect encoder: ");
-
-        mForwardSoftLimitTicks = (int) ((mConstants.kMaxUnitsLimit - mConstants.kHomePosition) * mConstants.kTicksPerUnitDistance);
-        SparkMaxUtil.checkError(
-                mMaster.configForwardSoftLimitThreshold(mForwardSoftLimitTicks, Constants.kLongCANTimeoutMs),
-                mConstants.kName + ": Could not set forward soft limit: ");
-
-        SparkMaxUtil.checkError(mMaster.configForwardSoftLimitEnable(true, Constants.kLongCANTimeoutMs),
-                mConstants.kName + ": Could not enable forward soft limit: ");
-
-        mReverseSoftLimitTicks = (int) ((mConstants.kMinUnitsLimit - mConstants.kHomePosition) * mConstants.kTicksPerUnitDistance);
-        SparkMaxUtil.checkError(
-                mMaster.configReverseSoftLimitThreshold(mReverseSoftLimitTicks, Constants.kLongCANTimeoutMs),
-                mConstants.kName + ": Could not set reverse soft limit: ");
-
-        SparkMaxUtil.checkError(mMaster.configReverseSoftLimitEnable(true, Constants.kLongCANTimeoutMs),
-                mConstants.kName + ": Could not enable reverse soft limit: ");
-
-        SparkMaxUtil.checkError(mMaster.configVoltageCompSaturation(12.0, Constants.kLongCANTimeoutMs),
-                mConstants.kName + ": Could not set voltage compensation saturation: ");
-
-        SparkMaxUtil.checkError(mMaster.config_kP(kMotionProfileSlot, mConstants.kKp, Constants.kLongCANTimeoutMs),
-                mConstants.kName + ": could not set kP: ");
-
-        SparkMaxUtil.checkError(mMaster.config_kI(kMotionProfileSlot, mConstants.kKi, Constants.kLongCANTimeoutMs),
-                mConstants.kName + ": could not set kI: ");
-
-        SparkMaxUtil.checkError(mMaster.config_kD(kMotionProfileSlot, mConstants.kKd, Constants.kLongCANTimeoutMs),
-                mConstants.kName + ": could not set kD: ");
-
-        SparkMaxUtil.checkError(mMaster.config_kF(kMotionProfileSlot, mConstants.kKf, Constants.kLongCANTimeoutMs),
-                mConstants.kName + ": Could not set kF: ");
-
-        SparkMaxUtil.checkError(mMaster.configMaxIntegralAccumulator(kMotionProfileSlot, mConstants.kMaxIntegralAccumulator,
-                Constants.kLongCANTimeoutMs), mConstants.kName + ": Could not set max integral: ");
-
-        SparkMaxUtil.checkError(mMaster.config_IntegralZone(kMotionProfileSlot, mConstants.kIZone, Constants.kLongCANTimeoutMs),
-                mConstants.kName + ": Could not set i zone: ");
-
-        SparkMaxUtil.checkError(
-                mMaster.configAllowableClosedloopError(kMotionProfileSlot, mConstants.kDeadband, Constants.kLongCANTimeoutMs),
-                mConstants.kName + ": Could not set deadband: ");
-
-        SparkMaxUtil.checkError(mMaster.config_kP(kPositionPIDSlot, mConstants.kPositionKp, Constants.kLongCANTimeoutMs),
-                mConstants.kName + ": could not set kP: ");
-
-        SparkMaxUtil.checkError(mMaster.config_kI(kPositionPIDSlot, mConstants.kPositionKi, Constants.kLongCANTimeoutMs),
-                mConstants.kName + ": could not set kI: ");
-
-        SparkMaxUtil.checkError(mMaster.config_kD(kPositionPIDSlot, mConstants.kPositionKd, Constants.kLongCANTimeoutMs),
-                mConstants.kName + ": could not set kD: ");
-
-        SparkMaxUtil.checkError(mMaster.config_kF(kPositionPIDSlot, mConstants.kPositionKf, Constants.kLongCANTimeoutMs),
-                mConstants.kName + ": Could not set kF: ");
-
-        SparkMaxUtil.checkError(mMaster.configMaxIntegralAccumulator(kPositionPIDSlot, mConstants.kPositionMaxIntegralAccumulator,
-                Constants.kLongCANTimeoutMs), mConstants.kName + ": Could not set max integral: ");
-
-        SparkMaxUtil.checkError(mMaster.config_IntegralZone(kPositionPIDSlot, mConstants.kPositionIZone, Constants.kLongCANTimeoutMs),
-                mConstants.kName + ": Could not set i zone: ");
-
-        SparkMaxUtil.checkError(
-                mMaster.configAllowableClosedloopError(kPositionPIDSlot, mConstants.kPositionDeadband, Constants.kLongCANTimeoutMs),
-                mConstants.kName + ": Could not set deadband: ");
-
-        SparkMaxUtil.checkError(
-                mMaster.configMotionCruiseVelocity(mConstants.kCruiseVelocity, Constants.kLongCANTimeoutMs),
-                mConstants.kName + ": Could not set cruise velocity: ");
-
-        SparkMaxUtil.checkError(mMaster.configMotionAcceleration(mConstants.kAcceleration, Constants.kLongCANTimeoutMs),
-                mConstants.kName + ": Could not set acceleration: ");
-
-        SparkMaxUtil.checkError(mMaster.configOpenloopRamp(mConstants.kRampRate, Constants.kLongCANTimeoutMs),
-                mConstants.kName + ": Could not set voltage ramp rate: ");
-
-        SparkMaxUtil.checkError(mMaster.configClosedloopRamp(mConstants.kRampRate, Constants.kLongCANTimeoutMs),
-                mConstants.kName + ": Could not set closed loop ramp rate: ");
-
-        SparkMaxUtil.checkError(
-                mMaster.configContinuousCurrentLimit(mConstants.kContinuousCurrentLimit, Constants.kLongCANTimeoutMs),
-                mConstants.kName + ": Could not set continuous current limit.");
-
-        SparkMaxUtil.checkError(
-                mMaster.configPeakCurrentLimit(mConstants.kPeakCurrentLimit, Constants.kLongCANTimeoutMs),
-                mConstants.kName + ": Could not set peak current limit.");
-
-        SparkMaxUtil.checkError(
-                mMaster.configPeakCurrentDuration(mConstants.kPeakCurrentDuration, Constants.kLongCANTimeoutMs),
-                mConstants.kName + ": Could not set peak current duration.");
-        mMaster.enableCurrentLimit(true);
-
-        mMaster.configVoltageMeasurementFilter(8);
-
-
-        SparkMaxUtil.checkError(
-                mMaster.configVoltageCompSaturation(mConstants.kMaxVoltage, Constants.kLongCANTimeoutMs),
-                mConstants.kName + ": Could not set voltage comp saturation.");
-        mMaster.enableVoltageCompensation(true);
+        mMaster.enableVoltageCompensation(1);
 
         mMaster.setInverted(mConstants.kMasterConstants.invert_motor);
         mMaster.setSensorPhase(mConstants.kMasterConstants.invert_sensor_phase);

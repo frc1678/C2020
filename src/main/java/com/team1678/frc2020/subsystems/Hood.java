@@ -98,7 +98,7 @@ public class Hood extends Subsystem {
     }
 
     @Override
-    public void Aim(){
+    public double Aim(){
 
     }
 
@@ -109,7 +109,6 @@ public class Hood extends Subsystem {
 
     @Override
     public void zeroSensors() {
-        mPeriodicInputs = new PeriodicInputs();
     }
 
     @Override
