@@ -130,4 +130,3 @@ public class DiskBrake extends Subsystem {
         public boolean disk_brake_solenoid_;
     }
 }
-
