@@ -2,13 +2,6 @@ package com.team1678.frc2020.subsystems;
 
 import com.team1678.frc2020.Constants;
 import com.team1678.frc2020.RobotState;
-import com.team254.lib.geometry.Pose2d;
-import com.team254.lib.geometry.Rotation2d;
-import com.team254.lib.geometry.Translation2d;
-import com.team254.lib.util.Util;
-import com.team254.lib.vision.TargetInfo;
-import edu.wpi.first.networktables.NetworkTable;
-import edu.wpi.first.networktables.NetworkTableInstance;
 //import com.ctre.phoenix.motorcontrol.*;
 //import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 //import com.ctre.phoenix.motorcontrol.can.TalonFX;
@@ -19,19 +12,10 @@ import com.revrobotics.ControlType;
 import com.revrobotics.CANEncoder;
 import com.team1678.frc2020.loops.ILooper;
 import com.team1678.frc2020.loops.Loop;
-import com.team254.lib.drivers.TalonSRXFactory;
-import com.team254.lib.drivers.TalonUtil;
-import com.team254.lib.motion.MotionProfileConstraints;
-import com.team254.lib.motion.MotionProfileGoal;
-import com.team254.lib.motion.MotionState;
-import com.team254.lib.motion.SetpointGenerator;
-import com.team254.lib.motion.SetpointGenerator.Setpoint;
 import com.team254.lib.util.ReflectingCSVWriter;
 import com.team254.lib.drivers.LazySparkMax;
 import com.team254.lib.drivers.SparkMaxFactory;
 
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import java.util.ArrayList;
@@ -68,9 +52,8 @@ public class Hood extends Subsystem {
     private final PeriodicIO mPeriodicIO = new PeriodicIO();
 
     // Motors, sensors, and the solenoids
-    //private final LazyTalonSRX mMaster;
     private final LazySparkMax mMaster;
-    private final Encoder mEncoder;
+    //private final Encoder mEncoder;
 
     private ReflectingCSVWriter<PeriodicIO> mCSVWriter = null;
 
@@ -81,7 +64,7 @@ public class Hood extends Subsystem {
     }
 
     private Hood() {
-        mMaster = SparkMaxFactory.createDefaultSparkMax(Constants.kLeftDriveMasterId)
+        mMaster = SparkMaxFactory.createDefaultSparkMax(Constants.kLeftDriveMasterId);
         configureSpark(mMaster, true, true);
     }
 
