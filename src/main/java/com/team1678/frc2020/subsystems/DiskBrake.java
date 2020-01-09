@@ -14,7 +14,7 @@ public class DiskBrake extends Subsystem {
     }
 
     private enum State {
-        ENGAGED, DISENGAGED
+        ENGAGED, DISENGAGED,
     }
 
     private State mState = State.DISENGAGED;

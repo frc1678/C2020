@@ -1,4 +1,4 @@
-package com.team1678.frc2020.states;
+package com.team1678.frc2020.constants;
 
 public class ClimberConstants { // TODO(Hanson) tune everything
 

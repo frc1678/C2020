@@ -2,7 +2,7 @@ package com.team1678.frc2020.subsystems;
 
 import com.team1678.frc2020.loops.ILooper;
 import com.team1678.frc2020.loops.Loop;
-import com.team1678.frc2020.states.ClimberConstants;
+import com.team1678.frc2020.constants.ClimberConstants;
 import com.team1678.frc2020.subsystems.Elevator;
 import com.team1678.frc2020.subsystems.DiskBrake;
 import com.team1678.frc2020.subsystems.Canifier;
