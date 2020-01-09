@@ -1,13 +1,8 @@
 package com.team1678.frc2020.subsystems;
 
-import java.util.ArrayList;
-
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.DemandType;
-import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.team1678.frc2020.Constants;
-import com.team254.lib.drivers.MotorChecker;
-import com.team254.lib.drivers.TalonFXChecker;
 import com.team254.lib.drivers.TalonUtil;
 import com.team254.lib.util.LatchedBoolean;
 
@@ -80,23 +75,6 @@ public class Turret extends ServoMotorSubsystem {
 
     @Override
     public boolean checkSystem() {
-        return TalonFXChecker.checkMotors(this,
-                new ArrayList<MotorChecker.MotorConfig<TalonFX>>() {
-                    private static final long serialVersionUID = 1636612675181038895L;  // TODO find the right number
-
-					{
-                        add(new MotorChecker.MotorConfig<>("master", mMaster));
-                    }
-                }, new MotorChecker.CheckerConfig() {
-                    {   // TODO change to legit config
-                        mRunOutputPercentage = 0.1;
-                        mRunTimeSec = 1.0;
-                        mCurrentFloor = 0.1;
-                        mRPMFloor = 90;
-                        mCurrentEpsilon = 2.0;
-                        mRPMEpsilon = 200;
-                        mRPMSupplier = mMaster::getSelectedSensorVelocity;
-                    }
-                });
+        return false;
     }
 }

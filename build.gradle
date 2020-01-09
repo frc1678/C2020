@@ -3,13 +3,6 @@ plugins {
     id "edu.wpi.first.GradleRIO" version "2020.1.2"
 }
 
-// // Configuring the wrapper, the new way (since Gradle 4.8) 
-// // see https://docs.gradle.org/current/userguide/gradle_wrapper.html#customizing_wrapper
-// wrapper{
-//     gradleVersion = '6.0.1'
-//     distributionType = Wrapper.DistributionType.BIN
-// }
-
 sourceCompatibility = JavaVersion.VERSION_11
 targetCompatibility = JavaVersion.VERSION_11
 
