@@ -6,7 +6,7 @@ import com.team1678.frc2020.subsystems.Limelight.LimelightConstants;
 import com.team254.lib.geometry.Pose2d;
 import com.team254.lib.geometry.Rotation2d;
 import com.team254.lib.geometry.Translation2d;
-
+import edu.wpi.first.wpilibj.Solenoid;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.util.Enumeration;
@@ -58,6 +58,56 @@ public class Constants {
     public static final int kRightDriveMasterId = 3;
     public static final int kRightDriveSlaveId = 4;
 
+    // elevator
+    public static final ServoMotorSubsystemConstants kElevatorConstants = new ServoMotorSubsystemConstants();
+    static {
+        kElevatorConstants.kName = "Elevator";
+
+        kElevatorConstants.kMasterConstants.id = 1;
+        kElevatorConstants.kMasterConstants.invert_motor = false;
+        kElevatorConstants.kMasterConstants.invert_sensor_phase = false;
+        kElevatorConstants.kSlaveConstants = new TalonSRXConstants[2];
+
+        kElevatorConstants.kSlaveConstants[0] = new TalonSRXConstants();
+        kElevatorConstants.kSlaveConstants[1] = new TalonSRXConstants();
+
+        kElevatorConstants.kSlaveConstants[0].id = 2;
+        kElevatorConstants.kSlaveConstants[0].invert_motor = false;
+        kElevatorConstants.kSlaveConstants[1].id = 3;
+        kElevatorConstants.kSlaveConstants[1].invert_motor = false;
+
+        // Unit == Inches
+        kElevatorConstants.kHomePosition = 10.25;  // Inches off ground
+        kElevatorConstants.kTicksPerUnitDistance = 4096.0 / (1.75 * Math.PI);
+        kElevatorConstants.kKp = 0.5;
+        kElevatorConstants.kKi = 0;
+        kElevatorConstants.kKd = 10;
+        kElevatorConstants.kKf = .248;
+        kElevatorConstants.kKa = 0.0;
+        kElevatorConstants.kMaxIntegralAccumulator = 0;
+        kElevatorConstants.kIZone = 0; // Ticks
+        kElevatorConstants.kDeadband = 0; // Ticks
+
+        kElevatorConstants.kPositionKp = 0.5;
+        kElevatorConstants.kPositionKi = 0;
+        kElevatorConstants.kPositionKd = 10;
+        kElevatorConstants.kPositionKf = 0;
+        kElevatorConstants.kPositionMaxIntegralAccumulator = 0;
+        kElevatorConstants.kPositionIZone = 0; // Ticks
+        kElevatorConstants.kPositionDeadband = 0; // Ticks
+
+        kElevatorConstants.kMaxUnitsLimit = 31.1; // inches
+        kElevatorConstants.kMinUnitsLimit = 0.0; // inches
+
+        kElevatorConstants.kCruiseVelocity = 4000; // Ticks / 100ms
+        kElevatorConstants.kAcceleration = 8000; // Ticks / 100ms / s
+        kElevatorConstants.kRampRate = 0.005; // s
+        kElevatorConstants.kContinuousCurrentLimit = 35; // amps
+        kElevatorConstants.kPeakCurrentLimit = 40; // amps
+        kElevatorConstants.kPeakCurrentDuration = 10; // milliseconds
+
+    }
+
     // pigeon
     public static final int kPigeonIMUId = 15;
 
@@ -70,12 +120,7 @@ public class Constants {
 
     // solenoids
     public static final int kPCMId = 1;
-    public static final int kShifterSolenoidId = 7;
-    public static final int kBallIntakeJawId = 6;
-    public static final int kKickstandForwardId = 1; // deploys
-    public static final int kKickstandReverseId = 0; // retracts
-    public static final int kRatchetForwardId = 3; // deploys
-    public static final int kRatchetReverseId = 2; // retracts
+    public static final int kDiskBrakeSolenoidId = 0;
 
     // limelight
     public static final double kHorizontalFOV = 59.6; // degrees
@@ -101,6 +146,8 @@ public class Constants {
 
     public static final double kTurretToArmOffset = -2.5;  // in
     public static final double kWristToTremorsEnd = 15.75;  // in
+
+    public static final int kCanifierId = 0;
 
     // Top limelight
     public static final LimelightConstants kTopLimelightConstants = new LimelightConstants();
@@ -132,6 +179,13 @@ public class Constants {
     public static final double kStingerForwardPower = 0.8;
     public static final double kClimbingElevatorHeightForLowShift = 10.0; // in
 
+    public static Solenoid makeSolenoidForId(int solenoidId) {
+        if (solenoidId < 8) {
+            return new Solenoid(solenoidId);
+        }
+        throw new IllegalArgumentException("Solenoid ID not valid: " + solenoidId);
+    }
+    
     /**
      * @return the MAC address of the robot
      */
