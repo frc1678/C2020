@@ -153,6 +153,7 @@ public class Constants {
     }
 
     // hood
+    // TODO: change the values when prototyping is done
     public static final ServoMotorSubsystemConstants kHoodConstants = new ServoMotorSubsystemConstants();
     static {
         kHoodConstants.kName = "Wrist";
