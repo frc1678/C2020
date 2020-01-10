@@ -62,10 +62,11 @@ public class Intake extends Subsystem {
 
         mMaster.set(ControlMode.PercentOutput, 0);
         mMaster.setInverted(false);
-        // TODO (eithne) add mMaster config voltage saturation
+        mMaster.configVoltageCompSaturation(12);
+        mMaster.enableVoltageCompensation(true);
     }
 
-    public synchronized static Intake getInstIntake() {
+    public synchronized static Intake getInstance() {
         if (mInstanceIntake == null) {
             mInstanceIntake = new Intake();
         }
@@ -145,8 +146,8 @@ public class Intake extends Subsystem {
         return mPeriodicIO.demand;
     }
     public void setState () {
-        
     }
+
     @Override
     public synchronized void readPeriodicInputs() {
         if (mCsvWriter != null) {
