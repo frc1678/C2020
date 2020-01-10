@@ -152,6 +152,46 @@ public class Constants {
         kTurretConstants.kRecoverPositionOnReset = true;
     }
 
+    // hood
+    public static final ServoMotorSubsystemConstants kHoodConstants = new ServoMotorSubsystemConstants();
+    static {
+        kHoodConstants.kName = "Wrist";
+
+        kHoodConstants.kMasterConstants.id = 5;
+        kHoodConstants.kMasterConstants.invert_motor = true;
+        kHoodConstants.kMasterConstants.invert_sensor_phase = false;
+
+        // Unit == Degrees
+        kHoodConstants.kHomePosition = 0.0;  // Degrees
+        kHoodConstants.kTicksPerUnitDistance = (4096.0 * 3.0) / 360.0;
+        kHoodConstants.kKp = 2.25;
+        kHoodConstants.kKi = 0;
+        kHoodConstants.kKd = 200;
+        kHoodConstants.kKf = 0.6;
+        kHoodConstants.kMaxIntegralAccumulator = 0;
+        kHoodConstants.kIZone = 0; // Ticks
+        kHoodConstants.kDeadband = 0; // Ticks
+
+        kHoodConstants.kPositionKp = 2.25;
+        kHoodConstants.kPositionKi = 0;
+        kHoodConstants.kPositionKd = 200;
+        kHoodConstants.kPositionKf = 0.0;
+        kHoodConstants.kPositionMaxIntegralAccumulator = 0;
+        kHoodConstants.kPositionIZone = 0; // Ticks
+        kHoodConstants.kPositionDeadband = 0; // Ticks
+
+        kHoodConstants.kMinUnitsLimit = -135.0;
+        kHoodConstants.kMaxUnitsLimit = 45.0;
+
+        kHoodConstants.kCruiseVelocity = 800; // Ticks / 100ms
+        kHoodConstants.kAcceleration = 1600; // Ticks / 100ms / s
+        kHoodConstants.kRampRate = 0.005; // s
+        kHoodConstants.kContinuousCurrentLimit = 40; // amps
+        kHoodConstants.kPeakCurrentLimit = 60; // amps
+        kHoodConstants.kPeakCurrentDuration = 200; // milliseconds
+    }
+    public static final double kHoodToBottomEndEffectorLength = 15.91; // Length (in) from wrist joint to bottom of end effector
+
     // pigeon
     public static final int kPigeonIMUId = 15;
 
