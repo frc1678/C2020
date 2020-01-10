@@ -59,6 +59,8 @@ public class Constants {
     public static final int kRightDriveSlaveId = 4;
 
     public static final int kWranglerId = 5;
+    public static final int kWinchMasterId = 6;
+    public static final int kWinchSlaveId = 7;
 
     // elevator
     public static final ServoMotorSubsystemConstants kElevatorConstants = new ServoMotorSubsystemConstants();
@@ -122,7 +124,8 @@ public class Constants {
 
     // solenoids
     public static final int kPCMId = 1;
-    public static final int kDiskBrakeSolenoidId = 0;
+    public static final int kDiskBrakeSolenoidId = 3;
+    public static final int kArmSolenoidId = 0;
     public static final int kDeployerSolenoidId = 2;
 
     // limelight

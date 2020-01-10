@@ -36,7 +36,7 @@ public class DiskBrake extends Subsystem {
 
     @Override
     public synchronized void outputTelemetry() {
-        SmartDashboard.putBoolean("DiskBrake", mPeriodicOutputs.disk_brake_solenoid_);
+        SmartDashboard.putBoolean("DiskBrake", mPeriodicOutputs.disk_brake_solenoid);
     }
 
     @Override
@@ -70,19 +70,19 @@ public class DiskBrake extends Subsystem {
     }
 
     public synchronized boolean getDiskBrakeEngaged() {
-        return mDiskBrakeSolenoid.get() && mPeriodicOutputs.disk_brake_solenoid_;
+        return mDiskBrakeSolenoid.get() && mPeriodicOutputs.disk_brake_solenoid;
     }
 
     public void runStateMachine(boolean modifyOutputs) {
         switch (mState) {
         case ENGAGED:
             if (modifyOutputs) {    
-                mPeriodicOutputs.disk_brake_solenoid_ = true;
+                mPeriodicOutputs.disk_brake_solenoid = true;
             }
             break;
         case DISENGAGED:
             if (modifyOutputs) {
-                mPeriodicOutputs.disk_brake_solenoid_ = false;
+                mPeriodicOutputs.disk_brake_solenoid = false;
             }
             break;
         default:
@@ -91,11 +91,11 @@ public class DiskBrake extends Subsystem {
     }
 
     public void forceBrake() {
-        mPeriodicOutputs.disk_brake_solenoid_ = true;
+        mPeriodicOutputs.disk_brake_solenoid = true;
     }
 
     public void forceRelease() {
-        mPeriodicOutputs.disk_brake_solenoid_ = false;
+        mPeriodicOutputs.disk_brake_solenoid = false;
     }
 
     public void setState(WantedAction wanted_state) {
@@ -117,7 +117,7 @@ public class DiskBrake extends Subsystem {
 
     @Override
     public synchronized void writePeriodicOutputs() {
-        mDiskBrakeSolenoid.set(mPeriodicOutputs.disk_brake_solenoid_);
+        mDiskBrakeSolenoid.set(mPeriodicOutputs.disk_brake_solenoid);
     }
 
     @Override
@@ -127,6 +127,6 @@ public class DiskBrake extends Subsystem {
 
     public static class PeriodicOutputs {
         // OUTPUTS
-        public boolean disk_brake_solenoid_;
+        public boolean disk_brake_solenoid;
     }
 }
