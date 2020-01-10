@@ -4,6 +4,7 @@ import com.ctre.phoenix.motorcontrol.TalonFXFeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 
 import com.team1678.frc2020.Constants;
+import com.team1678.frc2020.subsystems.Canifier;
 import com.team254.lib.drivers.MotorChecker;
 import com.team254.lib.drivers.TalonFXChecker;
 import com.team1678.lib.drivers.TalonFXUtil;
@@ -27,7 +28,12 @@ public class Hood extends ServoMotorSubsystem {
 
         TalonFXUtil.errorCheck(mMaster.configSelectedFeedbackSensor(
                 TalonFXFeedbackDevice.IntegratedSensor, 0, Constants.kLongCANTimeoutMs),
-                "Could not detect wrist encoder: ");
+                "Could not detect hood encoder: ");
+    }
+
+    @Override
+    public synchronized boolean atHomingLocation() {
+        return Canifier.getInstance().getHoodLimit();
     }
 
     public synchronized double getAngle() {
