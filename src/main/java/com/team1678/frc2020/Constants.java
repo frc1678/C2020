@@ -107,6 +107,7 @@ public class Constants {
         kElevatorConstants.kPeakCurrentDuration = 10; // milliseconds
 
     }
+    public static final int kIntakeRollerID = 6; //get real ID from electrical 
 
     // pigeon
     public static final int kPigeonIMUId = 15;

@@ -5,14 +5,17 @@ import com.team1678.frc2020.loops.ILooper;
 import com.team1678.frc2020.loops.Loop;
 import com.team1678.frc2020.loops.Looper;
 import com.team1678.frc2020.subsystems.Drive.PeriodicIO;
+import com.team1678.frc2020.subsystems.Canifier;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.DemandType;
 import com.ctre.phoenix.motorcontrol.TalonFXControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.ctre.phoenix.CANifier;
+import com.ctre.phoenix.motorcontrol.can.BaseTalon;
 
+import com.team254.lib.drivers.BaseTalonChecker;
 import com.team254.lib.drivers.TalonFXFactory;
-import com.team254.lib.drivers.TalonFX;
 import com.team254.lib.drivers.MotorChecker;
 import com.team254.lib.util.ReflectingCSVWriter;
 import com.team254.lib.util.TimeDelayedBoolean;
@@ -27,21 +30,19 @@ public class Intake extends Subsystem {
     public static double outakingVoltage = -12.0;
     public static double idleVoltage = 0;
 
-    public static double kIntakeRollerId; 
-
-    public static Intake mInstanceIntake; 
+    public static Intake mInstanceIntake;
 
     public enum WantedAction {
         IDLE, INTAKING, OUTAKING,
     }
     public enum State {
-        IDLE, INTAKING, OUTAKING, 
+        IDLE, INTAKING, OUTAKING,
     }
     private State mState = State.IDLE;
 
     private boolean mRunningManual = false;
 
-    private PeriodicIO mPeriodicIO = new PeriodicIO();
+    private static PeriodicIO mPeriodicIO = new PeriodicIO();
     
     private final TalonFX mMaster;
 
@@ -57,11 +58,11 @@ public class Intake extends Subsystem {
     }
 
     private Intake() {
-        mMaster = TalonFXFactory.createDefaultTalon(Constants.kIntakeRollerId);
+        mMaster = TalonFXFactory.createDefaultTalon(6); // Constants.kIntakeRollerId); //  check constants for ID and name 
 
         mMaster.set(ControlMode.PercentOutput, 0);
         mMaster.setInverted(false);
-        // TODO (eithne) add mMaster config voltage saturation, forwardSoft, reverseSoft limit
+        // TODO (eithne) add mMaster config voltage saturation
     }
 
     public synchronized static Intake getInstIntake() {
@@ -76,21 +77,22 @@ public class Intake extends Subsystem {
         SmartDashboard.putNumber("Intake Current", mPeriodicIO.current);
 
         if (mCsvWriter != null) {
-            mCsvWriter.Writer;
+            mCsvWriter.write();
         }
     }
 
     @Override
     public void stop() {
+        mMaster.set(ControlMode.PercentOutput, 0);
     }
 
     @Override
     public void zeroSensors() {
     }
 
-   /* @Override
+   @Override
     public void registerEnabledLoops (ILooper enabledLooper) {
-        enabledLooper.register(new Loop {
+        enabledLooper.register(new Loop() {
             @Override
             public void onStart(double timestamp) {
                 mRunningManual = false;
@@ -115,40 +117,35 @@ public class Intake extends Subsystem {
 
             }
         });
-    } logger stuff talk to jishnu*/
-
-    public void runStateMachine(boolean modifyOutputs) {
-        switch(mState){
-        case INTAKING:
-            if () {
-                break;
-            }
-            if (modifyOutputs) {
-
-            }
-            break;
-        case OUTAKING:
-            if () {
-
-            } else if () {
-
-            }
-        case IDLE:
-            if () {
-                break;
-            }
-        }
-
     }
+    public void runStateMachine (boolean modifyingOutputs) {
+        switch (mState) {
+            case INTAKING:
+                if (modifyingOutputs) {
+                    mPeriodicIO.demand = intakingVoltage; 
+                }
+                break;
+            case OUTAKING:
+                if (modifyingOutputs) {
+                    mPeriodicIO.demand = outakingVoltage;
+                }
+                break;
+            case IDLE:
+                if (modifyingOutputs) {
+                    mPeriodicIO.demand = idleVoltage;
+                }
+        }
+    }
+
     public synchronized void setOpenLoop(double percentage) {
         mRunningManual = true;
         mPeriodicIO.demand = percentage;
     }
-    public void getVoltage() {
+    public double getVoltage() {
         return mPeriodicIO.demand;
     }
     public void setState () {
-
+        
     }
     @Override
     public synchronized void readPeriodicInputs() {
@@ -157,12 +154,30 @@ public class Intake extends Subsystem {
         }
     }
     @Override
+    public void writePeriodicOutputs() {
+        mMaster.set(ControlMode.PercentOutput, PeriodicIO.demand / 12.0);
+    }
+    @Override
     public boolean checkSystem() {
+        return BaseTalonChecker.checkMotors(this, new ArrayList<MotorChecker.MotorConfig<BaseTalon>>() {
+            private static final long serialVersionUID = -4824415636161505593L;
 
+            {
+                add(new MotorChecker.MotorConfig<>("intake_motor", mIntakeMotor));
+            }
+        }, new BaseTalonChecker.CheckerConfig() {
+            {
+                mCurrentFloor = 2;
+                mRPMFloor = 1500;
+                mCurrentEpsilon = 2.0;
+                mRPMEpsilon = 250;
+                mRPMSupplier = () -> mIntakeMotor.getSelectedSensorVelocity(0);
+            }
+        });
     }
     public synchronized void startLogging() {
         if (mCsvWriter == null) {
-            //mCsvWriter = new ReflectingCSVWriter<>("/home/, PeriodicIO.class)
+            mCsvWriter = new ReflectingCSVWriter<>("/home/lvuser/INTAKE-LOGS.csv", PeriodicIO.class); 
         }
     }
     public synchronized void stopLogging() {
