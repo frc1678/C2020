@@ -1,21 +1,30 @@
 package com.team1678.frc2020.subsystems;
+
 import com.team1678.frc2020.Constants;
 import com.team1678.frc2020.loops.ILooper;
 import com.team1678.frc2020.loops.Loop;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.TalonFXControlMode;
+
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
 import com.team254.lib.drivers.TalonFXFactory;
 import com.team254.lib.util.ReflectingCSVWriter;
+
 public class Shooter extends Subsystem {
     private static Shooter mInstance;
+
     private PeriodicIO mPeriodicIO = new PeriodicIO();
+
     private final TalonFX mMaster;
     private final TalonFX mSlave;
+
     private boolean spun_up;
+
     private static double kVelocityConversion = 600.0 / 2048.0;
     private static double kShooterTolerance = 600.0;
+
     private Shooter() {
         mMaster = TalonFXFactory.createDefaultTalon(Constants.kMasterFlywheelID);
         mSlave = TalonFXFactory.createDefaultTalon(Constants.kSlaveFlywheelID);
