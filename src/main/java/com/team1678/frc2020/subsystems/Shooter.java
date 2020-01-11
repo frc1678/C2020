@@ -45,7 +45,9 @@ public class Shooter extends Subsystem {
         }
         return mInstance;
     }
+
     private ReflectingCSVWriter<PeriodicIO> mCSVWriter = null;
+
     @Override
     public synchronized void outputTelemetry() {
         SmartDashboard.putNumber("ShooterVelocity", mPeriodicIO.velocity);
@@ -55,13 +57,16 @@ public class Shooter extends Subsystem {
             mCSVWriter.write();
         }
     }
+
     @Override
     public void stop() {
         setOpenLoop(0);
     }
+
     @Override
     public void zeroSensors() {
     }
+
     @Override
     public void registerEnabledLoops(ILooper enabledLooper) {
         enabledLooper.register(new Loop() {
@@ -76,12 +81,19 @@ public class Shooter extends Subsystem {
             }
         });
     }
+
     public synchronized void setOpenLoop(double percentage) {
         mMaster.set(TalonFXControlMode.PercentOutput, percentage);
     }
+
     public synchronized double getVoltage() {
         return mPeriodicIO.demand;
     }
+
+    public synchronized double getShooterRPM() {
+        return mMaster.getSelectedSensorVelocity();
+    }
+
     public synchronized boolean spunUp() {
         if (Math.abs(mPeriodicIO.velocity - mPeriodicIO.goal_velocity) < kShooterTolerance) {
             spun_up = true;
@@ -90,10 +102,11 @@ public class Shooter extends Subsystem {
         }        
         return spun_up;
     }
+
     public synchronized void setGoal(double velocity) {
         mPeriodicIO.goal_velocity = velocity;
-      
     }
+
     @Override
     public synchronized void readPeriodicInputs() {
         mPeriodicIO.velocity = mMaster.getSelectedSensorVelocity() * kVelocityConversion;
@@ -101,14 +114,17 @@ public class Shooter extends Subsystem {
         mPeriodicIO.current = mMaster.getStatorCurrent();
         mPeriodicIO.temperature = mMaster.getTemperature();
     }
+
     @Override
     public void writePeriodicOutputs() {
         mMaster.set(ControlMode.Velocity, mPeriodicIO.goal_velocity / kVelocityConversion);
     }
+
     @Override
     public synchronized boolean checkSystem() {
         return true;
     }
+
     public static class PeriodicIO {
         //INPUTS
         public double timestamp;
