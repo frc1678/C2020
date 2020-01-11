@@ -18,19 +18,19 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import java.util.ArrayList;
 
 public class Intake extends Subsystem {
-    public static double kintakingVoltage = 12.0;
-    public static double kouttakingVoltage = -12.0;
-    public static double kidleVoltage = 0;
+    public static double kIntakingVoltage = 12.0;
+    public static double kOuttakingVoltage = -12.0;
+    public static double kIdleVoltage = 0;
 
     public static Intake mInstanceIntake;
 
     public enum WantedAction {
-        IDLE, INTAKING, OUTTAKING,
+        NONE, INTAKE, OUTTAKE,
     }
     public enum State {
-        IDLE, INTAKING, OUTTAKING,
+        NONE, INTAKING, OUTTAKING,
     }
-    private State mState = State.IDLE;
+    private State mState = State.NONE;
 
     private boolean mRunningManual = false;
 
@@ -90,7 +90,7 @@ public class Intake extends Subsystem {
             @Override
             public void onStart(double timestamp) {
                 mRunningManual = false;
-                mState = State.IDLE;
+                mState = State.NONE;
             }
 
             @Override
@@ -108,7 +108,7 @@ public class Intake extends Subsystem {
             @Override
             public void onStop(double timestamp) {
                 mRunningManual = false;
-                mState = State.IDLE;
+                mState = State.NONE;
                 stopLogging();
 
             }
@@ -119,17 +119,17 @@ public class Intake extends Subsystem {
         switch (mState) {
         case INTAKING:
             if (modifyingOutputs) {
-                mPeriodicIO.demand = kintakingVoltage;
+                mPeriodicIO.demand = kIntakingVoltage;
             }
             break;
         case OUTTAKING:
             if (modifyingOutputs) {
-                mPeriodicIO.demand = kouttakingVoltage;
+                mPeriodicIO.demand = kOuttakingVoltage;
             }
             break;
-        case IDLE:
+        case NONE:
             if (modifyingOutputs) {
-                mPeriodicIO.demand = kidleVoltage;
+                mPeriodicIO.demand = kIdleVoltage;
             }
         }
     }
@@ -146,13 +146,13 @@ public class Intake extends Subsystem {
     public void setState(WantedAction wanted_state) {
         mRunningManual = false;
         switch (wanted_state) {
-        case IDLE:
-            mState = State.IDLE;
+        case NONE:
+            mState = State.NONE;
             break;
-        case INTAKING:
+        case INTAKE:
             mState = State.INTAKING;
             break;
-        case OUTTAKING:
+        case OUTTAKE:
             mState = State.OUTTAKING;
             break;
         }
