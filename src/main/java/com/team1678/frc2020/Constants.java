@@ -181,8 +181,8 @@ public class Constants {
         kHoodConstants.kPositionIZone = 0; // Ticks
         kHoodConstants.kPositionDeadband = 0; // Ticks
 
-        kHoodConstants.kMinUnitsLimit = -135.0;
-        kHoodConstants.kMaxUnitsLimit = 45.0;
+        kHoodConstants.kMinUnitsLimit = 0.0;
+        kHoodConstants.kMaxUnitsLimit = 90.0;
 
         kHoodConstants.kCruiseVelocity = 800; // Ticks / 100ms
         kHoodConstants.kAcceleration = 1600; // Ticks / 100ms / s
