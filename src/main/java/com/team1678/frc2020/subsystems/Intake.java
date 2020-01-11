@@ -27,16 +27,16 @@ import java.util.ArrayList;
 
 public class Intake extends Subsystem {
     public static double kintakingVoltage = 12.0;
-    public static double koutakingVoltage = -12.0;
+    public static double kouttakingVoltage = -12.0;
     public static double kidleVoltage = 0;
 
     public static Intake mInstanceIntake;
 
     public enum WantedAction {
-        IDLE, INTAKING, OUTAKING,
+        IDLE, INTAKING, OUTTAKING,
     }
     public enum State {
-        IDLE, INTAKING, OUTAKING,
+        IDLE, INTAKING, OUTTAKING,
     }
     private State mState = State.IDLE;
 
@@ -130,9 +130,9 @@ public class Intake extends Subsystem {
                 mPeriodicIO.demand = kintakingVoltage;
             }
             break;
-        case OUTAKING:
+        case OUTTAKING:
             if (modifyingOutputs) {
-                mPeriodicIO.demand = koutakingVoltage;
+                mPeriodicIO.demand = kouttakingVoltage;
             }
             break;
         case IDLE:
@@ -151,7 +151,20 @@ public class Intake extends Subsystem {
         return mPeriodicIO.demand;
     }
 
-    public void setState() {
+    public void setState(WantedAction wanted_state) {
+        mRunningManual = false;
+        switch (wanted_state) {
+        case IDLE:
+            mState = State.IDLE;
+            break;
+        case INTAKING:
+            mState = State.INTAKING;
+            break;
+        case OUTTAKING:
+            mState = State.OUTTAKING;
+            break;
+        }
+
     }
 
     @Override
