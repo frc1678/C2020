@@ -1,22 +1,20 @@
-package com.team1678.frc2020.states;
-
-import com.team254.lib.util.Util;
+package com.team1678.frc2020;
 
 public class SuperstructureState {
-    public double turret; // degrees
-    public double shooter; // velocity
-    public double hood; // degrees
+    public double turret; 
+    public double hood; 
+    public double shooter; 
 
-    public SuperstructureState(double turret, double shooter, double hood) {
+    public SuperstructureState(double turret, double hood, double shooter) {
         this.turret = turret;
-        this.shooter = shooter;
         this.hood = hood;
+        this.shooter = shooter;
     }
 
     public SuperstructureState(SuperstructureState other) {
         this.turret = other.turret;
-        this.shooter = other.shooter;
         this.hood = other.hood;
+        this.shooter = other.shooter;
     }
 
     // default robot position
@@ -26,25 +24,20 @@ public class SuperstructureState {
 
     public void setFrom(SuperstructureState source) {
         turret = source.turret;
-        shooter = source.shooter;
         hood = source.hood;
-    }
-
-    public boolean isTurretSafeForWristBelowBumper() {
-        return Util.epsilonEquals(turret, 0, SuperstructureConstants.kTurretPaddingDegrees)
-                || Util.epsilonEquals(turret, 180, SuperstructureConstants.kTurretPaddingDegrees);
+        shooter = source.shooter;
     }
 
     @Override
     public String toString() {
         return "SuperstructureState{" +
                 "turret=" + turret +
-                ", shooter=" + shooter +
                 ", hood=" + hood +
+                ", shooter=" + shooter +
                 '}';
     }
 
     public Double[] asVector() {
-        return new Double[]{turret, shooter, hood};
+        return new Double[]{turret, hood, shooter};
     }
 }
