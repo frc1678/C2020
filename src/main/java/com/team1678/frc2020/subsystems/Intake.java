@@ -3,26 +3,18 @@ package com.team1678.frc2020.subsystems;
 import com.team1678.frc2020.Constants;
 import com.team1678.frc2020.loops.ILooper;
 import com.team1678.frc2020.loops.Loop;
-import com.team1678.frc2020.loops.Looper;
-import com.team1678.frc2020.subsystems.Drive.PeriodicIO;
-import com.team1678.frc2020.subsystems.Canifier;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
-import com.ctre.phoenix.motorcontrol.DemandType;
-import com.ctre.phoenix.motorcontrol.TalonFXControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
-import com.ctre.phoenix.CANifier;
 import com.ctre.phoenix.motorcontrol.can.BaseTalon;
 
 import com.team254.lib.drivers.BaseTalonChecker;
 import com.team254.lib.drivers.TalonFXFactory;
 import com.team254.lib.drivers.MotorChecker;
 import com.team254.lib.util.ReflectingCSVWriter;
-import com.team254.lib.util.TimeDelayedBoolean;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-import java.security.Timestamp;
 import java.util.ArrayList;
 
 public class Intake extends Subsystem {
