@@ -28,9 +28,9 @@ public class Intake extends Subsystem {
         NONE, INTAKE, OUTTAKE,
     }
     public enum State {
-        NONE, INTAKING, OUTTAKING,
+        IDLE, INTAKING, OUTTAKING,
     }
-    private State mState = State.NONE;
+    private State mState = State.IDLE;
 
     private boolean mRunningManual = false;
 
@@ -90,7 +90,7 @@ public class Intake extends Subsystem {
             @Override
             public void onStart(double timestamp) {
                 mRunningManual = false;
-                mState = State.NONE;
+                mState = State.IDLE;
             }
 
             @Override
@@ -108,7 +108,7 @@ public class Intake extends Subsystem {
             @Override
             public void onStop(double timestamp) {
                 mRunningManual = false;
-                mState = State.NONE;
+                mState = State.IDLE;
                 stopLogging();
 
             }
@@ -147,7 +147,7 @@ public class Intake extends Subsystem {
         mRunningManual = false;
         switch (wanted_state) {
         case NONE:
-            mState = State.NONE;
+            mState = State.IDLE;
             break;
         case INTAKE:
             mState = State.INTAKING;
