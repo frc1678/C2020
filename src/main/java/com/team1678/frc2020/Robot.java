@@ -40,6 +40,7 @@ public class Robot extends TimedRobot {
     private final SubsystemManager mSubsystemManager = SubsystemManager.getInstance();
     private final Drive mDrive = Drive.getInstance();
     private final Limelight mLimelight = Limelight.getInstance();
+    private final Roller mRoller = Roller.getInstance();
 
     private final RobotState mRobotState = RobotState.getInstance();
     private final RobotStateEstimator mRobotStateEstimator = RobotStateEstimator.getInstance();
@@ -49,7 +50,7 @@ public class Robot extends TimedRobot {
         try {
             CrashTracker.logRobotInit();
 
-            mSubsystemManager.setSubsystems(mRobotStateEstimator, mDrive, mLimelight);
+            mSubsystemManager.setSubsystems(mRobotStateEstimator, mDrive, mLimelight, mRoller);
 
             mSubsystemManager.registerEnabledLoops(mEnabledLooper);
             mSubsystemManager.registerDisabledLoops(mDisabledLooper);
@@ -92,7 +93,17 @@ public class Robot extends TimedRobot {
     @Override
     public void teleopPeriodic() {
         try {
-            
+            if (mControlBoard.getScorePresetLow()) {
+                mRoller.setState(Roller.WantedAction.NONE);
+            }
+
+            if (mControlBoard.getScorePresetMiddle()) {
+                mRoller.setState(Roller.WantedAction.ACHIEVE_ROTATION_CONTROL);
+            }
+
+            if (mControlBoard.getScorePresetLow()) {
+                mRoller.setState(Roller.WantedAction.ACHIEVE_POSITION_CONTROL);
+            }
         } catch (Throwable t) {
             CrashTracker.logThrowableCrash(t);
             throw t;

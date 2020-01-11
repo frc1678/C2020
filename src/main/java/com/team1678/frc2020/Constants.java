@@ -118,6 +118,10 @@ public class Constants {
     public static final int kMainTurnJoystickPort = 1;
     public static final double kJoystickThreshold = 0.2;
 
+    // Roller
+    public static final int kRollerId = 0; // TODO - Replace with actual value
+    public static final int kRollerSolenoid = 0; // TODO - Replace with actual value
+
     // solenoids
     public static final int kPCMId = 1;
     public static final int kDiskBrakeSolenoidId = 0;

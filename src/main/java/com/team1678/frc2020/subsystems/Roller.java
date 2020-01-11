@@ -20,7 +20,7 @@ import com.revrobotics.ControlType;
 // Control panel manipulator
 public class Roller extends Subsystem {
     // Constants
-    public static double kRotateVoltage = 12.0; // Assign true value later
+    public static double kRotateVoltage = 3.0; // Assign true value later
 
     // Motors, solenoids and sensors
     public I2C.Port i2cPort = I2C.Port.kOnboard;
@@ -51,9 +51,6 @@ public class Roller extends Subsystem {
     private static Roller mInstance;
     private boolean mRunningManual = false;
 
-    // TODO - Should these be placed inside mPeriodicIO?
-    Color detectedColor = null;
-
     private PeriodicIO mPeriodicIO = new PeriodicIO();
 
     private Roller() {
@@ -79,7 +76,9 @@ public class Roller extends Subsystem {
     public void writeToLog() {}
 
     // Optional design pattern for caching periodic reads to avoid hammering the HAL/CAN.
-    public synchronized void readPeriodicInputs() {}
+    public synchronized void readPeriodicInputs() {
+        mPeriodicIO.detected_color = mColorSensor.getColor();
+    }
 
     // Optional design pattern for caching periodic writes to avoid hammering the HAL/CAN.
     public synchronized void writePeriodicOutputs() {
@@ -114,8 +113,7 @@ public class Roller extends Subsystem {
                             case ACHIEVING_POSITION_CONTROL:
                                 mPeriodicIO.pop_out_solenoid = true;
 
-                                detectedColor = mColorSensor.getColor();
-                                ColorMatchResult match = mColorMatcher.matchClosestColor(detectedColor);
+                                ColorMatchResult match = mColorMatcher.matchClosestColor(mPeriodicIO.detected_color);
                             
                                 // TODO - Replace 'kBlueTarget' with actual color goal
                                 while (match.color != kBlueTarget) {
@@ -154,11 +152,9 @@ public class Roller extends Subsystem {
 
     @Override
     public synchronized void outputTelemetry() {
-        if (detectedColor != null) {
-            SmartDashboard.putNumber("Red", detectedColor.red);
-            SmartDashboard.putNumber("Green", detectedColor.green);
-            SmartDashboard.putNumber("Blue", detectedColor.blue);
-        }
+        SmartDashboard.putNumber("Red", mPeriodicIO.detected_color.red);
+        SmartDashboard.putNumber("Green", mPeriodicIO.detected_color.green);
+        SmartDashboard.putNumber("Blue", mPeriodicIO.detected_color.blue);
     }
 
     public void setState(WantedAction action) {
@@ -180,6 +176,9 @@ public class Roller extends Subsystem {
     }
 
     public static class PeriodicIO {
+        // INPUTS
+        public Color detected_color;
+
         // OUTPUTS
         public double roller_demand;
         public boolean pop_out_solenoid;
