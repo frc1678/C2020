@@ -158,7 +158,7 @@ public class Constants {
     static {
         kHoodConstants.kName = "Hood";
 
-        kHoodConstants.kMasterConstants.id = 5;
+        kHoodConstants.kMasterConstants.id = 5;  //TODO: Check with Electrical
         kHoodConstants.kMasterConstants.invert_motor = true;
         kHoodConstants.kMasterConstants.invert_sensor_phase = false;
 
