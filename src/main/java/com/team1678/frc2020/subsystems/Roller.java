@@ -8,6 +8,7 @@ import com.team254.lib.drivers.LazySparkMax;
 import com.team254.lib.drivers.SparkMaxFactory;
 
 import edu.wpi.first.wpilibj.Solenoid;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.I2C;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
@@ -35,6 +36,9 @@ public class Roller extends Subsystem {
     private final Color kGreenTarget = ColorMatch.makeColor(0.197, 0.561, 0.240);
     private final Color kRedTarget = ColorMatch.makeColor(0.561, 0.232, 0.114);
     private final Color kYellowTarget = ColorMatch.makeColor(0.361, 0.524, 0.113);
+    private Color mColorPositionTarget;
+
+    String gameData;
 
     // State management
     public enum WantedAction {
@@ -78,6 +82,29 @@ public class Roller extends Subsystem {
     // Optional design pattern for caching periodic reads to avoid hammering the HAL/CAN.
     public synchronized void readPeriodicInputs() {
         mPeriodicIO.detected_color = mColorSensor.getColor();
+        gameData = DriverStation.getInstance().getGameSpecificMessage();
+
+        if(gameData.length() > 0) {
+            switch (gameData.charAt(0)) {
+                case 'B' :
+                    mColorPositionTarget = kBlueTarget;
+                    break;
+                case 'G' :
+                    mColorPositionTarget = kGreenTarget;
+                    break;
+                case 'R' :
+                    mColorPositionTarget = kRedTarget;
+                    break;
+                case 'Y' :
+                    mColorPositionTarget = kYellowTarget;
+                    break;
+                default :
+                    //This is corrupt data
+                    break;
+            }
+        } else {
+            //Code for no data received yet
+        }
     }
 
     // Optional design pattern for caching periodic writes to avoid hammering the HAL/CAN.
@@ -111,13 +138,19 @@ public class Roller extends Subsystem {
                                 mPeriodicIO.roller_demand = kRotateVoltage;
                                 break;
                             case ACHIEVING_POSITION_CONTROL:
-                                mPeriodicIO.pop_out_solenoid = true;
+                                if (mColorPositionTarget != null) {
+                                    mPeriodicIO.pop_out_solenoid = true;
+                                    ColorMatchResult match = mColorMatcher.matchClosestColor(mPeriodicIO.detected_color);
 
-                                ColorMatchResult match = mColorMatcher.matchClosestColor(mPeriodicIO.detected_color);
-                            
-                                // TODO - Replace 'kBlueTarget' with actual color goal
-                                while (match.color != kBlueTarget) {
-                                    mPeriodicIO.roller_demand = kRotateVoltage;
+                                    if (match.color == mColorPositionTarget) {
+                                        setState(WantedAction.NONE);
+                                    } else {
+                                        while (match.color != mColorPositionTarget) {
+                                            mPeriodicIO.roller_demand = kRotateVoltage;
+                                        }
+                                    }
+                                } else {
+                                    // There is no color goal, do nothing
                                 }
 
                                 break;
