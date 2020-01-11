@@ -112,10 +112,10 @@ public class Wrangler extends Subsystem {
             }
             break;
         case RETRACTING:
-        if (modifyOutputs) {
-            mPeriodicOutputs.demand = kHoldingVoltage;
-            mPeriodicOutputs.deployer_solenoid = false;
-        }
+            if (modifyOutputs) {
+                mPeriodicOutputs.demand = kHoldingVoltage;
+                mPeriodicOutputs.deployer_solenoid = false;
+            }
             break;
         default:
             System.out.println("Fell through on Wrangler states!");

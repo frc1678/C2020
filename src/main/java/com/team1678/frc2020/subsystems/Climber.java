@@ -49,7 +49,7 @@ public class Climber extends Subsystem  {
         mMaster.enableVoltageCompensation(true);
 
         mSlave.follow(mMaster);
-        mMaster.setInverted(false);
+        mSlave.setInverted(false);
     }
 
     private double mCurrentHeight = mPeriodicIO.current_height / 2048 * kGearRatio;
