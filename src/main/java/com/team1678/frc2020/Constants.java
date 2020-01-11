@@ -193,12 +193,20 @@ public class Constants {
 
     public static final int kCanifierId = 0;
 
+    // shooter
+    public static final int kMasterFlywheelID = 7;
+    public static final int kSlaveFlywheelID = 8;
+    public static final double kShooterP = 0.1;
+    public static final double kShooterI = 0.0;
+    public static final double kShooterD = 0.0;
+
     // Top limelight
     public static final LimelightConstants kTopLimelightConstants = new LimelightConstants();
     static {
         kTopLimelightConstants.kName = "Top Limelight";
         kTopLimelightConstants.kTableName = "limelight-top";
-        kTopLimelightConstants.kHeight = 44.047;  // inches
+        kTopLimelightConstants.kHeight = 44.047;  // inches TODO: find actual height
+        kTopLimelightConstants.kAngle = 29.0; // TODO: find actual angle
         kTopLimelightConstants.kTurretToLens = new Pose2d(new Translation2d(-7.685, 0.0), Rotation2d.fromDegrees(0.0));
         kTopLimelightConstants.kHorizontalPlaneToLens = Rotation2d.fromDegrees(-24.0);
     }

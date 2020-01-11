@@ -32,6 +32,7 @@ public class Limelight extends Subsystem {
         public String kName = "";
         public String kTableName = "";
         public double kHeight = 0.0;
+        public double kAngle = 0.0;
         public Pose2d kTurretToLens = Pose2d.identity();
         public Rotation2d kHorizontalPlaneToLens = Rotation2d.identity();
     }
@@ -41,6 +42,13 @@ public class Limelight extends Subsystem {
     private Limelight() {
         mConstants = Constants.kTopLimelightConstants;
         mNetworkTable = NetworkTableInstance.getDefault().getTable(mConstants.kTableName);
+    }
+
+    public double getDistance() {
+        double distance;
+        distance = Math.abs((Constants.kPowerPortHeight - Constants.kTopLimelightConstants.kHeight / 
+        (Math.tan(Constants.kTopLimelightConstants.kAngle + mPeriodicIO.yOffset))));
+        return distance;
     }
 
     public static Limelight getInstance() {
