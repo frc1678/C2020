@@ -54,11 +54,12 @@ public class Intake extends Subsystem {
         public double current;
         
         //OUTPUTS
-        public double demand;
+        public static double demand;
     }
 
     private Intake() {
-        mMaster = TalonFXFactory.createDefaultTalon(6); // Constants.kIntakeRollerId); //  check constants for ID and name 
+        mMaster = TalonFXFactory.createDefaultTalon(6); // Constants.kIntakeRollerId); // check constants for ID and
+                                                        // name
 
         mMaster.set(ControlMode.PercentOutput, 0);
         mMaster.setInverted(false);
@@ -91,14 +92,15 @@ public class Intake extends Subsystem {
     public void zeroSensors() {
     }
 
-   @Override
-    public void registerEnabledLoops (ILooper enabledLooper) {
+    @Override
+    public void registerEnabledLoops(ILooper enabledLooper) {
         enabledLooper.register(new Loop() {
             @Override
             public void onStart(double timestamp) {
                 mRunningManual = false;
                 mState = State.IDLE;
             }
+
             @Override
             public void onLoop(double timestamp) {
                 synchronized (Intake.this) {
@@ -110,31 +112,33 @@ public class Intake extends Subsystem {
                     }
                 }
             }
+
             @Override
             public void onStop(double timestamp) {
                 mRunningManual = false;
                 mState = State.IDLE;
-                stopLogging(); 
+                stopLogging();
 
             }
         });
     }
-    public void runStateMachine (boolean modifyingOutputs) {
+
+    public void runStateMachine(boolean modifyingOutputs) {
         switch (mState) {
-            case INTAKING:
-                if (modifyingOutputs) {
-                    mPeriodicIO.demand = intakingVoltage; 
-                }
-                break;
-            case OUTAKING:
-                if (modifyingOutputs) {
-                    mPeriodicIO.demand = outakingVoltage;
-                }
-                break;
-            case IDLE:
-                if (modifyingOutputs) {
-                    mPeriodicIO.demand = idleVoltage;
-                }
+        case INTAKING:
+            if (modifyingOutputs) {
+                mPeriodicIO.demand = intakingVoltage;
+            }
+            break;
+        case OUTAKING:
+            if (modifyingOutputs) {
+                mPeriodicIO.demand = outakingVoltage;
+            }
+            break;
+        case IDLE:
+            if (modifyingOutputs) {
+                mPeriodicIO.demand = idleVoltage;
+            }
         }
     }
 
@@ -142,10 +146,12 @@ public class Intake extends Subsystem {
         mRunningManual = true;
         mPeriodicIO.demand = percentage;
     }
+
     public double getVoltage() {
         return mPeriodicIO.demand;
     }
-    public void setState () {
+
+    public void setState() {
     }
 
     @Override
@@ -154,6 +160,7 @@ public class Intake extends Subsystem {
             mCsvWriter.add(mPeriodicIO);
         }
     }
+
     @Override
     public void writePeriodicOutputs() {
         mMaster.set(ControlMode.PercentOutput, PeriodicIO.demand / 12.0);
@@ -164,7 +171,7 @@ public class Intake extends Subsystem {
             private static final long serialVersionUID = -4824415636161505593L;
 
             {
-                add(new MotorChecker.MotorConfig<>("intake_motor", mIntakeMotor));
+                add(new MotorChecker.MotorConfig<>("intake_motor", mMaster));
             }
         }, new BaseTalonChecker.CheckerConfig() {
             {
@@ -172,7 +179,7 @@ public class Intake extends Subsystem {
                 mRPMFloor = 1500;
                 mCurrentEpsilon = 2.0;
                 mRPMEpsilon = 250;
-                mRPMSupplier = () -> mIntakeMotor.getSelectedSensorVelocity(0);
+                mRPMSupplier = () -> mMaster.getSelectedSensorVelocity(0);
             }
         });
     }
