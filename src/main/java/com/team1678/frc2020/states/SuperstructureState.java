@@ -4,7 +4,6 @@ public class SuperstructureState {
     public double turret; 
     public double hood; 
     public double shooter; 
-    public double indexer; 
 
     public SuperstructureState(double turret, double hood, double shooter) {
         this.turret = turret;
