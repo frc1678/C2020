@@ -75,11 +75,9 @@ public class RobotState {
     private MovingAverageTwist2d vehicle_velocity_measured_filtered_;
     private double distance_driven_;
 
-    private GoalTracker vision_target_low_ = new GoalTracker();
-    private GoalTracker vision_target_high_ = new GoalTracker();
+    private GoalTracker vision_target_ = new GoalTracker();
 
-    List<Translation2d> mCameraToVisionTargetPosesLow = new ArrayList<>();
-    List<Translation2d> mCameraToVisionTargetPosesHigh = new ArrayList<>();
+    List<Translation2d> mCameraToVisionTargetPoses = new ArrayList<>();
 
     private RobotState() {
         reset(0.0, Pose2d.identity(), Rotation2d.identity());
@@ -181,11 +179,11 @@ public class RobotState {
     }
 
     public synchronized void resetVision() {
-        vision_target_low_.reset();
-        vision_target_high_.reset();
+        vision_target_.reset();
+  
     }
 
-    private Translation2d getCameraToVisionTargetPose(TargetInfo target, boolean high, Limelight source) {
+    private Translation2d getCameraToVisionTargetPose(TargetInfo target, Limelight source) {
         // Compensate for camera pitch
         Translation2d xz_plane_translation = new Translation2d(target.getX(), target.getZ()).rotateBy(source.getHorizontalPlaneToLens());
         double x = xz_plane_translation.x();
@@ -193,7 +191,7 @@ public class RobotState {
         double z = xz_plane_translation.y();
 
         // find intersection with the goal
-        double differential_height = source.getLensHeight() - (high ? Constants.kPortTargetHeight : Constants.kHatchTargetHeight);
+        double differential_height = source.getLensHeight() - (Constants.kGoalTargetHeight);
         if ((z < 0.0) == (differential_height > 0.0)) {
             double scaling = differential_height / -z;
             double distance = Math.hypot(x, y) * scaling;
@@ -216,32 +214,28 @@ public class RobotState {
     }
 
     public synchronized void addVisionUpdate(double timestamp, List<TargetInfo> observations) {
-        mCameraToVisionTargetPosesLow.clear();
-        mCameraToVisionTargetPosesHigh.clear();
+        mCameraToVisionTargetPoses.clear();
 
         if (observations == null || observations.isEmpty()) {
-            vision_target_low_.update(timestamp, new ArrayList<>());
-            vision_target_high_.update(timestamp, new ArrayList<>());
+            vision_target_.update(timestamp, new ArrayList<>());
             return;
         }
 
         Limelight source = Limelight.getInstance();
 
         for (TargetInfo target : observations) {
-            mCameraToVisionTargetPosesLow.add(getCameraToVisionTargetPose(target, false, source));
-            mCameraToVisionTargetPosesHigh.add(getCameraToVisionTargetPose(target, true, source));
+            mCameraToVisionTargetPoses.add(getCameraToVisionTargetPose(target, source));
         }
 
-        updatePortGoalTracker(timestamp, mCameraToVisionTargetPosesLow, vision_target_low_, source);
-        updatePortGoalTracker(timestamp, mCameraToVisionTargetPosesHigh, vision_target_high_, source);
+        updatePortGoalTracker(timestamp, mCameraToVisionTargetPoses, vision_target_, source);
     }
 
     // use known field target orientations to compensate for inaccuracy, assumes robot starts pointing directly away
     // from and perpendicular to alliance wall
     private final double[] kPossibleTargetNormals = {0.0, 90.0, 180.0, 270.0, 30.0, 150.0, 210.0, 330.0};
 
-    public synchronized Pose2d getFieldToVisionTarget(boolean highTarget) {
-        GoalTracker tracker = highTarget ? vision_target_high_ : vision_target_low_;
+    public synchronized Pose2d getFieldToVisionTarget() {
+        GoalTracker tracker =  vision_target_;
 
         if (!tracker.hasTracks()) {
             return null;
@@ -261,7 +255,7 @@ public class RobotState {
     }
 
     public synchronized Pose2d getVehicleToVisionTarget(double timestamp, boolean highTarget) {
-        Pose2d fieldToVisionTarget = getFieldToVisionTarget(highTarget);
+        Pose2d fieldToVisionTarget = getFieldToVisionTarget();
 
         if (fieldToVisionTarget == null) {
             return null;
@@ -270,8 +264,8 @@ public class RobotState {
         return getFieldToVehicle(timestamp).inverse().transformBy(fieldToVisionTarget);
     }
 
-    public synchronized Optional<AimingParameters> getAimingParameters(boolean highTarget, int prev_track_id, double max_track_age) {
-        GoalTracker tracker = highTarget ? vision_target_high_ : vision_target_low_;
+    public synchronized Optional<AimingParameters> getAimingParameters(int prev_track_id, double max_track_age) {
+        GoalTracker tracker = vision_target_;
         List<GoalTracker.TrackReport> reports = tracker.getTracks();
 
         if (reports.isEmpty()) {
