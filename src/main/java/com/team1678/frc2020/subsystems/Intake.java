@@ -58,8 +58,8 @@ public class Intake extends Subsystem {
     }
 
     private Intake() {
-        mMaster = TalonFXFactory.createDefaultTalon(6); // Constants.kIntakeRollerId); // check constants for ID and
-                                                        // name
+        mMaster = TalonFXFactory.createDefaultTalon(6); // Constants.kIntakeRollerId); // check constants for ID and name
+        mMaster.configForwardSoftLimitEnable(false); 
 
         mMaster.set(ControlMode.PercentOutput, 0);
         mMaster.setInverted(false);
