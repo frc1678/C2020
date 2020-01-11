@@ -63,7 +63,9 @@ public class LoggingSystem {
                    ArrayList<Double> data = items.get(j);
                    for (int m=0; m < data.size(); m++){
                     fileWriter.write(data.get(m).toString());
-                    fileWriter.write(",");  
+                    if (m != data.size()){
+                    fileWriter.write(",");
+                    }
                 }
                 fileWriter.write("\n");
                }
