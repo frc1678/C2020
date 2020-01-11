@@ -45,7 +45,7 @@ public class SparkMaxFactory {
     }
 
     private static void handleCANError(int id, CANError error, String message) {
-        if (error != CANError.kOK) {
+        if (error != CANError.kOk) {
             DriverStation.reportError(
                     "Could not configure spark id: " + id + " error: " + error.toString() + " " + message, false);
         }
