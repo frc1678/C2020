@@ -1,11 +1,11 @@
 package com.team1678.frc2020.subsystems;
 
 import com.ctre.phoenix.motorcontrol.*;
-import com.ctre.phoenix.motorcontrol.can.TalonSRX;
+import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.team1678.frc2020.Constants;
 import com.team1678.frc2020.loops.ILooper;
 import com.team1678.frc2020.loops.Loop;
-import com.team254.lib.drivers.TalonSRXFactory;
+import com.team254.lib.drivers.TalonFXFactory;
 import com.team254.lib.drivers.TalonUtil;
 import com.team254.lib.motion.MotionProfileConstraints;
 import com.team254.lib.motion.MotionProfileGoal;
@@ -27,7 +27,7 @@ public abstract class ServoMotorSubsystem extends Subsystem {
     private static final int kPositionPIDSlot = 1;
 
     // Recommend initializing in a static block!
-    public static class TalonSRXConstants {
+    public static class TalonFXConstants {
         public int id = -1;
         public boolean invert_motor = false;
         public boolean invert_sensor_phase = false;
@@ -37,8 +37,8 @@ public abstract class ServoMotorSubsystem extends Subsystem {
     public static class ServoMotorSubsystemConstants {
         public String kName = "ERROR_ASSIGN_A_NAME";
 
-        public TalonSRXConstants kMasterConstants = new TalonSRXConstants();
-        public TalonSRXConstants[] kSlaveConstants = new TalonSRXConstants[0];
+        public TalonFXConstants kMasterConstants = new TalonFXConstants();
+        public TalonFXConstants[] kSlaveConstants = new TalonFXConstants[0];
 
         public double kHomePosition = 0.0; // Units
         public double kTicksPerUnitDistance = 1.0;
@@ -75,16 +75,21 @@ public abstract class ServoMotorSubsystem extends Subsystem {
     }
 
     protected final ServoMotorSubsystemConstants mConstants;
-    protected final TalonSRX mMaster;
-    protected final TalonSRX[] mSlaves;
+    protected final TalonFX mMaster;
+    protected final TalonFX[] mSlaves;
 
     protected final int mForwardSoftLimitTicks;
     protected final int mReverseSoftLimitTicks;
 
+    public StatorCurrentLimitConfiguration STATOR_CURRENT_LIMIT = new StatorCurrentLimitConfiguration(true, 300, 700, 1);
+    public SupplyCurrentLimitConfiguration SUPPLY_CURRENT_LIMIT = new SupplyCurrentLimitConfiguration(false, 40, 100, 1);
+
     protected ServoMotorSubsystem(final ServoMotorSubsystemConstants constants) {
         mConstants = constants;
-        mMaster = TalonSRXFactory.createDefaultTalon(mConstants.kMasterConstants.id);
-        mSlaves = new TalonSRX[mConstants.kSlaveConstants.length];
+        mMaster = TalonFXFactory.createDefaultTalon(mConstants.kMasterConstants.id);
+        mSlaves = new TalonFX[mConstants.kSlaveConstants.length];
+        mMaster.configStatorCurrentLimit(STATOR_CURRENT_LIMIT);
+        mMaster.configSupplyCurrentLimit(SUPPLY_CURRENT_LIMIT);
 
         TalonUtil.checkError(mMaster.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, 0,
                 Constants.kLongCANTimeoutMs), mConstants.kName + ": Could not detect encoder: ");
@@ -166,17 +171,16 @@ public abstract class ServoMotorSubsystem extends Subsystem {
                 mConstants.kName + ": Could not set closed loop ramp rate: ");
 
         TalonUtil.checkError(
-                mMaster.configContinuousCurrentLimit(mConstants.kContinuousCurrentLimit, Constants.kLongCANTimeoutMs),
-                mConstants.kName + ": Could not set continuous current limit.");
+                mMaster.configStatorCurrentLimit(STATOR_CURRENT_LIMIT, Constants.kLongCANTimeoutMs),
+                mConstants.kName + ": Could not set stator current limit.");
 
         TalonUtil.checkError(
-                mMaster.configPeakCurrentLimit(mConstants.kPeakCurrentLimit, Constants.kLongCANTimeoutMs),
-                mConstants.kName + ": Could not set peak current limit.");
+                mMaster.configSupplyCurrentLimit(SUPPLY_CURRENT_LIMIT, Constants.kLongCANTimeoutMs),
+                mConstants.kName + ": Could not set supply current limit.");
 
-        TalonUtil.checkError(
-                mMaster.configPeakCurrentDuration(mConstants.kPeakCurrentDuration, Constants.kLongCANTimeoutMs),
-                mConstants.kName + ": Could not set peak current duration.");
-        mMaster.enableCurrentLimit(true);
+        // TalonUtil.checkError(
+        //         mMaster.configPeakCurrentDuration(mConstants.kPeakCurrentDuration, Constants.kLongCANTimeoutMs),
+        //         mConstants.kName + ": Could not set peak current duration.");
 
         mMaster.configVoltageMeasurementFilter(8);
 
@@ -197,7 +201,7 @@ public abstract class ServoMotorSubsystem extends Subsystem {
         mMaster.selectProfileSlot(kMotionProfileSlot, 0);
 
         for (int i = 0; i < mSlaves.length; ++i) {
-            mSlaves[i] = TalonSRXFactory.createPermanentSlaveTalon(mConstants.kSlaveConstants[i].id,
+            mSlaves[i] = TalonFXFactory.createPermanentSlaveTalon(mConstants.kSlaveConstants[i].id,
                     mConstants.kMasterConstants.id);
             mSlaves[i].setInverted(mConstants.kSlaveConstants[i].invert_motor);
             mSlaves[i].setNeutralMode(NeutralMode.Brake);
@@ -226,9 +230,9 @@ public abstract class ServoMotorSubsystem extends Subsystem {
         public double master_stator_current;
         public double error_ticks;
         public int encoder_wraps;
-        public int absolute_pulse_offset;
-        public int absolute_pulse_position;
-        public int absolute_pulse_position_modded;
+        public double absolute_pulse_offset;
+        public double absolute_pulse_position;
+        public double absolute_pulse_position_modded;
         public boolean reset_occured;
 
         // OUTPUTS
@@ -303,13 +307,13 @@ public abstract class ServoMotorSubsystem extends Subsystem {
         mPeriodicIO.velocity_ticks_per_100ms = mMaster.getSelectedSensorVelocity(0);
 
         if (mConstants.kRecoverPositionOnReset) {
-            mPeriodicIO.absolute_pulse_position = mMaster.getSensorCollection().getPulseWidthPosition();
+            mPeriodicIO.absolute_pulse_position = mMaster.getSensorCollection().getIntegratedSensorAbsolutePosition();
             mPeriodicIO.absolute_pulse_position_modded = mPeriodicIO.absolute_pulse_position % 4096;
             if (mPeriodicIO.absolute_pulse_position_modded < 0) {
                 mPeriodicIO.absolute_pulse_position_modded += 4096;
             }
 
-            int estimated_pulse_pos = ((mConstants.kMasterConstants.invert_sensor_phase ? -1 : 1) * mPeriodicIO.position_ticks) + mPeriodicIO.absolute_pulse_offset;
+            double estimated_pulse_pos = ((mConstants.kMasterConstants.invert_sensor_phase ? -1 : 1) * mPeriodicIO.position_ticks) + mPeriodicIO.absolute_pulse_offset;
             int new_wraps = (int) Math.floor(estimated_pulse_pos / 4096.0);
             // Only set this when we are really sure its a valid change
             if (Math.abs(mPeriodicIO.encoder_wraps - new_wraps) <= 1) {
@@ -322,9 +326,9 @@ public abstract class ServoMotorSubsystem extends Subsystem {
         }
     }
 
-    protected int getAbsoluteEncoderRawPosition(int pulseWidthPosition) {
-        int abs_raw_no_rollover = mMaster.getSensorCollection().getPulseWidthPosition();
-        int abs_raw_with_rollover = abs_raw_no_rollover % 4096;
+    protected double getAbsoluteEncoderRawPosition(double pulseWidthPosition) {
+        double abs_raw_no_rollover = mMaster.getSensorCollection().getIntegratedSensorAbsolutePosition();
+        double abs_raw_with_rollover = abs_raw_no_rollover % 4096;
         return abs_raw_with_rollover + (abs_raw_with_rollover < 0 ? abs_raw_with_rollover + 4096 : 0);
     }
 
@@ -370,7 +374,7 @@ public abstract class ServoMotorSubsystem extends Subsystem {
                     }
                 }
                 handleMasterReset(mPeriodicIO.reset_occured);
-                for (TalonSRX slave : mSlaves) {
+                for (TalonFX slave : mSlaves) {
                     if (slave.hasResetOccurred()) {
                         System.out.println(mConstants.kName + ": Slave Talon reset occurred");
                     }
@@ -524,7 +528,7 @@ public abstract class ServoMotorSubsystem extends Subsystem {
     @Override
     public synchronized void zeroSensors() {
         mMaster.setSelectedSensorPosition(0, 0, Constants.kCANTimeoutMs);
-        mPeriodicIO.absolute_pulse_offset = getAbsoluteEncoderRawPosition(mMaster.getSensorCollection().getPulseWidthPosition());
+        mPeriodicIO.absolute_pulse_offset = getAbsoluteEncoderRawPosition(mMaster.getSensorCollection().getIntegratedSensorAbsolutePosition());
         mHasBeenZeroed = true;
     }
 
@@ -538,9 +542,9 @@ public abstract class ServoMotorSubsystem extends Subsystem {
     }
 
     public int estimateSensorPositionFromAbsolute() {
-        int estimated_pulse_pos = (mPeriodicIO.encoder_wraps * 4096) + mPeriodicIO.absolute_pulse_position_modded;
-        int estimate_position_ticks = (mConstants.kMasterConstants.invert_sensor_phase ? -1 : 1) * (estimated_pulse_pos - mPeriodicIO.absolute_pulse_offset);
-        return estimate_position_ticks;
+        double estimated_pulse_pos = (mPeriodicIO.encoder_wraps * 4096) + mPeriodicIO.absolute_pulse_position_modded;
+        double estimate_position_ticks = (mConstants.kMasterConstants.invert_sensor_phase ? -1 : 1) * (estimated_pulse_pos - mPeriodicIO.absolute_pulse_offset);
+        return (int) estimate_position_ticks;
     }
 
     @Override
