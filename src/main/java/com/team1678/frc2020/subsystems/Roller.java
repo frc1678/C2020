@@ -4,17 +4,17 @@ import com.team1678.frc2020.Constants;
 import com.team1678.frc2020.loops.ILooper;
 import com.team1678.frc2020.loops.Loop;
 
-import com.team254.lib.drivers.LazySparkMax;
-import com.team254.lib.drivers.SparkMaxFactory;
-
 import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.I2C;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
 
+import edu.wpi.first.wpilibj.Spark;
+
 import com.revrobotics.ColorSensorV3;
 import com.revrobotics.ColorMatchResult;
+import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.revrobotics.ColorMatch;
 import com.revrobotics.ControlType;
 
@@ -26,7 +26,7 @@ public class Roller extends Subsystem {
     // Motors, solenoids and sensors
     public I2C.Port i2cPort = I2C.Port.kOnboard;
     public ColorSensorV3 mColorSensor;
-    private final LazySparkMax mRollerMotor;
+    private final Spark mRollerMotor;
     public Solenoid mPopoutSolenoid;
 
     // Color sensing
@@ -37,6 +37,12 @@ public class Roller extends Subsystem {
     private final Color kRedTarget = ColorMatch.makeColor(0.561, 0.232, 0.114);
     private final Color kYellowTarget = ColorMatch.makeColor(0.361, 0.524, 0.113);
     private Color mColorPositionTarget;
+
+    // Detected when driving up - used to determine number of rotations
+    private Color initialColor;
+
+    // Used to determine color change
+    private Color colorAfterChange;
 
     String gameData;
 
@@ -58,8 +64,8 @@ public class Roller extends Subsystem {
     private PeriodicIO mPeriodicIO = new PeriodicIO();
 
     private Roller() {
-        mRollerMotor = SparkMaxFactory.createDefaultSparkMax(Constants.kLeftDriveMasterId); // TODO - Replace '0' with the actual number in the constants file
-        mPopoutSolenoid = Constants.makeSolenoidForId(0); // TODO - Replace '0' with actual number
+        mRollerMotor = new Spark(Constants.kRollerId);
+        mPopoutSolenoid = Constants.makeSolenoidForId(Constants.kRollerSolenoid);
 
         mColorSensor = new ColorSensorV3(i2cPort);
 
@@ -109,7 +115,7 @@ public class Roller extends Subsystem {
 
     // Optional design pattern for caching periodic writes to avoid hammering the HAL/CAN.
     public synchronized void writePeriodicOutputs() {
-        mRollerMotor.set(ControlType.kVoltage, mPeriodicIO.roller_demand);
+        mRollerMotor.set(mPeriodicIO.roller_demand / 12.0);
         mPopoutSolenoid.set(mPeriodicIO.pop_out_solenoid);
     }
 
@@ -133,9 +139,25 @@ public class Roller extends Subsystem {
                                 mPeriodicIO.roller_demand = 0.0;
                                 break;
                             case ACHIEVING_ROTATION_CONTROL:
-                                // TODO - Add code that will rotate a specific number of rotations
                                 mPeriodicIO.pop_out_solenoid = true;
-                                mPeriodicIO.roller_demand = kRotateVoltage;
+                                int i = 0;
+
+                                // Run roller until it has gone over the inital color four times
+                                while (i != 4) {
+                                    mPeriodicIO.roller_demand = kRotateVoltage;
+
+                                    if (colorHasChanged()) {
+                                        if (mPeriodicIO.detected_color == initialColor) {
+                                            i++;
+                                        }
+                                    }
+                                }
+
+                                // If it has run over the initial color four times, turn off roller
+                                if (i == 4) {
+                                    mPeriodicIO.roller_demand = 0;
+                                }
+
                                 break;
                             case ACHIEVING_POSITION_CONTROL:
                                 if (mColorPositionTarget != null) {
@@ -178,6 +200,17 @@ public class Roller extends Subsystem {
         mPeriodicIO.roller_demand = 0.0;
     }
 
+    public boolean colorHasChanged() {
+        Color currentColor = mPeriodicIO.detected_color;
+
+        if (colorAfterChange != currentColor) {
+            colorAfterChange = currentColor;
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     @Override
     public boolean checkSystem() {
         return true;
@@ -198,6 +231,8 @@ public class Roller extends Subsystem {
                 mState = State.IDLE;
                 break;
             case ACHIEVE_ROTATION_CONTROL:
+                initialColor = mColorSensor.getColor();
+                colorAfterChange = mColorSensor.getColor();
                 mState = State.ACHIEVING_ROTATION_CONTROL;
                 break;
             case ACHIEVE_POSITION_CONTROL:

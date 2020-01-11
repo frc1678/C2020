@@ -101,7 +101,7 @@ public class Robot extends TimedRobot {
                 mRoller.setState(Roller.WantedAction.ACHIEVE_ROTATION_CONTROL);
             }
 
-            if (mControlBoard.getScorePresetLow()) {
+            if (mControlBoard.getScorePresetHigh()) {
                 mRoller.setState(Roller.WantedAction.ACHIEVE_POSITION_CONTROL);
             }
         } catch (Throwable t) {
