@@ -165,17 +165,17 @@ public class Constants {
         // Unit == Degrees
         kHoodConstants.kHomePosition = 0.0;  // Degrees
         kHoodConstants.kTicksPerUnitDistance = (4096.0 * 3.0) / 360.0;
-        kHoodConstants.kKp = 2.25;
+        kHoodConstants.kKp = 0.2;
         kHoodConstants.kKi = 0;
-        kHoodConstants.kKd = 200;
+        kHoodConstants.kKd = 1;
         kHoodConstants.kKf = 0.6;
         kHoodConstants.kMaxIntegralAccumulator = 0;
         kHoodConstants.kIZone = 0; // Ticks
         kHoodConstants.kDeadband = 0; // Ticks
 
-        kHoodConstants.kPositionKp = 2.25;
+        kHoodConstants.kPositionKp = 0.2;
         kHoodConstants.kPositionKi = 0;
-        kHoodConstants.kPositionKd = 200;
+        kHoodConstants.kPositionKd = 1;
         kHoodConstants.kPositionKf = 0.0;
         kHoodConstants.kPositionMaxIntegralAccumulator = 0;
         kHoodConstants.kPositionIZone = 0; // Ticks
