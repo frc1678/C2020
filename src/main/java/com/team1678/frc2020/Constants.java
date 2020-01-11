@@ -184,12 +184,12 @@ public class Constants {
         kHoodConstants.kMinUnitsLimit = 0.0;
         kHoodConstants.kMaxUnitsLimit = 90.0;
 
-        kHoodConstants.kCruiseVelocity = 800; // Ticks / 100ms
-        kHoodConstants.kAcceleration = 1600; // Ticks / 100ms / s
-        kHoodConstants.kRampRate = 0.005; // s
-        kHoodConstants.kContinuousCurrentLimit = 40; // amps
-        kHoodConstants.kPeakCurrentLimit = 60; // amps
-        kHoodConstants.kPeakCurrentDuration = 200; // milliseconds
+        kHoodConstants.kCruiseVelocity = 5000; // Ticks / 100ms
+        kHoodConstants.kAcceleration = 16000; // Ticks / 100ms / s
+        kHoodConstants.kRampRate = 0.0; // s
+        kHoodConstants.kContinuousCurrentLimit = 35; // amps
+        kHoodConstants.kPeakCurrentLimit = 40; // amps
+        kHoodConstants.kPeakCurrentDuration = 10; // milliseconds
     }
     public static final double kHoodToBottomEndEffectorLength = 15.91; // Length (in) from wrist joint to bottom of end effector
 
