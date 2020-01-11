@@ -156,7 +156,7 @@ public class Constants {
     // TODO: change the values when prototyping is done
     public static final ServoMotorSubsystemConstants kHoodConstants = new ServoMotorSubsystemConstants();
     static {
-        kHoodConstants.kName = "Wrist";
+        kHoodConstants.kName = "Hood";
 
         kHoodConstants.kMasterConstants.id = 5;
         kHoodConstants.kMasterConstants.invert_motor = true;
