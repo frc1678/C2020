@@ -26,9 +26,9 @@ import java.security.Timestamp;
 import java.util.ArrayList;
 
 public class Intake extends Subsystem {
-    public static double intakingVoltage = 12.0;
-    public static double outakingVoltage = -12.0;
-    public static double idleVoltage = 0;
+    public static double kintakingVoltage = 12.0;
+    public static double koutakingVoltage = -12.0;
+    public static double kidleVoltage = 0;
 
     public static Intake mInstanceIntake;
 
@@ -127,17 +127,17 @@ public class Intake extends Subsystem {
         switch (mState) {
         case INTAKING:
             if (modifyingOutputs) {
-                mPeriodicIO.demand = intakingVoltage;
+                mPeriodicIO.demand = kintakingVoltage;
             }
             break;
         case OUTAKING:
             if (modifyingOutputs) {
-                mPeriodicIO.demand = outakingVoltage;
+                mPeriodicIO.demand = koutakingVoltage;
             }
             break;
         case IDLE:
             if (modifyingOutputs) {
-                mPeriodicIO.demand = idleVoltage;
+                mPeriodicIO.demand = kidleVoltage;
             }
         }
     }
