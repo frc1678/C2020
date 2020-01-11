@@ -127,7 +127,7 @@ public class Intake extends Subsystem {
                 mPeriodicIO.demand = kOuttakingVoltage;
             }
             break;
-        case NONE:
+        case IDLE:
             if (modifyingOutputs) {
                 mPeriodicIO.demand = kIdleVoltage;
             }
