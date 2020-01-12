@@ -58,6 +58,9 @@ public class Constants {
     public static final int kRightDriveMasterId = 3;
     public static final int kRightDriveSlaveId = 4;
 
+    public static final int kIndexerId = 5; // change
+    public static final int kFeederId = 6; // change
+
     // elevator
     public static final ServoMotorSubsystemConstants kElevatorConstants = new ServoMotorSubsystemConstants();
     static {
