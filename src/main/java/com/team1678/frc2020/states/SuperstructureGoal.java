@@ -6,8 +6,8 @@ package com.team1678.frc2020.states;
 public class SuperstructureGoal {
     public final SuperstructureState state;
 
-    public SuperstructureGoal(double turret, double hood, double shooter) {
-        this(new SuperstructureState(turret, hood, shooter));
+    public SuperstructureGoal(double turret, double shooter, double hood, boolean feed) {
+        this(new SuperstructureState(turret, shooter, hood,feed));
     }
 
     public SuperstructureGoal(SuperstructureState state) {
@@ -16,15 +16,16 @@ public class SuperstructureGoal {
 
     public boolean equals(SuperstructureGoal other) {
         return this.state.turret == other.state.turret &&
+                this.state.shooter == other.state.shooter &&
                 this.state.hood == other.state.hood &&
-                this.state.shooter == other.state.shooter;
+                this.state.feed == other.state.feed;
     }
 
     public boolean isAtDesiredState(SuperstructureState currentState) {
         double[] distances = {
                 currentState.turret - state.turret,
-                currentState.hood - state.hood,
                 currentState.shooter - state.shooter,
+                currentState.hood - state.hood
         };
 
         for (int i = 0; i < distances.length; i++) {
