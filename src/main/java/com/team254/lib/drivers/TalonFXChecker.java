@@ -1,10 +1,10 @@
 package com.team254.lib.drivers;
 
-import java.util.ArrayList;
-
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.team1678.frc2020.subsystems.Subsystem;
+
+import java.util.ArrayList;
 
 public class TalonFXChecker extends MotorChecker<TalonFX> {
     private static class StoredTalonFXConfiguration {
