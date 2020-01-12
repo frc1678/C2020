@@ -109,6 +109,7 @@ public class Intake extends Subsystem {
             public void onStop(double timestamp) {
                 mRunningManual = false;
                 mState = State.IDLE;
+                stop();
                 stopLogging();
 
             }
