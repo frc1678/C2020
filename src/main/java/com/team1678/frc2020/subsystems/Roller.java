@@ -1,5 +1,7 @@
 package com.team1678.frc2020.subsystems;
 
+import java.util.stream.Stream;
+
 import com.team1678.frc2020.Constants;
 import com.team1678.frc2020.loops.ILooper;
 import com.team1678.frc2020.loops.Loop;
@@ -31,20 +33,24 @@ public class Roller extends Subsystem {
 
     // Color sensing
     private final ColorMatch mColorMatcher = new ColorMatch();
-    ColorMatchResult match;
+    ColorMatchResult mMatch;
 
-    private final Color kBlueTarget = ColorMatch.makeColor(0.250, 0.691, 0.633);
-    private final Color kGreenTarget = ColorMatch.makeColor(0.225, 0.604, 0.240);
-    private final Color kRedTarget = ColorMatch.makeColor(0.728, 0.410, 0.132);
-    private final Color kYellowTarget = ColorMatch.makeColor(0.871, 0.1194, 0.234);
+    private final Color kBlueTarget = ColorMatch.makeColor(0.134, 0.432, 0.434);
+    private final Color kGreenTarget = ColorMatch.makeColor(0.178, 0.571, 0.251);
+    private final Color kRedTarget = ColorMatch.makeColor(0.485, 0.364, 0.150);
+    private final Color kYellowTarget = ColorMatch.makeColor(0.314, 0.553, 0.120);
+
+    private int mColorCounter;
+
+    private Color mInitialColor;
+    private Color mPreviousColor;
+    private Color mPreviousPreviousColor;
+
     private Color mColorPositionTarget;
+    private Color mSlowDownTarget;
 
-    int colorCounter;
-
-    Color previousColor;
-    Color initialColor;
-
-    String gameData;
+    // Game data
+    private String gameData;
 
     // State management
     public enum WantedAction {
@@ -72,7 +78,9 @@ public class Roller extends Subsystem {
         mColorMatcher.addColorMatch(kBlueTarget);
         mColorMatcher.addColorMatch(kGreenTarget);
         mColorMatcher.addColorMatch(kRedTarget);
-        mColorMatcher.addColorMatch(kYellowTarget);    
+        mColorMatcher.addColorMatch(kYellowTarget);   
+        
+        mColorCounter = 0;
     }
 
     public synchronized static Roller getInstance() {
@@ -91,25 +99,31 @@ public class Roller extends Subsystem {
         gameData = DriverStation.getInstance().getGameSpecificMessage();
 
         if(gameData.length() > 0) {
+            // Accounts for the FMS detecting the color two wedges down
             switch (gameData.charAt(0)) {
                 case 'B' :
-                    mColorPositionTarget = kBlueTarget;
+                    mColorPositionTarget = kRedTarget;
+                    mSlowDownTarget = kGreenTarget;
+                    //System.out.println("Color is blue");
                     break;
                 case 'G' :
-                    mColorPositionTarget = kGreenTarget;
+                    mColorPositionTarget = kYellowTarget;
+                    mSlowDownTarget = kRedTarget;
                     break;
                 case 'R' :
-                    mColorPositionTarget = kRedTarget;
+                    mColorPositionTarget = kBlueTarget;
+                    mSlowDownTarget = kYellowTarget;
                     break;
                 case 'Y' :
-                    mColorPositionTarget = kYellowTarget;
+                    mColorPositionTarget = kGreenTarget;
+                    mSlowDownTarget = kBlueTarget;
                     break;
                 default :
                     System.out.println("Invalid color from FMS!");
                     break;
             }
         } else {
-            //Code for no data received yet
+            // No data has been recieved
         }
     }
 
@@ -157,42 +171,50 @@ public class Roller extends Subsystem {
                 break;
             case ACHIEVING_ROTATION_CONTROL:
                 mPeriodicIO.pop_out_solenoid = true;
-                match = mColorMatcher.matchClosestColor(mPeriodicIO.detected_color);
+                mMatch = mColorMatcher.matchClosestColor(mPeriodicIO.detected_color);
 
-                // Run roller until it has gone over the inital color four times
-                if (colorCounter < 7) {
+                if (mColorCounter < 7) {
                     mPeriodicIO.roller_demand = kRotateVoltage;
-
-                    if (match.color != previousColor) {
-                        if (match.color == initialColor && match.confidence > .93) {
-                            colorCounter++;
+            
+                    if (mMatch.color != mPreviousColor) {
+                      if (mMatch.color == mInitialColor) {
+                        // Necessary to avoid color confusion between red/green and blue/yellow
+                        if (mInitialColor == kYellowTarget && mMatch.color == kYellowTarget && mPreviousColor == kGreenTarget && mPreviousPreviousColor == kBlueTarget) {
+                          // Do nothing
+                        } else if (mInitialColor == kGreenTarget && mMatch.color == kGreenTarget && mPreviousColor == kYellowTarget && mPreviousPreviousColor == kRedTarget) {
+                          // Do nothing
+                        } else {
+                          mColorCounter++;
                         }
+                      }
                     }
-                }
-
-                previousColor = match.color;
-
-                // If it has run over the initial color four times, turn off roller
-                if (colorCounter >= 7) {
+                  }
+            
+                  if (mColorCounter >= 7) {
+                    mColorCounter = 0;
                     setState(WantedAction.NONE);
-                    colorCounter = 0;
-                }
+                  }
+
+                  if (mPreviousColor != mMatch.color) {
+                    mPreviousPreviousColor = mPreviousColor;
+                    mPreviousColor = mMatch.color;
+                  }
 
                 break;
             case ACHIEVING_POSITION_CONTROL:
-                if (mColorPositionTarget != null) {
-                    mPeriodicIO.pop_out_solenoid = true;
-                    match = mColorMatcher.matchClosestColor(mPeriodicIO.detected_color);
+                mMatch = mColorMatcher.matchClosestColor(mPeriodicIO.detected_color);
 
-                    if (match.color == mColorPositionTarget) {
-                        setState(WantedAction.NONE);
-                    } else {
-                        if (match.color != mColorPositionTarget) {
-                            mPeriodicIO.roller_demand = kRotateVoltage;
+                if (gameData.length() > 0) {
+                    if (mMatch.color != mColorPositionTarget) {
+                        mPeriodicIO.roller_demand = 3.0;
+            
+                        if (mMatch.color == mSlowDownTarget) {
+                            mPeriodicIO.roller_demand = 1.0;
                         }
+                    } else {
+                        mColorCounter = 0;
+                        setState(WantedAction.NONE);
                     }
-                } else {
-                    // There is no color goal, do nothing
                 }
 
                 break;
@@ -230,9 +252,9 @@ public class Roller extends Subsystem {
                 mState = State.IDLE;
                 break;
             case ACHIEVE_ROTATION_CONTROL:
-                match = mColorMatcher.matchClosestColor(mPeriodicIO.detected_color);
-                initialColor = match.color;
-                previousColor = match.color;
+                mInitialColor = mMatch.color;
+                mPreviousColor = mMatch.color;
+                mPreviousColor = mMatch.color;
                 mState = State.ACHIEVING_ROTATION_CONTROL;
                 break;
             case ACHIEVE_POSITION_CONTROL:
