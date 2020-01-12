@@ -27,8 +27,12 @@ public class Canifier extends Subsystem {
         return mCanifier.getQuadraturePosition();
     }
 
-    public synchronized boolean getElevatorLimit() {
+    /* public synchronized boolean getElevatorLimit() {
         return mPeriodicInputs.elevator_limit_;
+    } */
+
+    public synchronized boolean getIndexerLimit() {
+        return mPeriodicInputs.indexer_limit_;
     }
 
     public synchronized boolean getTurretLimit() {
@@ -51,7 +55,8 @@ public class Canifier extends Subsystem {
     public synchronized void readPeriodicInputs() {
         CANifier.PinValues pins = new CANifier.PinValues();
         mCanifier.getGeneralInputs(pins);
-        mPeriodicInputs.elevator_limit_ = !pins.SDA; //todo(HANSON)
+        // mPeriodicInputs.elevator_limit_ = !pins.SDA;
+        mPeriodicInputs.indexer_limit_ = !pins.SDA;
         mPeriodicInputs.turret_limit_ = !pins.LIMR;
         mPeriodicInputs.hood_limit_ = !pins.LIMF;
     }
@@ -77,6 +82,7 @@ public class Canifier extends Subsystem {
 
     private static class PeriodicInputs {
         public boolean elevator_limit_;
+        public boolean indexer_limit_;
         public boolean turret_limit_;
         public boolean hood_limit_;
     }
