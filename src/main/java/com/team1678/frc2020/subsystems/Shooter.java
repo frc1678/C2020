@@ -130,6 +130,9 @@ public class Shooter extends Subsystem {
     }
 
     public static Shooter getInstance() {
+        if (mInstance == null) {
+            mInstance = new Shooter();
+        }
         return mInstance;
     }
 
