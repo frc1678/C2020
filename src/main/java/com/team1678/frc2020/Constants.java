@@ -112,6 +112,11 @@ public class Constants {
     }
     public static final int kIntakeRollerID = 6; //get real ID from electrical 
 
+    // Indexer
+    public static final int kIndexerSlots = 5;
+    public static final int kAnglePerSlot = 360 / kIndexerSlots;
+    public static final double kIndexerDeadband = .5; // degrees
+
     // turret
     public static final ServoMotorSubsystemConstants kTurretConstants = new ServoMotorSubsystemConstants();
     static {

@@ -7,12 +7,14 @@ import com.team1678.frc2020.loops.ILooper;
 import com.team1678.frc2020.loops.Loop;
 import com.team1678.frc2020.subsystems.Canifier;
 import com.team1678.frc2020.subsystems.Turret;
+import com.team1678.frc2020.planners.IndexerMotionPlanner;
 
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Indexer extends Subsystem {
     private static Indexer mInstance = null;
+    private IndexerMotionPlanner mMotionPlanner;
     private Canifier mCanifier = Canifier.getInstance();
     private Turret mTurret = Turret.getInstance();
 
@@ -24,9 +26,10 @@ public class Indexer extends Subsystem {
 
     public static class PeriodicIO {
         // INPUTS
-        public double current_encoder_ticks;
+        public double encoder_ticks;
+        public double indexer_angle;
         public boolean limit_switch;
-        public double current_turret_angle;
+        public double turret_angle;
 
         // OUTPUTS
         public ControlMode indexer_control_mode;
@@ -47,19 +50,8 @@ public class Indexer extends Subsystem {
     private final TalonFX mFeeder;
     private State mState = State.IDLE;
     private boolean mRunningManual = false;
-    private double mCurrentTheta = mPeriodicIO.current_encoder_ticks / 2048 / kGearRatio * 360;
-    private double mCurrentThetaAdjusted = mCurrentTheta % 360;
-    private double mCurrentTurretAngle = mPeriodicIO.current_turret_angle;
-    private double mTurretAngleFromSixty = (mCurrentTurretAngle % 60 < 30) ? 
-                                            mCurrentTurretAngle % 60 : mCurrentTurretAngle % 60 - 60;
-    private double mThetaToFeeder = mCurrentTheta % 60 - mTurretAngleFromSixty;
-    private double mDeadband = 0.5; // tune
-    private double mThetaGoal = 0;
     private double mInitialTime = 0;
-    private double mInitialTheta = 0;
-    private double mInitialTurretAngle = 0;
     private boolean mStartCounting = false;
-    private boolean mStartRotating = false;
     private double mWaitTime = .1; // seconds
     private boolean mHasBeenZeroed = false;
 
@@ -76,6 +68,8 @@ public class Indexer extends Subsystem {
         mFeeder.setInverted(false);
         mFeeder.configVoltageCompSaturation(12.0, Constants.kLongCANTimeoutMs);
         mFeeder.enableVoltageCompensation(true);
+
+        mMotionPlanner = new IndexerMotionPlanner();
     }
 
     public synchronized static Indexer getInstance() {
@@ -150,11 +144,7 @@ public class Indexer extends Subsystem {
     }
 
     public synchronized double getIndexerTheta() {
-        return mCurrentTheta;
-    }
-
-    public synchronized double getIndexerThetaAdjusted() {
-        return mCurrentThetaAdjusted;
+        return mPeriodicIO.indexer_angle;
     }
 
     public void runStateMachine(boolean modifyOutputs) {
@@ -178,14 +168,11 @@ public class Indexer extends Subsystem {
                 mPeriodicIO.indexer_control_mode = ControlMode.Position;
                 mPeriodicIO.feeder_demand = kFeedingVoltage;
 
-                if (mThetaToFeeder < 30 && mThetaToFeeder > -30) {
-                    mThetaGoal = mThetaToFeeder;
-                } else {
-                    mThetaGoal = mThetaToFeeder - 60;
-                }
-                mPeriodicIO.indexer_demand = mCurrentTheta + mThetaGoal;
+                int slotGoal = mMotionPlanner.findNearestSlot(mPeriodicIO.indexer_angle, mPeriodicIO.turret_angle);
 
-                if (mThetaToFeeder < mDeadband || 60 - mThetaToFeeder < mDeadband) {
+                mPeriodicIO.indexer_demand = mMotionPlanner.findAngleGoal(slotGoal, mPeriodicIO.indexer_angle, mPeriodicIO.turret_angle);
+
+                if (mMotionPlanner.isAtGoal(slotGoal, mPeriodicIO.indexer_angle, mPeriodicIO.turret_angle)) {
                     mState = State.FEEDING;
                 }
             }
@@ -195,32 +182,22 @@ public class Indexer extends Subsystem {
                 mPeriodicIO.indexer_control_mode = ControlMode.Position;
                 mPeriodicIO.feeder_demand = kFeedingVoltage;
 
-                if (!mStartRotating) {
-                    mInitialTheta = mCurrentTheta;
-                    mInitialTurretAngle = mCurrentTurretAngle;
-                    mStartRotating = true;
-                    mThetaGoal = 60;
-                }
-                if (mStartRotating && mCurrentTheta - mInitialTheta > 60
-                    + (mCurrentTurretAngle - mInitialTurretAngle) - mDeadband) {
-                    mStartRotating = false;
+                int slotGoal = mMotionPlanner.findNextSlot(mPeriodicIO.indexer_angle, mPeriodicIO.turret_angle);
+
+                mPeriodicIO.indexer_demand = mMotionPlanner.findAngleGoal(slotGoal, mPeriodicIO.indexer_angle, mPeriodicIO.turret_angle);
+
+                if (mMotionPlanner.isAtGoal(slotGoal, mPeriodicIO.indexer_angle, mPeriodicIO.turret_angle)) {
                     mState = State.FEEDING;
                 }
-
-                mPeriodicIO.indexer_demand = mCurrentTheta + mThetaGoal;
             }
         case FEEDING:
             if (modifyOutputs) {
                 mPeriodicIO.indexer_control_mode = ControlMode.Position;
                 mPeriodicIO.feeder_demand = kFeedingVoltage;
-                
-                if (mThetaToFeeder < mDeadband || 60 - mThetaToFeeder < mDeadband) {
-                    if (mThetaToFeeder < mDeadband) {
-                        mThetaGoal = mThetaToFeeder;
-                    } else if (60 - mThetaToFeeder < mDeadband) {
-                        mThetaGoal = mThetaToFeeder - 60;
-                    }
 
+                int slotGoal = mMotionPlanner.findNearestSlot(mPeriodicIO.indexer_angle, mPeriodicIO.turret_angle);
+                
+                if (mMotionPlanner.isAtGoal(slotGoal, mPeriodicIO.indexer_angle, mPeriodicIO.turret_angle)) {
                     final double now = Timer.getFPGATimestamp();
                     if (!mStartCounting) {
                         mInitialTime = now;
@@ -234,7 +211,7 @@ public class Indexer extends Subsystem {
                     mState = State.PREPPING;
                 }
 
-                mPeriodicIO.indexer_demand = mCurrentTheta + mThetaGoal;
+                mPeriodicIO.indexer_demand = mMotionPlanner.findAngleGoal(slotGoal, mPeriodicIO.indexer_angle, mPeriodicIO.turret_angle);
             }
             break;
         default:
@@ -277,9 +254,10 @@ public class Indexer extends Subsystem {
 
     @Override
     public synchronized void readPeriodicInputs() {
-        mPeriodicIO.current_encoder_ticks = mIndexer.getSelectedSensorPosition();
+        mPeriodicIO.encoder_ticks = mIndexer.getSelectedSensorPosition();
+        mPeriodicIO.indexer_angle = mPeriodicIO.encoder_ticks / 2048 / kGearRatio * 360;
         mPeriodicIO.limit_switch = mCanifier.getIndexerLimit();
-        mPeriodicIO.current_turret_angle = mTurret.getAngle();
+        mPeriodicIO.turret_angle = mTurret.getAngle();
     }
 
     @Override
