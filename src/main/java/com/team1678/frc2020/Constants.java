@@ -58,6 +58,9 @@ public class Constants {
     public static final int kRightDriveMasterId = 3;
     public static final int kRightDriveSlaveId = 4;
 
+    public static final int kIndexerId = 5; // change
+    public static final int kFeederId = 6; // change
+
     // elevator
     public static final ServoMotorSubsystemConstants kElevatorConstants = new ServoMotorSubsystemConstants();
     static {
@@ -109,6 +112,13 @@ public class Constants {
     }
     public static final int kIntakeRollerID = 6; //get real ID from electrical 
 
+    // Indexer
+    public static final int kIndexerSlots = 5;
+    public static final int kAnglePerSlot = 360 / kIndexerSlots;
+    public static final double kIndexerDeadband = 0.5; // degrees
+
+    public static final double kTestEpsilon = 1e-6;
+
     // turret
     public static final ServoMotorSubsystemConstants kTurretConstants = new ServoMotorSubsystemConstants();
     static {
@@ -152,6 +162,48 @@ public class Constants {
         //kTurretConstants.kStatusFrame8UpdateRate = 50;
         kTurretConstants.kRecoverPositionOnReset = true;
     }
+
+    // hood
+    // TODO: change the values when prototyping is done
+    public static final ServoMotorSubsystemConstants kHoodConstants = new ServoMotorSubsystemConstants();
+    static {
+        kHoodConstants.kName = "Hood";
+
+        kHoodConstants.kMasterConstants.id = 5;  //TODO: Check with Electrical
+        kHoodConstants.kMasterConstants.invert_motor = true;
+        kHoodConstants.kMasterConstants.invert_sensor_phase = false;
+
+        // Unit == Degrees
+        kHoodConstants.kHomePosition = 0.0;  // Degrees
+        kHoodConstants.kTicksPerUnitDistance = (4096.0 * 3.0) / 360.0;
+        kHoodConstants.kKp = 0.2;
+        kHoodConstants.kKi = 0;
+        kHoodConstants.kKd = 1;
+        kHoodConstants.kKf = 0.6;
+        kHoodConstants.kMaxIntegralAccumulator = 0;
+        kHoodConstants.kIZone = 0; // Ticks
+        kHoodConstants.kDeadband = 0; // Ticks
+
+        kHoodConstants.kPositionKp = 0.2;
+        kHoodConstants.kPositionKi = 0;
+        kHoodConstants.kPositionKd = 1;
+        kHoodConstants.kPositionKf = 0.0;
+        kHoodConstants.kPositionMaxIntegralAccumulator = 0;
+        kHoodConstants.kPositionIZone = 0; // Ticks
+        kHoodConstants.kPositionDeadband = 0; // Ticks
+
+        kHoodConstants.kMinUnitsLimit = 0.0;
+        kHoodConstants.kMaxUnitsLimit = 90.0;
+
+        kHoodConstants.kCruiseVelocity = 5000; // Ticks / 100ms
+        kHoodConstants.kAcceleration = 16000; // Ticks / 100ms / s
+        kHoodConstants.kRampRate = 0.0; // s
+        kHoodConstants.kContinuousCurrentLimit = 35; // amps
+        kHoodConstants.kPeakCurrentLimit = 40; // amps
+        kHoodConstants.kPeakCurrentDuration = 10; // milliseconds
+        kHoodConstants.kMaxVoltage = 12.0;
+    }
+    public static final double kHoodToBottomEndEffectorLength = 15.91; // Length (in) from wrist joint to bottom of end effector
 
     // pigeon
     public static final int kPigeonIMUId = 15;
