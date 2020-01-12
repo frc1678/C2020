@@ -7,6 +7,7 @@ import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.TalonFXControlMode;
 
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import com.team254.lib.drivers.TalonFXFactory;
@@ -20,7 +21,8 @@ public class Shooter extends Subsystem {
     private final TalonFX mMaster;
     private final TalonFX mSlave;
 
-    private boolean spun_up;
+    private boolean mSpunUp = false;
+    private boolean mRunningManual = false;
 
     private static double kVelocityConversion = 600.0 / 2048.0;
     private static double kShooterTolerance = 600.0;
@@ -50,9 +52,9 @@ public class Shooter extends Subsystem {
 
     @Override
     public synchronized void outputTelemetry() {
-        SmartDashboard.putNumber("ShooterVelocity", mPeriodicIO.velocity);
-        SmartDashboard.putNumber("ShooterCurrent", mPeriodicIO.current);
-        SmartDashboard.putNumber("ShooterGoalVelocity", mPeriodicIO.goal_velocity);
+        SmartDashboard.putNumber("Shooter Velocity", mPeriodicIO.velocity);
+        SmartDashboard.putNumber("Shooter Current", mPeriodicIO.current);
+        SmartDashboard.putNumber("Shooter Goal", mPeriodicIO.demand);
         if (mCSVWriter != null) {
             mCSVWriter.write();
         }
@@ -83,7 +85,8 @@ public class Shooter extends Subsystem {
     }
 
     public synchronized void setOpenLoop(double percentage) {
-        mMaster.set(TalonFXControlMode.PercentOutput, percentage);
+        mPeriodicIO.demand = percentage;
+        mRunningManual = true;
     }
 
     public synchronized double getVoltage() {
@@ -95,29 +98,26 @@ public class Shooter extends Subsystem {
     }
 
     public synchronized boolean spunUp() {
-        if (Math.abs(mPeriodicIO.velocity - mPeriodicIO.goal_velocity) < kShooterTolerance) {
-            spun_up = true;
-        }  else {
-            spun_up = false;
-        }        
-        return spun_up;
+        return (Math.abs(mPeriodicIO.velocity - mPeriodicIO.demand) < kShooterTolerance);
     }
 
-    public synchronized void setGoal(double velocity) {
-        mPeriodicIO.goal_velocity = velocity;
+    public synchronized void setVelocity(double velocity) {
+        mPeriodicIO.demand = velocity;
+        mRunningManual = false;
     }
 
     @Override
     public synchronized void readPeriodicInputs() {
+        mPeriodicIO.timestamp = Timer.getFPGATimestamp();
         mPeriodicIO.velocity = mMaster.getSelectedSensorVelocity() * kVelocityConversion;
-        mPeriodicIO.demand = mMaster.getMotorOutputVoltage();
+        mPeriodicIO.voltage = mMaster.getMotorOutputVoltage();
         mPeriodicIO.current = mMaster.getStatorCurrent();
         mPeriodicIO.temperature = mMaster.getTemperature();
     }
 
     @Override
     public void writePeriodicOutputs() {
-        mMaster.set(ControlMode.Velocity, mPeriodicIO.goal_velocity / kVelocityConversion);
+        mMaster.set(ControlMode.Velocity, mPeriodicIO.demand / kVelocityConversion);
     }
 
     @Override
@@ -129,11 +129,11 @@ public class Shooter extends Subsystem {
         //INPUTS
         public double timestamp;
         public double velocity;
-        public double demand;
         public double current;
         public double temperature;
+        public double voltage;
         
         //OUTPUTS
-        public double goal_velocity;
+        public double demand;
     }
 }
