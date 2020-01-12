@@ -38,7 +38,7 @@ public class Intake extends Subsystem {
     
     private final TalonFX mMaster;
 
-    private ReflectingCSVWriter<PeriodicIO> mCsvWriter = null;
+    private ReflectingCSVWriter<PeriodicIO> mCSVWriter = null;
 
     public static class PeriodicIO {
         //INPUTS
@@ -70,8 +70,8 @@ public class Intake extends Subsystem {
     public synchronized void outputTelemetry() {
         SmartDashboard.putNumber("Intake Current", mPeriodicIO.current);
 
-        if (mCsvWriter != null) {
-            mCsvWriter.write();
+        if (mCSVWriter != null) {
+            mCSVWriter.write();
         }
     }
 
@@ -89,6 +89,7 @@ public class Intake extends Subsystem {
         enabledLooper.register(new Loop() {
             @Override
             public void onStart(double timestamp) {
+                // startLogging();
                 mRunningManual = false;
                 mState = State.IDLE;
             }
@@ -111,7 +112,6 @@ public class Intake extends Subsystem {
                 mState = State.IDLE;
                 stop();
                 stopLogging();
-
             }
         });
     }
@@ -162,14 +162,14 @@ public class Intake extends Subsystem {
 
     @Override
     public synchronized void readPeriodicInputs() {
-        if (mCsvWriter != null) {
-            mCsvWriter.add(mPeriodicIO);
+        if (mCSVWriter != null) {
+            mCSVWriter.add(mPeriodicIO);
         }
     }
 
     @Override
     public void writePeriodicOutputs() {
-        mMaster.set(ControlMode.PercentOutput, PeriodicIO.demand / 12.0);
+        mMaster.set(ControlMode.PercentOutput, mPeriodicIO.demand / 12.0);
     }
     @Override
     public boolean checkSystem() {
@@ -190,14 +190,14 @@ public class Intake extends Subsystem {
         });
     }
     public synchronized void startLogging() {
-        if (mCsvWriter == null) {
-            mCsvWriter = new ReflectingCSVWriter<>("/home/lvuser/INTAKE-LOGS.csv", PeriodicIO.class); 
+        if (mCSVWriter == null) {
+            mCSVWriter = new ReflectingCSVWriter<>("/home/lvuser/INTAKE-LOGS.csv", PeriodicIO.class); 
         }
     }
     public synchronized void stopLogging() {
-        if (mCsvWriter != null) {
-            mCsvWriter.flush();
-            mCsvWriter = null;
+        if (mCSVWriter != null) {
+            mCSVWriter.flush();
+            mCSVWriter = null;
         }
     }
  }
