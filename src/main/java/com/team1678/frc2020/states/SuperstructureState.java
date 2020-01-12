@@ -17,7 +17,9 @@ public class SuperstructureState {
     public boolean feed; // boolean
 
     RobotState mRobotState = RobotState.getInstance();
-    private Optional<AimingParameters> mLatestAimingParameters = mRobotState.getAimingParameters(-1, Constants.kMaxGoalTrackAge);
+
+    boolean useHighTarget = mRobotState.useInnerTarget();
+    private Optional<AimingParameters> mLatestAimingParameters = mRobotState.getAimingParameters(useHighTarget, -1, Constants.kMaxGoalTrackAge);
 
     Pose2d robot_to_predicted_robot = mRobotState.getLatestFieldToVehicle().getValue().inverse()
                                                  .transformBy(mRobotState.getPredictedFieldToVehicle(0.7)); //TODO: Find parameter for getPredictedFieldToVehicle()

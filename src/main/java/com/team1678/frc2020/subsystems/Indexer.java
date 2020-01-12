@@ -37,11 +37,11 @@ public class Indexer extends Subsystem {
         public double feeder_demand;
     }
 
-    public enum WantedAction {
+    public static enum WantedAction {
         NONE, INDEX, FEED,
     }
 
-    public enum State {
+    public static enum State {
         IDLE, INDEXING, MOVING, FEEDING,
     }
 

@@ -116,6 +116,10 @@ public class Intake extends Subsystem {
         });
     }
 
+    public synchronized State getState() {
+        return mState;
+    }
+
     public void runStateMachine(boolean modifyingOutputs) {
         switch (mState) {
         case INTAKING:
