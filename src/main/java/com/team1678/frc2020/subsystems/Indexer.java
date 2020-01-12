@@ -113,6 +113,7 @@ public class Indexer extends Subsystem {
             @Override
             public void onStart(double timestamp) {
                 mState = State.IDLE;
+                mSlotGoal = mMotionPlanner.findNextSlot(mPeriodicIO.indexer_angle, mTurret.getAngle());
             }
 
             @Override
@@ -143,8 +144,9 @@ public class Indexer extends Subsystem {
         final double turret_angle = mTurret.getAngle();
         switch (mState) {
         case IDLE:
-            mPeriodicIO.indexer_control_mode = ControlMode.PercentOutput;
-            mPeriodicIO.indexer_demand = kIdleVoltage;
+            mPeriodicIO.indexer_control_mode = ControlMode.Position;
+            mPeriodicIO.indexer_demand = mMotionPlanner.findAngleGoal(mSlotGoal, mPeriodicIO.indexer_angle,
+                    turret_angle);
             mPeriodicIO.feeder_demand = kIdleVoltage;
             break;
         case INDEXING:
