@@ -109,6 +109,20 @@ public class Constants {
     }
     public static final int kIntakeRollerID = 6; //get real ID from electrical 
 
+    // superstructure states
+    public static final double g = -9.8;
+
+    public static final double kHeightToGoal = 0.0; //TODO: find actual value
+
+    public static final double kFinalHorizVelocity = 0.0; //TODO: find actual value
+    public static final double kHorizDragFactor = 0.0; //TODO: find actual value
+    public static final double kVelocityDrop = 0.0; //TODO: find actual value
+    public static final double kBallSpeedGain = 0.0; //TODO: find actual value
+
+    public static final double kShooterWheelRadiusInches = 0.0;
+
+    public static final double kVelocityConversion = 600.0 / 2048.0;
+
     // turret
     public static final ServoMotorSubsystemConstants kTurretConstants = new ServoMotorSubsystemConstants();
     static {
