@@ -6,6 +6,7 @@ import com.team1678.frc2020.Constants;
 import com.team1678.frc2020.loops.ILooper;
 import com.team1678.frc2020.loops.Loop;
 import com.team1678.frc2020.subsystems.Canifier;
+import com.team1678.frc2020.subsystems.Turret;
 
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -13,6 +14,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 public class Indexer extends Subsystem {
     private static Indexer mInstance = null;
     private Canifier mCanifier = Canifier.getInstance();
+    private Turret mTurret = Turret.getInstance();
 
     private static final double kFeedingVoltage = 12.;
     private static final double kOuttakeVoltage = -4.;
@@ -24,6 +26,7 @@ public class Indexer extends Subsystem {
         // INPUTS
         public double current_encoder_ticks;
         public boolean limit_switch;
+        public double current_turret_angle;
 
         // OUTPUTS
         public ControlMode indexer_control_mode;
@@ -46,11 +49,15 @@ public class Indexer extends Subsystem {
     private boolean mRunningManual = false;
     private double mCurrentTheta = mPeriodicIO.current_encoder_ticks / 2048 / kGearRatio * 360;
     private double mCurrentThetaAdjusted = mCurrentTheta % 360;
-    private double mThetaToFeeder = mCurrentTheta % 60;
+    private double mCurrentTurretAngle = mPeriodicIO.current_turret_angle;
+    private double mTurretAngleFromSixty = (mCurrentTurretAngle % 60 < 30) ? 
+                                            mCurrentTurretAngle % 60 : mCurrentTurretAngle % 60 - 60;
+    private double mThetaToFeeder = mCurrentTheta % 60 - mTurretAngleFromSixty;
     private double mDeadband = 0.5; // tune
     private double mThetaGoal = 0;
     private double mInitialTime = 0;
     private double mInitialTheta = 0;
+    private double mInitialTurretAngle = 0;
     private boolean mStartCounting = false;
     private boolean mStartRotating = false;
     private double mWaitTime = .1; // seconds
@@ -170,10 +177,10 @@ public class Indexer extends Subsystem {
                 mPeriodicIO.indexer_control_mode = ControlMode.Position;
                 mPeriodicIO.feeder_demand = kFeedingVoltage;
 
-                if (mThetaToFeeder > 30) {
-                    mThetaGoal = mThetaToFeeder - 60;
-                } else {
+                if (mThetaToFeeder < 30 && mThetaToFeeder > -30) {
                     mThetaGoal = mThetaToFeeder;
+                } else {
+                    mThetaGoal = mThetaToFeeder - 60;
                 }
                 mPeriodicIO.indexer_demand = mCurrentTheta + mThetaGoal;
 
@@ -189,10 +196,12 @@ public class Indexer extends Subsystem {
 
                 if (!mStartRotating) {
                     mInitialTheta = mCurrentTheta;
+                    mInitialTurretAngle = mCurrentTurretAngle;
                     mStartRotating = true;
                     mThetaGoal = 60;
                 }
-                if (mCurrentTheta - mInitialTheta > 60 - mDeadband) {
+                if (mStartRotating && mCurrentTheta - mInitialTheta > 60
+                    + (mCurrentTurretAngle - mInitialTurretAngle) - mDeadband) {
                     mStartRotating = false;
                     mState = State.FEEDING;
                 }
@@ -216,7 +225,7 @@ public class Indexer extends Subsystem {
                         mInitialTime = now;
                         mStartCounting = true;
                     }
-                    if (now - mInitialTime > mWaitTime) {
+                    if (mStartCounting && now - mInitialTime > mWaitTime) {
                         mState = State.MOVING;
                         mStartCounting = false;
                     }
@@ -269,6 +278,7 @@ public class Indexer extends Subsystem {
     public synchronized void readPeriodicInputs() {
         mPeriodicIO.current_encoder_ticks = mIndexer.getSelectedSensorPosition();
         mPeriodicIO.limit_switch = mCanifier.getIndexerLimit();
+        mPeriodicIO.current_turret_angle = mTurret.getAngle();
     }
 
     @Override

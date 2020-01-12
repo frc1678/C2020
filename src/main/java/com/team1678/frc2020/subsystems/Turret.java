@@ -18,7 +18,7 @@ public class Turret extends ServoMotorSubsystem {
     private boolean mHoming = true;
     public static final boolean kUseManualHomingRoutine = false;
     
-    private static Canifier canifier = Canifier.getInstance();
+    private static Canifier mCanifier = Canifier.getInstance();
 
     public synchronized static Turret getInstance() {
         if (mInstance == null) {
@@ -41,7 +41,7 @@ public class Turret extends ServoMotorSubsystem {
 
     @Override
     public boolean atHomingLocation() {
-        return canifier.getTurretLimit();
+        return mCanifier.getTurretLimit();
     }
 
     @Override
