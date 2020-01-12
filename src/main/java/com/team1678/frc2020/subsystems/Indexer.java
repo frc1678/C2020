@@ -87,6 +87,7 @@ public class Indexer extends Subsystem {
 
     @Override
     public synchronized void outputTelemetry() {
+        SmartDashboard.putString("IndexerControlMode", mPeriodicIO.indexer_control_mode.name());
         SmartDashboard.putNumber("IndexerSetpoint", mPeriodicIO.indexer_demand);
         SmartDashboard.putNumber("FeederSetpoint", mPeriodicIO.feeder_demand);
     }
