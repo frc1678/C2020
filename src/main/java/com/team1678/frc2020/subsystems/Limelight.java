@@ -47,7 +47,7 @@ public class Limelight extends Subsystem {
     public double getDistance() {
         double distance;
         distance = Math.abs((Constants.kPowerPortHeight - Constants.kTopLimelightConstants.kHeight / 
-        (Math.tan(Constants.kTopLimelightConstants.kAngle + mPeriodicIO.yOffset))));
+        (Math.tan(Math.toRadians(Constants.kTopLimelightConstants.kAngle + mPeriodicIO.yOffset)))));
         return distance;
     }
 

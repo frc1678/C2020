@@ -166,6 +166,9 @@ public class Constants {
     public static final int kPCMId = 1;
     public static final int kDiskBrakeSolenoidId = 0;
 
+    //limelight target
+    public static final double kPowerPortHeight = 92.25; //inches
+
     // limelight
     public static final double kHorizontalFOV = 59.6; // degrees
     public static final double kVerticalFOV = 49.7; // degrees
@@ -192,13 +195,6 @@ public class Constants {
     public static final double kWristToTremorsEnd = 15.75;  // in
 
     public static final int kCanifierId = 0;
-
-    // shooter
-    public static final int kMasterFlywheelID = 7;
-    public static final int kSlaveFlywheelID = 8;
-    public static final double kShooterP = 0.1;
-    public static final double kShooterI = 0.0;
-    public static final double kShooterD = 0.0;
 
     // Top limelight
     public static final LimelightConstants kTopLimelightConstants = new LimelightConstants();
