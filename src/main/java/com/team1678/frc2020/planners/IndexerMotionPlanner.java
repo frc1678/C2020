@@ -1,7 +1,5 @@
 package com.team1678.frc2020.planners;
 
-import com.team1678.frc2020.subsystems.Indexer;
-import com.team254.lib.geometry.Rotation2d;
 import com.team1678.frc2020.Constants;
 
 public class IndexerMotionPlanner {
@@ -64,17 +62,6 @@ public class IndexerMotionPlanner {
         double wrappedIndexerAngle = WrapDegrees(indexer_angle);
 
         double slotAngle = WrapDegrees(slotNumber * Constants.kAnglePerSlot) + wrappedIndexerAngle;
-        double offset = 0; 
-        
-        if (Math.abs(wrappedIndexerAngle) + Math.abs(wrappedTurretAngle) > 180.0) {
-            if (wrappedIndexerAngle > 0.0 && wrappedTurretAngle < 0.0) {
-                offset = 360 - wrappedIndexerAngle + wrappedTurretAngle;
-            } else if (wrappedIndexerAngle < 0.0 && wrappedTurretAngle > 0.0) {
-                offset = -360 - wrappedIndexerAngle + wrappedTurretAngle;
-            }
-        } else {
-            offset = wrappedTurretAngle - wrappedIndexerAngle;
-        }
 
         double angleGoal = WrapDegrees(wrappedTurretAngle - slotAngle);
 
@@ -82,25 +69,6 @@ public class IndexerMotionPlanner {
     }
 
     public boolean isAtGoal(int slotNumber, double indexer_angle, double turret_angle) {
-        double wrappedTurretAngle = WrapDegrees(turret_angle);
-        double wrappedIndexerAngle = WrapDegrees(indexer_angle);
-
-        double slotAngle = WrapDegrees(slotNumber * Constants.kAnglePerSlot);
-        double offset = 0; 
-        
-        if (Math.abs(wrappedIndexerAngle) + Math.abs(wrappedTurretAngle) > 180.0) {
-            if (wrappedIndexerAngle > 0.0 && wrappedTurretAngle < 0.0) {
-                offset = 360 - wrappedIndexerAngle + wrappedTurretAngle;
-            } else if (wrappedIndexerAngle < 0.0 && wrappedTurretAngle > 0.0) {
-                offset = -360 - wrappedIndexerAngle + wrappedTurretAngle;
-            }
-        } else {
-            offset = wrappedTurretAngle - wrappedIndexerAngle;
-        }
-
-        double angleGoal = slotAngle - wrappedIndexerAngle + offset;
-
-        return Math.abs(angleGoal) < Constants.kIndexerDeadband;
-
+        return Math.abs(findAngleToGoal(slotNumber, indexer_angle, turret_angle)) <= Constants.kIndexerDeadband;
     }
 }

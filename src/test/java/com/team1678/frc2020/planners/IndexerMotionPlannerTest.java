@@ -90,6 +90,7 @@ public class IndexerMotionPlannerTest {
         final double indexer_angle = motion_planner.WrapDegrees(indexerSim.update(0));
         final double turret_angle = motion_planner.WrapDegrees(turretSim.update(0));
         Assert.assertEquals(1, motion_planner.findNearestSlot(indexer_angle, turret_angle));
+        Assert.assertTrue(motion_planner.isAtGoal(slotGoal, indexer_angle, turret_angle));
     }
 
     @Test
@@ -112,6 +113,7 @@ public class IndexerMotionPlannerTest {
         final double indexer_angle = motion_planner.WrapDegrees(indexerSim.update(0));
         final double turret_angle = motion_planner.WrapDegrees(turretSim.update(0));
         Assert.assertEquals(1, motion_planner.findNearestSlot(indexer_angle, turret_angle));
+        Assert.assertTrue(motion_planner.isAtGoal(slotGoal, indexer_angle, turret_angle));
     }
 
     @Test
@@ -119,7 +121,7 @@ public class IndexerMotionPlannerTest {
 
         ControlledActuatorLinearSim turretSim = new ControlledActuatorLinearSim(-1000, 1000, 10);
         ControlledActuatorLinearSim indexerSim = new ControlledActuatorLinearSim(-1000, 1000, 45);
-
+;
         turretSim.reset(90);
         indexerSim.reset(0);
 
@@ -134,6 +136,7 @@ public class IndexerMotionPlannerTest {
         final double indexer_angle = motion_planner.WrapDegrees(indexerSim.update(0));
         final double turret_angle = motion_planner.WrapDegrees(turretSim.update(0));
         Assert.assertEquals(1, motion_planner.findNearestSlot(indexer_angle, turret_angle));
+        Assert.assertTrue(motion_planner.isAtGoal(slotGoal, indexer_angle, turret_angle));
     }
 
     @Test
@@ -148,13 +151,14 @@ public class IndexerMotionPlannerTest {
         IndexerMotionPlanner motion_planner = new IndexerMotionPlanner();
         int slotGoal = motion_planner.findNearestSlot(0, 0);
         double angleGoal = 0;
-        for (double t = 0; t < 10; t += 0.05) {
+        for (double t = 0; t < 69; t += 0.05) {
             indexerSim.setCommandedPosition(angleGoal);
             turretSim.setCommandedPosition(-360);
             angleGoal = motion_planner.findAngleGoal(slotGoal, indexerSim.update(0.05), turretSim.update(0.05));
         }
-        final double indexer_angle = motion_planner.WrapDegrees(indexerSim.update(0));
+        final double indexer_angle = motion_planner.WrapDegrees(indexerSim.update(20));
         final double turret_angle = motion_planner.WrapDegrees(turretSim.update(0));
         Assert.assertEquals(0, motion_planner.findNearestSlot(indexer_angle, turret_angle));
+        Assert.assertTrue(motion_planner.isAtGoal(slotGoal, indexer_angle, turret_angle));
     }
 }

@@ -115,7 +115,7 @@ public class Constants {
     // Indexer
     public static final int kIndexerSlots = 5;
     public static final int kAnglePerSlot = 360 / kIndexerSlots;
-    public static final double kIndexerDeadband = .5; // degrees
+    public static final double kIndexerDeadband = 0.5; // degrees
 
     public static final double kTestEpsilon = 1e-6;
 
