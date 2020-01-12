@@ -6,8 +6,10 @@ import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.team1678.frc2020.Constants;
 import com.team1678.frc2020.subsystems.Canifier;
 import com.team254.lib.drivers.MotorChecker;
-import com.team254.lib.drivers.TalonFXChecker;
-import com.team1678.lib.drivers.TalonFXUtil;
+import com.ctre.phoenix.motorcontrol.can.BaseTalon;
+import com.team254.lib.drivers.BaseTalonChecker;
+
+import com.team254.lib.drivers.TalonUtil;
 
 import java.util.ArrayList;
 
@@ -25,10 +27,6 @@ public class Hood extends ServoMotorSubsystem {
 
     private Hood(final ServoMotorSubsystemConstants constants) {
         super(constants);
-
-        TalonFXUtil.errorCheck(mMaster.configSelectedFeedbackSensor(
-                TalonFXFeedbackDevice.IntegratedSensor, 0, Constants.kLongCANTimeoutMs),
-                "Could not detect hood encoder: ");
     }
 
     @Override
@@ -42,8 +40,7 @@ public class Hood extends ServoMotorSubsystem {
 
     @Override
     public boolean checkSystem() {
-        return TalonFXChecker.checkMotors(this,
-        new ArrayList<MotorChecker.MotorConfig<TalonFX>>() {
+        return BaseTalonChecker.checkMotors(this, new ArrayList<MotorChecker.MotorConfig<BaseTalon>>() {
             private static final long serialVersionUID = -716113039054569446L;
 
             {

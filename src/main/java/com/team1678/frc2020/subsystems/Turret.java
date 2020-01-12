@@ -4,13 +4,14 @@ import java.util.ArrayList;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.DemandType;
+import com.ctre.phoenix.motorcontrol.can.BaseTalon;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 
 import com.team1678.frc2020.Constants;
 import com.team254.lib.drivers.TalonUtil;
 import com.team254.lib.util.LatchedBoolean;
 import com.team254.lib.drivers.MotorChecker;
-import com.team254.lib.drivers.TalonFXChecker;
+import com.team254.lib.drivers.BaseTalonChecker;;
 
 public class Turret extends ServoMotorSubsystem {
     private static Turret mInstance;
@@ -29,9 +30,6 @@ public class Turret extends ServoMotorSubsystem {
 
     private Turret(final ServoMotorSubsystemConstants constants) {
         super(constants);
-        TalonUtil.checkError(
-                mMaster.configClosedLoopPeakOutput(1, 0.8, Constants.kLongCANTimeoutMs),
-                "Unable to configure close loop peak output for turret!");
     }
 
     // Syntactic sugar.
@@ -81,8 +79,8 @@ public class Turret extends ServoMotorSubsystem {
 
     @Override
     public boolean checkSystem() {
-        return TalonFXChecker.checkMotors(this,
-                new ArrayList<MotorChecker.MotorConfig<TalonFX>>() {
+        return BaseTalonChecker.checkMotors(this,
+                new ArrayList<MotorChecker.MotorConfig<BaseTalon>>() {
                     private static final long serialVersionUID = 1636612675181038895L;  // TODO find the right number
 
 					{
