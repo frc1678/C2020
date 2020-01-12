@@ -58,8 +58,10 @@ public class Constants {
     public static final int kRightDriveMasterId = 3;
     public static final int kRightDriveSlaveId = 4;
 
-    public static final int kWranglerId = 5;
-    public static final int kWinchMasterId = 6;
+    public static final int kWranglerId = 7;
+    public static final int kWinchMasterId = 8;
+    public static final int kIndexerId = 5; // change
+    public static final int kFeederId = 6; // change
 
     // elevator
     public static final ServoMotorSubsystemConstants kElevatorConstants = new ServoMotorSubsystemConstants();
@@ -111,6 +113,13 @@ public class Constants {
 
     }
     public static final int kIntakeRollerID = 6; //get real ID from electrical 
+
+    // Indexer
+    public static final int kIndexerSlots = 5;
+    public static final int kAnglePerSlot = 360 / kIndexerSlots;
+    public static final double kIndexerDeadband = 0.5; // degrees
+
+    public static final double kTestEpsilon = 1e-6;
 
     // turret
     public static final ServoMotorSubsystemConstants kTurretConstants = new ServoMotorSubsystemConstants();
