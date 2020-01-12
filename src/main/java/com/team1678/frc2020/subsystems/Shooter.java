@@ -97,6 +97,10 @@ public class Shooter extends Subsystem {
         return mMaster.getSelectedSensorVelocity();
     }
 
+    public synchronized double getVelocity() {
+        return mPeriodicIO.velocity;
+    }
+
     public synchronized boolean spunUp() {
         return (Math.abs(mPeriodicIO.velocity - mPeriodicIO.demand) < kShooterTolerance);
     }
@@ -123,6 +127,10 @@ public class Shooter extends Subsystem {
     @Override
     public synchronized boolean checkSystem() {
         return true;
+    }
+
+    public static Shooter getInstance() {
+        return mInstance;
     }
 
     public static class PeriodicIO {
