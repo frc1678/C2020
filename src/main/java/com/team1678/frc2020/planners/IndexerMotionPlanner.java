@@ -22,7 +22,7 @@ public class IndexerMotionPlanner {
 
         double offset = 0; 
         
-        if (Math.abs(wrappedIndexerAngle) + Math.abs(wrappedTurretAngle) > 180.0) {
+        if (Math.abs(wrappedTurretAngle - wrappedIndexerAngle) > 180.0) {
             if (wrappedIndexerAngle > 0.0 && wrappedTurretAngle < 0.0) {
                 offset = 360 - wrappedIndexerAngle + wrappedTurretAngle;
             } else if (wrappedIndexerAngle < 0.0 && wrappedTurretAngle > 0.0) {
@@ -56,10 +56,14 @@ public class IndexerMotionPlanner {
     }
 
     public double findAngleGoal(int slotNumber, double indexer_angle, double turret_angle) {
+        return findAngleToGoal(slotNumber, indexer_angle, turret_angle) + indexer_angle;
+    }
+    
+    public double findAngleToGoal(int slotNumber, double indexer_angle, double turret_angle) {
         double wrappedTurretAngle = WrapDegrees(turret_angle);
         double wrappedIndexerAngle = WrapDegrees(indexer_angle);
 
-        double slotAngle = WrapDegrees(slotNumber * Constants.kAnglePerSlot);
+        double slotAngle = WrapDegrees(slotNumber * Constants.kAnglePerSlot) + wrappedIndexerAngle;
         double offset = 0; 
         
         if (Math.abs(wrappedIndexerAngle) + Math.abs(wrappedTurretAngle) > 180.0) {
@@ -72,9 +76,9 @@ public class IndexerMotionPlanner {
             offset = wrappedTurretAngle - wrappedIndexerAngle;
         }
 
-        double angleGoal = slotAngle - wrappedIndexerAngle + offset;
+        double angleGoal = WrapDegrees(wrappedTurretAngle - slotAngle);
 
-        return angleGoal + indexer_angle;
+        return angleGoal;
     }
 
     public boolean isAtGoal(int slotNumber, double indexer_angle, double turret_angle) {

@@ -117,6 +117,8 @@ public class Constants {
     public static final int kAnglePerSlot = 360 / kIndexerSlots;
     public static final double kIndexerDeadband = .5; // degrees
 
+    public static final double kTestEpsilon = 1e-6;
+
     // turret
     public static final ServoMotorSubsystemConstants kTurretConstants = new ServoMotorSubsystemConstants();
     static {
