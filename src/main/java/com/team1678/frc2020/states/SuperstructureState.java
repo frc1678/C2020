@@ -1,55 +1,23 @@
 package com.team1678.frc2020.states;
 
+import java.util.Optional;
+import java.lang.Math;
+
+
 import com.team1678.frc2020.Constants;
 import com.team1678.frc2020.RobotState;
 import com.team254.lib.geometry.Pose2d;
-
-import java.lang.Math;
+import com.team254.lib.util.Util;
+import com.team254.lib.vision.AimingParameters;
 
 public class SuperstructureState {
-    public double turret; 
-    public double hood; 
-    public double shooter; 
-
-    public SuperstructureState(double turret, double hood, double shooter) {
-        this.turret = turret;
-        this.hood = hood;
-        this.shooter = shooter;
-    }
-
-    public SuperstructureState(SuperstructureState other) {
-        this.turret = other.turret;
-        this.hood = other.hood;
-        this.shooter = other.shooter;
-    }
-
-    // default robot position
-    public SuperstructureState() {
-        this(0, 0, 0);
-    }
-
-    public void setFrom(SuperstructureState source) {
-        turret = source.turret;
-        hood = source.hood;
-        shooter = source.shooter;
-    }
-
-    @Override
-    public String toString() {
-        return "SuperstructureState{" +
-                "turret=" + turret +
-                ", hood=" + hood +
-                ", shooter=" + shooter +
-                '}';
-    }
-
-    
-
-    public Double[] asVector() {
-        return new Double[]{turret, hood, shooter};
-    }
+    public double turret; // degrees
+    public double shooter; // velocity
+    public double hood; // degrees
+    public boolean feed; // boolean
 
     RobotState mRobotState = RobotState.getInstance();
+    private Optional<AimingParameters> mLatestAimingParameters = mRobotState.getAimingParameters(-1, Constants.kMaxGoalTrackAge);
 
     Pose2d robot_to_predicted_robot = mRobotState.getLatestFieldToVehicle().getValue().inverse()
                                                  .transformBy(mRobotState.getPredictedFieldToVehicle(0.7)); //TODO: Find parameter for getPredictedFieldToVehicle()
@@ -75,23 +43,60 @@ public class SuperstructureState {
     double max_velocity_RPM = 8000;
     boolean valid_velocity;
 
+    public SuperstructureState(double turret, double shooter, double hood, boolean feed) {
+        this.turret = turret;
+        this.shooter = shooter;
+        this.hood = hood;
+        this.feed = feed;
+    }
+
+    public SuperstructureState(SuperstructureState other) {
+        this.turret = other.turret;
+        this.shooter = other.shooter;
+        this.hood = other.hood;
+        this.feed = other.feed;
+    }
+
+    // default robot position
+    public SuperstructureState() {
+        this(0, 0, 0, false);
+    }
+
+    public void setFrom(SuperstructureState source) {
+        turret = source.turret;
+        shooter = source.shooter;
+        hood = source.hood;
+        feed = source.feed;
+    }
+
+    @Override
+    public String toString() {
+        return "SuperstructureState{" +
+                "turret=" + turret +
+                ", shooter=" + shooter +
+                ", hood=" + hood +
+                ", feed=" + feed +
+                '}';
+    }
 
     
+
+    public Double[] asVector() {
+        return new Double[]{turret, shooter, hood};
+    }
+
     public double getVerticalInit() {
         velocity_iy = Math.sqrt(-(2.0 * Constants.g * Constants.kHeightToGoal));
-
         return velocity_iy;
     }
 
     public double getFirstHorizInit() {
         first_velocity_ix = Math.sqrt(Math.pow(Constants.kFinalHorizVelocity, 2.0) - (2.0 * Constants.kHorizDragFactor * mCorrectedRangeToTarget));
-
         return first_velocity_ix;
     }
 
     public double getHoodAngle() {        
         goal_theta = Math.atan(velocity_iy / first_velocity_ix);
-
         if (min_theta < goal_theta && goal_theta < max_theta) {
             valid_theta =  true;
         } else { 
@@ -120,5 +125,7 @@ public class SuperstructureState {
         } else {
             System.out.println("Cannot shoot from this distance!!");
         }
+
+        return velocity_ix;
     }
 }

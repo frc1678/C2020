@@ -122,6 +122,7 @@ public class Superstructure extends Subsystem {
 
     @Override
     public boolean checkSystem() {
+        return true;
     }
 
     // Getters
@@ -198,7 +199,6 @@ public class Superstructure extends Subsystem {
             mGoal.state.turret = goal.state.turret;
             mGoal.state.shooter = goal.state.shooter;
             mGoal.state.hood = goal.state.hood;
-            mGoal.state.feed = goal.state.feed;
         }
     }
 
@@ -206,7 +206,6 @@ public class Superstructure extends Subsystem {
         mCurrentState.turret = mTurret.getAngle();
         mCurrentState.hood = mHood.getAngle();
         mCurrentState.shooter = mShooter.getVelocity();
-        mCurrentState.feed = mIndexer.getFeeding();
     }
 
     public synchronized void updateSetpointFromGoal() {
@@ -294,13 +293,6 @@ public class Superstructure extends Subsystem {
             double shooting_setpoint = getShootingSetpointRpm(mCorrectedRangeToTarget);
             mGoal.state.shooter = shooting_setpoint;
 
-            // wait until spun up to actually shoot
-            if (!mShooter.spunUp()) {
-                mGoal.state.feed = false;
-            } else {
-                mGoal.state.feed = mCurrentState.feed;
-            }
-
             double aiming_setpoint = getHoodSetpointAngle(mCorrectedRangeToTarget);
             mGoal.state.hood = aiming_setpoint;
 
@@ -374,11 +366,14 @@ public class Superstructure extends Subsystem {
 
         mHood.setSetpointPositionPID(mCurrentSetpoint.state.hood, mHoodFeedforwardV);
         mShooter.setVelocity(mCurrentSetpoint.state.shooter);
-        mIndexer.setFeed(mCurrentSetpoint.state.feed);
-    }
-
-    public synchronized void indexerFeed() {
-
+        
+        if (Intake.getInstance().getState() != Intake.State.IDLE) {
+            mIndexer.setState(Indexer.WantedAction.INDEX);
+        } else if (mShooter.spunUp() && mOnTarget) {
+            mIndexer.setState(Indexer.WantedAction.FEED);
+        } else {
+            mIndexer.setState(Indexer.WantedAction.NONE);
+        }
     }
 
     public synchronized void setWantAutoAim(Rotation2d field_to_turret_hint, boolean enforce_min_distance,
