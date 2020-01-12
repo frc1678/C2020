@@ -21,8 +21,7 @@ public class Shooter extends Subsystem {
     private final TalonFX mSlave;
 
     private boolean spun_up;
-
-    private static double kVelocityConversion = 600.0 / 2048.0;
+    
     private static double kShooterTolerance = 600.0;
 
     private Shooter() {
