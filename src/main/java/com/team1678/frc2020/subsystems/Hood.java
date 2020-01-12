@@ -1,58 +1,43 @@
 package com.team1678.frc2020.subsystems;
 
-import java.util.ArrayList;
-
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.DemandType;
-import com.ctre.phoenix.motorcontrol.can.BaseTalon;
+import com.ctre.phoenix.motorcontrol.TalonFXFeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 
 import com.team1678.frc2020.Constants;
-import com.team254.lib.drivers.TalonUtil;
-import com.team254.lib.util.LatchedBoolean;
+import com.team1678.frc2020.subsystems.Canifier;
 import com.team254.lib.drivers.MotorChecker;
-import com.team254.lib.drivers.BaseTalonChecker;;
+import com.ctre.phoenix.motorcontrol.can.BaseTalon;
+import com.team254.lib.drivers.BaseTalonChecker;
 
-public class Turret extends ServoMotorSubsystem {
-    private static Turret mInstance;
-    private LatchedBoolean mJustReset = new LatchedBoolean();
+import com.team254.lib.drivers.TalonUtil;
+
+import java.util.ArrayList;
+
+public class Hood extends ServoMotorSubsystem {
+    private static Hood mInstance;
     private boolean mHoming = true;
-    public static final boolean kUseManualHomingRoutine = false;
 
-    private static Canifier canifier = Canifier.getInstance();
-
-    public synchronized static Turret getInstance() {
+    public synchronized static Hood getInstance() {
         if (mInstance == null) {
-            mInstance = new Turret(Constants.kTurretConstants);
+            mInstance = new Hood(Constants.kHoodConstants);
         }
+
         return mInstance;
     }
 
-    private Turret(final ServoMotorSubsystemConstants constants) {
+    private Hood(final ServoMotorSubsystemConstants constants) {
         super(constants);
     }
 
-    // Syntactic sugar.
+    @Override
+    public synchronized boolean atHomingLocation() {
+        return Canifier.getInstance().getHoodLimit();
+    }
+
     public synchronized double getAngle() {
         return getPosition();
-    }
-
-    @Override
-    public boolean atHomingLocation() {
-        return canifier.getTurretLimit();
-    }
-
-    @Override
-    public synchronized void handleMasterReset(boolean reset) {
-        if (mJustReset.update(reset) && kUseManualHomingRoutine) {
-            System.out.println("Turret going into home mode!");
-            mHoming = true;
-            mMaster.overrideSoftLimitsEnable(false);
-        }
-    }
-
-    public synchronized boolean isHoming() {
-        return mHoming;
     }
 
     @Override
@@ -78,20 +63,20 @@ public class Turret extends ServoMotorSubsystem {
     @Override
     public boolean checkSystem() {
         return BaseTalonChecker.checkMotors(this, new ArrayList<MotorChecker.MotorConfig<BaseTalon>>() {
-            private static final long serialVersionUID = 1636612675181038895L; // TODO find the right number
+            private static final long serialVersionUID = -716113039054569446L;
 
             {
                 add(new MotorChecker.MotorConfig<>("master", mMaster));
             }
         }, new MotorChecker.CheckerConfig() {
-            { // TODO change to legit config
-                mRunOutputPercentage = 0.1;
+            {
+                mRunOutputPercentage = 0.5;
                 mRunTimeSec = 1.0;
                 mCurrentFloor = 0.1;
                 mRPMFloor = 90;
                 mCurrentEpsilon = 2.0;
                 mRPMEpsilon = 200;
-                mRPMSupplier = mMaster::getSelectedSensorVelocity;
+                mRPMSupplier = () -> mMaster.getSelectedSensorVelocity();
             }
         });
     }

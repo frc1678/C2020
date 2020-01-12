@@ -91,7 +91,7 @@ public abstract class ServoMotorSubsystem extends Subsystem {
         mMaster.configStatorCurrentLimit(STATOR_CURRENT_LIMIT);
         mMaster.configSupplyCurrentLimit(SUPPLY_CURRENT_LIMIT);
 
-        TalonUtil.checkError(mMaster.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, 0,
+        TalonUtil.checkError(mMaster.configSelectedFeedbackSensor(TalonFXFeedbackDevice.IntegratedSensor, 0,
                 Constants.kLongCANTimeoutMs), mConstants.kName + ": Could not detect encoder: ");
 
         mForwardSoftLimitTicks = (int) ((mConstants.kMaxUnitsLimit - mConstants.kHomePosition) * mConstants.kTicksPerUnitDistance);
