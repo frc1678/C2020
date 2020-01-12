@@ -219,11 +219,12 @@ public class Intake extends Subsystem {
         mStorage.setHeaders(columnNames);
     }
     public void LogWrite() {
-        ArrayList<Double> row = new ArrayList<Double>();
-        row.add(mPeriodicIO.timestamp);
-        row.add(mPeriodicIO.current);
-        row.add(mPeriodicIO.demand);
-
+        ArrayList<Double> items = new ArrayList<Double>();
+        ArrayList<ArrayList<Double>> row = new ArrayList<ArrayList<Double>>();
+        items.add(mPeriodicIO.timestamp);
+        items.add(mPeriodicIO.current);
+        items.add(mPeriodicIO.demand); 
+        row.add(items); 
         mStorage.addData(row);
     }
  }
