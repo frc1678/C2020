@@ -219,6 +219,7 @@ public class Roller extends Subsystem {
 
                 break;
             default:
+                System.out.println("Invalid roller goal!");
                 break;
         }
     }
@@ -261,6 +262,7 @@ public class Roller extends Subsystem {
                 mState = State.ACHIEVING_POSITION_CONTROL;
                 break;
             default:
+                System.out.println("Invalid roller action!");
                 break;
         }
     }
