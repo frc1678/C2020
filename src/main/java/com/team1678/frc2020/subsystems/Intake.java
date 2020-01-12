@@ -1,5 +1,7 @@
 package com.team1678.frc2020.subsystems;
 
+import com.team1678.frc2020.logger.*;
+import com.team1678.frc2020.logger.LogStorage;
 import com.team1678.frc2020.Constants;
 import com.team1678.frc2020.loops.ILooper;
 import com.team1678.frc2020.loops.Loop;
@@ -16,6 +18,7 @@ import com.team254.lib.util.ReflectingCSVWriter;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import java.util.ArrayList;
+import java.util.Collection;
 
 public class Intake extends Subsystem {
     public static double kIntakingVoltage = 12.0;
@@ -48,6 +51,9 @@ public class Intake extends Subsystem {
         //OUTPUTS
         public static double demand;
     }
+    LogStorage mStorage = null;
+    PeriodicIO mIntakeData = null;
+
 
     private Intake() {
         mMaster = TalonFXFactory.createDefaultTalon(Constants.kIntakeRollerID);  // update constate with actual number 
@@ -57,6 +63,9 @@ public class Intake extends Subsystem {
         mMaster.setInverted(false);
         mMaster.configVoltageCompSaturation(12);
         mMaster.enableVoltageCompensation(true);
+    }
+    public void registerLogger(LoggingSystem LS) {
+        LS.register(mStorage, "intake.csv");
     }
 
     public synchronized static Intake getInstance() {
@@ -199,5 +208,22 @@ public class Intake extends Subsystem {
             mCSVWriter.flush();
             mCSVWriter = null;
         }
+    }
+    public void Log() {
+        mIntakeData = new PeriodicIO();
+        mStorage = new LogStorage();
+        ArrayList<String> columnNames = new ArrayList<String>();
+        columnNames.add("timestamp");
+        columnNames.add("current");
+        columnNames.add("demand");
+        mStorage.setHeaders(columnNames);
+    }
+    public void LogWrite() {
+        ArrayList<Double> row = new ArrayList<Double>();
+        row.add(mPeriodicIO.timestamp);
+        row.add(mPeriodicIO.current);
+        row.add(mPeriodicIO.demand);
+
+        mStorage.addData(row);
     }
  }

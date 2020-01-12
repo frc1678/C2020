@@ -11,6 +11,7 @@ import com.team1678.frc2020.loops.Looper;
 import com.team1678.frc2020.subsystems.Limelight;
 import com.team1678.frc2020.controlboard.ControlBoard;
 import com.team1678.frc2020.controlboard.IControlBoard;
+import com.team1678.frc2020.logger.*;
 import com.team254.lib.wpilib.TimedRobot;
 import com.team1678.frc2020.SubsystemManager;
 import com.team1678.frc2020.subsystems.*;
@@ -34,15 +35,20 @@ public class Robot extends TimedRobot {
 
     private final Looper mEnabledLooper = new Looper();
     private final Looper mDisabledLooper = new Looper();
+    private final Looper mLoggingLooper = new Looper();
 
     private final IControlBoard mControlBoard = ControlBoard.getInstance();
 
     private final SubsystemManager mSubsystemManager = SubsystemManager.getInstance();
     private final Drive mDrive = Drive.getInstance();
     private final Limelight mLimelight = Limelight.getInstance();
+    private final Intake mIntake = Intake.getInstance();
+   // private final Superstructure mSuperstructure = Superstructure.getInstance(); 
 
     private final RobotState mRobotState = RobotState.getInstance();
     private final RobotStateEstimator mRobotStateEstimator = RobotStateEstimator.getInstance();
+
+    private final LoggingSystem mLogger = LoggingSystem.getInstance();
 
     @Override
     public void robotInit() {
@@ -59,6 +65,8 @@ public class Robot extends TimedRobot {
             mDrive.setHeading(Rotation2d.identity());
 
             mLimelight.setLed(Limelight.LedMode.OFF);
+            mIntake.registerLogger(mLogger);
+            mLogger.registerLoops(mLoggingLooper);
         } catch (Throwable t) {
             CrashTracker.logThrowableCrash(t);
             throw t;
