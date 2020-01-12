@@ -31,6 +31,7 @@ public class Roller extends Subsystem {
 
     // Color sensing
     private final ColorMatch mColorMatcher = new ColorMatch();
+    ColorMatchResult match;
 
     private final Color kBlueTarget = ColorMatch.makeColor(0.250, 0.691, 0.633);
     private final Color kGreenTarget = ColorMatch.makeColor(0.225, 0.604, 0.240);
@@ -38,11 +39,10 @@ public class Roller extends Subsystem {
     private final Color kYellowTarget = ColorMatch.makeColor(0.871, 0.1194, 0.234);
     private Color mColorPositionTarget;
 
-    // Detected when driving up - used to determine number of rotations
-    private Color initialColor;
+    int colorCounter;
 
-    // Used to determine color change
-    private Color colorAfterChange;
+    Color previousColor;
+    Color initialColor;
 
     String gameData;
 
@@ -157,35 +157,37 @@ public class Roller extends Subsystem {
                 break;
             case ACHIEVING_ROTATION_CONTROL:
                 mPeriodicIO.pop_out_solenoid = true;
-                int i = 0;
+                match = mColorMatcher.matchClosestColor(mPeriodicIO.detected_color);
 
                 // Run roller until it has gone over the inital color four times
-                while (i < 4) {
+                if (colorCounter < 7) {
                     mPeriodicIO.roller_demand = kRotateVoltage;
 
-                    if (colorHasChanged()) {
-                        if (mPeriodicIO.detected_color == initialColor) {
-                            i++;
+                    if (match.color != previousColor) {
+                        if (match.color == initialColor && match.confidence > .93) {
+                            colorCounter++;
                         }
                     }
                 }
 
+                previousColor = match.color;
+
                 // If it has run over the initial color four times, turn off roller
-                if (i >= 4) {
+                if (colorCounter >= 7) {
                     setState(WantedAction.NONE);
-                    i = 0;
+                    colorCounter = 0;
                 }
 
                 break;
             case ACHIEVING_POSITION_CONTROL:
                 if (mColorPositionTarget != null) {
                     mPeriodicIO.pop_out_solenoid = true;
-                    ColorMatchResult match = mColorMatcher.matchClosestColor(mPeriodicIO.detected_color);
+                    match = mColorMatcher.matchClosestColor(mPeriodicIO.detected_color);
 
                     if (match.color == mColorPositionTarget) {
                         setState(WantedAction.NONE);
                     } else {
-                        while (match.color != mColorPositionTarget) {
+                        if (match.color != mColorPositionTarget) {
                             mPeriodicIO.roller_demand = kRotateVoltage;
                         }
                     }
@@ -205,17 +207,7 @@ public class Roller extends Subsystem {
     public void stop() {
         mRunningManual = true;
         mPeriodicIO.roller_demand = 0.0;
-    }
-
-    public boolean colorHasChanged() {
-        Color currentColor = mPeriodicIO.detected_color;
-
-        if (colorAfterChange != currentColor) {
-            colorAfterChange = currentColor;
-            return true;
-        } else {
-            return false;
-        }
+        mPeriodicIO.pop_out_solenoid = false;
     }
 
     @Override
@@ -238,8 +230,9 @@ public class Roller extends Subsystem {
                 mState = State.IDLE;
                 break;
             case ACHIEVE_ROTATION_CONTROL:
-                initialColor = mColorSensor.getColor();
-                colorAfterChange = mColorSensor.getColor();
+                match = mColorMatcher.matchClosestColor(mPeriodicIO.detected_color);
+                initialColor = match.color;
+                previousColor = match.color;
                 mState = State.ACHIEVING_ROTATION_CONTROL;
                 break;
             case ACHIEVE_POSITION_CONTROL:
