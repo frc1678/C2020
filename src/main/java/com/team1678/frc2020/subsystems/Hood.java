@@ -1,5 +1,7 @@
 package com.team1678.frc2020.subsystems;
 
+import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.DemandType;
 import com.ctre.phoenix.motorcontrol.TalonFXFeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 
@@ -14,8 +16,8 @@ import com.team254.lib.drivers.TalonUtil;
 import java.util.ArrayList;
 
 public class Hood extends ServoMotorSubsystem {
-
     private static Hood mInstance;
+    private boolean mHoming = true;
 
     public synchronized static Hood getInstance() {
         if (mInstance == null) {
@@ -36,6 +38,26 @@ public class Hood extends ServoMotorSubsystem {
 
     public synchronized double getAngle() {
         return getPosition();
+    }
+
+    @Override
+    public synchronized void writePeriodicOutputs() {
+        if (mHoming) {
+            if (atHomingLocation()) {
+                mMaster.setSelectedSensorPosition((int) unitsToTicks(0));
+                mMaster.overrideSoftLimitsEnable(true);
+                System.out.println("Homed!!!");
+                mHoming = false;
+            }
+
+            if (mControlState == ControlState.OPEN_LOOP) {
+                mMaster.set(ControlMode.PercentOutput, mPeriodicIO.demand, DemandType.ArbitraryFeedForward, 0.0);
+            } else {
+                mMaster.set(ControlMode.PercentOutput, 0.0, DemandType.ArbitraryFeedForward, 0.0);
+            }
+        } else {
+            super.writePeriodicOutputs();
+        }
     }
 
     @Override

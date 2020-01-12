@@ -18,7 +18,7 @@ public class Turret extends ServoMotorSubsystem {
     private LatchedBoolean mJustReset = new LatchedBoolean();
     private boolean mHoming = true;
     public static final boolean kUseManualHomingRoutine = false;
-    
+
     private static Canifier canifier = Canifier.getInstance();
 
     public synchronized static Turret getInstance() {
@@ -66,11 +66,9 @@ public class Turret extends ServoMotorSubsystem {
             }
 
             if (mControlState == ControlState.OPEN_LOOP) {
-                mMaster.set(ControlMode.PercentOutput, mPeriodicIO.demand, DemandType.ArbitraryFeedForward,
-                        0.0);
+                mMaster.set(ControlMode.PercentOutput, mPeriodicIO.demand, DemandType.ArbitraryFeedForward, 0.0);
             } else {
-                mMaster.set(ControlMode.PercentOutput, 0.0, DemandType.ArbitraryFeedForward,
-                        0.0);
+                mMaster.set(ControlMode.PercentOutput, 0.0, DemandType.ArbitraryFeedForward, 0.0);
             }
         } else {
             super.writePeriodicOutputs();
@@ -79,23 +77,22 @@ public class Turret extends ServoMotorSubsystem {
 
     @Override
     public boolean checkSystem() {
-        return BaseTalonChecker.checkMotors(this,
-                new ArrayList<MotorChecker.MotorConfig<BaseTalon>>() {
-                    private static final long serialVersionUID = 1636612675181038895L;  // TODO find the right number
+        return BaseTalonChecker.checkMotors(this, new ArrayList<MotorChecker.MotorConfig<BaseTalon>>() {
+            private static final long serialVersionUID = 1636612675181038895L; // TODO find the right number
 
-					{
-                        add(new MotorChecker.MotorConfig<>("master", mMaster));
-                    }
-                }, new MotorChecker.CheckerConfig() {
-                    {   // TODO change to legit config
-                        mRunOutputPercentage = 0.1;
-                        mRunTimeSec = 1.0;
-                        mCurrentFloor = 0.1;
-                        mRPMFloor = 90;
-                        mCurrentEpsilon = 2.0;
-                        mRPMEpsilon = 200;
-                        mRPMSupplier = mMaster::getSelectedSensorVelocity;
-                    }
-                });
+            {
+                add(new MotorChecker.MotorConfig<>("master", mMaster));
+            }
+        }, new MotorChecker.CheckerConfig() {
+            { // TODO change to legit config
+                mRunOutputPercentage = 0.1;
+                mRunTimeSec = 1.0;
+                mCurrentFloor = 0.1;
+                mRPMFloor = 90;
+                mCurrentEpsilon = 2.0;
+                mRPMEpsilon = 200;
+                mRPMSupplier = mMaster::getSelectedSensorVelocity;
+            }
+        });
     }
 }
