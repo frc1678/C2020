@@ -193,6 +193,13 @@ public class Constants {
 
     public static final int kCanifierId = 0;
 
+    // shooter
+    public static final int kMasterFlywheelID = 7;
+    public static final int kSlaveFlywheelID = 8;
+    public static final double kShooterP = 0.1;
+    public static final double kShooterI = 0.0;
+    public static final double kShooterD = 0.0;
+
     // Top limelight
     public static final LimelightConstants kTopLimelightConstants = new LimelightConstants();
     static {
