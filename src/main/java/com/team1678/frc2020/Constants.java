@@ -60,7 +60,6 @@ public class Constants {
 
     public static final int kWranglerId = 5;
     public static final int kWinchMasterId = 6;
-    public static final int kWinchSlaveId = 7;
 
     // elevator
     public static final ServoMotorSubsystemConstants kElevatorConstants = new ServoMotorSubsystemConstants();

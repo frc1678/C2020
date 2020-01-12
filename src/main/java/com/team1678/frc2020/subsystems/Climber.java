@@ -34,22 +34,17 @@ public class Climber extends Subsystem  {
     private State mState = State.IDLE;
 
     private final TalonFX mMaster;
-    private final TalonFX mSlave;
     private final Solenoid mArmSolenoid;
 
     private Climber() {
         mArmSolenoid = Constants.makeSolenoidForId(Constants.kArmSolenoidId);
 
         mMaster = new TalonFX(Constants.kWinchMasterId);
-        mSlave = new TalonFX(Constants.kWinchSlaveId);
-
         mMaster.set(ControlMode.PercentOutput, 0);
         mMaster.setInverted(false);
         mMaster.configVoltageCompSaturation(12.0, Constants.kLongCANTimeoutMs);
         mMaster.enableVoltageCompensation(true);
 
-        mSlave.follow(mMaster);
-        mSlave.setInverted(false);
     }
 
     private double mCurrentHeight = mPeriodicIO.current_height / 2048 * kGearRatio;
