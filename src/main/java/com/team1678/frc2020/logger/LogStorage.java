@@ -7,22 +7,22 @@ public class LogStorage implements ILoggable {
     ArrayList<ArrayList<Double>> mItems = new ArrayList<ArrayList<Double>>();
 
     @Override
-    public ArrayList<ArrayList<Double>> get_items() {
+    public synchronized ArrayList<ArrayList<Double>> getItems() {
         ArrayList<ArrayList<Double>> items_copy = new ArrayList<ArrayList<Double>>(mItems);
         mItems.clear(); 
         return (items_copy);
     }
 
     @Override
-    public ArrayList<String> get_item_names() {
+    public ArrayList<String> getItemNames() {
         return mColumns;
     }
     public void setHeaders(ArrayList<String> column) {
         mColumns = column;
         
     }
-    public void addData(ArrayList<ArrayList<Double>> items) {
-        mItems = items; 
+    public synchronized void addData(ArrayList<Double> items) {
+        mItems.add(items); 
 
     }
 

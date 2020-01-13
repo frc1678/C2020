@@ -21,10 +21,10 @@ public class LoggingSystem {
     private static LoggingSystem mInstance; 
     // 1.1
     //  LoggableItems object
-    ArrayList<ILoggable> loggable_items = new ArrayList<ILoggable>();
+    ArrayList<ILoggable> loggableItems = new ArrayList<ILoggable>();
 
     //  creating a usingFileWriter object per loggable file
-    ArrayList<FileWriter> loggable_files = new ArrayList<FileWriter>();
+    ArrayList<FileWriter> loggableFiles = new ArrayList<FileWriter>();
     private LoggingSystem() {
     }
     public synchronized static LoggingSystem getInstance() {
@@ -33,31 +33,31 @@ public class LoggingSystem {
         }
         return mInstance; 
     }
-    public void register(ILoggable new_loggable, String filename) {  //  start function that opens files
+    public void register(ILoggable newLoggable, String filename) {  //  start function that opens files
         FileWriter fileWriter = null;
         try {
             fileWriter = new FileWriter(filename);
         } catch (Exception e) {}
-        ArrayList<String> item_names = new_loggable.get_item_names();
-        loggable_files.add(fileWriter);
+        ArrayList<String> itemNames = newLoggable.getItemNames();
+        loggableFiles.add(fileWriter);
         // write names to file
         try {
-        for (int h=0; h < item_names.size(); h++) {
-            fileWriter.write(item_names.get(h));
+        for (int h=0; h < itemNames.size(); h++) {
+            fileWriter.write(itemNames.get(h));
             fileWriter.write(",");
             }
             fileWriter.write("\n");
             //  adding Loggable to Loggable_items list
-            loggable_items.add(new_loggable);
+            loggableItems.add(newLoggable);
         } catch (Exception e) {}
     }
     void Log() {  //  function that gets called and told when to log by main
         try{
-            for (int i=0; i < loggable_items.size(); i++) {
-               ArrayList<ArrayList<Double>> items = loggable_items.get(i).get_items();
+            for (int i=0; i < loggableItems.size(); i++) {
+               ArrayList<ArrayList<Double>> items = loggableItems.get(i).getItems();
                //  assertArrayEquals(items[i], item_names[i]);
                //  get object fileWriter from the list 
-               FileWriter fileWriter = loggable_files.get(i);
+               FileWriter fileWriter = loggableFiles.get(i);
                //  write to files
                for (int j=0; j < items.size(); j++) {
                    ArrayList<Double> data = items.get(j);
@@ -74,8 +74,8 @@ public class LoggingSystem {
     }
     void Close() {  //  close file
         try {
-            for (int i=0; i< loggable_files.size(); i++) {
-                FileWriter fileWriter = loggable_files.get(i);
+            for (int i=0; i< loggableFiles.size(); i++) {
+                FileWriter fileWriter = loggableFiles.get(i);
                 fileWriter.close();
             }
         } catch (Exception e) {}

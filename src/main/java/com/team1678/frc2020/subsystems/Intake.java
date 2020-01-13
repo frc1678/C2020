@@ -18,7 +18,6 @@ import com.team254.lib.util.ReflectingCSVWriter;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import java.util.ArrayList;
-import java.util.Collection;
 
 public class Intake extends Subsystem {
     public static double kIntakingVoltage = 12.0;
@@ -65,6 +64,7 @@ public class Intake extends Subsystem {
         mMaster.enableVoltageCompensation(true);
     }
     public void registerLogger(LoggingSystem LS) {
+        LogSetup();
         LS.register(mStorage, "intake.csv");
     }
 
@@ -78,6 +78,7 @@ public class Intake extends Subsystem {
     @Override
     public synchronized void outputTelemetry() {
         SmartDashboard.putNumber("Intake Current", mPeriodicIO.current);
+        LogWrite();
 
         if (mCSVWriter != null) {
             mCSVWriter.write();
@@ -209,7 +210,7 @@ public class Intake extends Subsystem {
             mCSVWriter = null;
         }
     }
-    public void Log() {
+    public void LogSetup() {
         mIntakeData = new PeriodicIO();
         mStorage = new LogStorage();
         ArrayList<String> columnNames = new ArrayList<String>();
@@ -220,11 +221,9 @@ public class Intake extends Subsystem {
     }
     public void LogWrite() {
         ArrayList<Double> items = new ArrayList<Double>();
-        ArrayList<ArrayList<Double>> row = new ArrayList<ArrayList<Double>>();
         items.add(mPeriodicIO.timestamp);
         items.add(mPeriodicIO.current);
-        items.add(mPeriodicIO.demand); 
-        row.add(items); 
-        mStorage.addData(row);
+        items.add(mPeriodicIO.demand);  
+        mStorage.addData(items);
     }
  }
