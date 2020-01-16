@@ -71,6 +71,20 @@ public class IndexerMotionPlannerTest {
     }
 
     @Test
+    public void testPreviousSlot() {
+        IndexerMotionPlanner motion_planner = new IndexerMotionPlanner();
+        int slotGoal = motion_planner.findNearestSlot(-135, 135);
+        double angleGoal = motion_planner.findAngleToGoal(slotGoal, -135, 135);
+        Assert.assertEquals(4, slotGoal);
+        Assert.assertEquals(-18, angleGoal, Constants.kTestEpsilon);
+
+        slotGoal = motion_planner.findPreviousSlot(-153, 135);
+        angleGoal = motion_planner.findAngleToGoal(slotGoal, -153, 135);
+        Assert.assertEquals(3, slotGoal);
+        Assert.assertEquals(72, angleGoal, Constants.kTestEpsilon);
+    }
+
+    @Test
     public void testMovingIndexer() {
 
         ControlledActuatorLinearSim turretSim = new ControlledActuatorLinearSim(-1000, 1000, 10);
