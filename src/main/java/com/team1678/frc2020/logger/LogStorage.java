@@ -17,8 +17,8 @@ public class LogStorage implements ILoggable {
     public ArrayList<String> getItemNames() {
         return mColumns;
     }
-    public void setHeaders(ArrayList<String> column) {
-        mColumns = column;
+    public void setHeaders(ArrayList<String> columns) {
+        mColumns = columns;
         
     }
     public synchronized void addData(ArrayList<Double> items) {

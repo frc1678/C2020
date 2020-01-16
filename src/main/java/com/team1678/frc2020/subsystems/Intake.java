@@ -15,6 +15,7 @@ import com.team254.lib.drivers.TalonFXFactory;
 import com.team254.lib.drivers.MotorChecker;
 import com.team254.lib.util.ReflectingCSVWriter;
 
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import java.util.ArrayList;
@@ -51,7 +52,6 @@ public class Intake extends Subsystem {
         public static double demand;
     }
     LogStorage mStorage = null;
-    PeriodicIO mIntakeData = null;
 
 
     private Intake() {
@@ -211,7 +211,6 @@ public class Intake extends Subsystem {
         }
     }
     public void LogSetup() {
-        mIntakeData = new PeriodicIO();
         mStorage = new LogStorage();
         ArrayList<String> columnNames = new ArrayList<String>();
         columnNames.add("timestamp");
@@ -221,7 +220,7 @@ public class Intake extends Subsystem {
     }
     public void LogWrite() {
         ArrayList<Double> items = new ArrayList<Double>();
-        items.add(mPeriodicIO.timestamp);
+        items.add(Timer.getFPGATimestamp());
         items.add(mPeriodicIO.current);
         items.add(mPeriodicIO.demand);  
         mStorage.addData(items);
