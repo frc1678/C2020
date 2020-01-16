@@ -22,6 +22,7 @@ public class Indexer extends Subsystem {
     private static final double kOuttakeVoltage = -4.;
     private static final double kIdleVoltage = 0.;
     private static final double kIndexingVelocity = 120.; // degrees per second
+    private static final double kZoomingVelocity = 360.;
     private static final double kGearRatio = 200.; // TODO(Hanson) verify with design
 
     public static class PeriodicIO {
@@ -42,7 +43,7 @@ public class Indexer extends Subsystem {
     }
 
     public enum State {
-        IDLE, INDEXING, MOVING, FEEDING,
+        IDLE, INDEXING, REVOLVING, ZOOMING, FEEDING,
     }
 
     private PeriodicIO mPeriodicIO = new PeriodicIO();
@@ -159,7 +160,7 @@ public class Indexer extends Subsystem {
             mPeriodicIO.indexer_demand = mBackwards ? -kIndexingVelocity : kIndexingVelocity;
             mPeriodicIO.feeder_demand = kOuttakeVoltage;
             break;
-        case MOVING:
+        case REVOLVING:
             mPeriodicIO.indexer_control_mode = ControlMode.Position;
             mPeriodicIO.feeder_demand = kFeedingVoltage;
 
@@ -176,6 +177,11 @@ public class Indexer extends Subsystem {
                 mState = State.FEEDING;
             }
             break;
+        case ZOOMING:
+            mPeriodicIO.indexer_control_mode = ControlMode.Velocity;
+            mPeriodicIO.indexer_demand = mBackwards ? -kZoomingVelocity : kZoomingVelocity;
+            mPeriodicIO.feeder_demand = kFeedingVoltage;
+            break;
         case FEEDING:
             mPeriodicIO.indexer_control_mode = ControlMode.Position;
             mPeriodicIO.feeder_demand = kFeedingVoltage;
@@ -187,7 +193,7 @@ public class Indexer extends Subsystem {
                     mStartCounting = true;
                 }
                 if (mStartCounting && now - mInitialTime > mWaitTime) {
-                    mState = State.MOVING;
+                    mState = State.REVOLVING;
                     mStartCounting = false;
                 }
             }
@@ -226,7 +232,7 @@ public class Indexer extends Subsystem {
             break;
         }
 
-        if (mState != prev_state && mState != State.MOVING) {
+        if (mState != prev_state && mState != State.REVOLVING) {
             mSlotGoal = mMotionPlanner.findNearestSlot(mPeriodicIO.indexer_angle, mTurret.getAngle());
         }
     }
