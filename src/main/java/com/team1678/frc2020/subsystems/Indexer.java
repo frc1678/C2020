@@ -141,8 +141,8 @@ public class Indexer extends Subsystem {
         return mPeriodicIO.indexer_angle;
     }
 
-    public synchronized void setBackwardsMode() {
-        mBackwards = true;
+    public synchronized void setBackwardsMode(boolean backwards) {
+        mBackwards = backwards;
     }
 
     public void runStateMachine() {
