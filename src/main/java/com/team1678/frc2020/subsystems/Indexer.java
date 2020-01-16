@@ -53,6 +53,7 @@ public class Indexer extends Subsystem {
     private boolean mStartCounting = false;
     private double mWaitTime = .1; // seconds
     private boolean mHasBeenZeroed = false;
+    private boolean mBackwards = false;
     private int mSlotGoal;
 
     private Indexer() {
@@ -140,6 +141,10 @@ public class Indexer extends Subsystem {
         return mPeriodicIO.indexer_angle;
     }
 
+    public synchronized void setBackwardsMode() {
+        mBackwards = true;
+    }
+
     public void runStateMachine() {
         final double turret_angle = mTurret.getAngle();
         switch (mState) {
@@ -151,14 +156,18 @@ public class Indexer extends Subsystem {
             break;
         case INDEXING:
             mPeriodicIO.indexer_control_mode = ControlMode.Velocity;
-            mPeriodicIO.indexer_demand = kIndexingVelocity;
+            mPeriodicIO.indexer_demand = mBackwards ? -kIndexingVelocity : kIndexingVelocity;
             mPeriodicIO.feeder_demand = kOuttakeVoltage;
             break;
         case MOVING:
             mPeriodicIO.indexer_control_mode = ControlMode.Position;
             mPeriodicIO.feeder_demand = kFeedingVoltage;
 
-            mSlotGoal = mMotionPlanner.findNextSlot(mPeriodicIO.indexer_angle, turret_angle);
+            if (!mBackwards) {
+                mSlotGoal = mMotionPlanner.findNextSlot(mPeriodicIO.indexer_angle, turret_angle);
+            } else {
+                mSlotGoal = mMotionPlanner.findPreviousSlot(mPeriodicIO.indexer_angle, turret_angle);
+            }
 
             mPeriodicIO.indexer_demand = mMotionPlanner.findAngleGoal(mSlotGoal, mPeriodicIO.indexer_angle,
                     turret_angle);
