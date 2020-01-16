@@ -10,20 +10,20 @@ public class SetpointGeneratorTest {
                                      MotionProfileGoal goal, MotionState start_state, double dt, int max_iterations) {
         MotionState prev_state = start_state;
 
-        System.out.println("Goal: " + goal);
-        System.out.println("Start state: " + prev_state);
+        // System.out.println("Goal: " + goal);
+        // System.out.println("Start state: " + prev_state);
         int i = 0;
         for (; i < max_iterations; ++i) {
             SetpointGenerator.Setpoint setpoint = spg.getSetpoint(constraints, goal, prev_state, prev_state.t() + dt);
             prev_state = setpoint.motion_state;
-            System.out.println(prev_state);
+            // System.out.println(prev_state);
             if (setpoint.final_setpoint) {
-                System.out.println("Goal reached");
+                // System.out.println("Goal reached");
                 break;
             }
         }
         if (i == max_iterations) {
-            System.out.println("Iteration limit reached");
+            // System.out.println("Iteration limit reached");
         }
         return prev_state;
     }
