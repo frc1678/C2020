@@ -8,7 +8,7 @@ import java.io.FileWriter;
 
 public class LoggingSystem {
     private static LoggingSystem mInstance; 
-    public static String mDirectory; 
+    public static String mDirectory = "/tmp/";
     // 1.1
     //  LoggableItems object
     ArrayList<ILoggable> loggableItems = new ArrayList<ILoggable>();
@@ -25,10 +25,10 @@ public class LoggingSystem {
         return mInstance; 
     }
 
-    public void register(ILoggable newLoggable, String filename) {  //  start function that opens files
+    public void register(ILoggable newLoggable, String mDirectory) {  //  start function that opens files
         FileWriter fileWriter = null;
         try {
-            fileWriter = new FileWriter(filename);
+            fileWriter = new FileWriter(mDirectory);
         } catch (Exception e) {}
         ArrayList<String> itemNames = newLoggable.getItemNames();
         loggableFiles.add(fileWriter);
