@@ -39,7 +39,7 @@ public class Indexer extends Subsystem {
     }
 
     public enum WantedAction {
-        NONE, INDEX, FEED,
+        NONE, INDEX, REVOLVE, ZOOM,
     }
 
     public enum State {
@@ -227,8 +227,11 @@ public class Indexer extends Subsystem {
         case INDEX:
             mState = State.INDEXING;
             break;
-        case FEED:
-            mState = State.FEEDING;
+        case REVOLVE:
+            mState = State.REVOLVING;
+            break;
+        case ZOOM:
+            mState = State.ZOOMING;
             break;
         }
 
