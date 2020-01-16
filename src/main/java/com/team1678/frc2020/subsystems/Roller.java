@@ -23,7 +23,7 @@ import com.revrobotics.ControlType;
 // Control panel manipulator
 public class Roller extends Subsystem {
     // Constants
-    public static double kRotateVoltage = 3.0; // Assign true value later
+    public static double kRotateVoltage = 3.0; // Positive value rotates the control panel counter-clockwise
 
     // Motors, solenoids and sensors
     public I2C.Port i2cPort = I2C.Port.kOnboard;
@@ -179,12 +179,10 @@ public class Roller extends Subsystem {
                     if (mMatch.color != mPreviousColor) {
                       if (mMatch.color == mInitialColor) {
                         // Necessary to avoid color confusion between red/green and blue/yellow
-                        if (mInitialColor == kYellowTarget && mMatch.color == kYellowTarget && mPreviousColor == kGreenTarget && mPreviousPreviousColor == kBlueTarget) {
-                          // Do nothing
-                        } else if (mInitialColor == kGreenTarget && mMatch.color == kGreenTarget && mPreviousColor == kYellowTarget && mPreviousPreviousColor == kRedTarget) {
-                          // Do nothing
-                        } else {
-                          mColorCounter++;
+                        // Haven't tested this logic yet
+                        if (!(mInitialColor == kYellowTarget && mMatch.color == kYellowTarget && mPreviousColor == kGreenTarget && mPreviousPreviousColor == kBlueTarget)
+                        || !(mInitialColor == kGreenTarget && mMatch.color == kGreenTarget && mPreviousColor == kYellowTarget && mPreviousPreviousColor == kRedTarget)) {
+                            mColorCounter++;
                         }
                       }
                     }
@@ -253,9 +251,8 @@ public class Roller extends Subsystem {
                 mState = State.IDLE;
                 break;
             case ACHIEVE_ROTATION_CONTROL:
-                mInitialColor = mMatch.color;
-                mPreviousColor = mMatch.color;
-                mPreviousColor = mMatch.color;
+                // This is frowned upon by Java developers, so I'm willing to change it
+                mInitialColor = mPreviousColor = mPreviousPreviousColor = mMatch.color;
                 mState = State.ACHIEVING_ROTATION_CONTROL;
                 break;
             case ACHIEVE_POSITION_CONTROL:
