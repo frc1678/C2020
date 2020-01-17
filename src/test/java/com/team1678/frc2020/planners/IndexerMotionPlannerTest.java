@@ -80,7 +80,7 @@ public class IndexerMotionPlannerTest {
 
         slotGoal = motion_planner.findPreviousSlot(-153, 135);
         angleGoal = motion_planner.findAngleToGoal(slotGoal, -153, 135);
-        Assert.assertEquals(0, slotGoal);
+        Assert.assertEquals(3, slotGoal);
         Assert.assertEquals(72, angleGoal, Constants.kTestEpsilon);
     }
 
