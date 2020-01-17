@@ -8,9 +8,9 @@ public class LogStorage implements ILoggable {
 
     @Override
     public synchronized ArrayList<ArrayList<Double>> getItems() {
-        ArrayList<ArrayList<Double>> items_copy = new ArrayList<ArrayList<Double>>(mItems);
-        mItems.clear(); 
-        return (items_copy);
+        ArrayList<ArrayList<Double>> items_tmp = mItems;
+        mItems = new ArrayList<ArrayList<Double>>();
+        return items_tmp;
     }
 
     @Override
