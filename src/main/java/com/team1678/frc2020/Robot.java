@@ -92,7 +92,11 @@ public class Robot extends TimedRobot {
     @Override
     public void teleopPeriodic() {
         try {
-            
+            double timestamp = Timer.getFPGATimestamp();
+            double throttle = mControlBoard.getThrottle();
+            double turn = mControlBoard.getTurn();
+
+            mDrive.setAssistedDrive(timestamp, throttle, -turn, mControlBoard.getQuickTurn());
         } catch (Throwable t) {
             CrashTracker.logThrowableCrash(t);
             throw t;
