@@ -4,21 +4,13 @@ import com.team1678.frc2020.Constants;
 import com.team1678.frc2020.loops.ILooper;
 import com.team1678.frc2020.loops.Loop;
 
-import com.ctre.phoenix.motorcontrol.ControlMode;
-import com.ctre.phoenix.motorcontrol.can.TalonFX;
-import com.ctre.phoenix.motorcontrol.can.BaseTalon;
 import com.team254.lib.drivers.SparkMaxFactory;
-import com.team254.lib.drivers.SparkMaxChecker;
 
-import com.revrobotics.CANSparkMax;
-import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.team254.lib.drivers.LazySparkMax;
-import com.team254.lib.drivers.MotorChecker;
 import com.team254.lib.util.ReflectingCSVWriter;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-import java.util.ArrayList;
 
 public class Intake extends Subsystem {
     public static double kIntakingVoltage = 12.0;
