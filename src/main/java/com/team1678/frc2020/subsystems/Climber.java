@@ -13,42 +13,36 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Climber extends Subsystem  {
     static Climber mInstance = null;
-    // private DiskBrake mDiskBrake = DiskBrake.getInstance();
 
     private static final double kWinchVoltage = 12.;
     private static final double kHoldingVoltage = 0.;
-    private static final double kGearRatio = 200;
 
     private PeriodicIO mPeriodicIO = new PeriodicIO();
 
-    // private DiskBrake.WantedAction mDiskBrakeGoal = DiskBrake.WantedAction.RELEASE;
-
     public enum WantedAction {
-        NONE, EXTEND, WINCH, // BRAKE,
+        NONE, EXTEND, WINCH, BRAKE,
     }
 
     private enum State {
-        IDLE, EXTENDING, WINCHING, // BRAKING,
+        IDLE, EXTENDING, WINCHING, BRAKING,
     }
 
     private State mState = State.IDLE;
 
     private final TalonFX mMaster;
     private final Solenoid mArmSolenoid;
+    private Solenoid mBrakeSolenoid;
 
     private Climber() {
         mArmSolenoid = Constants.makeSolenoidForId(Constants.kArmSolenoidId);
+        mBrakeSolenoid = Constants.makeSolenoidForId(Constants.kBrakeSolenoidId);
 
         mMaster = new TalonFX(Constants.kWinchMasterId);
         mMaster.set(ControlMode.PercentOutput, 0);
         mMaster.setInverted(false);
         mMaster.configVoltageCompSaturation(12.0, Constants.kLongCANTimeoutMs);
         mMaster.enableVoltageCompensation(true);
-
     }
-
-    private double mCurrentHeight = mPeriodicIO.current_height / 2048 * kGearRatio;
-    private double mMinHeight = -60; // inches, might need tuning
 
     public synchronized static Climber getInstance() {
         if (mInstance == null) {
@@ -66,8 +60,8 @@ public class Climber extends Subsystem  {
     public void outputTelemetry() {
         SmartDashboard.putString("ClimberState", mState.name());
         SmartDashboard.putBoolean("ArmExtended", mPeriodicIO.arm_solenoid);
+        SmartDashboard.putBoolean("BrakeEngaged", mPeriodicIO.brake_solenoid);
         SmartDashboard.putNumber("WinchVoltage", mPeriodicIO.demand);
-        SmartDashboard.putNumber("CurrentHeight", mCurrentHeight);
     }
 
     @Override
@@ -91,7 +85,6 @@ public class Climber extends Subsystem  {
             public void onLoop(double timestamp) {
                 synchronized (Climber.this) {
                     runStateMachine(true);
-                    // mDiskBrake.setState(mDiskBrakeGoal);
                 }
             }
 
@@ -110,9 +103,9 @@ public class Climber extends Subsystem  {
         return mArmSolenoid.get() && mPeriodicIO.arm_solenoid;
     }
 
-    public void forceArmRetract() {
-        mPeriodicIO.arm_solenoid = false;
-    }
+    public void setBrake(boolean brake) {
+        mPeriodicIO.brake_solenoid = brake;
+    } 
 
     public synchronized void setOpenLoop(double percentage) {
         mPeriodicIO.demand = percentage;
@@ -121,27 +114,22 @@ public class Climber extends Subsystem  {
     public void runStateMachine(boolean modifyOutputs) {
         switch (mState) {
         case IDLE:
-            // mDiskBrakeGoal = DiskBrake.WantedAction.NONE;
             mPeriodicIO.demand = kHoldingVoltage;
             break;
         case EXTENDING:
-            // mDiskBrakeGoal = DiskBrake.WantedAction.NONE;
             mPeriodicIO.demand = kHoldingVoltage;
             mPeriodicIO.arm_solenoid = true;
+            mPeriodicIO.brake_solenoid = false;
         case WINCHING:
-            // mDiskBrakeGoal = DiskBrake.WantedAction.RELEASE;
-            if (mCurrentHeight > mMinHeight) {
-                mPeriodicIO.demand = kWinchVoltage;
-            } else {
-                mPeriodicIO.demand = kHoldingVoltage;
-            }
+            mPeriodicIO.demand = kWinchVoltage;
             mPeriodicIO.arm_solenoid = true;
+            mPeriodicIO.brake_solenoid = false;
             break;
-        /* case BRAKING:
-            mDiskBrakeGoal = DiskBrake.WantedAction.BRAKE;
+        case BRAKING:
             mPeriodicIO.demand = kHoldingVoltage;
             mPeriodicIO.arm_solenoid = true;
-            break; */
+            mPeriodicIO.brake_solenoid = true;
+            break;
         default:
             System.out.println("Fell through on Climber states!");
         }
@@ -157,31 +145,31 @@ public class Climber extends Subsystem  {
         case WINCH:
             mState = State.WINCHING;
             break;
-        /* case BRAKE:
+        case BRAKE:
             mState = State.BRAKING;
-            break; */
+            break;
         default:
             System.out.println("No climber goal!");
         }
     }
 
     @Override
-    public synchronized void readPeriodicInputs() {
-        mPeriodicIO.current_height = mMaster.getSelectedSensorPosition();
+    public synchronized void readPeriodicInputs() {   
     }
 
     @Override
     public synchronized void writePeriodicOutputs() {
         mMaster.set(ControlMode.PercentOutput, mPeriodicIO.demand / 12.0);
         mArmSolenoid.set(mPeriodicIO.arm_solenoid);
+        mBrakeSolenoid.set(mPeriodicIO.brake_solenoid);
     }
 
     public static class PeriodicIO {
         // INPUTS
-        public double current_height;
 
         // OUTPUTS
         public double demand;
         public boolean arm_solenoid;
+        public boolean brake_solenoid;
     }
 }

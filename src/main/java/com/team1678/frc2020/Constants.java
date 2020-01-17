@@ -219,7 +219,7 @@ public class Constants {
 
     // solenoids
     public static final int kPCMId = 1;
-    public static final int kDiskBrakeSolenoidId = 3;
+    public static final int kBrakeSolenoidId = 3;
     public static final int kArmSolenoidId = 0;
     public static final int kDeployerSolenoidId = 2;
 
