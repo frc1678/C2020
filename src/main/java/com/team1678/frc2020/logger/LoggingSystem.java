@@ -10,14 +10,15 @@ import java.io.FileWriter;
 
 public class LoggingSystem {
     private static LoggingSystem mInstance; 
-    //  set original directory path . Will be added to in LoggingSystem() when new directories are created inside /tmp/
+    //  set original directory path. Will be added to in LoggingSystem() when new directories are created inside /tmp/
     public static String mDirectory = "/tmp/";
     ArrayList<ILoggable> loggableItems = new ArrayList<ILoggable>();
 
     ArrayList<FileWriter> loggableFiles = new ArrayList<FileWriter>();
 
-    /* create a for loop that goes over all the current files and subdirectories in mDirectories
-        if the directory is empty (when the max number is 0), start a new subdirectory at 1.
+    /* 
+        Create a for loop that goes over all the current files and subdirectories in mDirectories.
+        If the directory is empty (when the max number is 0), start a new subdirectory at 1.
         Whenever the logging system reboots, function will scan over all the exhisting files and subdirectories and find the largest one.
         New subdirectory is created by adding one (1) to the max file number.
     */
@@ -62,7 +63,7 @@ public class LoggingSystem {
                 }
             }
             fileWriter.write("\n");
-            //  Adding Loggable to Loggable_items list
+            //  Adding Loggable to loggableItems list
             loggableItems.add(newLoggable);
         } catch (Exception e) {
             System.err.println("Couldn't write to file");
@@ -74,7 +75,6 @@ public class LoggingSystem {
         try{
             for (int i=0; i < loggableItems.size(); i++) {
                ArrayList<ArrayList<Double>> items = loggableItems.get(i).getItems();
-               //  assertArrayEquals(items[i], item_names[i]);
                //  get object fileWriter from the list 
                FileWriter fileWriter = loggableFiles.get(i);
                //  write to files

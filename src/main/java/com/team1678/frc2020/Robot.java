@@ -43,7 +43,6 @@ public class Robot extends TimedRobot {
     private final Drive mDrive = Drive.getInstance();
     private final Limelight mLimelight = Limelight.getInstance();
     private final Intake mIntake = Intake.getInstance();
-   // private final Superstructure mSuperstructure = Superstructure.getInstance(); 
 
     private final RobotState mRobotState = RobotState.getInstance();
     private final RobotStateEstimator mRobotStateEstimator = RobotStateEstimator.getInstance();

@@ -6,7 +6,7 @@ public class LoggerMain {
        // creating a loggable object 
        ILoggable loggable = new TestLoggable();
        LS.register(loggable, "Test.csv");
-       // telling it to log on a regukar basis 
+       // telling system to log on a regular basis 
        for (int i = 0; i<10; i++) {
          LS.Log();
          try {
