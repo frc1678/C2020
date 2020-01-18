@@ -12,12 +12,17 @@ import com.team1678.frc2020.subsystems.Limelight;
 import com.team1678.frc2020.controlboard.ControlBoard;
 import com.team1678.frc2020.controlboard.IControlBoard;
 import com.team254.lib.wpilib.TimedRobot;
+
+import java.util.Optional;
+
 import com.team1678.frc2020.SubsystemManager;
 import com.team1678.frc2020.subsystems.*;
 import com.team254.lib.util.*;
+import com.team254.lib.vision.AimingParameters;
 import com.team254.lib.geometry.Rotation2d;
 import com.team254.lib.geometry.Pose2d;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -55,7 +60,8 @@ public class Robot extends TimedRobot {
             mSubsystemManager.registerDisabledLoops(mDisabledLooper);
 
             // Robot starts forwards.
-            mRobotState.reset(Timer.getFPGATimestamp(), Pose2d.identity(), Rotation2d.identity());
+            mRobotState.reset(Timer.getFPGATimestamp(), Pose2d.identity(), Rotation2d.identity(),
+                    Rotation2d.identity());
             mDrive.setHeading(Rotation2d.identity());
 
             mLimelight.setLed(Limelight.LedMode.OFF);
@@ -63,6 +69,11 @@ public class Robot extends TimedRobot {
             CrashTracker.logThrowableCrash(t);
             throw t;
         }
+    }
+
+    public void outputToSmartDashboard() {
+        RobotState.getInstance().outputToSmartDashboard();
+        mSubsystemManager.outputToSmartDashboard();
     }
 
     @Override
@@ -92,11 +103,7 @@ public class Robot extends TimedRobot {
     @Override
     public void teleopPeriodic() {
         try {
-            double timestamp = Timer.getFPGATimestamp();
-            double throttle = mControlBoard.getThrottle();
-            double turn = mControlBoard.getTurn();
-
-            mDrive.setAssistedDrive(timestamp, throttle, -turn, mControlBoard.getQuickTurn());
+            outputToSmartDashboard();
         } catch (Throwable t) {
             CrashTracker.logThrowableCrash(t);
             throw t;
