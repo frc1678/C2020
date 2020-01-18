@@ -4,7 +4,7 @@ import com.team1678.frc2020.loops.Loop;
 import com.team1678.frc2020.loops.ILooper;
 
 import java.util.ArrayList;
-
+import java.io.File;
 import java.io.FileWriter;
 
 public class LoggingSystem {
@@ -16,6 +16,20 @@ public class LoggingSystem {
     //  creating a usingFileWriter object per loggable file
     ArrayList<FileWriter> loggableFiles = new ArrayList<FileWriter>();
     private LoggingSystem() {
+        File Directory = new File(mDirectory);
+        Integer maxNum = 0;
+        for (final File directoryEntry : Directory.listFiles()) {
+            if (directoryEntry.isDirectory()) {
+                int Num = Integer.parseInt(directoryEntry.getName());
+                if (Num > maxNum) {
+                    maxNum = Num;
+                } 
+            }
+        }
+        maxNum++;
+        mDirectory = mDirectory + "/" + maxNum.toString(); 
+        File newDirectory = new File(mDirectory);
+        newDirectory.mkdir();
     }
 
     public synchronized static LoggingSystem getInstance() {
