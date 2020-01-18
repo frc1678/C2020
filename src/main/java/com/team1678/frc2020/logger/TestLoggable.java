@@ -1,6 +1,7 @@
 /*test interface*/
 
 //  Just testing that array list concepts and ILoggable work
+
 package com.team1678.frc2020.logger; 
 
 import java.util.ArrayList;

@@ -5,6 +5,7 @@ import com.team1678.frc2020.loops.ILooper;
 
 import java.util.ArrayList;
 import java.io.File;
+
 import java.io.FileWriter;
 
 public class LoggingSystem {
@@ -36,7 +37,6 @@ public class LoggingSystem {
         File newDirectory = new File(mDirectory);
         newDirectory.mkdir();
     }
-
     public synchronized static LoggingSystem getInstance() {
         if (mInstance == null) {
             mInstance = new LoggingSystem();
@@ -107,7 +107,6 @@ public class LoggingSystem {
             System.err.println("Couldn't close file");
         }
     }
-
     public void registerLoops(ILooper looper) {
         looper.register(new Loop() {
             @Override
