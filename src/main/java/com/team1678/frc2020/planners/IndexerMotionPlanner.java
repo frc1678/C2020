@@ -3,14 +3,6 @@ package com.team1678.frc2020.planners;
 import com.team1678.frc2020.Constants;
 
 public class IndexerMotionPlanner {
-
-    // Locations of proxies in degrees
-    double mFrontProxy = 0.;
-    double mRightProxy = 72.;
-    double mLeftProxy = -72.;
-    double mBackRightProxy = 144.;
-    double mBackLeftProxy = -144.;
-
     public IndexerMotionPlanner() {}
 
     protected double WrapDegrees(double degrees) {
