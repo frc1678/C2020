@@ -27,9 +27,14 @@ public class Indexer extends Subsystem {
 
     public static class PeriodicIO {
         // INPUTS
-        public double encoder_ticks;
-        public double indexer_angle;
+        public boolean front_proxy;
+        public boolean right_proxy;
+        public boolean left_proxy;
+        public boolean back_right_proxy;
+        public boolean back_left_proxy;
         public boolean limit_switch;
+
+        public double indexer_angle;
         public double turret_angle;
 
         // OUTPUTS
@@ -56,6 +61,13 @@ public class Indexer extends Subsystem {
     private boolean mHasBeenZeroed = false;
     private boolean mBackwards = false;
     private int mSlotGoal;
+    private boolean mSlotsFilled = false;
+
+    private boolean mFrontProxy = mPeriodicIO.front_proxy;
+    private boolean mRightProxy = mPeriodicIO.right_proxy;
+    private boolean mLeftProxy = mPeriodicIO.left_proxy;
+    private boolean mBackRightProxy = mPeriodicIO.back_right_proxy;
+    private boolean mBackLeftProxy = mPeriodicIO.back_left_proxy;
 
     private Indexer() {
         mIndexer = new TalonFX(Constants.kIndexerId);
@@ -86,6 +98,12 @@ public class Indexer extends Subsystem {
         SmartDashboard.putString("IndexerControlMode", mPeriodicIO.indexer_control_mode.name());
         SmartDashboard.putNumber("IndexerSetpoint", mPeriodicIO.indexer_demand);
         SmartDashboard.putNumber("FeederSetpoint", mPeriodicIO.feeder_demand);
+
+        SmartDashboard.putBoolean("FrontProxy", mPeriodicIO.front_proxy);
+        SmartDashboard.putBoolean("RightProxy", mPeriodicIO.right_proxy);
+        SmartDashboard.putBoolean("LeftProxy", mPeriodicIO.left_proxy);
+        SmartDashboard.putBoolean("BackRightProxy", mPeriodicIO.back_right_proxy);
+        SmartDashboard.putBoolean("BackLeftProxy", mPeriodicIO.back_left_proxy);
     }
 
     public synchronized void setOpenLoop(double percentage) {
@@ -107,6 +125,14 @@ public class Indexer extends Subsystem {
 
     public synchronized boolean hasBeenZeroed() {
         return mHasBeenZeroed;
+    }
+
+    private void readProxies() {
+        mFrontProxy = mPeriodicIO.front_proxy;
+        mRightProxy = mPeriodicIO.right_proxy;
+        mLeftProxy = mPeriodicIO.left_proxy;
+        mBackRightProxy = mPeriodicIO.back_right_proxy;
+        mBackLeftProxy = mPeriodicIO.back_left_proxy;
     }
 
     @Override
@@ -146,34 +172,67 @@ public class Indexer extends Subsystem {
         mBackwards = backwards;
     }
 
+    public synchronized boolean slotsFilled() {
+        return mSlotsFilled;
+    }
+
     public void runStateMachine() {
         final double turret_angle = mTurret.getAngle();
+        final double indexer_angle = mPeriodicIO.indexer_angle;
+        
         switch (mState) {
         case IDLE:
             mPeriodicIO.indexer_control_mode = ControlMode.Position;
-            mPeriodicIO.indexer_demand = mMotionPlanner.findAngleGoal(mSlotGoal, mPeriodicIO.indexer_angle,
+            mPeriodicIO.indexer_demand = mMotionPlanner.findAngleGoal(mSlotGoal, indexer_angle,
                     turret_angle);
             mPeriodicIO.feeder_demand = kIdleVoltage;
             break;
         case INDEXING:
-            mPeriodicIO.indexer_control_mode = ControlMode.Velocity;
-            mPeriodicIO.indexer_demand = mBackwards ? -kIndexingVelocity : kIndexingVelocity;
+            mPeriodicIO.indexer_control_mode = ControlMode.Position;
             mPeriodicIO.feeder_demand = kOuttakeVoltage;
+
+            boolean snapped = mMotionPlanner.isSnapped(indexer_angle);
+
+            if (!snapped) {
+                mPeriodicIO.indexer_demand = mMotionPlanner.findSnappedAngleGoal(indexer_angle);
+            } else {
+                readProxies();
+                if (mFrontProxy && mRightProxy && mLeftProxy && mBackRightProxy && mBackLeftProxy) {
+                    mSlotsFilled = true;
+                } else {
+                    mSlotsFilled = false;
+
+                    mSlotGoal = mMotionPlanner.findNearestOpenSlot(indexer_angle, mFrontProxy, mRightProxy, 
+                            mLeftProxy, mBackRightProxy, mBackLeftProxy);
+
+                    mPeriodicIO.indexer_demand = mMotionPlanner.findAngleGoal(mSlotGoal, indexer_angle, 0);
+
+                    if (mMotionPlanner.isAtGoal(mSlotGoal, indexer_angle, 0) && !mFrontProxy) {
+                        readProxies();
+                        
+                        if (mFrontProxy) {
+                            mSlotGoal = mMotionPlanner.findNearestOpenSlot(indexer_angle, mFrontProxy, mRightProxy, 
+                                    mLeftProxy, mBackRightProxy, mBackLeftProxy);
+                            mPeriodicIO.indexer_demand = mMotionPlanner.findAngleGoal(mSlotGoal, indexer_angle, 0);
+                        }
+                    }
+                }
+            }            
             break;
         case REVOLVING:
             mPeriodicIO.indexer_control_mode = ControlMode.Position;
             mPeriodicIO.feeder_demand = kFeedingVoltage;
 
             if (!mBackwards) {
-                mSlotGoal = mMotionPlanner.findNextSlot(mPeriodicIO.indexer_angle, turret_angle);
+                mSlotGoal = mMotionPlanner.findNextSlot(indexer_angle, turret_angle);
             } else {
-                mSlotGoal = mMotionPlanner.findPreviousSlot(mPeriodicIO.indexer_angle, turret_angle);
+                mSlotGoal = mMotionPlanner.findPreviousSlot(indexer_angle, turret_angle);
             }
 
-            mPeriodicIO.indexer_demand = mMotionPlanner.findAngleGoal(mSlotGoal, mPeriodicIO.indexer_angle,
+            mPeriodicIO.indexer_demand = mMotionPlanner.findAngleGoal(mSlotGoal, indexer_angle,
                     turret_angle);
 
-            if (mMotionPlanner.isAtGoal(mSlotGoal, mPeriodicIO.indexer_angle, turret_angle)) {
+            if (mMotionPlanner.isAtGoal(mSlotGoal, indexer_angle, turret_angle)) {
                 mState = State.FEEDING;
             }
             break;
@@ -186,7 +245,7 @@ public class Indexer extends Subsystem {
             mPeriodicIO.indexer_control_mode = ControlMode.Position;
             mPeriodicIO.feeder_demand = kFeedingVoltage;
 
-            if (mMotionPlanner.isAtGoal(mSlotGoal, mPeriodicIO.indexer_angle, turret_angle)) {
+            if (mMotionPlanner.isAtGoal(mSlotGoal, indexer_angle, turret_angle)) {
                 final double now = Timer.getFPGATimestamp();
                 if (!mStartCounting) {
                     mInitialTime = now;
@@ -198,7 +257,7 @@ public class Indexer extends Subsystem {
                 }
             }
 
-            mPeriodicIO.indexer_demand = mMotionPlanner.findAngleGoal(mSlotGoal, mPeriodicIO.indexer_angle,
+            mPeriodicIO.indexer_demand = mMotionPlanner.findAngleGoal(mSlotGoal, indexer_angle,
                     turret_angle);
             break;
         default:
@@ -242,9 +301,14 @@ public class Indexer extends Subsystem {
 
     @Override
     public synchronized void readPeriodicInputs() {
-        mPeriodicIO.encoder_ticks = mIndexer.getSelectedSensorPosition();
-        mPeriodicIO.indexer_angle = mPeriodicIO.encoder_ticks / 2048 / kGearRatio * 360;
+        mPeriodicIO.front_proxy = mCanifier.getFrontProxy();
+        mPeriodicIO.right_proxy = mCanifier.getRightProxy();
+        mPeriodicIO.left_proxy = mCanifier.getLeftProxy();
+        mPeriodicIO.back_right_proxy = mCanifier.getBackRightProxy();
+        mPeriodicIO.back_left_proxy = mCanifier.getBackLeftProxy();
         mPeriodicIO.limit_switch = mCanifier.getIndexerLimit();
+
+        mPeriodicIO.indexer_angle = mIndexer.getSelectedSensorPosition() / 2048 / kGearRatio * 360;
     }
 
     @Override

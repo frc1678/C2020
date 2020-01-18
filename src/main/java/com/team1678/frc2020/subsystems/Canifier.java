@@ -27,10 +27,6 @@ public class Canifier extends Subsystem {
         return mCanifier.getQuadraturePosition();
     }
 
-    /* public synchronized boolean getElevatorLimit() {
-        return mPeriodicInputs.elevator_limit_;
-    } */
-
     public synchronized boolean getIndexerLimit() {
         return mPeriodicInputs.indexer_limit_;
     }
@@ -41,6 +37,26 @@ public class Canifier extends Subsystem {
 
     public synchronized boolean getHoodLimit() {
         return mPeriodicInputs.hood_limit_;
+    }
+
+    public synchronized boolean getFrontProxy() {
+        return mPeriodicInputs.front_proxy_;
+    }
+
+    public synchronized boolean getRightProxy() {
+        return mPeriodicInputs.right_proxy_;
+    }
+
+    public synchronized boolean getLeftProxy() {
+        return mPeriodicInputs.left_proxy_;
+    }
+
+    public synchronized boolean getBackRightProxy() {
+        return mPeriodicInputs.back_right_proxy_;
+    }
+
+    public synchronized boolean getBackLeftProxy() {
+        return mPeriodicInputs.back_left_proxy_;
     }
 
     public synchronized void resetWristEncoder() {
@@ -55,10 +71,17 @@ public class Canifier extends Subsystem {
     public synchronized void readPeriodicInputs() {
         CANifier.PinValues pins = new CANifier.PinValues();
         mCanifier.getGeneralInputs(pins);
-        // mPeriodicInputs.elevator_limit_ = !pins.SDA;
+
         mPeriodicInputs.indexer_limit_ = !pins.SDA;
         mPeriodicInputs.turret_limit_ = !pins.LIMR;
         mPeriodicInputs.hood_limit_ = !pins.LIMF;
+
+        mPeriodicInputs.front_proxy_ = pins.SPI_CLK_PWM0; // change these pins
+        mPeriodicInputs.right_proxy_ = pins.SPI_MOSI_PWM1;
+        mPeriodicInputs.left_proxy_ =  pins.SPI_CS_PWM3;
+        mPeriodicInputs.back_right_proxy_ = pins.SPI_MISO_PWM2;
+        mPeriodicInputs.back_left_proxy_ = pins.QUAD_IDX;
+        
     }
 
     @Override
@@ -81,9 +104,13 @@ public class Canifier extends Subsystem {
     }
 
     private static class PeriodicInputs {
-        public boolean elevator_limit_;
         public boolean indexer_limit_;
         public boolean turret_limit_;
         public boolean hood_limit_;
+        public boolean front_proxy_;
+        public boolean right_proxy_;
+        public boolean left_proxy_;
+        public boolean back_right_proxy_;
+        public boolean back_left_proxy_;
     }
 }
