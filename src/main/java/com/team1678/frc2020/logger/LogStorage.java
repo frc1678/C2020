@@ -9,10 +9,10 @@ public class LogStorage implements ILoggable {
     /*  Add functionality to contents of ILoggable.
 
         Get Item:
-            Creates an Array List of Array Lists of doubles
-            Transfer logged data values of original array list to a new array list
-            Print old array list
-            Array list is now cleared for further logging use
+            Creates an Array List of Array Lists of doubles for the logged data.
+            Do a variable swap between a new array list and the old one to continue 
+            logging and store old data.
+            Returns the old data at the end of the function
 
         Get Item Names:
             Make columns to store the item names so that log files are in a neat grid type thing

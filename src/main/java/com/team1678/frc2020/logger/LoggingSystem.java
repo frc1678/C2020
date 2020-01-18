@@ -57,9 +57,9 @@ public class LoggingSystem {
         //  Write names to file
         try {
             for (int h=0; h < itemNames.size(); h++) {
-            fileWriter.write(itemNames.get(h));
+                fileWriter.write(itemNames.get(h));
                 if (h!= itemNames.size()) {
-                fileWriter.write(",");
+                    fileWriter.write(",");
                 }
             }
             fileWriter.write("\n");
