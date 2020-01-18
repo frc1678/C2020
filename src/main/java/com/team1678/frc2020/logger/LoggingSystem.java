@@ -25,10 +25,10 @@ public class LoggingSystem {
         return mInstance; 
     }
 
-    public void register(ILoggable newLoggable, String mDirectory) {  //  start function that opens files
+    public void register(ILoggable newLoggable, String fileName) {  //  start function that opens files
         FileWriter fileWriter = null;
         try {
-            fileWriter = new FileWriter(mDirectory);
+            fileWriter = new FileWriter(mDirectory + "/" + fileName);
         } catch (Exception e) {
             System.err.println("Couldn't register new File");
         }
