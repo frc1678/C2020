@@ -237,17 +237,6 @@ public class Superstructure extends Subsystem {
         mLatestAimingParameters = Optional.empty();
     }
 
-    public synchronized void prepShot() {
-        if (mHoodMode == HoodControlModes.SHOOTING) {
-            mGoal.state.feed = true;
-        } else if (mHoodMode == HoodControlModes.WAIT_FOR_SPINUP) {
-            if (!mShooter.spunUp()) {
-                mGoal.state.feed = false;
-            } else {
-                mHoodMode = HoodControlModes.SHOOTING;
-            }
-        }
-    }
 
     public void safetyReset() {
         if (mGoal.state.turret < Constants.kTurretConstants.kMinUnitsLimit) {
@@ -271,6 +260,7 @@ public class Superstructure extends Subsystem {
 
         if (mTurretMode != TurretControlModes.VISION_AIMED || mHoodMode != HoodControlModes.VISION_AIMED) {
             resetAimingParameters();
+            return;
         }
 
         boolean useHighTarget = mRobotState.useInnerTarget();
@@ -395,10 +385,6 @@ public class Superstructure extends Subsystem {
 
     public synchronized void shootCell() {
         mHoodMode = HoodControlModes.WAIT_FOR_SPINUP;
-    }
-
-    public synchronized void setWantFeed() {
-        mGoal.state.feed = true;
     }
 
     public synchronized void setWantFieldRelativeTurret(Rotation2d field_to_turret) {

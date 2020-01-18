@@ -29,7 +29,7 @@ public class SuperstructureCommands {
             return;
         }
         SuperstructureState newCommand = new SuperstructureState(position, lastCommand.state.hood,
-                lastCommand.state.shooter, lastCommand.state.feed);
+                lastCommand.state.shooter);
 
         sendCommandToSuperstructure(newCommand);
     }
@@ -50,21 +50,6 @@ public class SuperstructureCommands {
         ss.JogHood(delta);
     }
 
-    // shoot shot
-    public static void goToShot(SuperstructureState unfed_state) {
-        unfed_state.feed = true;
-        sendCommandToSuperstructure(unfed_state);
-    }
 
-    public static void goToFendorShot() {
-        sendCommandToSuperstructure(FendorShot);
-    }
-
-    public static void goToFarControlPanelShot() {
-        sendCommandToSuperstructure(FarControlPanelShot);
-    }
-
-    static SuperstructureState FarControlPanelShot = new SuperstructureState(0, 1.75, -28.0, false);
-    static SuperstructureState FendorShot = new SuperstructureState(0, 1.75, -28.0, false);
 
 }

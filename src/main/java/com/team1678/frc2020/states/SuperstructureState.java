@@ -6,6 +6,7 @@ import java.lang.Math;
 
 import com.team1678.frc2020.Constants;
 import com.team1678.frc2020.RobotState;
+import com.team1678.frc2020.subsystems.Indexer;
 import com.team254.lib.geometry.Pose2d;
 import com.team254.lib.util.Util;
 import com.team254.lib.vision.AimingParameters;
@@ -14,7 +15,6 @@ public class SuperstructureState {
     public double turret; // degrees
     public double shooter; // velocity
     public double hood; // degrees
-    public boolean feed; // boolean
 
     RobotState mRobotState = RobotState.getInstance();
 
@@ -45,30 +45,27 @@ public class SuperstructureState {
     double max_velocity_RPM = 8000;
     boolean valid_velocity;
 
-    public SuperstructureState(double turret, double shooter, double hood, boolean feed) {
+    public SuperstructureState(double turret, double shooter, double hood) {
         this.turret = turret;
         this.shooter = shooter;
         this.hood = hood;
-        this.feed = feed;
     }
 
     public SuperstructureState(SuperstructureState other) {
         this.turret = other.turret;
         this.shooter = other.shooter;
         this.hood = other.hood;
-        this.feed = other.feed;
     }
 
     // default robot position
     public SuperstructureState() {
-        this(0, 0, 0, false);
+        this(0, 0, 0);
     }
 
     public void setFrom(SuperstructureState source) {
         turret = source.turret;
         shooter = source.shooter;
         hood = source.hood;
-        feed = source.feed;
     }
 
     @Override
@@ -77,7 +74,6 @@ public class SuperstructureState {
                 "turret=" + turret +
                 ", shooter=" + shooter +
                 ", hood=" + hood +
-                ", feed=" + feed +
                 '}';
     }
 
