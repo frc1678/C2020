@@ -110,7 +110,12 @@ public class Constants {
         kElevatorConstants.kPeakCurrentDuration = 10; // milliseconds
 
     }
-    public static final int kIntakeRollerID = 6; //get real ID from electrical 
+
+    // Intake
+    public static final int kIntakeRollerID = 15;
+
+    // Color Panel
+    public static final int kColorPanelID = 14;
 
     // Indexer
     public static final int kIndexerSlots = 5;
@@ -216,8 +221,9 @@ public class Constants {
     public static final double kJoystickThreshold = 0.2;
 
     // solenoids
-    public static final int kPCMId = 1;
+    public static final int kPCMId = 20;
     public static final int kDiskBrakeSolenoidId = 0;
+    public static final int kPDPId = 21;
 
     // limelight
     public static final double kHorizontalFOV = 59.6; // degrees
