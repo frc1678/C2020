@@ -70,6 +70,17 @@ public class ControlBoard implements IControlBoard {
         return mButtonControlBoard.getScorePresetMiddle();
     }
 
+    // Intake
+    @Override
+    public boolean getRunIntake() {
+        return mButtonControlBoard.getRunIntake();
+    }
+    
+    @Override
+    public boolean getRunOuttake() {
+        return mButtonControlBoard.getRunOuttake();
+    }
+
     @Override
     public boolean getScorePresetHigh() {
         return mButtonControlBoard.getScorePresetHigh();

@@ -78,4 +78,8 @@ public interface IButtonControlBoard {
     TurretCardinal getTurretCardinal();
 
     boolean getAutoAim();
+
+	boolean getRunIntake();
+
+	boolean getRunOuttake();
 }

@@ -40,6 +40,7 @@ public class Robot extends TimedRobot {
     private final SubsystemManager mSubsystemManager = SubsystemManager.getInstance();
     private final Drive mDrive = Drive.getInstance();
     private final Limelight mLimelight = Limelight.getInstance();
+    private final Intake mIntake = Intake.getInstance();
 
     private final RobotState mRobotState = RobotState.getInstance();
     private final RobotStateEstimator mRobotStateEstimator = RobotStateEstimator.getInstance();
@@ -49,7 +50,7 @@ public class Robot extends TimedRobot {
         try {
             CrashTracker.logRobotInit();
 
-            mSubsystemManager.setSubsystems(mRobotStateEstimator, mDrive, mLimelight);
+            mSubsystemManager.setSubsystems(mRobotStateEstimator, mDrive, mLimelight, mIntake);
 
             mSubsystemManager.registerEnabledLoops(mEnabledLooper);
             mSubsystemManager.registerDisabledLoops(mDisabledLooper);
@@ -97,6 +98,14 @@ public class Robot extends TimedRobot {
             double turn = mControlBoard.getTurn();
 
             mDrive.setAssistedDrive(timestamp, throttle, -turn, mControlBoard.getQuickTurn());
+            
+            if (mControlBoard.getRunIntake()) {
+                mIntake.setState(Intake.WantedAction.INTAKE);
+            } else if (mControlBoard.getRunOuttake()) {
+                mIntake.setState(Intake.WantedAction.OUTTAKE);
+            } else {
+                mIntake.setState(Intake.WantedAction.NONE);
+            }
         } catch (Throwable t) {
             CrashTracker.logThrowableCrash(t);
             throw t;

@@ -112,10 +112,10 @@ public class Constants {
     }
 
     // Intake
-    public static final int kIntakeRollerID = 15;
+    public static final int kIntakeRollerID = 2;
 
     // Color Panel
-    public static final int kColorPanelID = 14;
+    public static final int kColorPanelID = 1;
 
     // Indexer
     public static final int kIndexerSlots = 5;
