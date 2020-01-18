@@ -6,19 +6,14 @@ import com.team1678.frc2020.Constants;
 import com.team1678.frc2020.loops.ILooper;
 import com.team1678.frc2020.loops.Loop;
 
-import com.ctre.phoenix.motorcontrol.ControlMode;
-import com.ctre.phoenix.motorcontrol.can.TalonFX;
-import com.ctre.phoenix.motorcontrol.can.BaseTalon;
+import com.team254.lib.drivers.SparkMaxFactory;
 
-import com.team254.lib.drivers.BaseTalonChecker;
-import com.team254.lib.drivers.TalonFXFactory;
-import com.team254.lib.drivers.MotorChecker;
+import com.team254.lib.drivers.LazySparkMax;
 import com.team254.lib.util.ReflectingCSVWriter;
 
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-import java.util.ArrayList;
 
 public class Intake extends Subsystem {
     public static double kIntakingVoltage = 12.0;
@@ -39,7 +34,7 @@ public class Intake extends Subsystem {
 
     private static PeriodicIO mPeriodicIO = new PeriodicIO();
     
-    private final TalonFX mMaster;
+    private final LazySparkMax mMaster;
 
     private ReflectingCSVWriter<PeriodicIO> mCSVWriter = null;
 
@@ -55,13 +50,7 @@ public class Intake extends Subsystem {
 
 
     private Intake() {
-        mMaster = TalonFXFactory.createDefaultTalon(Constants.kIntakeRollerID);  // update constate with actual number 
-        mMaster.configForwardSoftLimitEnable(false); 
-
-        mMaster.set(ControlMode.PercentOutput, 0);
-        mMaster.setInverted(false);
-        mMaster.configVoltageCompSaturation(12);
-        mMaster.enableVoltageCompensation(true);
+        mMaster = SparkMaxFactory.createDefaultSparkMax(Constants.kIntakeRollerID);
     }
     public void registerLogger(LoggingSystem LS) {
         LogSetup();
@@ -87,7 +76,7 @@ public class Intake extends Subsystem {
 
     @Override
     public void stop() {
-        mMaster.set(ControlMode.PercentOutput, 0);
+        mMaster.set(0);
     }
 
     @Override
@@ -179,25 +168,11 @@ public class Intake extends Subsystem {
 
     @Override
     public void writePeriodicOutputs() {
-        mMaster.set(ControlMode.PercentOutput, mPeriodicIO.demand / 12.0);
+        mMaster.set(mPeriodicIO.demand / 12.0);
     }
     @Override
     public boolean checkSystem() {
-        return BaseTalonChecker.checkMotors(this, new ArrayList<MotorChecker.MotorConfig<BaseTalon>>() {
-            private static final long serialVersionUID = -4824415636161505593L;
-
-            {
-                add(new MotorChecker.MotorConfig<>("intake_motor", mMaster));
-            }
-        }, new BaseTalonChecker.CheckerConfig() {
-            {
-                mCurrentFloor = 2;
-                mRPMFloor = 1500;
-                mCurrentEpsilon = 2.0;
-                mRPMEpsilon = 250;
-                mRPMSupplier = () -> mMaster.getSelectedSensorVelocity(0);
-            }
-        });
+        return true;
     }
     public synchronized void startLogging() {
         if (mCSVWriter == null) {
