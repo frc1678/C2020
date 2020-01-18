@@ -22,27 +22,27 @@ public class Constants {
     /* I/O */
     // (Note that if multiple talons are dedicated to a mechanism, any sensors
     // are attached to the master)
-    public static final int kCANTimeoutMs = 10; //use for on the fly updates
-    public static final int kLongCANTimeoutMs = 100; //use for constructors
+    public static final int kCANTimeoutMs = 10; // use for on the fly updates
+    public static final int kLongCANTimeoutMs = 100; // use for constructors
 
     /* ROBOT PHYSICAL CONSTANTS */
     // Wheels
     public static final double kDriveWheelTrackWidthInches = 27.75;
     public static final double kDriveWheelDiameterInches = 4.0;
     public static final double kDriveWheelRadiusInches = kDriveWheelDiameterInches / 2.0;
-    public static final double kTrackScrubFactor = 1.0;  // Tune me!
+    public static final double kTrackScrubFactor = 1.0; // Tune me!
     // Tuned dynamics
-    public static final double kRobotLinearInertia = 60.0;  // kg TODO tune
-    public static final double kRobotAngularInertia = 12.0;  // kg m^2 TODO tune
-    public static final double kRobotAngularDrag = 0.0;  // N*m / (rad/sec) TODO tune
-    public static final double kDriveVIntercept = 0.44;  // V
-    public static final double kDriveKv = 0.129;  // V per rad/s
-    public static final double kDriveKa = 0.012;  // V per rad/s^2
-    public static final double kPathKX = 4.0;  // units/s per unit of error
-    public static final double kPathLookaheadTime = 0.4;  // seconds to look ahead along the path for steering
-    public static final double kPathMinLookaheadDistance = 24.0;  // inches
-    public static final double kPathFollowingMaxAccel = 80.0;  // inches per second ^ 2
-    // PID gains for drive velocity loop 
+    public static final double kRobotLinearInertia = 60.0; // kg TODO tune
+    public static final double kRobotAngularInertia = 12.0; // kg m^2 TODO tune
+    public static final double kRobotAngularDrag = 0.0; // N*m / (rad/sec) TODO tune
+    public static final double kDriveVIntercept = 0.44; // V
+    public static final double kDriveKv = 0.129; // V per rad/s
+    public static final double kDriveKa = 0.012; // V per rad/s^2
+    public static final double kPathKX = 4.0; // units/s per unit of error
+    public static final double kPathLookaheadTime = 0.4; // seconds to look ahead along the path for steering
+    public static final double kPathMinLookaheadDistance = 24.0; // inches
+    public static final double kPathFollowingMaxAccel = 80.0; // inches per second ^ 2
+    // PID gains for drive velocity loop
     // Units: setpoint, error, and output are in ticks per second.
     public static final double kDriveVelocityKp = 0.1;
     public static final double kDriveVelocityKi = 0.0;
@@ -80,7 +80,7 @@ public class Constants {
         kElevatorConstants.kSlaveConstants[1].invert_motor = false;
 
         // Unit == Inches
-        kElevatorConstants.kHomePosition = 10.25;  // Inches off ground
+        kElevatorConstants.kHomePosition = 10.25; // Inches off ground
         kElevatorConstants.kTicksPerUnitDistance = 4096.0 / (1.75 * Math.PI);
         kElevatorConstants.kKp = 0.5;
         kElevatorConstants.kKi = 0;
@@ -129,7 +129,7 @@ public class Constants {
         kTurretConstants.kMasterConstants.invert_sensor_phase = true;
 
         // Unit == Degrees
-        kTurretConstants.kHomePosition = 0.0;  // CCW degrees from forward
+        kTurretConstants.kHomePosition = 0.0; // CCW degrees from forward
         kTurretConstants.kTicksPerUnitDistance = 4096.0 * 72.0 / 18.0 * 54.0 / 16.0 / 360.0;
         kTurretConstants.kKp = 2.0;
         kTurretConstants.kKi = 0;
@@ -159,7 +159,7 @@ public class Constants {
         kTurretConstants.kPeakCurrentDuration = 10; // milliseconds
         kTurretConstants.kMaxVoltage = 12.0;
 
-        //kTurretConstants.kStatusFrame8UpdateRate = 50;
+        // kTurretConstants.kStatusFrame8UpdateRate = 50;
         kTurretConstants.kRecoverPositionOnReset = true;
     }
 
@@ -169,12 +169,12 @@ public class Constants {
     static {
         kHoodConstants.kName = "Hood";
 
-        kHoodConstants.kMasterConstants.id = 5;  //TODO: Check with Electrical
+        kHoodConstants.kMasterConstants.id = 5; // TODO: Check with Electrical
         kHoodConstants.kMasterConstants.invert_motor = true;
         kHoodConstants.kMasterConstants.invert_sensor_phase = false;
 
         // Unit == Degrees
-        kHoodConstants.kHomePosition = 0.0;  // Degrees
+        kHoodConstants.kHomePosition = 0.0; // Degrees
         kHoodConstants.kTicksPerUnitDistance = (4096.0 * 3.0) / 360.0;
         kHoodConstants.kKp = 0.2;
         kHoodConstants.kKi = 0;
@@ -203,7 +203,8 @@ public class Constants {
         kHoodConstants.kPeakCurrentDuration = 10; // milliseconds
         kHoodConstants.kMaxVoltage = 12.0;
     }
-    public static final double kHoodToBottomEndEffectorLength = 15.91; // Length (in) from wrist joint to bottom of end effector
+    public static final double kHoodToBottomEndEffectorLength = 15.91; // Length (in) from wrist joint to bottom of end
+                                                                       // effector
 
     // pigeon
     public static final int kPigeonIMUId = 15;
@@ -220,6 +221,15 @@ public class Constants {
     public static final int kDiskBrakeSolenoidId = 0;
 
     // limelight
+    public static final LimelightConstants kTopLimelightConstants = new LimelightConstants();
+    static {
+        kTopLimelightConstants.kName = "Top Limelight";
+        kTopLimelightConstants.kTableName = "limelight-top";
+        kTopLimelightConstants.kHeight = 44.047; // inches
+        kTopLimelightConstants.kTurretToLens = Pose2d.identity();
+        kTopLimelightConstants.kHorizontalPlaneToLens = Rotation2d.fromDegrees(0.0);
+    }
+
     public static final double kHorizontalFOV = 59.6; // degrees
     public static final double kVerticalFOV = 49.7; // degrees
     public static final double kVPW = 2.0 * Math.tan(Math.toRadians(kHorizontalFOV / 2.0));
@@ -241,8 +251,8 @@ public class Constants {
     public static final double kInnerGoalTargetHeight = 92.25;
     public static final double kOuterGoalTargetHeight = 92.25;
 
-    public static final double kTurretToArmOffset = -2.5;  // in
-    public static final double kWristToTremorsEnd = 15.75;  // in
+    public static final double kTurretToArmOffset = -2.5; // in
+    public static final double kWristToTremorsEnd = 15.75; // in
 
     public static final int kCanifierId = 0;
 
@@ -253,23 +263,12 @@ public class Constants {
     public static final double kShooterI = 0.0;
     public static final double kShooterD = 0.0;
 
-    // Top limelight
-    public static final LimelightConstants kTopLimelightConstants = new LimelightConstants();
-    static {
-        kTopLimelightConstants.kName = "Top Limelight";
-        kTopLimelightConstants.kTableName = "limelight-top";
-        kTopLimelightConstants.kHeight = 44.047;  // inches
-        kTopLimelightConstants.kTurretToLens = Pose2d.identity();
-        kTopLimelightConstants.kHorizontalPlaneToLens = Rotation2d.fromDegrees(0.0);
-    }
-
-
-
     public static final double kMaxTopLimelightHeight = 16.0;
 
     public static final double kGenerateTrajectoryTime = 0.5;
     public static final double kUseNextTrajectoryTime = 0.75;
-    public static final Rotation2d kMaxDeviance = Rotation2d.fromDegrees(0); // max angle away from ball that robot can be and still pick it up
+    public static final Rotation2d kMaxDeviance = Rotation2d.fromDegrees(0); // max angle away from ball that robot can
+                                                                             // be and still pick it up
 
     // Drive control
     public static final double kStingerForwardPower = 0.8;
@@ -281,7 +280,7 @@ public class Constants {
         }
         throw new IllegalArgumentException("Solenoid ID not valid: " + solenoidId);
     }
-    
+
     /**
      * @return the MAC address of the robot
      */

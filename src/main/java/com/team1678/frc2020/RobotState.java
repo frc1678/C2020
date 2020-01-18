@@ -193,7 +193,7 @@ public class RobotState {
         double z = xz_plane_translation.y();
 
         // find intersection with the goal
-        double differential_height = source.getLensHeight() - (high ? Constants.kPortTargetHeight : Constants.kHatchTargetHeight);
+        double differential_height = source.getLensHeight() - (high ? Constants.kInnerGoalTargetHeight : Constants.kOuterGoalTargetHeight);
         if ((z < 0.0) == (differential_height > 0.0)) {
             double scaling = differential_height / -z;
             double distance = Math.hypot(x, y) * scaling;
