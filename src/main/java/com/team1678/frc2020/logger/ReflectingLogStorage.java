@@ -14,6 +14,5 @@ public class ReflectingLogStorage<T> extends LogStorage {
             getItemNames.add(variableName.getName());
         }
         return getItemNames;
-    
     }
 }
