@@ -137,7 +137,7 @@ public class IndexerMotionPlanner {
                         if (!back_left_proxy) {
                             slotGoal = currentSlot - 2;
                         } else {
-                            slotGoal = currentSlot;
+                            slotGoal = currentSlot; // all slots filled
                         }
                     }
                 }

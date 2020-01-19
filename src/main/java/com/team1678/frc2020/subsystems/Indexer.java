@@ -21,7 +21,7 @@ public class Indexer extends Subsystem {
     private static final double kFeedingVoltage = 12.;
     private static final double kOuttakeVoltage = -4.;
     private static final double kIdleVoltage = 0.;
-    private static final double kIndexingVelocity = 120.; // degrees per second
+    // private static final double kIndexingVelocity = 120.; // degrees per second
     private static final double kZoomingVelocity = 360.;
     private static final double kGearRatio = 200.; // TODO(Hanson) verify with design
 
@@ -62,6 +62,7 @@ public class Indexer extends Subsystem {
     private boolean mBackwards = false;
     private int mSlotGoal;
     private boolean mSlotsFilled = false;
+    private boolean mSnapped = false;
 
     private boolean mFrontProxy = mPeriodicIO.front_proxy;
     private boolean mRightProxy = mPeriodicIO.right_proxy;
@@ -191,10 +192,11 @@ public class Indexer extends Subsystem {
             mPeriodicIO.indexer_control_mode = ControlMode.Position;
             mPeriodicIO.feeder_demand = kOuttakeVoltage;
 
-            boolean snapped = mMotionPlanner.isSnapped(indexer_angle);
-
-            if (!snapped) {
+            if (!mSnapped) {
                 mPeriodicIO.indexer_demand = mMotionPlanner.findSnappedAngleGoal(indexer_angle);
+                if (mMotionPlanner.isSnapped(indexer_angle)) {
+                    mSnapped = true;
+                }
             } else {
                 readProxies();
                 if (mFrontProxy && mRightProxy && mLeftProxy && mBackRightProxy && mBackLeftProxy) {
@@ -207,9 +209,9 @@ public class Indexer extends Subsystem {
 
                     mPeriodicIO.indexer_demand = mMotionPlanner.findAngleGoal(mSlotGoal, indexer_angle, 0);
 
-                    if (mMotionPlanner.isAtGoal(mSlotGoal, indexer_angle, 0) && !mFrontProxy) {
+                    if (mMotionPlanner.isAtGoal(mSlotGoal, indexer_angle, 0)) {
                         readProxies();
-                        
+
                         if (mFrontProxy) {
                             mSlotGoal = mMotionPlanner.findNearestOpenSlot(indexer_angle, mFrontProxy, mRightProxy, 
                                     mLeftProxy, mBackRightProxy, mBackLeftProxy);
@@ -284,6 +286,7 @@ public class Indexer extends Subsystem {
             mState = State.IDLE;
             break;
         case INDEX:
+            mSnapped = false;
             mState = State.INDEXING;
             break;
         case REVOLVE:
@@ -294,7 +297,7 @@ public class Indexer extends Subsystem {
             break;
         }
 
-        if (mState != prev_state && mState != State.REVOLVING) {
+        if (mState != prev_state && mState != State.REVOLVING && mState != State.INDEXING) {
             mSlotGoal = mMotionPlanner.findNearestSlot(mPeriodicIO.indexer_angle, mTurret.getAngle());
         }
     }
