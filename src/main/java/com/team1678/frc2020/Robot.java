@@ -93,6 +93,12 @@ public class Robot extends TimedRobot {
     @Override
     public void teleopPeriodic() {
         try {
+            double timestamp = Timer.getFPGATimestamp();
+            double throttle = mControlBoard.getThrottle();
+            double turn = mControlBoard.getTurn();
+
+            mDrive.setAssistedDrive(timestamp, throttle, -turn, mControlBoard.getQuickTurn());
+       
             if (mControlBoard.getScorePresetLow()) {
                 mRoller.setState(Roller.WantedAction.NONE);
             } else if (mControlBoard.getScorePresetMiddle()) {
@@ -100,6 +106,7 @@ public class Robot extends TimedRobot {
             } else if (mControlBoard.getScorePresetHigh()) {
                 mRoller.setState(Roller.WantedAction.ACHIEVE_POSITION_CONTROL);
             }
+          
         } catch (Throwable t) {
             CrashTracker.logThrowableCrash(t);
             throw t;

@@ -53,6 +53,19 @@ public class IndexerMotionPlanner {
         return nextSlot;
     }
 
+    public int findPreviousSlot(double indexer_angle, double turret_angle) {
+        int currentSlot = findNearestSlot(indexer_angle, turret_angle);
+        int nextSlot;
+
+        if (currentSlot == 0) {
+            nextSlot = 4;
+        } else {
+            nextSlot = currentSlot - 1;
+        }
+
+        return nextSlot;
+    }
+
     public double findAngleGoal(int slotNumber, double indexer_angle, double turret_angle) {
         return findAngleToGoal(slotNumber, indexer_angle, turret_angle) + indexer_angle;
     }
