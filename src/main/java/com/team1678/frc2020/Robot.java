@@ -65,7 +65,7 @@ public class Robot extends TimedRobot {
 
     public void outputToSmartDashboard() {
         RobotState.getInstance().outputToSmartDashboard();
-        // Drive.getInstance().outputTelemetry();
+        Drive.getInstance().outputTelemetry();
         // Intake.getInstance().outputTelemetry();
         // Infrastructure.getInstance().outputTelemetry();
         Limelight.getInstance().outputTelemetry();

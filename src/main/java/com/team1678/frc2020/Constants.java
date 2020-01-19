@@ -53,12 +53,11 @@ public class Constants {
 
     // drive
 
-    public static final int kRightDriveMasterId = 1;
-    public static final int kRightDriveSlaveId = 2;
+    public static final int kRightDriveMasterId = 4;
+    public static final int kRightDriveSlaveId = 3;
 
-
-    public static final int kLeftDriveMasterId = 3;
-    public static final int kLeftDriveSlaveId = 4;
+    public static final int kLeftDriveMasterId = 1;
+    public static final int kLeftDriveSlaveId = 2;
 
   
 
@@ -220,8 +219,8 @@ public class Constants {
     public static final boolean kUseDriveGamepad = false;
     public static final int kDriveGamepadPort = 0;
     public static final int kButtonGamepadPort = 2;
-    public static final int kMainThrottleJoystickPort = 0;
-    public static final int kMainTurnJoystickPort = 1;
+    public static final int kMainThrottleJoystickPort = 1;
+    public static final int kMainTurnJoystickPort = 0;
     public static final double kJoystickThreshold = 0.2;
 
     // solenoids

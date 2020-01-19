@@ -97,7 +97,7 @@ public class Drive extends Subsystem {
         if (sensorPresent != ErrorCode.OK) {
             DriverStation.reportError("Could not detect " + (left ? "left" : "right") + " encoder: " + sensorPresent, false);
         }
-        talon.setInverted(left);
+        talon.setInverted(!left);
         talon.setSensorPhase(false);
         talon.enableVoltageCompensation(true);
         talon.configVoltageCompSaturation(12.0, Constants.kLongCANTimeoutMs);
@@ -112,18 +112,18 @@ public class Drive extends Subsystem {
 
         // Start all Talons in open loop mode.
         mLeftMaster = TalonFXFactory.createDefaultTalon(Constants.kLeftDriveMasterId);
-        configureMaster(mLeftMaster, false);
+        configureMaster(mLeftMaster, true);
 
         mLeftSlave = TalonFXFactory.createPermanentSlaveTalon(Constants.kLeftDriveSlaveId,
                 Constants.kLeftDriveMasterId);
-        mLeftSlave.setInverted(false);
+        mLeftSlave.setInverted(true);
 
         mRightMaster = TalonFXFactory.createDefaultTalon(Constants.kRightDriveMasterId);
-        configureMaster(mRightMaster, true);
+        configureMaster(mRightMaster, false);
 
         mRightSlave = TalonFXFactory.createPermanentSlaveTalon(Constants.kRightDriveSlaveId,
                 Constants.kRightDriveMasterId);
-        mRightSlave.setInverted(true);
+        mRightSlave.setInverted(false);
 
         reloadGains();
 
