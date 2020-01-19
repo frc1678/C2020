@@ -43,6 +43,18 @@ public class Indexer extends Subsystem {
         public double feeder_demand;
     }
 
+    public static class ProxyStatus {
+        public boolean front_proxy;
+        public boolean right_proxy;
+        public boolean left_proxy;
+        public boolean back_right_proxy;
+        public boolean back_left_proxy;
+
+        public boolean slotsFilled() {
+            return front_proxy && right_proxy && left_proxy && back_right_proxy && back_left_proxy;
+        }
+    }
+
     public enum WantedAction {
         NONE, INDEX, REVOLVE, ZOOM,
     }
@@ -52,6 +64,7 @@ public class Indexer extends Subsystem {
     }
 
     private PeriodicIO mPeriodicIO = new PeriodicIO();
+    private ProxyStatus mProxyStatus = new ProxyStatus();
     private final TalonFX mIndexer;
     private final TalonFX mFeeder;
     private State mState = State.IDLE;
@@ -61,14 +74,7 @@ public class Indexer extends Subsystem {
     private boolean mHasBeenZeroed = false;
     private boolean mBackwards = false;
     private int mSlotGoal;
-    private boolean mSlotsFilled = false;
     private boolean mSnapped = false;
-
-    private boolean mFrontProxy = mPeriodicIO.front_proxy;
-    private boolean mRightProxy = mPeriodicIO.right_proxy;
-    private boolean mLeftProxy = mPeriodicIO.left_proxy;
-    private boolean mBackRightProxy = mPeriodicIO.back_right_proxy;
-    private boolean mBackLeftProxy = mPeriodicIO.back_left_proxy;
 
     private Indexer() {
         mIndexer = new TalonFX(Constants.kIndexerId);
@@ -129,11 +135,11 @@ public class Indexer extends Subsystem {
     }
 
     private void readProxies() {
-        mFrontProxy = mPeriodicIO.front_proxy;
-        mRightProxy = mPeriodicIO.right_proxy;
-        mLeftProxy = mPeriodicIO.left_proxy;
-        mBackRightProxy = mPeriodicIO.back_right_proxy;
-        mBackLeftProxy = mPeriodicIO.back_left_proxy;
+        mProxyStatus.front_proxy = mPeriodicIO.front_proxy;
+        mProxyStatus.right_proxy = mPeriodicIO.right_proxy;
+        mProxyStatus.left_proxy = mPeriodicIO.left_proxy;
+        mProxyStatus.back_right_proxy = mPeriodicIO.back_right_proxy;
+        mProxyStatus.back_left_proxy = mPeriodicIO.back_left_proxy;
     }
 
     @Override
@@ -174,7 +180,7 @@ public class Indexer extends Subsystem {
     }
 
     public synchronized boolean slotsFilled() {
-        return mSlotsFilled;
+        return mProxyStatus.slotsFilled();
     }
 
     public void runStateMachine() {
@@ -199,22 +205,16 @@ public class Indexer extends Subsystem {
                 }
             } else {
                 readProxies();
-                if (mFrontProxy && mRightProxy && mLeftProxy && mBackRightProxy && mBackLeftProxy) {
-                    mSlotsFilled = true;
-                } else {
-                    mSlotsFilled = false;
-
-                    mSlotGoal = mMotionPlanner.findNearestOpenSlot(indexer_angle, mFrontProxy, mRightProxy, 
-                            mLeftProxy, mBackRightProxy, mBackLeftProxy);
+                if (!mProxyStatus.slotsFilled()) {
+                    mSlotGoal = mMotionPlanner.findNearestOpenSlot(indexer_angle, mProxyStatus);
 
                     mPeriodicIO.indexer_demand = mMotionPlanner.findAngleGoal(mSlotGoal, indexer_angle, 0);
 
                     if (mMotionPlanner.isAtGoal(mSlotGoal, indexer_angle, 0)) {
                         readProxies();
 
-                        if (mFrontProxy) {
-                            mSlotGoal = mMotionPlanner.findNearestOpenSlot(indexer_angle, mFrontProxy, mRightProxy, 
-                                    mLeftProxy, mBackRightProxy, mBackLeftProxy);
+                        if (mProxyStatus.front_proxy) {
+                            mSlotGoal = mMotionPlanner.findNearestOpenSlot(indexer_angle, mProxyStatus);
                             mPeriodicIO.indexer_demand = mMotionPlanner.findAngleGoal(mSlotGoal, indexer_angle, 0);
                         }
                     }

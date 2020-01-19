@@ -1,6 +1,7 @@
 package com.team1678.frc2020.planners;
 
 import com.team1678.frc2020.Constants;
+import com.team1678.frc2020.subsystems.Indexer;
 
 public class IndexerMotionPlanner {
     public IndexerMotionPlanner() {}
@@ -117,24 +118,29 @@ public class IndexerMotionPlanner {
         return Math.abs(findAngleToGoal(slotNumber, indexer_angle, turret_angle)) <= Constants.kIndexerDeadband;
     }
 
-    public int findNearestOpenSlot(double indexer_angle, boolean front_proxy, boolean right_proxy, 
-            boolean left_proxy, boolean back_right_proxy, boolean back_left_proxy) {
+    public int findNearestOpenSlot(double indexer_angle, Indexer.ProxyStatus proxy_status) {
         int currentSlot = findNearestSlotToIntake(indexer_angle);
         int slotGoal;
+
+        boolean frontProxy = proxy_status.front_proxy;
+        boolean rightProxy = proxy_status.right_proxy;
+        boolean leftProxy = proxy_status.left_proxy;
+        boolean backRightProxy = proxy_status.back_right_proxy;
+        boolean backLeftProxy = proxy_status.back_left_proxy;
         
-        if (!front_proxy) {
+        if (!frontProxy) {
             slotGoal = currentSlot;
         } else {
-            if (!right_proxy) {
+            if (!rightProxy) {
                 slotGoal = currentSlot + 1;
             } else {
-                if (!left_proxy) {
+                if (!leftProxy) {
                     slotGoal = currentSlot - 1;
                 } else {
-                    if (!back_right_proxy) {
+                    if (!backRightProxy) {
                         slotGoal = currentSlot + 2;
                     } else {
-                        if (!back_left_proxy) {
+                        if (!backLeftProxy) {
                             slotGoal = currentSlot - 2;
                         } else {
                             slotGoal = currentSlot; // all slots filled
