@@ -121,4 +121,8 @@ public class ControlBoard {
     public double getJoggingZ() {
         return mButtonControlBoard.getJoggingZ();
     }
+
+    public boolean getInterruptAuto() {
+        return mDriveControlBoard.getInterruptAuto();
+    }
 }

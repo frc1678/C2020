@@ -89,6 +89,16 @@ public class Robot extends TimedRobot {
         }
     }
 
+    private void controls() {
+        if (mControlBoard.getRunIntake()) {
+            mIntake.setState(Intake.WantedAction.INTAKE);
+        } else if (mControlBoard.getRunOuttake()) {
+            mIntake.setState(Intake.WantedAction.OUTTAKE);
+        } else {
+            mIntake.setState(Intake.WantedAction.NONE);
+        }
+    }
+
     @Override
     public void teleopPeriodic() {
         try {
@@ -97,14 +107,9 @@ public class Robot extends TimedRobot {
             double turn = mControlBoard.getTurn();
 
             mDrive.setAssistedDrive(timestamp, throttle, -turn, mControlBoard.getQuickTurn());
-            
-            if (mControlBoard.getRunIntake()) {
-                mIntake.setState(Intake.WantedAction.INTAKE);
-            } else if (mControlBoard.getRunOuttake()) {
-                mIntake.setState(Intake.WantedAction.OUTTAKE);
-            } else {
-                mIntake.setState(Intake.WantedAction.NONE);
-            }
+
+            controls();
+
         } catch (Throwable t) {
             CrashTracker.logThrowableCrash(t);
             throw t;

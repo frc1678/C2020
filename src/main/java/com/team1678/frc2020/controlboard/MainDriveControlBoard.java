@@ -45,4 +45,8 @@ public class MainDriveControlBoard {
     public boolean getThrust() {
         return mThrottleStick.getRawButton(1);
     }
+
+    public boolean getInterruptAuto() {
+        return mThrottleStick.getRawButton(3);
+    }
 }
