@@ -52,11 +52,15 @@ public class Constants {
     public static final double kDriveVoltageRampRate = 0.0;
 
     // drive
-    public static final int kLeftDriveMasterId = 1;
-    public static final int kLeftDriveSlaveId = 2;
 
-    public static final int kRightDriveMasterId = 3;
-    public static final int kRightDriveSlaveId = 4;
+    public static final int kRightDriveMasterId = 1;
+    public static final int kRightDriveSlaveId = 2;
+
+
+    public static final int kLeftDriveMasterId = 3;
+    public static final int kLeftDriveSlaveId = 4;
+
+  
 
     public static final int kIndexerId = 5; // change
     public static final int kFeederId = 6; // change
@@ -112,10 +116,10 @@ public class Constants {
     }
 
     // Intake
-    public static final int kIntakeRollerID = 2;
+    public static final int kIntakeRollerID = 15;
 
     // Color Panel
-    public static final int kColorPanelID = 1;
+    public static final int kColorPanelID = 14;
 
     // Indexer
     public static final int kIndexerSlots = 5;
@@ -211,7 +215,7 @@ public class Constants {
     public static final double kHoodToBottomEndEffectorLength = 15.91; // Length (in) from wrist joint to bottom of end effector
 
     // pigeon
-    public static final int kPigeonIMUId = 15;
+    public static final int kPigeonIMUId = 16;
 
     public static final boolean kUseDriveGamepad = false;
     public static final int kDriveGamepadPort = 0;
