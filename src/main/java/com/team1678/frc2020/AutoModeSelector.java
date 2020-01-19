@@ -13,10 +13,7 @@ public class AutoModeSelector {
     }
 
     enum DesiredMode {
-        DO_NOTHING,
-        ROCKET_HATCH,
-        CHARACTERIZE_DRIVE_TURN,
-        CHARACTERIZE_DRIVE_STRAIGHT,
+        DO_NOTHING, TEST_PATH, CHARACTERIZE_DRIVE_TURN, CHARACTERIZE_DRIVE_STRAIGHT,
     }
 
     private DesiredMode mCachedDesiredMode = null;
@@ -30,7 +27,7 @@ public class AutoModeSelector {
     public AutoModeSelector() {
         mModeChooser = new SendableChooser<>();
         mModeChooser.setDefaultOption("Do Nothing", DesiredMode.DO_NOTHING);
-        mModeChooser.addOption("Rocket Hatch", DesiredMode.ROCKET_HATCH);
+        mModeChooser.addOption("TEST PATH", DesiredMode.TEST_PATH);
         mModeChooser.addOption("Characterize Drive Turn", DesiredMode.CHARACTERIZE_DRIVE_TURN);
         mModeChooser.addOption("Characterize Drive Straight", DesiredMode.CHARACTERIZE_DRIVE_STRAIGHT);
         SmartDashboard.putData("Auto mode", mModeChooser);
@@ -44,8 +41,9 @@ public class AutoModeSelector {
     public void updateModeCreator() {
         DesiredMode desiredMode = mModeChooser.getSelected();
         StartingPosition startingPosition = mStartPositionChooser.getSelected();
-        if(mCachedDesiredMode != desiredMode || startingPosition != mCachedStartingPosition) {
-            System.out.println("Auto selection changed, updating creator: desiredMode->" + desiredMode.name() + ", starting position->" + startingPosition.name());
+        if (mCachedDesiredMode != desiredMode || startingPosition != mCachedStartingPosition) {
+            System.out.println("Auto selection changed, updating creator: desiredMode->" + desiredMode.name()
+                    + ", starting position->" + startingPosition.name());
             mAutoMode = getAutoModeForParams(desiredMode, startingPosition);
         }
         mCachedDesiredMode = desiredMode;
@@ -55,20 +53,21 @@ public class AutoModeSelector {
     private Optional<AutoModeBase> getAutoModeForParams(DesiredMode mode, StartingPosition position) {
         boolean startOnLeft = StartingPosition.LEFT_HAB_1 == position;
         switch (mode) {
-            case DO_NOTHING:
-                return Optional.of(new DoNothingMode());
-            case CHARACTERIZE_DRIVE_TURN:
-                return Optional.of(new CharacterizeDrivebaseMode(false, true));
-            case CHARACTERIZE_DRIVE_STRAIGHT:
-                return Optional.of(new CharacterizeDrivebaseMode(false, false));
-            default:
-                break;
+        case DO_NOTHING:
+            return Optional.of(new DoNothingMode());
+        case CHARACTERIZE_DRIVE_TURN:
+            return Optional.of(new CharacterizeDrivebaseMode(false, true));
+        case CHARACTERIZE_DRIVE_STRAIGHT:
+            return Optional.of(new CharacterizeDrivebaseMode(false, false));
+        case TEST_PATH:
+            return Optional.of(new TestPath(startOnLeft));
+        default:
+            break;
         }
 
         System.err.println("No valid auto mode found for  " + mode);
         return Optional.empty();
     }
-
 
     public void reset() {
         mAutoMode = Optional.empty();

@@ -91,13 +91,13 @@ public class TrajectoryGenerator {
             public final Trajectory<TimedState<Pose2dWithCurvature>> right;
         }
 
-        public final MirroredTrajectory hab1ToRocket;
+        public final MirroredTrajectory FirstPath;
 
         private TrajectorySet() {
-            hab1ToRocket = new MirroredTrajectory(getHab1ToRocket());
+            FirstPath = new MirroredTrajectory(getFirstPath());
         }
 
-        private Trajectory<TimedState<Pose2dWithCurvature>> getHab1ToRocket() {
+        private Trajectory<TimedState<Pose2dWithCurvature>> getFirstPath() {
             List<Pose2d> waypoints = new ArrayList<>();
             waypoints.add(kHab1StartPose);
             waypoints.add(kFarRocketPose);
