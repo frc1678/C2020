@@ -1,6 +1,7 @@
 package com.team1678.frc2020.planners;
 
 import com.team1678.frc2020.Constants;
+import com.team1678.frc2020.subsystems.Indexer.ProxyStatus;
 import com.team254.util.test.ControlledActuatorLinearSim;
 import org.junit.Assert;
 import org.junit.Test;
@@ -10,6 +11,49 @@ import org.junit.runners.JUnit4;
 
 @RunWith(JUnit4.class)
 public class IndexerMotionPlannerTest {
+
+    public ProxyStatus setProxyStatus(boolean front_proxy, boolean right_proxy, boolean back_left_proxy, 
+            boolean back_right_proxy, boolean left_proxy) {
+        ProxyStatus proxy_status = new ProxyStatus();
+        proxy_status.front_proxy = front_proxy;
+        proxy_status.right_proxy = right_proxy;
+        proxy_status.left_proxy = left_proxy;
+        proxy_status.back_right_proxy = back_right_proxy;
+        proxy_status.back_left_proxy = back_left_proxy;
+
+        return proxy_status;
+    }
+
+    @Test
+    public void testFindNearestOpenSlot() {
+        IndexerMotionPlanner motion_planner = new IndexerMotionPlanner();
+        double angleGoal = motion_planner.findSnappedAngleToGoal(69);
+        Assert.assertEquals(3, angleGoal, Constants.kTestEpsilon);
+
+        ProxyStatus proxy_status = setProxyStatus(false, false, false, false, false);
+        int slotGoal = motion_planner.findNearestOpenSlot(72, proxy_status);
+        angleGoal = motion_planner.findAngleToIntake(slotGoal, 72);
+        Assert.assertEquals(0, angleGoal, Constants.kTestEpsilon);
+        Assert.assertEquals(1, slotGoal);
+        
+        proxy_status = setProxyStatus(true, false, false, false, false);
+        slotGoal = motion_planner.findNearestOpenSlot(72, proxy_status);
+        angleGoal = motion_planner.findAngleToIntake(slotGoal, 72);
+        Assert.assertEquals(72, angleGoal, Constants.kTestEpsilon);
+        Assert.assertEquals(2, slotGoal);
+
+        proxy_status = setProxyStatus(true, false, false, false, true);
+        slotGoal = motion_planner.findNearestOpenSlot(144, proxy_status);
+        angleGoal = motion_planner.findAngleToIntake(slotGoal, 144);
+        Assert.assertEquals(72, angleGoal, Constants.kTestEpsilon);
+        Assert.assertEquals(3, slotGoal);
+
+        proxy_status = setProxyStatus(true, true, true, false, false);
+        slotGoal = motion_planner.findNearestOpenSlot(72, proxy_status);
+        angleGoal = motion_planner.findAngleToIntake(slotGoal, 144);
+        Assert.assertEquals(-144, angleGoal, Constants.kTestEpsilon);
+        Assert.assertEquals(0, slotGoal);
+    }
 
     @Test
     public void testSmallOffset() {

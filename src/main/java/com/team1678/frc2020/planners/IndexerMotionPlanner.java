@@ -1,7 +1,7 @@
 package com.team1678.frc2020.planners;
 
 import com.team1678.frc2020.Constants;
-import com.team1678.frc2020.subsystems.Indexer;
+import com.team1678.frc2020.subsystems.Indexer.ProxyStatus;
 
 public class IndexerMotionPlanner {
     public IndexerMotionPlanner() {}
@@ -57,16 +57,39 @@ public class IndexerMotionPlanner {
         return slotNumber;
     }
 
-    public double findSnappedAngleGoal(double indexer_angle) {
+    public double findAngleToIntake(int slotNumber, double indexer_angle) {
         double wrappedIndexerAngle = WrapDegrees(indexer_angle);
 
-        double angleGoal = wrappedIndexerAngle % 72;
+        double slotAngle = WrapDegrees(slotNumber * Constants.kAnglePerSlot) - wrappedIndexerAngle;
 
-        if (angleGoal > 36) {
-            angleGoal -= 72;
+        double angleGoal = WrapDegrees(slotAngle);
+
+        return angleGoal;
+    }
+
+    public double findAngleGoalToIntake(int slotNumber, double indexer_angle) {
+        return findAngleToIntake(slotNumber, indexer_angle);
+    }
+
+    public double findSnappedAngleToGoal(double indexer_angle) {
+        double wrappedIndexerAngle = WrapDegrees(indexer_angle);
+        double angleGoal;
+
+        if (wrappedIndexerAngle >= 0) {
+            angleGoal = 72 - wrappedIndexerAngle % 72;
+        } else {
+            angleGoal = -72 - wrappedIndexerAngle % 72;
         }
 
-        return angleGoal + indexer_angle;
+        if (Math.abs(angleGoal) > 36) {
+            angleGoal -= 72 * Math.signum(angleGoal);
+        }
+
+        return angleGoal;
+    }
+
+    public double findSnappedAngleGoal(double indexer_angle) {
+        return findSnappedAngleToGoal(indexer_angle) + indexer_angle;
     }
 
     public boolean isSnapped(double indexer_angle) {
@@ -118,7 +141,7 @@ public class IndexerMotionPlanner {
         return Math.abs(findAngleToGoal(slotNumber, indexer_angle, turret_angle)) <= Constants.kIndexerDeadband;
     }
 
-    public int findNearestOpenSlot(double indexer_angle, Indexer.ProxyStatus proxy_status) {
+    public int findNearestOpenSlot(double indexer_angle, ProxyStatus proxy_status) {
         int currentSlot = findNearestSlotToIntake(indexer_angle);
         int slotGoal;
 

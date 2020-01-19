@@ -208,14 +208,14 @@ public class Indexer extends Subsystem {
                 if (!mProxyStatus.slotsFilled()) {
                     mSlotGoal = mMotionPlanner.findNearestOpenSlot(indexer_angle, mProxyStatus);
 
-                    mPeriodicIO.indexer_demand = mMotionPlanner.findAngleGoal(mSlotGoal, indexer_angle, 0);
+                    mPeriodicIO.indexer_demand = mMotionPlanner.findAngleGoalToIntake(mSlotGoal, indexer_angle);
 
                     if (mMotionPlanner.isAtGoal(mSlotGoal, indexer_angle, 0)) {
                         readProxies();
 
                         if (mProxyStatus.front_proxy) {
                             mSlotGoal = mMotionPlanner.findNearestOpenSlot(indexer_angle, mProxyStatus);
-                            mPeriodicIO.indexer_demand = mMotionPlanner.findAngleGoal(mSlotGoal, indexer_angle, 0);
+                            mPeriodicIO.indexer_demand = mMotionPlanner.findAngleGoalToIntake(mSlotGoal, indexer_angle);
                         }
                     }
                 }
