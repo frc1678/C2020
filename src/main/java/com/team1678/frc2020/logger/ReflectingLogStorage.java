@@ -15,4 +15,14 @@ public class ReflectingLogStorage<T> extends LogStorage {
         }
         return getItemNames;
     }
+    public void Add(T classData) {
+        ArrayList<Double> newRow = new ArrayList<Double>();
+        for (Field variableName : mVars) {
+            try {
+                newRow.add(((Number)variableName.get(classData)).doubleValue());
+            } catch (Exception e) {
+                System.err.print("Unable to add variable name data to new row as a double value");
+            }
+        }
+    }
 }
