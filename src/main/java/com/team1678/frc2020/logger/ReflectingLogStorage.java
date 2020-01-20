@@ -4,6 +4,7 @@ import java.lang.reflect.Field;
 
 public class ReflectingLogStorage<T> extends LogStorage {
     private Field[] mVars;
+    ArrayList<Double> newRow = new ArrayList<Double>();
 
     public ReflectingLogStorage(Class<T> typeClass) {
         //  Getting member variables
@@ -21,7 +22,7 @@ public class ReflectingLogStorage<T> extends LogStorage {
     }
     //  Collect data from the variables and store in a new array list
     public void Add(T classData) {
-        ArrayList<Double> newRow = new ArrayList<Double>();
+        newRow.clear();
         for (Field variableName : mVars) {
             try {
                 //  add data from the variables and make sure they're doubles to add them to the array list 
