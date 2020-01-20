@@ -177,7 +177,7 @@ public class Robot extends TimedRobot {
             double throttle = mControlBoard.getThrottle();
             double turn = mControlBoard.getTurn();
 
-            mDrive.setAssistedDrive(timestamp, throttle, -turn, mControlBoard.getQuickTurn());
+            mDrive.setCheesyishDrive(throttle, -turn, mControlBoard.getQuickTurn());
 
             controls();
 

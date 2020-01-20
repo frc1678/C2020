@@ -31,7 +31,7 @@ public class MainDriveControlBoard {
     }
 
     public boolean getQuickTurn() {
-        return mTurnStick.getRawButton(1);
+        return mTurnStick.getRawButton(5);
     }
 
     public boolean getShoot() {
