@@ -202,7 +202,11 @@ public class Indexer extends Subsystem {
     public void runStateMachine() {
         final double turret_angle = mTurret.getAngle();
         final double indexer_angle = mPeriodicIO.indexer_angle;
-        
+
+        if (mMotionPlanner.isSnapped(indexer_angle)) {
+            updateSlots(indexer_angle);
+        }
+
         switch (mState) {
         case IDLE:
             mPeriodicIO.feeder_demand = kIdleVoltage;
@@ -210,10 +214,6 @@ public class Indexer extends Subsystem {
         case INDEXING:
             mPeriodicIO.indexer_control_mode = ControlMode.Position;
             mPeriodicIO.feeder_demand = kOuttakeVoltage;
-
-            if (mMotionPlanner.isSnapped(indexer_angle)) {
-                updateSlots(indexer_angle);
-            }
 
             if (!mSlotStatus.slotsFilled()) {
                 mSlotGoal = mMotionPlanner.findNearestOpenSlot(indexer_angle, mProxyStatus);
@@ -242,8 +242,7 @@ public class Indexer extends Subsystem {
                 mSlotGoal = mMotionPlanner.findPreviousSlot(indexer_angle, turret_angle);
             }
 
-            mPeriodicIO.indexer_demand = mMotionPlanner.findAngleGoal(mSlotGoal, indexer_angle,
-                    turret_angle);
+            mPeriodicIO.indexer_demand = mMotionPlanner.findAngleGoal(mSlotGoal, indexer_angle, turret_angle);
 
             if (mMotionPlanner.isAtGoal(mSlotGoal, indexer_angle, turret_angle)) {
                 mState = State.FEEDING;
@@ -270,8 +269,7 @@ public class Indexer extends Subsystem {
                 }
             }
 
-            mPeriodicIO.indexer_demand = mMotionPlanner.findAngleGoal(mSlotGoal, indexer_angle,
-                    turret_angle);
+            mPeriodicIO.indexer_demand = mMotionPlanner.findAngleGoal(mSlotGoal, indexer_angle, turret_angle);
             break;
         default:
             System.out.println("Fell through on Indexer states!");
