@@ -2,6 +2,8 @@ package com.team1678.frc2020.planners;
 
 import com.team1678.frc2020.Constants;
 import com.team1678.frc2020.subsystems.Indexer.ProxyStatus;
+import com.team1678.frc2020.subsystems.Indexer.SlotStatus;
+
 
 public class IndexerMotionPlanner {
     public IndexerMotionPlanner() {}
@@ -31,13 +33,8 @@ public class IndexerMotionPlanner {
         }
 
         int slotNumber = (int) Math.round(offset / Constants.kAnglePerSlot);
-        if (slotNumber < 0) {
-            slotNumber += 5;
-        } else if (slotNumber > 4) {
-            slotNumber -= 5;
-        }
 
-        return slotNumber;
+        return wrapSlotNumber(slotNumber);
     }
 
     public int findNearestSlotToIntake(double indexer_angle) {
@@ -48,6 +45,11 @@ public class IndexerMotionPlanner {
         }
 
         int slotNumber = (int) Math.round((wrappedIndexerAngle) / Constants.kAnglePerSlot);
+
+        return wrapSlotNumber(slotNumber);
+    }
+
+    public int wrapSlotNumber(int slotNumber) {
         if (slotNumber < 0) {
             slotNumber += 5;
         } else if (slotNumber > 4) {
@@ -55,6 +57,46 @@ public class IndexerMotionPlanner {
         }
 
         return slotNumber;
+    }
+
+    public SlotStatus updateSlotStatus(double indexer_angle, ProxyStatus proxy_status) {
+
+        SlotStatus slotStatus = new SlotStatus();
+        int frontSlot = findNearestSlotToIntake(indexer_angle);
+
+        if (frontSlot == 0) {
+            slotStatus.slot_zero = proxy_status.front_proxy;
+            slotStatus.slot_one = proxy_status.right_proxy;
+            slotStatus.slot_two = proxy_status.back_right_proxy;
+            slotStatus.slot_three = proxy_status.back_left_proxy;
+            slotStatus.slot_four = proxy_status.left_proxy;
+        } else if (frontSlot == 1) {
+            slotStatus.slot_one = proxy_status.front_proxy;
+            slotStatus.slot_two = proxy_status.right_proxy;
+            slotStatus.slot_three = proxy_status.back_right_proxy;
+            slotStatus.slot_four = proxy_status.back_left_proxy;
+            slotStatus.slot_zero = proxy_status.left_proxy;
+        } else if (frontSlot == 2) {
+            slotStatus.slot_two = proxy_status.front_proxy;
+            slotStatus.slot_three = proxy_status.right_proxy;
+            slotStatus.slot_four = proxy_status.back_right_proxy;
+            slotStatus.slot_zero = proxy_status.back_left_proxy;
+            slotStatus.slot_one = proxy_status.left_proxy;
+        } else if (frontSlot == 3) {
+            slotStatus.slot_three = proxy_status.front_proxy;
+            slotStatus.slot_four = proxy_status.right_proxy;
+            slotStatus.slot_zero = proxy_status.back_right_proxy;
+            slotStatus.slot_one = proxy_status.back_left_proxy;
+            slotStatus.slot_two = proxy_status.left_proxy;
+        } else if (frontSlot == 4) {
+            slotStatus.slot_four = proxy_status.front_proxy;
+            slotStatus.slot_zero = proxy_status.right_proxy;
+            slotStatus.slot_one = proxy_status.back_right_proxy;
+            slotStatus.slot_two = proxy_status.back_left_proxy;
+            slotStatus.slot_three = proxy_status.left_proxy;
+        }
+
+        return slotStatus;
     }
 
     public double findAngleToIntake(int slotNumber, double indexer_angle) {
@@ -98,28 +140,14 @@ public class IndexerMotionPlanner {
 
     public int findNextSlot(double indexer_angle, double turret_angle) {
         int currentSlot = findNearestSlot(indexer_angle, turret_angle);
-        int nextSlot;
 
-        if (currentSlot == 4) {
-            nextSlot = 0;
-        } else {
-            nextSlot = currentSlot + 1;
-        }
-
-        return nextSlot;
+        return wrapSlotNumber(currentSlot + 1);
     }
 
     public int findPreviousSlot(double indexer_angle, double turret_angle) {
         int currentSlot = findNearestSlot(indexer_angle, turret_angle);
-        int nextSlot;
 
-        if (currentSlot == 0) {
-            nextSlot = 4;
-        } else {
-            nextSlot = currentSlot - 1;
-        }
-
-        return nextSlot;
+        return wrapSlotNumber(currentSlot - 1);    
     }
 
     public double findAngleGoal(int slotNumber, double indexer_angle, double turret_angle) {
@@ -173,12 +201,6 @@ public class IndexerMotionPlanner {
             }
         }
 
-        if (slotGoal < 0) {
-            slotGoal += 5;
-        } else if (slotGoal > 4) {
-            slotGoal -= 5;
-        }
-
-        return slotGoal;
+        return wrapSlotNumber(slotGoal);
     }
 }
