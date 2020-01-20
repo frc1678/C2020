@@ -19,7 +19,7 @@ public class LoggingSystem {
     /* 
         Create a for loop that goes over all the current files and subdirectories in mDirectories.
         If the directory is empty (when the max number is 0), start a new subdirectory at 1.
-        Whenever the logging system reboots, function will scan over all the exhisting files and subdirectories and find the largest one.
+        Whenever the logging system reboots, function will scan over all the existing files and subdirectories and find the largest one.
         New subdirectory is created by adding one (1) to the max file number.
     */
     private LoggingSystem() {

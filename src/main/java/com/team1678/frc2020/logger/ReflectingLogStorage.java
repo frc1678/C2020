@@ -6,7 +6,7 @@ public class ReflectingLogStorage<T> extends LogStorage {
     private Field[] mVars;
 
     public ReflectingLogStorage(Class<T> typeClass) {
-        //  Getting memeber variables
+        //  Getting member variables
         mVars = typeClass.getFields();
     }
     public ArrayList<String> getItemNames() {
@@ -30,5 +30,6 @@ public class ReflectingLogStorage<T> extends LogStorage {
                 System.err.print("Unable to add variable name data to new row as a double value");
             }
         }
+        addData(newRow);
     }
 }

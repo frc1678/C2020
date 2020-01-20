@@ -39,7 +39,7 @@ public class LogStorage implements ILoggable {
         
     }
     public synchronized void addData(ArrayList<Double> items) {
-        mItems.add(items); 
+        mItems.add(items);
 
     }
 }
