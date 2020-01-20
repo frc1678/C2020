@@ -218,6 +218,9 @@ public class Indexer extends Subsystem {
                             mPeriodicIO.indexer_demand = mMotionPlanner.findAngleGoalToIntake(mSlotGoal, indexer_angle);
                         }
                     }
+                } else {
+                    mSlotGoal = mMotionPlanner.findNearestSlot(indexer_angle, turret_angle);
+                    mPeriodicIO.indexer_demand = mMotionPlanner.findAngleGoal(mSlotGoal, indexer_angle, turret_angle);
                 }
             }            
             break;
