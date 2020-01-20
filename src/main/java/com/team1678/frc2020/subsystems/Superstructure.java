@@ -61,7 +61,7 @@ public class Superstructure extends Subsystem {
     private boolean mEnforceAutoAimMinDistance = false;
     private double mAutoAimMinDistance = 500;
 
-    private TurretControlModes mTurretMode = TurretControlModes.ROBOT_RELATIVE;
+    private TurretControlModes mTurretMode = TurretControlModes.FIELD_RELATIVE;
     private HoodControlModes mHoodMode = HoodControlModes.VISION_AIMED;
 
     private double mTurretThrottle = 0.0;
