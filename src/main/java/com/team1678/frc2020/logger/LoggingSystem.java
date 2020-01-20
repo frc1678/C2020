@@ -26,11 +26,14 @@ public class LoggingSystem {
         File Directory = new File(mDirectory);
         Integer maxNum = 0;
         for (final File directoryEntry : Directory.listFiles()) {
-            if (directoryEntry.isDirectory()) {
-                int Num = Integer.parseInt(directoryEntry.getName());
-                if (Num > maxNum) {
-                    maxNum = Num;
+            try {
+                if (directoryEntry.isDirectory()) {
+                    int Num = Integer.parseInt(directoryEntry.getName());
+                    if (Num > maxNum) {
+                        maxNum = Num;
+                    }
                 } 
+            } catch (Exception e) {
             }
         }
         maxNum++;
