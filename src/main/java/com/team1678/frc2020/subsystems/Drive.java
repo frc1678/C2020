@@ -116,14 +116,14 @@ public class Drive extends Subsystem {
 
         mLeftSlave = TalonFXFactory.createPermanentSlaveTalon(Constants.kLeftDriveSlaveId,
                 Constants.kLeftDriveMasterId);
-        mLeftSlave.setInverted(true);
+        mLeftSlave.setInverted(false);
 
         mRightMaster = TalonFXFactory.createDefaultTalon(Constants.kRightDriveMasterId);
         configureMaster(mRightMaster, false);
 
         mRightSlave = TalonFXFactory.createPermanentSlaveTalon(Constants.kRightDriveSlaveId,
                 Constants.kRightDriveMasterId);
-        mRightSlave.setInverted(false);
+        mRightSlave.setInverted(true);
 
         reloadGains();
 
