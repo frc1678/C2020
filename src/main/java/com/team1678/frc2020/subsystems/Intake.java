@@ -45,7 +45,7 @@ public class Intake extends Subsystem {
         public double current;
         
         //OUTPUTS
-        public static double demand;
+        public double demand;
     }
     LogStorage mStorage = null;
 
