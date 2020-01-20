@@ -9,6 +9,8 @@ import com.ctre.phoenix.sensors.PigeonIMU_StatusFrame;
 import com.team1678.frc2020.Constants;
 import com.team1678.frc2020.Kinematics;
 import com.team1678.frc2020.RobotState;
+import com.team1678.frc2020.logger.*;
+import com.team1678.frc2020.logger.LogStorage;
 import com.team1678.frc2020.loops.ILooper;
 import com.team1678.frc2020.loops.Loop;
 import com.team1678.frc2020.planners.DriveMotionPlanner;
@@ -90,6 +92,70 @@ public class Drive extends Subsystem {
         }
     };
 
+
+
+    public LogStorage mStorage = null;
+
+    public void logSetup() {
+        mStorage = new LogStorage();
+        ArrayList<String> columnNames = new ArrayList<String>();
+
+        //  OUTPUTS
+        columnNames.add("timestamp");
+        columnNames.add("left_position_ticks");
+        columnNames.add("right_position_ticks");
+        columnNames.add("left_distance");
+        columnNames.add("right_distance");
+        columnNames.add("left_current");
+        columnNames.add("right_current");
+        columnNames.add("left_velocity_ticks_per_100ms");
+        columnNames.add("right_velocity_ticks_per_100ms");
+        columnNames.add("gyro_heading");
+
+        //  OUTPUTS
+        columnNames.add("left_demand");
+        columnNames.add("right_demand");
+        columnNames.add("left_accel");
+        columnNames.add("right_accel");
+        columnNames.add("left_feedforward");
+        columnNames.add("right_feedforward");
+        columnNames.add("path_setpoint");
+
+        mStorage.setHeaders(columnNames);
+    }
+
+    
+    public void logWrite() {
+        ArrayList<Double> items = new ArrayList<Double>();
+
+        //  INPUTS
+        items.add(Timer.getFPGATimestamp());
+        items.add(Double.valueOf(mPeriodicIO.left_position_ticks));
+        items.add(Double.valueOf(mPeriodicIO.right_position_ticks));
+        items.add(mPeriodicIO.left_distance);
+        items.add(mPeriodicIO.right_distance);
+        items.add(mPeriodicIO.left_current);
+        items.add(mPeriodicIO.right_current);
+        items.add(Double.valueOf(mPeriodicIO.left_velocity_ticks_per_100ms));
+        items.add(Double.valueOf(mPeriodicIO.right_velocity_ticks_per_100ms));
+        items.add(mPeriodicIO.gyro_heading.getDegrees());
+
+        //  OUTPUTS
+        items.add(mPeriodicIO.left_demand);
+        items.add(mPeriodicIO.right_demand);
+        items.add(mPeriodicIO.left_accel);
+        items.add(mPeriodicIO.right_accel);
+        items.add(mPeriodicIO.left_feedforward);
+        items.add(mPeriodicIO.right_feedforward);
+        items.add(Double.valueOf(mPeriodicIO.path_setpoint.toString()));
+
+        mStorage.addData(items);
+    }
+
+    public void registerLogger(LoggingSystem LS) {
+        logSetup();
+        LS.register(mStorage, "Drive.csv");
+    }
     private void configureMaster(TalonFX talon, boolean left) {
         talon.setStatusFramePeriod(StatusFrameEnhanced.Status_2_Feedback0, 5, 100);
         final ErrorCode sensorPresent = talon.configSelectedFeedbackSensor(FeedbackDevice
@@ -356,11 +422,12 @@ public class Drive extends Subsystem {
 
     @Override
     public void outputTelemetry() {
-        
         SmartDashboard.putNumber("Right Drive Distance", mPeriodicIO.right_distance);
         SmartDashboard.putNumber("Left Drive Distance", mPeriodicIO.left_distance);
         SmartDashboard.putNumber("Right Linear Velocity", getRightLinearVelocity());
         SmartDashboard.putNumber("Left Linear Velocity", getLeftLinearVelocity());
+
+        logWrite();
 
         if(getHeading() != null) {
             SmartDashboard.putNumber("Gyro Heading", getHeading().getDegrees());
@@ -616,4 +683,5 @@ public class Drive extends Subsystem {
         public double right_feedforward;
         public TimedState<Pose2dWithCurvature> path_setpoint = new TimedState<Pose2dWithCurvature>(Pose2dWithCurvature.identity());
     }
+  
 }
