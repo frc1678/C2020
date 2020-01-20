@@ -10,7 +10,6 @@ package com.team1678.frc2020;
 import com.team1678.frc2020.loops.Looper;
 import com.team1678.frc2020.subsystems.Limelight;
 import com.team1678.frc2020.controlboard.ControlBoard;
-import com.team1678.frc2020.controlboard.IControlBoard;
 import com.team254.lib.wpilib.TimedRobot;
 import com.team1678.frc2020.SubsystemManager;
 import com.team1678.frc2020.subsystems.*;
@@ -35,7 +34,7 @@ public class Robot extends TimedRobot {
     private final Looper mEnabledLooper = new Looper();
     private final Looper mDisabledLooper = new Looper();
 
-    private final IControlBoard mControlBoard = ControlBoard.getInstance();
+    private final ControlBoard mControlBoard = ControlBoard.getInstance();
 
     private final SubsystemManager mSubsystemManager = SubsystemManager.getInstance();
     private final Drive mDrive = Drive.getInstance();
