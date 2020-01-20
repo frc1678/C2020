@@ -12,8 +12,8 @@ import org.junit.runners.JUnit4;
 @RunWith(JUnit4.class)
 public class IndexerMotionPlannerTest {
 
-    public ProxyStatus setProxyStatus(boolean front_proxy, boolean right_proxy, boolean back_left_proxy, 
-            boolean back_right_proxy, boolean left_proxy) { // slots 0, 1, 2, 3, 4
+    public ProxyStatus setProxyStatus(boolean front_proxy, boolean right_proxy, boolean back_right_proxy, 
+            boolean back_left_proxy, boolean left_proxy) { // slots 0, 1, 2, 3, 4
         ProxyStatus proxy_status = new ProxyStatus();
         proxy_status.front_proxy = front_proxy;
         proxy_status.right_proxy = right_proxy;
