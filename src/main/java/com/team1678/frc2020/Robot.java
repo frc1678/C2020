@@ -57,6 +57,8 @@ public class Robot extends TimedRobot {
     private final Infrastructure mInfrastructure = Infrastructure.getInstance();
     private final Limelight mLimelight = Limelight.getInstance();
     private final Intake mIntake = Intake.getInstance();
+    private final Superstructure mSuperstructure = Superstructure.getInstance();
+    private final Turret mTurret = Turret.getInstance();
 
     private final RobotState mRobotState = RobotState.getInstance();
     private final RobotStateEstimator mRobotStateEstimator = RobotStateEstimator.getInstance();
@@ -90,13 +92,14 @@ public class Robot extends TimedRobot {
         try {
             CrashTracker.logRobotInit();
 
-            mSubsystemManager.setSubsystems(mRobotStateEstimator, mDrive, mLimelight, mIntake);
+            mSubsystemManager.setSubsystems(mRobotStateEstimator, mDrive, mLimelight, mIntake, mSuperstructure, mTurret);
 
             mSubsystemManager.registerEnabledLoops(mEnabledLooper);
             mSubsystemManager.registerDisabledLoops(mDisabledLooper);
 
             // Robot starts forwards.
-            mRobotState.reset(Timer.getFPGATimestamp(), Pose2d.identity(), Rotation2d.identity(),Rotation2d.identity());
+            mRobotState.reset(Timer.getFPGATimestamp(), Pose2d.identity(), Rotation2d.identity(),
+                    Rotation2d.identity());
             mDrive.setHeading(Rotation2d.identity());
 
             mLimelight.setLed(Limelight.LedMode.OFF);
@@ -174,6 +177,12 @@ public class Robot extends TimedRobot {
         } else {
             mIntake.setState(Intake.WantedAction.NONE);
         }
+
+        double turretJog = mControlBoard.getJogTurret();
+        if (Math.abs(turretJog) > 0.04) {
+            Superstructure.getInstance().jogTurret(turretJog * Constants.kJogTurretScalar);
+        }
+
     }
 
     @Override
