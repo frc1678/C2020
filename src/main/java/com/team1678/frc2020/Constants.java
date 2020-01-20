@@ -27,8 +27,8 @@ public class Constants {
 
     /* ROBOT PHYSICAL CONSTANTS */
     // Wheels
-    public static final double kDriveWheelTrackWidthInches = 27.75;
-    public static final double kDriveWheelDiameterInches = 4.0;
+    public static final double kDriveWheelTrackWidthInches = 29.00;
+    public static final double kDriveWheelDiameterInches = 6.0;
     public static final double kDriveWheelRadiusInches = kDriveWheelDiameterInches / 2.0;
     public static final double kTrackScrubFactor = 1.0;  // Tune me!
     // Tuned dynamics
@@ -52,11 +52,14 @@ public class Constants {
     public static final double kDriveVoltageRampRate = 0.0;
 
     // drive
+
+    public static final int kRightDriveMasterId = 4;
+    public static final int kRightDriveSlaveId = 3;
+
     public static final int kLeftDriveMasterId = 1;
     public static final int kLeftDriveSlaveId = 2;
 
-    public static final int kRightDriveMasterId = 3;
-    public static final int kRightDriveSlaveId = 4;
+  
 
     public static final int kIndexerId = 5; // change
     public static final int kFeederId = 6; // change
@@ -110,7 +113,12 @@ public class Constants {
         kElevatorConstants.kPeakCurrentDuration = 10; // milliseconds
 
     }
-    public static final int kIntakeRollerID = 6; //get real ID from electrical 
+
+    // Intake
+    public static final int kIntakeRollerID = 15;
+
+    // Color Panel
+    public static final int kColorPanelID = 14;
 
     // superstructure states
     public static final double g = -9.8;
@@ -219,18 +227,19 @@ public class Constants {
     public static final double kHoodToBottomEndEffectorLength = 15.91; // Length (in) from wrist joint to bottom of end effector
 
     // pigeon
-    public static final int kPigeonIMUId = 15;
+    public static final int kPigeonIMUId = 16;
 
     public static final boolean kUseDriveGamepad = false;
     public static final int kDriveGamepadPort = 0;
     public static final int kButtonGamepadPort = 2;
-    public static final int kMainThrottleJoystickPort = 0;
-    public static final int kMainTurnJoystickPort = 1;
+    public static final int kMainThrottleJoystickPort = 1;
+    public static final int kMainTurnJoystickPort = 0;
     public static final double kJoystickThreshold = 0.2;
 
     // solenoids
-    public static final int kPCMId = 1;
+    public static final int kPCMId = 20;
     public static final int kDiskBrakeSolenoidId = 0;
+    public static final int kPDPId = 21;
 
     // limelight
     public static final double kHorizontalFOV = 59.6; // degrees
