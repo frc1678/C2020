@@ -1,3 +1,8 @@
+/*  While using the reflective system to implement the logging system in subsystems is the cleanest 
+    way to approach the implementation, IT IS 3X SLOWER than implementation by hand (about 300 milisec 
+    rather than 90 milisec)
+*/ 
+
 package com.team1678.frc2020.logger;
 import java.util.ArrayList;
 import java.lang.reflect.Field;

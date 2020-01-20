@@ -86,7 +86,7 @@ public class LoggingSystem {
                             fileWriter.write(",");
                         }
                     }
-                fileWriter.write("\n");
+                    fileWriter.write("\n");
                 }
             }
         } catch (Exception e) {
