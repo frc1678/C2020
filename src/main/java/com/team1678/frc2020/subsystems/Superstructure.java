@@ -296,7 +296,7 @@ public class Superstructure extends Subsystem {
             if (mShooter.spunUp()) {
                 mIndexer.setState(Indexer.WantedAction.ZOOM);
             } else {
-                mIndexer.setState(Indexer.WantedAction.INDEX);
+                mIndexer.setState(Indexer.WantedAction.NONE);
             }
         } else {
             mIndexer.setState(Indexer.WantedAction.NONE);
