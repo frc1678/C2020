@@ -306,8 +306,6 @@ public class Superstructure extends Subsystem {
             } else {
                 mIndexer.setState(Indexer.WantedAction.INDEX);
             }
-        } else if (mShooter.spunUp() && mOnTarget && mWantsShoot) {
-            mIndexer.setState(Indexer.WantedAction.REVOLVE);
         } else {
             mIndexer.setState(Indexer.WantedAction.NONE);
         }
