@@ -12,7 +12,7 @@ public class WaitUntilSeesTargetAction implements Action {
 
     @Override
     public boolean isFinished() {
-        return RobotState.getInstance().getAimingParameters(RobotState.getInstance().useInnerTarget(), -1, Constants.kMaxGoalTrackAge).isPresent();
+        return RobotState.getInstance().getAimingParameters(-1, Constants.kMaxGoalTrackAge).isPresent();
     }
 
     @Override

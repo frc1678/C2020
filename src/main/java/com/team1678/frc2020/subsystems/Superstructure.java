@@ -211,8 +211,7 @@ public class Superstructure extends Subsystem {
             return;
         }
 
-        boolean useHighTarget = mRobotState.useInnerTarget();
-        mLatestAimingParameters = mRobotState.getAimingParameters(useHighTarget, -1, Constants.kMaxGoalTrackAge);
+        mLatestAimingParameters = mRobotState.getAimingParameters( -1, Constants.kMaxGoalTrackAge);
         if (mLatestAimingParameters.isPresent()) {
             mTrackId = mLatestAimingParameters.get().getTrackId();
 
