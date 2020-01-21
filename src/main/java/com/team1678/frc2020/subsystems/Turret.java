@@ -49,7 +49,6 @@ public class Turret extends ServoMotorSubsystem {
     @Override
     public boolean atHomingLocation() {
         final double enc = mMaster.getSelectedSensorPosition(0);
-        System.out.println(!mLimitSwitch.get());
         calibration.update(enc, !mLimitSwitch.get());
         if (calibration.isCalibrated()) {
             mOffset = enc + calibration.getOffset();

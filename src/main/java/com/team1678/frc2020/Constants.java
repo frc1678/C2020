@@ -224,7 +224,6 @@ public class Constants {
         kHoodConstants.kPeakCurrentDuration = 10; // milliseconds
         kHoodConstants.kMaxVoltage = 12.0;
     }
-    public static final double kHoodToBottomEndEffectorLength = 15.91; // Length (in) from wrist joint to bottom of end effector
 
     // pigeon
     public static final int kPigeonIMUId = 16;
@@ -263,13 +262,12 @@ public class Constants {
     public static final double kInnerGoalTargetHeight = 31.5;
     public static final double kOuterGoalTargetHeight = 39.125;
 
-    public static final double kTurretToArmOffset = -2.5;  // in
 
     public static final int kCanifierId = 0;
 
     // shooter
-    public static final int kMasterFlywheelID = 7;
-    public static final int kSlaveFlywheelID = 8;
+    public static final int kMasterFlywheelID = 20;
+    public static final int kSlaveFlywheelID = 21;
     public static final double kShooterP = 0.1;
     public static final double kShooterI = 0.0;
     public static final double kShooterD = 0.0;
