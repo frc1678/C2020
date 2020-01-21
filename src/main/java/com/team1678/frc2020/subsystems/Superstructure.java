@@ -33,7 +33,7 @@ public class Superstructure extends Subsystem {
 
     // hood + flywheel
     enum HoodControlModes {
-        VISION_AIMED, JOGGING, WAIT_FOR_SPINUP, SHOOTING
+        VISION_AIMED, JOGGING
     }
 
     private boolean mHasTarget = false;
@@ -132,9 +132,6 @@ public class Superstructure extends Subsystem {
         }
     }
 
-    public synchronized boolean isShooting() {
-        return mHoodMode == HoodControlModes.SHOOTING;
-    }
 
     public synchronized double getCorrectedRangeToTarget() {
         return mCorrectedRangeToTarget;
@@ -299,16 +296,14 @@ public class Superstructure extends Subsystem {
 
         if (Intake.getInstance().getState() != Intake.State.IDLE) {
             mIndexer.setState(Indexer.WantedAction.INDEX);
-        } else if (mHoodMode == HoodControlModes.WAIT_FOR_SPINUP && mOnTarget && mWantsShoot) {
+        } else if (mOnTarget && mWantsShoot) {
             if (mShooter.spunUp()) {
                 mIndexer.setState(Indexer.WantedAction.REVOLVE);
-                mHoodMode = HoodControlModes.SHOOTING;
             } else {
                 mIndexer.setState(Indexer.WantedAction.INDEX);
             }
         } else if (mShooter.spunUp() && mOnTarget && mWantsShoot) {
             mIndexer.setState(Indexer.WantedAction.REVOLVE);
-            mHoodMode = HoodControlModes.SHOOTING;
         } else {
             mIndexer.setState(Indexer.WantedAction.NONE);
         }
@@ -329,10 +324,6 @@ public class Superstructure extends Subsystem {
 
     public synchronized void setWantShoot(boolean shoot) {
         mWantsShoot = shoot;
-    }
-
-    public synchronized void setWaitForSpinup() {
-        mHoodMode = HoodControlModes.WAIT_FOR_SPINUP;
     }
 
     public synchronized void setWantFieldRelativeTurret(Rotation2d field_to_turret) {
