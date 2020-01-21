@@ -178,11 +178,7 @@ public class Robot extends TimedRobot {
             mIntake.setState(Intake.WantedAction.NONE);
         }
 
-        double turretJog = mControlBoard.getJogTurret();
-        if (Math.abs(turretJog) > 0.04) {
-            Superstructure.getInstance().jogTurret(turretJog * Constants.kJogTurretScalar);
-        }
-
+        mSuperstructure.setWantFieldRelativeTurret(mControlBoard.getTurretCardinal().rotation);
     }
 
     @Override

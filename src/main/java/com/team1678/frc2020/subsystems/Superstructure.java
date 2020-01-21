@@ -51,13 +51,13 @@ public class Superstructure extends Subsystem {
     private double mAutoAimMinDistance = 500;
 
     
-    private double CurrentTurret = 0.0;
-    private double CurrentHood = 0.0;
-    private double CurrentShooter = 0.0;
+    private double mCurrentTurret = 0.0;
+    private double mCurrentHood = 0.0;
+    private double mCurrentShooter = 0.0;
 
-    private double TurretSetpoint = 0.0;
-    private double HoodSetpoint = 0.0;
-    private double ShooterSetpoint = 0.0;
+    private double mTurretSetpoint = 0.0;
+    private double mHoodSetpoint = 0.0;
+    private double mShooterSetpoint = 0.0;
 
     private TurretControlModes mTurretMode = TurretControlModes.FIELD_RELATIVE;
     private HoodControlModes mHoodMode = HoodControlModes.VISION_AIMED;
@@ -91,6 +91,7 @@ public class Superstructure extends Subsystem {
                     updateCurrentState();
                     maybeUpdateGoalFromVision(timestamp);
                     maybeUpdateGoalFromFieldRelativeGoal(timestamp);
+                    followSetpoint();
                 }
             }
 
@@ -126,7 +127,7 @@ public class Superstructure extends Subsystem {
         }
     }
 
-    private double getHoodSetpointAngle(double range) {
+    private double getmHoodSetpointAngle(double range) {
         if (SuperstructureConstants.kUseHoodAutoAimPolynomial) {
             return SuperstructureConstants.kHoodAutoAimPolynomial.predict(range);
         } else {
@@ -150,7 +151,7 @@ public class Superstructure extends Subsystem {
     public synchronized void jogTurret(double delta) {
         mTurretMode = TurretControlModes.JOGGING;
         double prev_delta = mTurret.getAngle();
-        TurretSetpoint = (prev_delta + delta);
+        mTurretSetpoint = (prev_delta + delta);
         mTurretFeedforwardV = 0.0;
     }
 
@@ -158,7 +159,7 @@ public class Superstructure extends Subsystem {
     public synchronized void JogHood(double delta) {
         mHoodMode = HoodControlModes.JOGGING;
         double prev_delta = mHood.getAngle();
-        HoodSetpoint = (prev_delta + delta);
+        mHoodSetpoint = (prev_delta + delta);
         mHoodFeedforwardV = 0.0;
     }
 
@@ -167,16 +168,16 @@ public class Superstructure extends Subsystem {
                 || (mHoodMode == HoodControlModes.VISION_AIMED && mHasTarget)) {
             // Keep current setpoints
         } else {
-            TurretSetpoint = turret;
-            HoodSetpoint = hood;
-            ShooterSetpoint = shooter;
+            mTurretSetpoint = turret;
+            mHoodSetpoint = hood;
+            mShooterSetpoint = shooter;
         }
     }
 
     public synchronized void updateCurrentState() {
-        CurrentTurret = mTurret.getAngle();
-        CurrentHood = mHood.getAngle();
-        CurrentShooter = mShooter.getVelocity();
+        mCurrentTurret = mTurret.getAngle();
+        mCurrentHood = mHood.getAngle();
+        mCurrentShooter = mShooter.getVelocity();
     }
 
     public synchronized void resetAimingParameters() {
@@ -189,19 +190,19 @@ public class Superstructure extends Subsystem {
 
 
     public void safetyReset() {
-        if (TurretSetpoint < Constants.kTurretConstants.kMinUnitsLimit) {
-            TurretSetpoint += SuperstructureConstants.kTurretDOF;
+        if (mTurretSetpoint < Constants.kTurretConstants.kMinUnitsLimit) {
+            mTurretSetpoint += SuperstructureConstants.kTurretDOF;
         }
-        if (TurretSetpoint > Constants.kTurretConstants.kMaxUnitsLimit) {
-            TurretSetpoint -= SuperstructureConstants.kTurretDOF;
+        if (mTurretSetpoint > Constants.kTurretConstants.kMaxUnitsLimit) {
+            mTurretSetpoint -= SuperstructureConstants.kTurretDOF;
         }
 
-        if (HoodSetpoint < Constants.kHoodConstants.kMinUnitsLimit) {
+        if (mHoodSetpoint < Constants.kHoodConstants.kMinUnitsLimit) {
             // logic for when hood fully in
-            HoodSetpoint = Constants.kHoodConstants.kMinUnitsLimit;
+            mHoodSetpoint = Constants.kHoodConstants.kMinUnitsLimit;
         }
-        if (HoodSetpoint > Constants.kHoodConstants.kMaxUnitsLimit) {
-            HoodSetpoint = Constants.kHoodConstants.kMaxUnitsLimit;
+        if (mHoodSetpoint > Constants.kHoodConstants.kMaxUnitsLimit) {
+            mHoodSetpoint = Constants.kHoodConstants.kMaxUnitsLimit;
             // logic for when hood fully extended
         }
     }
@@ -230,34 +231,31 @@ public class Superstructure extends Subsystem {
                 return;
             }
 
-            double shooting_setpoint = getShootingSetpointRpm(mCorrectedRangeToTarget);
-            ShooterSetpoint = shooting_setpoint;
+            final double shooting_setpoint = getShootingSetpointRpm(mCorrectedRangeToTarget);
+            mShooterSetpoint = shooting_setpoint;
 
-            double aiming_setpoint = getHoodSetpointAngle(mCorrectedRangeToTarget);
-            HoodSetpoint = aiming_setpoint;
+            final double aiming_setpoint = getmHoodSetpointAngle(mCorrectedRangeToTarget);
+            mHoodSetpoint = aiming_setpoint;
 
-            Rotation2d turret_error = mRobotState.getVehicleToTurret(timestamp).getRotation().inverse()
+            final Rotation2d turret_error = mRobotState.getVehicleToTurret(timestamp).getRotation().inverse()
                     .rotateBy(mLatestAimingParameters.get().getRobotToGoalRotation());
-            TurretSetpoint = CurrentTurret + turret_error.getDegrees();
-            Twist2d velocity = mRobotState.getMeasuredVelocity();
+            mTurretSetpoint = mCurrentTurret + turret_error.getDegrees();
+            final Twist2d velocity = mRobotState.getMeasuredVelocity();
             // Angular velocity component from tangential robot motion about the goal.
-            double tangential_component = mLatestAimingParameters.get().getRobotToGoalRotation().sin() * velocity.dx
+            final double tangential_component = mLatestAimingParameters.get().getRobotToGoalRotation().sin() * velocity.dx
                     / mLatestAimingParameters.get().getRange();
-            double angular_component = Units.radians_to_degrees(velocity.dtheta);
+            final double angular_component = Units.radians_to_degrees(velocity.dtheta);
             // Add (opposite) of tangential velocity about goal + angular velocity in local
             // frame.
             mTurretFeedforwardV = -(angular_component + tangential_component);
 
             safetyReset();
 
-            Rotation2d hood_error = mRobotState.getVehicleToHood(timestamp).getRotation().inverse()
-                    .rotateBy(mLatestAimingParameters.get().getRobotToGoalRotation());
-            HoodSetpoint = CurrentHood + hood_error.getDegrees();
-
             mHasTarget = true;
+            final double hood_error = mCurrentHood - mHoodSetpoint;
 
             if (Util.epsilonEquals(turret_error.getDegrees(), 0.0, 3.0)
-                    && Util.epsilonEquals(hood_error.getDegrees(), 0.0, 3.0)) {
+                    && Util.epsilonEquals(hood_error, 0.0, 3.0)) {
                 mOnTarget = true;
             } else {
                 mOnTarget = false;
@@ -278,14 +276,13 @@ public class Superstructure extends Subsystem {
             return;
         }
         if (mFieldRelativeTurretGoal == null) {
-            mTurretMode = TurretControlModes.ROBOT_RELATIVE;
             return;
         }
         final double kLookaheadTime = 0.7;
         Rotation2d turret_error = mRobotState.getPredictedFieldToVehicle(kLookaheadTime)
                 .transformBy(Pose2d.fromRotation(mRobotState.getVehicleToTurret(timestamp))).getRotation().inverse()
                 .rotateBy(mFieldRelativeTurretGoal);
-        TurretSetpoint = CurrentTurret + turret_error.getDegrees();
+        mTurretSetpoint = mCurrentTurret + turret_error.getDegrees();
     }
 
     // god mode on the turret
@@ -299,13 +296,13 @@ public class Superstructure extends Subsystem {
         if (mTurretMode == TurretControlModes.OPEN_LOOP) {
             mTurret.setOpenLoop(mTurretThrottle);
         } else if (mTurretMode == TurretControlModes.VISION_AIMED || mTurretMode == TurretControlModes.JOGGING) {
-            mTurret.setSetpointPositionPID(TurretSetpoint, mTurretFeedforwardV);
+            mTurret.setSetpointPositionPID(mTurretSetpoint, mTurretFeedforwardV);
         } else {
-            mTurret.setSetpointMotionMagic(TurretSetpoint);
+            mTurret.setSetpointMotionMagic(mTurretSetpoint);
         }
 
-        mHood.setSetpointPositionPID(HoodSetpoint, mHoodFeedforwardV);
-        mShooter.setVelocity(ShooterSetpoint);
+        mHood.setSetpointPositionPID(mHoodSetpoint, mHoodFeedforwardV);
+        mShooter.setVelocity(mShooterSetpoint);
         
         if (Intake.getInstance().getState() != Intake.State.IDLE) {
             mIndexer.setState(Indexer.WantedAction.INDEX);
@@ -329,10 +326,6 @@ public class Superstructure extends Subsystem {
         setWantAutoAim(field_to_turret_hint, false, 500);
     }
 
-    public synchronized void setWantRobotRelativeTurret() {
-        mTurretMode = TurretControlModes.ROBOT_RELATIVE;
-    }
-
     public synchronized void shootCell() {
         mHoodMode = HoodControlModes.WAIT_FOR_SPINUP;
     }
@@ -341,5 +334,4 @@ public class Superstructure extends Subsystem {
         mTurretMode = TurretControlModes.FIELD_RELATIVE;
         mFieldRelativeTurretGoal = field_to_turret;
     }
-
 }

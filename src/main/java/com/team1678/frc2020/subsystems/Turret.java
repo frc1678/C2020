@@ -25,7 +25,7 @@ public class Turret extends ServoMotorSubsystem {
     private HallCalibration calibration = new HallCalibration(0);
     private double mOffset = 0;
     private DigitalInput mLimitSwitch = new DigitalInput(0);
-    
+
     private static Canifier mCanifier = Canifier.getInstance();
 
     public synchronized static Turret getInstance() {
@@ -37,6 +37,8 @@ public class Turret extends ServoMotorSubsystem {
 
     private Turret(final ServoMotorSubsystemConstants constants) {
         super(constants);
+
+        mMaster.setSelectedSensorPosition(0);   
     }
 
     // Syntactic sugar.
@@ -50,7 +52,7 @@ public class Turret extends ServoMotorSubsystem {
         System.out.println(!mLimitSwitch.get());
         calibration.update(enc, !mLimitSwitch.get());
         if (calibration.isCalibrated()) {
-            mOffset = enc - calibration.getOffset();
+            mOffset = enc + calibration.getOffset();
             return true;
         }
         return false;
@@ -85,14 +87,14 @@ public class Turret extends ServoMotorSubsystem {
     @Override
     public synchronized void readPeriodicInputs() {
         super.readPeriodicInputs();
-
-        if (atHomingLocation()) {
-            mMaster.setSelectedSensorPosition((int) Math.floor(mOffset));
-            mMaster.overrideSoftLimitsEnable(true);
-            System.out.println("Homed!!!");
-            mHoming = false;
-        } else {
-            System.out.println("Not homed");
+        if (mHoming) {
+            if (atHomingLocation() && !mHasBeenZeroed) {
+                mMaster.setSelectedSensorPosition((int) Math.floor(mOffset));
+                mMaster.overrideSoftLimitsEnable(true);
+                System.out.println("Homed!!!");
+                mHoming = false;
+                mHasBeenZeroed = true;
+            }
         }
     }
 

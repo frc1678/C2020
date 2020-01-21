@@ -146,13 +146,13 @@ public class Constants {
         kTurretConstants.kName = "Turret";
 
         kTurretConstants.kMasterConstants.id = 7;
-        kTurretConstants.kMasterConstants.invert_motor = false;
+        kTurretConstants.kMasterConstants.invert_motor = true;
         kTurretConstants.kMasterConstants.invert_sensor_phase = false;
 
         // Unit == Degrees
         kTurretConstants.kHomePosition = 0.0;  // CCW degrees from forward
-        kTurretConstants.kTicksPerUnitDistance = 2048.0 * 36.0;
-        kTurretConstants.kKp = 0.1;
+        kTurretConstants.kTicksPerUnitDistance = (2048.0 * 36.0) / 360.0;
+        kTurretConstants.kKp = 0.5;
         kTurretConstants.kKi = 0;
         kTurretConstants.kKd = 0.0;
         kTurretConstants.kKf = 0.05;
@@ -178,7 +178,7 @@ public class Constants {
         kTurretConstants.kContinuousCurrentLimit = 20; // amps
         kTurretConstants.kPeakCurrentLimit = 40; // amps
         kTurretConstants.kPeakCurrentDuration = 10; // milliseconds
-        kTurretConstants.kMaxVoltage = 4.0;
+        kTurretConstants.kMaxVoltage = 12.0;
 
         //kTurretConstants.kStatusFrame8UpdateRate = 50;
         kTurretConstants.kRecoverPositionOnReset = true;
