@@ -46,7 +46,6 @@ public class Superstructure extends Subsystem {
 
     private double mCurrentTurret = 0.0;
     private double mCurrentHood = 0.0;
-    private double mCurrentShooter = 0.0;
 
     private double mTurretSetpoint = 0.0;
     private double mHoodSetpoint = 0.0;
@@ -163,7 +162,6 @@ public class Superstructure extends Subsystem {
     public synchronized void updateCurrentState() {
         mCurrentTurret = mTurret.getAngle();
         mCurrentHood = mHood.getAngle();
-        mCurrentShooter = mShooter.getVelocity();
     }
 
     public synchronized void resetAimingParameters() {
