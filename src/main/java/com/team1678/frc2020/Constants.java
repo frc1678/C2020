@@ -145,23 +145,23 @@ public class Constants {
     static {
         kTurretConstants.kName = "Turret";
 
-        kTurretConstants.kMasterConstants.id = 10;
+        kTurretConstants.kMasterConstants.id = 7;
         kTurretConstants.kMasterConstants.invert_motor = false;
-        kTurretConstants.kMasterConstants.invert_sensor_phase = true;
+        kTurretConstants.kMasterConstants.invert_sensor_phase = false;
 
         // Unit == Degrees
         kTurretConstants.kHomePosition = 0.0;  // CCW degrees from forward
-        kTurretConstants.kTicksPerUnitDistance = 4096.0 * 72.0 / 18.0 * 54.0 / 16.0 / 360.0;
-        kTurretConstants.kKp = 2.0;
+        kTurretConstants.kTicksPerUnitDistance = 2048.0 * 36.0;
+        kTurretConstants.kKp = 0.1;
         kTurretConstants.kKi = 0;
-        kTurretConstants.kKd = 10.0;
-        kTurretConstants.kKf = 0.08;
+        kTurretConstants.kKd = 0.0;
+        kTurretConstants.kKf = 0.05;
         kTurretConstants.kKa = 0.0;
         kTurretConstants.kMaxIntegralAccumulator = 0;
         kTurretConstants.kIZone = 0; // Ticks
         kTurretConstants.kDeadband = 0; // Ticks
 
-        kTurretConstants.kPositionKp = 0.35;
+        kTurretConstants.kPositionKp = 0.15;
         kTurretConstants.kPositionKi = 0.0;
         kTurretConstants.kPositionKd = 0.0;
         kTurretConstants.kPositionKf = 0.0;
@@ -172,13 +172,13 @@ public class Constants {
         kTurretConstants.kMinUnitsLimit = -135.0;
         kTurretConstants.kMaxUnitsLimit = 315.0;
 
-        kTurretConstants.kCruiseVelocity = 5000; // Ticks / 100ms
-        kTurretConstants.kAcceleration = 16000; // Ticks / 100ms / s
+        kTurretConstants.kCruiseVelocity = 2500; // Ticks / 100ms
+        kTurretConstants.kAcceleration = 2500; // Ticks / 100ms / s
         kTurretConstants.kRampRate = 0.0; // s
         kTurretConstants.kContinuousCurrentLimit = 20; // amps
-        kTurretConstants.kPeakCurrentLimit = 30; // amps
+        kTurretConstants.kPeakCurrentLimit = 40; // amps
         kTurretConstants.kPeakCurrentDuration = 10; // milliseconds
-        kTurretConstants.kMaxVoltage = 12.0;
+        kTurretConstants.kMaxVoltage = 4.0;
 
         //kTurretConstants.kStatusFrame8UpdateRate = 50;
         kTurretConstants.kRecoverPositionOnReset = true;
@@ -303,6 +303,7 @@ public class Constants {
     // Drive control
     public static final double kStingerForwardPower = 0.8;
     public static final double kClimbingElevatorHeightForLowShift = 10.0; // in
+	public static final double kJogTurretScalar = -22;
 
     public static Solenoid makeSolenoidForId(int solenoidId) {
         if (solenoidId < 8) {
