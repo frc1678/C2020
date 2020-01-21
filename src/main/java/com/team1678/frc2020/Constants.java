@@ -61,25 +61,22 @@ public class Constants {
 
   
 
-    public static final int kIndexerId = 5; // change
-    public static final int kFeederId = 6; // change
+    public static final int kIndexerId = 5;
+    public static final int kFeederId = 6;
 
     // elevator
     public static final ServoMotorSubsystemConstants kElevatorConstants = new ServoMotorSubsystemConstants();
     static {
         kElevatorConstants.kName = "Elevator";
 
-        kElevatorConstants.kMasterConstants.id = 1;
+        kElevatorConstants.kMasterConstants.id = 11;
         kElevatorConstants.kMasterConstants.invert_motor = false;
         kElevatorConstants.kMasterConstants.invert_sensor_phase = false;
         kElevatorConstants.kSlaveConstants = new TalonFXConstants[2];
 
         kElevatorConstants.kSlaveConstants[0] = new TalonFXConstants();
-        kElevatorConstants.kSlaveConstants[1] = new TalonFXConstants();
 
-        kElevatorConstants.kSlaveConstants[0].id = 2;
-        kElevatorConstants.kSlaveConstants[0].invert_motor = false;
-        kElevatorConstants.kSlaveConstants[1].id = 3;
+        kElevatorConstants.kSlaveConstants[1].id = 12;
         kElevatorConstants.kSlaveConstants[1].invert_motor = false;
 
         // Unit == Inches
@@ -119,18 +116,6 @@ public class Constants {
 
     // Color Panel
     public static final int kColorPanelID = 14;
-
-    // superstructure states
-    public static final double g = -9.8;
-
-    public static final double kHeightToGoal = 0.0; //TODO: find actual value
-
-    public static final double kFinalHorizVelocity = 0.0; //TODO: find actual value
-    public static final double kHorizDragFactor = 0.0; //TODO: find actual value
-    public static final double kVelocityDrop = 0.0; //TODO: find actual value
-    public static final double kBallSpeedGain = 0.0; //TODO: find actual value
-
-    public static final double kShooterWheelRadiusInches = 0.0;
 
     public static final double kVelocityConversion = 600.0 / 2048.0;
     // Indexer
@@ -185,12 +170,11 @@ public class Constants {
     }
 
     // hood
-    // TODO: change the values when prototyping is done
     public static final ServoMotorSubsystemConstants kHoodConstants = new ServoMotorSubsystemConstants();
     static {
         kHoodConstants.kName = "Hood";
 
-        kHoodConstants.kMasterConstants.id = 5;  //TODO: Check with Electrical
+        kHoodConstants.kMasterConstants.id = 8;
         kHoodConstants.kMasterConstants.invert_motor = true;
         kHoodConstants.kMasterConstants.invert_sensor_phase = false;
 
@@ -266,8 +250,8 @@ public class Constants {
     public static final int kCanifierId = 0;
 
     // shooter
-    public static final int kMasterFlywheelID = 20;
-    public static final int kSlaveFlywheelID = 21;
+    public static final int kMasterFlywheelID = 9;
+    public static final int kSlaveFlywheelID = 10;
     public static final double kShooterP = 0.1;
     public static final double kShooterI = 0.0;
     public static final double kShooterD = 0.0;
@@ -282,15 +266,6 @@ public class Constants {
         kTopLimelightConstants.kHorizontalPlaneToLens = Rotation2d.fromDegrees(-24.0);
     }
 
-    // Bottom limelight
-    public static final LimelightConstants kBottomLimelightConstants = new LimelightConstants();
-    static {
-        kBottomLimelightConstants.kName = "Bottom Limelight";
-        kBottomLimelightConstants.kTableName = "limelight-bottom";
-        kBottomLimelightConstants.kHeight = 7.221;  // inches
-        kBottomLimelightConstants.kTurretToLens = new Pose2d(new Translation2d(-1.293, 2.556), Rotation2d.fromDegrees(2.0));
-        kBottomLimelightConstants.kHorizontalPlaneToLens = Rotation2d.fromDegrees(47.5);
-    }
 
     public static final double kMaxTopLimelightHeight = 16.0;
 
