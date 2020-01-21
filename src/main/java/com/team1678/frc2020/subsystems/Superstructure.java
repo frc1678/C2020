@@ -31,11 +31,6 @@ public class Superstructure extends Subsystem {
         FIELD_RELATIVE, VISION_AIMED, OPEN_LOOP, JOGGING
     }
 
-    // hood + flywheel
-    enum HoodControlModes {
-        VISION_AIMED, JOGGING
-    }
-
     private boolean mHasTarget = false;
     private boolean mOnTarget = false;
     private int mTrackId = -1;
@@ -58,7 +53,6 @@ public class Superstructure extends Subsystem {
     private double mShooterSetpoint = 0.0;
 
     private TurretControlModes mTurretMode = TurretControlModes.FIELD_RELATIVE;
-    private HoodControlModes mHoodMode = HoodControlModes.VISION_AIMED;
 
     private double mTurretThrottle = 0.0;
 
@@ -79,7 +73,7 @@ public class Superstructure extends Subsystem {
             @Override
             public void onStart(double timestamp) {
                 synchronized (Superstructure.this) {
-                    mHoodMode = HoodControlModes.VISION_AIMED;
+                    mTurretMode = TurretControlModes.FIELD_RELATIVE;
                 }
             }
 
@@ -151,15 +145,13 @@ public class Superstructure extends Subsystem {
 
     // Jog Hood
     public synchronized void JogHood(double delta) {
-        mHoodMode = HoodControlModes.JOGGING;
         double prev_delta = mHood.getAngle();
         mHoodSetpoint = (prev_delta + delta);
         mHoodFeedforwardV = 0.0;
     }
 
     public synchronized void setGoal(double shooter, double hood, double turret) {
-        if ((mTurretMode == TurretControlModes.VISION_AIMED && mHasTarget)
-                || (mHoodMode == HoodControlModes.VISION_AIMED && mHasTarget)) {
+        if ((mTurretMode == TurretControlModes.VISION_AIMED && mHasTarget)) {
             // Keep current setpoints
         } else {
             mTurretSetpoint = turret;
@@ -202,7 +194,7 @@ public class Superstructure extends Subsystem {
 
     public synchronized void maybeUpdateGoalFromVision(double timestamp) {
 
-        if (mTurretMode != TurretControlModes.VISION_AIMED || mHoodMode != HoodControlModes.VISION_AIMED) {
+        if (mTurretMode != TurretControlModes.VISION_AIMED) {
             resetAimingParameters();
             return;
         }
@@ -314,7 +306,6 @@ public class Superstructure extends Subsystem {
     public synchronized void setWantAutoAim(Rotation2d field_to_turret_hint, boolean enforce_min_distance,
             double min_distance) {
         mTurretMode = TurretControlModes.VISION_AIMED;
-        mHoodMode = HoodControlModes.VISION_AIMED;
         mFieldRelativeTurretGoal = field_to_turret_hint;
         mEnforceAutoAimMinDistance = enforce_min_distance;
         mAutoAimMinDistance = min_distance;
