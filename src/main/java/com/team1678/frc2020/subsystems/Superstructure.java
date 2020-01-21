@@ -47,6 +47,7 @@ public class Superstructure extends Subsystem {
     private boolean mEnforceAutoAimMinDistance = false;
     private double mAutoAimMinDistance = 500;
     private boolean mWantsShoot = false;
+    private boolean mWantsSpinUp = false;
 
     private double mCurrentTurret = 0.0;
     private double mCurrentHood = 0.0;
@@ -132,7 +133,6 @@ public class Superstructure extends Subsystem {
         }
     }
 
-
     public synchronized double getCorrectedRangeToTarget() {
         return mCorrectedRangeToTarget;
     }
@@ -167,7 +167,6 @@ public class Superstructure extends Subsystem {
             mShooterSetpoint = shooter;
         }
     }
-
 
     public synchronized void updateCurrentState() {
         mCurrentTurret = mTurret.getAngle();
@@ -208,7 +207,7 @@ public class Superstructure extends Subsystem {
             return;
         }
 
-        mLatestAimingParameters = mRobotState.getAimingParameters( -1, Constants.kMaxGoalTrackAge);
+        mLatestAimingParameters = mRobotState.getAimingParameters(-1, Constants.kMaxGoalTrackAge);
         if (mLatestAimingParameters.isPresent()) {
             mTrackId = mLatestAimingParameters.get().getTrackId();
 
@@ -292,7 +291,12 @@ public class Superstructure extends Subsystem {
         }
 
         mHood.setSetpointPositionPID(mHoodSetpoint, mHoodFeedforwardV);
-        mShooter.setVelocity(mShooterSetpoint);
+
+        if (mWantsSpinUp || mWantsShoot) {
+            mShooter.setVelocity(mShooterSetpoint);
+        } else {
+            mShooter.setOpenLoop(0);
+        }
 
         if (Intake.getInstance().getState() != Intake.State.IDLE) {
             mIndexer.setState(Indexer.WantedAction.INDEX);
@@ -324,6 +328,10 @@ public class Superstructure extends Subsystem {
 
     public synchronized void setWantShoot(boolean shoot) {
         mWantsShoot = shoot;
+    }
+
+    public synchronized void setWantSpinUp(boolean spin_up) {
+        mWantsSpinUp = spin_up;
     }
 
     public synchronized void setWantFieldRelativeTurret(Rotation2d field_to_turret) {
