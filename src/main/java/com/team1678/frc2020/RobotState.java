@@ -66,13 +66,13 @@ public class RobotState {
      *
      * 4. Camera-to-goal: Measured by the vision system.
      * 
-     * 5. Vehicle-to-hoode: Measured by bore encoder on hood
+     * 5. Vehicle-to-hood: Measured by bore encoder on hood
      */
 
     // FPGATimestamp -> Pose2d or Rotation2d
     private InterpolatingTreeMap<InterpolatingDouble, Pose2d> field_to_vehicle_;
     private InterpolatingTreeMap<InterpolatingDouble, Rotation2d> vehicle_to_turret_;
-    private InterpolatingTreeMap<InterpolatingDouble, Rotation2d> vehicle_to_hood_;
+    private double vehicle_to_hood_;
     private Twist2d vehicle_velocity_predicted_;
     private Twist2d vehicle_velocity_measured_;
     private MovingAverageTwist2d vehicle_velocity_measured_filtered_;
@@ -95,8 +95,7 @@ public class RobotState {
         vehicle_to_turret_ = new InterpolatingTreeMap<>(kObservationBufferSize);
         vehicle_to_turret_.put(new InterpolatingDouble(start_time), initial_vehicle_to_turret);
 
-        vehicle_to_hood_ = new InterpolatingTreeMap<>(kObservationBufferSize);
-        vehicle_to_hood_.put(new InterpolatingDouble(start_time), initial_vehicle_to_hood);
+        vehicle_to_hood_ = 0.0;
     }
 
     public synchronized void reset(double start_time, Pose2d initial_field_to_vehicle) {
@@ -124,8 +123,8 @@ public class RobotState {
         return vehicle_to_turret_.getInterpolated(new InterpolatingDouble(timestamp));
     }
 
-    public synchronized Rotation2d getVehicleToHood(double timestamp) {
-        return vehicle_to_hood_.getInterpolated(new InterpolatingDouble(timestamp));
+    public synchronized double getVehicleToHood(double timestamp) {
+        return vehicle_to_hood_;
     }
 
     public synchronized Pose2d getFieldToTurret(double timestamp) {
@@ -138,10 +137,6 @@ public class RobotState {
 
     public synchronized Map.Entry<InterpolatingDouble, Rotation2d> getLatestVehicleToTurret() {
         return vehicle_to_turret_.lastEntry();
-    }
-
-    public synchronized Map.Entry<InterpolatingDouble, Rotation2d> getLatestVehicleToHood() {
-        return vehicle_to_hood_.lastEntry();
     }
 
     public synchronized Pose2d getPredictedFieldToVehicle(double lookahead_time) {
@@ -157,8 +152,8 @@ public class RobotState {
         vehicle_to_turret_.put(new InterpolatingDouble(timestamp), observation);
     }
 
-    public synchronized void addVehicleToHoodObservation(double timestamp, Rotation2d observation) {
-        vehicle_to_hood_.put(new InterpolatingDouble(timestamp), observation);
+    public synchronized void addVehicleToHoodObservation(double timestamp, double observation) {
+        vehicle_to_hood_ += observation;
     }
 
     public synchronized void addObservations(double timestamp, Twist2d displacement, Twist2d measured_velocity,
