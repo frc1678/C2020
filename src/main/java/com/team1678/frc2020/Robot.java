@@ -83,14 +83,15 @@ public class Robot extends TimedRobot {
         try {
             CrashTracker.logRobotInit();
 
-            mSubsystemManager.setSubsystems(mRobotStateEstimator, mDrive, mLimelight, mIntake, mSuperstructure, mTurret);
+            mSubsystemManager.setSubsystems(mRobotStateEstimator, mDrive, mLimelight, mIntake, mSuperstructure,
+                    mTurret);
 
             mSubsystemManager.registerEnabledLoops(mEnabledLooper);
             mSubsystemManager.registerDisabledLoops(mDisabledLooper);
 
             // Robot starts forwards.
             mRobotState.reset(Timer.getFPGATimestamp(), Pose2d.identity(), Rotation2d.identity(),
-                    Rotation2d.identity());
+                    new InterpolatingDouble(0.0));
             mDrive.setHeading(Rotation2d.identity());
 
             mLimelight.setLed(Limelight.LedMode.OFF);
@@ -175,9 +176,9 @@ public class Robot extends TimedRobot {
             } else {
                 mIntake.setState(Intake.WantedAction.NONE);
             }
-    
+
             mSuperstructure.setWantFieldRelativeTurret(mControlBoard.getTurretCardinal().rotation);
-            
+
         } catch (Throwable t) {
             CrashTracker.logThrowableCrash(t);
             throw t;

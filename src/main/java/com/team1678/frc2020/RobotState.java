@@ -72,7 +72,7 @@ public class RobotState {
     // FPGATimestamp -> Pose2d or Rotation2d
     private InterpolatingTreeMap<InterpolatingDouble, Pose2d> field_to_vehicle_;
     private InterpolatingTreeMap<InterpolatingDouble, Rotation2d> vehicle_to_turret_;
-    private double vehicle_to_hood_;
+    private InterpolatingTreeMap<InterpolatingDouble, InterpolatingDouble> vehicle_to_hood_;
     private Twist2d vehicle_velocity_predicted_;
     private Twist2d vehicle_velocity_measured_;
     private MovingAverageTwist2d vehicle_velocity_measured_filtered_;
@@ -83,19 +83,20 @@ public class RobotState {
     List<Translation2d> mCameraToVisionTargetPoses = new ArrayList<>();
 
     private RobotState() {
-        reset(0.0, Pose2d.identity(), Rotation2d.identity(), Rotation2d.identity());
+        reset(0.0, Pose2d.identity(), Rotation2d.identity(), new InterpolatingDouble(0.0));
     }
 
     /**
      * Resets the field to robot transform (robot's position on the field)
      */
     public synchronized void reset(double start_time, Pose2d initial_field_to_vehicle,
-            Rotation2d initial_vehicle_to_turret, Rotation2d initial_vehicle_to_hood) {
+            Rotation2d initial_vehicle_to_turret, InterpolatingDouble initial_vehicle_to_hood) {
         reset(start_time, initial_field_to_vehicle);
         vehicle_to_turret_ = new InterpolatingTreeMap<>(kObservationBufferSize);
         vehicle_to_turret_.put(new InterpolatingDouble(start_time), initial_vehicle_to_turret);
 
-        vehicle_to_hood_ = 0.0;
+        vehicle_to_hood_ = new InterpolatingTreeMap<>(kObservationBufferSize);
+        vehicle_to_hood_.put(new InterpolatingDouble(start_time),initial_vehicle_to_hood);
     }
 
     public synchronized void reset(double start_time, Pose2d initial_field_to_vehicle) {
@@ -108,7 +109,7 @@ public class RobotState {
     }
 
     public synchronized void reset() {
-        reset(Timer.getFPGATimestamp(), Pose2d.identity(), Rotation2d.identity(), Rotation2d.identity());
+        reset(Timer.getFPGATimestamp(), Pose2d.identity(), Rotation2d.identity(), new InterpolatingDouble(0.0));
     }
 
     /**
@@ -123,8 +124,8 @@ public class RobotState {
         return vehicle_to_turret_.getInterpolated(new InterpolatingDouble(timestamp));
     }
 
-    public synchronized double getVehicleToHood(double timestamp) {
-        return vehicle_to_hood_;
+    public synchronized InterpolatingDouble getVehicleToHood(double timestamp) {
+        return vehicle_to_hood_.getInterpolated(new InterpolatingDouble(timestamp));
     }
 
     public synchronized Pose2d getFieldToTurret(double timestamp) {
@@ -152,8 +153,8 @@ public class RobotState {
         vehicle_to_turret_.put(new InterpolatingDouble(timestamp), observation);
     }
 
-    public synchronized void addVehicleToHoodObservation(double timestamp, double observation) {
-        vehicle_to_hood_ += observation;
+    public synchronized void addVehicleToHoodObservation(double timestamp, InterpolatingDouble observation) {
+        vehicle_to_hood_.put(new InterpolatingDouble(timestamp), observation);
     }
 
     public synchronized void addObservations(double timestamp, Twist2d displacement, Twist2d measured_velocity,
