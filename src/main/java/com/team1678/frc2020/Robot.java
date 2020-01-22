@@ -71,20 +71,11 @@ public class Robot extends TimedRobot {
         mTrajectoryGenerator.generateTrajectories();
     }
 
-    public void outputToSmartDashboard() {
-        RobotState.getInstance().outputToSmartDashboard();
-        Drive.getInstance().outputTelemetry();
-        // Intake.getInstance().outputTelemetry();
-        // Infrastructure.getInstance().outputTelemetry();
-        Limelight.getInstance().outputTelemetry();
-        mEnabledLooper.outputToSmartDashboard();
-        mAutoModeSelector.outputToSmartDashboard();
-        // SmartDashboard.updateValues();
-    }
-
     @Override
     public void robotPeriodic() {
-        outputToSmartDashboard();
+        RobotState.getInstance().outputToSmartDashboard();
+        mSubsystemManager.outputToSmartDashboard();
+        mAutoModeSelector.outputToSmartDashboard();
     }
 
     @Override
@@ -137,7 +128,6 @@ public class Robot extends TimedRobot {
     public void autonomousPeriodic() {
         SmartDashboard.putString("Match Cycle", "AUTONOMOUS");
 
-        outputToSmartDashboard();
         try {
 
         } catch (Throwable t) {
@@ -262,8 +252,6 @@ public class Robot extends TimedRobot {
         // mLimelight.setStream(2);
 
         try {
-            outputToSmartDashboard();
-
             mLimelight.setLed(Limelight.LedMode.OFF);
 
             mAutoModeSelector.updateModeCreator();

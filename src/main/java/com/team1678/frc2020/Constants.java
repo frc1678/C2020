@@ -243,9 +243,7 @@ public class Constants {
     public static final double kMinStability = 0.5;
     public static final int kPortPipeline = 0;
     public static final int kBallPipeline = 2;
-    public static final double kInnerGoalTargetHeight = 31.5;
-    public static final double kOuterGoalTargetHeight = 39.125;
-
+    public static final double kGoalHeight = 31.5;
 
     public static final int kCanifierId = 0;
 

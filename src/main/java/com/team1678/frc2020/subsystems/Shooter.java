@@ -121,9 +121,12 @@ public class Shooter extends Subsystem {
 
     @Override
     public void writePeriodicOutputs() {
-        mMaster.set(ControlMode.Velocity, mPeriodicIO.demand / kVelocityConversion);
+        if (!mRunningManual) {
+            mMaster.set(ControlMode.Velocity, mPeriodicIO.demand / kVelocityConversion);
+        } else {
+            mMaster.set(ControlMode.PercentOutput, 0);
+        }
     }
-
     @Override
     public synchronized boolean checkSystem() {
         return true;
