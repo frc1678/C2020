@@ -43,6 +43,7 @@ public class Superstructure extends Subsystem {
     private double mAutoAimMinDistance = 500;
     private boolean mWantsShoot = false;
     private boolean mWantsSpinUp = false;
+    private boolean mUseInnerTarget = false;
 
     private double mCurrentTurret = 0.0;
     private double mCurrentHood = 0.0;
@@ -197,7 +198,7 @@ public class Superstructure extends Subsystem {
             return;
         }
 
-        mLatestAimingParameters = mRobotState.getAimingParameters(-1, Constants.kMaxGoalTrackAge);
+        mLatestAimingParameters = mRobotState.getAimingParameters(mUseInnerTarget, -1, Constants.kMaxGoalTrackAge);
         if (mLatestAimingParameters.isPresent()) {
             mTrackId = mLatestAimingParameters.get().getTrackId();
 
@@ -315,6 +316,10 @@ public class Superstructure extends Subsystem {
 
     public synchronized void setWantShoot(boolean shoot) {
         mWantsShoot = shoot;
+    }
+
+    public synchronized void setWantInnerTarget(boolean inner) {
+        mUseInnerTarget = inner;
     }
 
     public synchronized void setWantSpinUp(boolean spin_up) {

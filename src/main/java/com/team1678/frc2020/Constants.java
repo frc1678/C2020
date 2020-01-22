@@ -275,6 +275,7 @@ public class Constants {
     public static final double kStingerForwardPower = 0.8;
     public static final double kClimbingElevatorHeightForLowShift = 10.0; // in
 	public static final double kJogTurretScalar = -22;
+	public static final double kInnerGoalDepth = 0;
 
     public static Solenoid makeSolenoidForId(int solenoidId) {
         if (solenoidId < 8) {
