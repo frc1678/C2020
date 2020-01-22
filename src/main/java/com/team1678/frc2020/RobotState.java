@@ -83,20 +83,20 @@ public class RobotState {
     List<Translation2d> mCameraToVisionTargetPoses = new ArrayList<>();
 
     private RobotState() {
-        reset(0.0, Pose2d.identity(), Rotation2d.identity(), new InterpolatingDouble(0.0));
+        reset(0.0, Pose2d.identity(), Rotation2d.identity(), 0.0);
     }
 
     /**
      * Resets the field to robot transform (robot's position on the field)
      */
     public synchronized void reset(double start_time, Pose2d initial_field_to_vehicle,
-            Rotation2d initial_vehicle_to_turret, InterpolatingDouble initial_vehicle_to_hood) {
+            Rotation2d initial_vehicle_to_turret, double initial_vehicle_to_hood) {
         reset(start_time, initial_field_to_vehicle);
         vehicle_to_turret_ = new InterpolatingTreeMap<>(kObservationBufferSize);
         vehicle_to_turret_.put(new InterpolatingDouble(start_time), initial_vehicle_to_turret);
 
         vehicle_to_hood_ = new InterpolatingTreeMap<>(kObservationBufferSize);
-        vehicle_to_hood_.put(new InterpolatingDouble(start_time), initial_vehicle_to_hood);
+        vehicle_to_hood_.put(new InterpolatingDouble(start_time), new InterpolatingDouble(initial_vehicle_to_hood));
     }
 
     public synchronized void reset(double start_time, Pose2d initial_field_to_vehicle) {
@@ -109,7 +109,7 @@ public class RobotState {
     }
 
     public synchronized void reset() {
-        reset(Timer.getFPGATimestamp(), Pose2d.identity(), Rotation2d.identity(), new InterpolatingDouble(0.0));
+        reset(Timer.getFPGATimestamp(), Pose2d.identity(), Rotation2d.identity(), 0.0);
     }
 
     /**

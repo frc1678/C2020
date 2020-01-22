@@ -90,8 +90,7 @@ public class Robot extends TimedRobot {
             mSubsystemManager.registerDisabledLoops(mDisabledLooper);
 
             // Robot starts forwards.
-            mRobotState.reset(Timer.getFPGATimestamp(), Pose2d.identity(), Rotation2d.identity(),
-                    new InterpolatingDouble(0.0));
+            mRobotState.reset(Timer.getFPGATimestamp(), Pose2d.identity(), Rotation2d.identity(),0.0);
             mDrive.setHeading(Rotation2d.identity());
 
             mLimelight.setLed(Limelight.LedMode.OFF);
@@ -257,7 +256,6 @@ public class Robot extends TimedRobot {
             if (autoMode.isPresent() && autoMode.get() != mAutoModeExecutor.getAutoMode()) {
                 System.out.println("Set auto mode to: " + autoMode.get().getClass().toString());
                 mAutoModeExecutor.setAutoMode(autoMode.get());
-                System.gc();
             }
 
         } catch (Throwable t) {
