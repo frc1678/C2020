@@ -20,9 +20,13 @@ import com.team1678.frc2020.subsystems.Intake;
 import com.team1678.frc2020.subsystems.Limelight;
 import com.team1678.frc2020.controlboard.ControlBoard;
 import com.team254.lib.wpilib.TimedRobot;
+
+import java.util.Optional;
+
 import com.team1678.frc2020.SubsystemManager;
 import com.team1678.frc2020.subsystems.*;
 import com.team254.lib.util.*;
+import com.team254.lib.vision.AimingParameters;
 import com.team254.lib.geometry.Rotation2d;
 import com.team1678.frc2020.subsystems.RobotStateEstimator;
 import com.team254.lib.geometry.Pose2d;
@@ -100,6 +104,11 @@ public class Robot extends TimedRobot {
             CrashTracker.logThrowableCrash(t);
             throw t;
         }
+    }
+
+    public void outputToSmartDashboard() {
+        RobotState.getInstance().outputToSmartDashboard();
+        mSubsystemManager.outputToSmartDashboard();
     }
 
     @Override
