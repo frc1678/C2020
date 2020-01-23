@@ -210,9 +210,12 @@ public class Constants {
     // shooter
     public static final int kMasterFlywheelID = 9;
     public static final int kSlaveFlywheelID = 10;
+    public static final int kTriggerWheelID = 11;
     public static final double kShooterP = 0.1;
     public static final double kShooterI = 0.0;
     public static final double kShooterD = 0.0;
+
+    public static final double kTriggerRPM = 1000.0;
 
     public static final double kMaxTopLimelightHeight = 16.0;
 
