@@ -269,6 +269,8 @@ public class Superstructure extends Subsystem {
                 .transformBy(Pose2d.fromRotation(mRobotState.getVehicleToTurret(timestamp))).getRotation().inverse()
                 .rotateBy(mFieldRelativeTurretGoal);
         mTurretSetpoint = mCurrentTurret + turret_error.getDegrees();
+
+        safetyReset();
     }
 
     // god mode on the turret
