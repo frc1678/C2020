@@ -62,9 +62,7 @@ public class Limelight extends Subsystem {
             @Override
             public void onLoop(double timestamp) {
                 synchronized (this) {
-                    RobotState.getInstance().addVisionUpdate(
-                            timestamp - getLatency(),
-                            getTarget());
+                    RobotState.getInstance().addVisionUpdate(timestamp - getLatency(), getTarget());
                 }
 
             }
@@ -243,8 +241,7 @@ public class Limelight extends Subsystem {
     private List<double[]> getTopCorners() {
         double[] xyCorners = mNetworkTable.getEntry("tcornxy").getDoubleArray(mZeroArray);
         ArrayList<Double> xCorners = new ArrayList<>();
-        ArrayList<Double> yCorners = new ArrayList<>();   
-       
+        ArrayList<Double> yCorners = new ArrayList<>();
 
         for (int i = 0; i < xyCorners.length; i++) {
             if (i % 2 == 0) {
@@ -254,20 +251,17 @@ public class Limelight extends Subsystem {
             }
         }
 
-        
         mSeesTarget = mNetworkTable.getEntry("tv").getDouble(0) == 1.0;
-
 
         double[] xCornersArray = xCorners.stream().mapToDouble(Double::doubleValue).toArray();
         double[] yCornersArray = yCorners.stream().mapToDouble(Double::doubleValue).toArray();
 
         // something went wrong
-   
+
         if (!mSeesTarget || Arrays.equals(xCornersArray, mZeroArray) || Arrays.equals(yCornersArray, mZeroArray)
                 || xCornersArray.length < 4 || xCornersArray.length != yCornersArray.length) {
             return null;
         }
-
 
         return extractTopCornersFromBoundingBoxes(xCornersArray, yCornersArray);
     }

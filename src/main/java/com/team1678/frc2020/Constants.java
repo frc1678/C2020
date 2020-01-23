@@ -59,8 +59,6 @@ public class Constants {
     public static final int kLeftDriveMasterId = 1;
     public static final int kLeftDriveSlaveId = 2;
 
-  
-
     public static final int kIndexerId = 5;
     public static final int kFeederId = 6;
 
@@ -88,7 +86,7 @@ public class Constants {
         kTurretConstants.kMasterConstants.invert_sensor_phase = false;
 
         // Unit == Degrees
-        kTurretConstants.kHomePosition = 0.0;  // CCW degrees from forward
+        kTurretConstants.kHomePosition = 0.0; // CCW degrees from forward
         kTurretConstants.kTicksPerUnitDistance = (2048.0 * 36.0) / 360.0;
         kTurretConstants.kKp = 0.5;
         kTurretConstants.kKi = 0;
@@ -216,17 +214,6 @@ public class Constants {
     public static final double kShooterI = 0.0;
     public static final double kShooterD = 0.0;
 
-    // Top limelight
-    public static final LimelightConstants kTopLimelightConstants = new LimelightConstants();
-    static {
-        kTopLimelightConstants.kName = "Top Limelight";
-        kTopLimelightConstants.kTableName = "limelight-top";
-        kTopLimelightConstants.kHeight = 44.047;  // inches
-        kTopLimelightConstants.kTurretToLens = new Pose2d(new Translation2d(-7.685, 0.0), Rotation2d.fromDegrees(0.0));
-        kTopLimelightConstants.kHorizontalPlaneToLens = Rotation2d.fromDegrees(-24.0);
-    }
-
-
     public static final double kMaxTopLimelightHeight = 16.0;
 
     public static final double kGenerateTrajectoryTime = 0.5;
@@ -237,8 +224,8 @@ public class Constants {
     // Drive control
     public static final double kStingerForwardPower = 0.8;
     public static final double kClimbingElevatorHeightForLowShift = 10.0; // in
-	public static final double kJogTurretScalar = -22;
-	public static final double kInnerGoalDepth = 0;
+    public static final double kJogTurretScalar = -22;
+    public static final double kInnerGoalDepth = 0;
 
     public static Solenoid makeSolenoidForId(int solenoidId) {
         if (solenoidId < 8) {
