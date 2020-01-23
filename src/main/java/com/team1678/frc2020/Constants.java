@@ -27,8 +27,8 @@ public class Constants {
 
     /* ROBOT PHYSICAL CONSTANTS */
     // Wheels
-    public static final double kDriveWheelTrackWidthInches = 27.75;
-    public static final double kDriveWheelDiameterInches = 4.0;
+    public static final double kDriveWheelTrackWidthInches = 29.00;
+    public static final double kDriveWheelDiameterInches = 6.0;
     public static final double kDriveWheelRadiusInches = kDriveWheelDiameterInches / 2.0;
     public static final double kTrackScrubFactor = 1.0; // Tune me!
     // Tuned dynamics
@@ -52,66 +52,25 @@ public class Constants {
     public static final double kDriveVoltageRampRate = 0.0;
 
     // drive
+
+    public static final int kRightDriveMasterId = 4;
+    public static final int kRightDriveSlaveId = 3;
+
     public static final int kLeftDriveMasterId = 1;
     public static final int kLeftDriveSlaveId = 2;
 
-    public static final int kRightDriveMasterId = 3;
-    public static final int kRightDriveSlaveId = 4;
+  
 
-    public static final int kIndexerId = 5; // change
-    public static final int kFeederId = 6; // change
+    public static final int kIndexerId = 5;
+    public static final int kFeederId = 6;
 
-    // elevator
-    public static final ServoMotorSubsystemConstants kElevatorConstants = new ServoMotorSubsystemConstants();
-    static {
-        kElevatorConstants.kName = "Elevator";
+    // Intake
+    public static final int kIntakeRollerID = 15;
 
-        kElevatorConstants.kMasterConstants.id = 1;
-        kElevatorConstants.kMasterConstants.invert_motor = false;
-        kElevatorConstants.kMasterConstants.invert_sensor_phase = false;
-        kElevatorConstants.kSlaveConstants = new TalonFXConstants[2];
+    // Color Panel
+    public static final int kColorPanelID = 14;
 
-        kElevatorConstants.kSlaveConstants[0] = new TalonFXConstants();
-        kElevatorConstants.kSlaveConstants[1] = new TalonFXConstants();
-
-        kElevatorConstants.kSlaveConstants[0].id = 2;
-        kElevatorConstants.kSlaveConstants[0].invert_motor = false;
-        kElevatorConstants.kSlaveConstants[1].id = 3;
-        kElevatorConstants.kSlaveConstants[1].invert_motor = false;
-
-        // Unit == Inches
-        kElevatorConstants.kHomePosition = 10.25; // Inches off ground
-        kElevatorConstants.kTicksPerUnitDistance = 4096.0 / (1.75 * Math.PI);
-        kElevatorConstants.kKp = 0.5;
-        kElevatorConstants.kKi = 0;
-        kElevatorConstants.kKd = 10;
-        kElevatorConstants.kKf = .248;
-        kElevatorConstants.kKa = 0.0;
-        kElevatorConstants.kMaxIntegralAccumulator = 0;
-        kElevatorConstants.kIZone = 0; // Ticks
-        kElevatorConstants.kDeadband = 0; // Ticks
-
-        kElevatorConstants.kPositionKp = 0.5;
-        kElevatorConstants.kPositionKi = 0;
-        kElevatorConstants.kPositionKd = 10;
-        kElevatorConstants.kPositionKf = 0;
-        kElevatorConstants.kPositionMaxIntegralAccumulator = 0;
-        kElevatorConstants.kPositionIZone = 0; // Ticks
-        kElevatorConstants.kPositionDeadband = 0; // Ticks
-
-        kElevatorConstants.kMaxUnitsLimit = 31.1; // inches
-        kElevatorConstants.kMinUnitsLimit = 0.0; // inches
-
-        kElevatorConstants.kCruiseVelocity = 4000; // Ticks / 100ms
-        kElevatorConstants.kAcceleration = 8000; // Ticks / 100ms / s
-        kElevatorConstants.kRampRate = 0.005; // s
-        kElevatorConstants.kContinuousCurrentLimit = 35; // amps
-        kElevatorConstants.kPeakCurrentLimit = 40; // amps
-        kElevatorConstants.kPeakCurrentDuration = 10; // milliseconds
-
-    }
-    public static final int kIntakeRollerID = 6; //get real ID from electrical 
-
+    public static final double kVelocityConversion = 600.0 / 2048.0;
     // Indexer
     public static final int kIndexerSlots = 5;
     public static final int kAnglePerSlot = 360 / kIndexerSlots;
@@ -124,23 +83,23 @@ public class Constants {
     static {
         kTurretConstants.kName = "Turret";
 
-        kTurretConstants.kMasterConstants.id = 10;
-        kTurretConstants.kMasterConstants.invert_motor = false;
-        kTurretConstants.kMasterConstants.invert_sensor_phase = true;
+        kTurretConstants.kMasterConstants.id = 7;
+        kTurretConstants.kMasterConstants.invert_motor = true;
+        kTurretConstants.kMasterConstants.invert_sensor_phase = false;
 
         // Unit == Degrees
-        kTurretConstants.kHomePosition = 0.0; // CCW degrees from forward
-        kTurretConstants.kTicksPerUnitDistance = 4096.0 * 72.0 / 18.0 * 54.0 / 16.0 / 360.0;
-        kTurretConstants.kKp = 2.0;
+        kTurretConstants.kHomePosition = 0.0;  // CCW degrees from forward
+        kTurretConstants.kTicksPerUnitDistance = (2048.0 * 36.0) / 360.0;
+        kTurretConstants.kKp = 0.5;
         kTurretConstants.kKi = 0;
-        kTurretConstants.kKd = 10.0;
-        kTurretConstants.kKf = 0.08;
+        kTurretConstants.kKd = 0.0;
+        kTurretConstants.kKf = 0.05;
         kTurretConstants.kKa = 0.0;
         kTurretConstants.kMaxIntegralAccumulator = 0;
         kTurretConstants.kIZone = 0; // Ticks
         kTurretConstants.kDeadband = 0; // Ticks
 
-        kTurretConstants.kPositionKp = 0.35;
+        kTurretConstants.kPositionKp = 0.15;
         kTurretConstants.kPositionKi = 0.0;
         kTurretConstants.kPositionKd = 0.0;
         kTurretConstants.kPositionKf = 0.0;
@@ -151,11 +110,11 @@ public class Constants {
         kTurretConstants.kMinUnitsLimit = -135.0;
         kTurretConstants.kMaxUnitsLimit = 315.0;
 
-        kTurretConstants.kCruiseVelocity = 5000; // Ticks / 100ms
-        kTurretConstants.kAcceleration = 16000; // Ticks / 100ms / s
+        kTurretConstants.kCruiseVelocity = 10000; // Ticks / 100ms
+        kTurretConstants.kAcceleration = 10000; // Ticks / 100ms / s
         kTurretConstants.kRampRate = 0.0; // s
         kTurretConstants.kContinuousCurrentLimit = 20; // amps
-        kTurretConstants.kPeakCurrentLimit = 30; // amps
+        kTurretConstants.kPeakCurrentLimit = 40; // amps
         kTurretConstants.kPeakCurrentDuration = 10; // milliseconds
         kTurretConstants.kMaxVoltage = 12.0;
 
@@ -164,12 +123,11 @@ public class Constants {
     }
 
     // hood
-    // TODO: change the values when prototyping is done
     public static final ServoMotorSubsystemConstants kHoodConstants = new ServoMotorSubsystemConstants();
     static {
         kHoodConstants.kName = "Hood";
 
-        kHoodConstants.kMasterConstants.id = 5; // TODO: Check with Electrical
+        kHoodConstants.kMasterConstants.id = 8;
         kHoodConstants.kMasterConstants.invert_motor = true;
         kHoodConstants.kMasterConstants.invert_sensor_phase = false;
 
@@ -203,22 +161,21 @@ public class Constants {
         kHoodConstants.kPeakCurrentDuration = 10; // milliseconds
         kHoodConstants.kMaxVoltage = 12.0;
     }
-    public static final double kHoodToBottomEndEffectorLength = 15.91; // Length (in) from wrist joint to bottom of end
-                                                                       // effector
 
     // pigeon
-    public static final int kPigeonIMUId = 15;
+    public static final int kPigeonIMUId = 16;
 
     public static final boolean kUseDriveGamepad = false;
     public static final int kDriveGamepadPort = 0;
     public static final int kButtonGamepadPort = 2;
-    public static final int kMainThrottleJoystickPort = 0;
-    public static final int kMainTurnJoystickPort = 1;
+    public static final int kMainThrottleJoystickPort = 1;
+    public static final int kMainTurnJoystickPort = 0;
     public static final double kJoystickThreshold = 0.2;
 
     // solenoids
-    public static final int kPCMId = 1;
+    public static final int kPCMId = 20;
     public static final int kDiskBrakeSolenoidId = 0;
+    public static final int kPDPId = 21;
 
     // limelight
     public static final LimelightConstants kTopLimelightConstants = new LimelightConstants();
@@ -248,20 +205,27 @@ public class Constants {
     public static final double kMinStability = 0.5;
     public static final int kPortPipeline = 0;
     public static final int kBallPipeline = 2;
-    public static final double kInnerGoalTargetHeight = 92.25;
-    public static final double kOuterGoalTargetHeight = 92.25;
-
-    public static final double kTurretToArmOffset = -2.5; // in
-    public static final double kWristToTremorsEnd = 15.75; // in
+    public static final double kGoalHeight = 31.5;
 
     public static final int kCanifierId = 0;
 
     // shooter
-    public static final int kMasterFlywheelID = 7;
-    public static final int kSlaveFlywheelID = 8;
+    public static final int kMasterFlywheelID = 9;
+    public static final int kSlaveFlywheelID = 10;
     public static final double kShooterP = 0.1;
     public static final double kShooterI = 0.0;
     public static final double kShooterD = 0.0;
+
+    // Top limelight
+    public static final LimelightConstants kTopLimelightConstants = new LimelightConstants();
+    static {
+        kTopLimelightConstants.kName = "Top Limelight";
+        kTopLimelightConstants.kTableName = "limelight-top";
+        kTopLimelightConstants.kHeight = 44.047;  // inches
+        kTopLimelightConstants.kTurretToLens = new Pose2d(new Translation2d(-7.685, 0.0), Rotation2d.fromDegrees(0.0));
+        kTopLimelightConstants.kHorizontalPlaneToLens = Rotation2d.fromDegrees(-24.0);
+    }
+
 
     public static final double kMaxTopLimelightHeight = 16.0;
 
@@ -273,6 +237,8 @@ public class Constants {
     // Drive control
     public static final double kStingerForwardPower = 0.8;
     public static final double kClimbingElevatorHeightForLowShift = 10.0; // in
+	public static final double kJogTurretScalar = -22;
+	public static final double kInnerGoalDepth = 0;
 
     public static Solenoid makeSolenoidForId(int solenoidId) {
         if (solenoidId < 8) {
