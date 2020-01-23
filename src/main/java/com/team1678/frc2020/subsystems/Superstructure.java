@@ -14,6 +14,7 @@ import com.team254.lib.util.InterpolatingDouble;
 import com.team254.lib.util.Units;
 import com.team254.lib.util.Util;
 import com.team254.lib.vision.AimingParameters;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Superstructure extends Subsystem {
     // Instances
@@ -96,6 +97,8 @@ public class Superstructure extends Subsystem {
 
     @Override
     public void outputTelemetry() {
+        SmartDashboard.putString("Turret Control State", mTurretMode.toString());
+        SmartDashboard.putNumber("Turret Goal", mTurretSetpoint);
     }
 
     @Override

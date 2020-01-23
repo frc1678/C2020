@@ -64,53 +64,6 @@ public class Constants {
     public static final int kIndexerId = 5;
     public static final int kFeederId = 6;
 
-    // elevator
-    public static final ServoMotorSubsystemConstants kElevatorConstants = new ServoMotorSubsystemConstants();
-    static {
-        kElevatorConstants.kName = "Elevator";
-
-        kElevatorConstants.kMasterConstants.id = 11;
-        kElevatorConstants.kMasterConstants.invert_motor = false;
-        kElevatorConstants.kMasterConstants.invert_sensor_phase = false;
-        kElevatorConstants.kSlaveConstants = new TalonFXConstants[2];
-
-        kElevatorConstants.kSlaveConstants[0] = new TalonFXConstants();
-
-        kElevatorConstants.kSlaveConstants[1].id = 12;
-        kElevatorConstants.kSlaveConstants[1].invert_motor = false;
-
-        // Unit == Inches
-        kElevatorConstants.kHomePosition = 10.25;  // Inches off ground
-        kElevatorConstants.kTicksPerUnitDistance = 4096.0 / (1.75 * Math.PI);
-        kElevatorConstants.kKp = 0.5;
-        kElevatorConstants.kKi = 0;
-        kElevatorConstants.kKd = 10;
-        kElevatorConstants.kKf = .248;
-        kElevatorConstants.kKa = 0.0;
-        kElevatorConstants.kMaxIntegralAccumulator = 0;
-        kElevatorConstants.kIZone = 0; // Ticks
-        kElevatorConstants.kDeadband = 0; // Ticks
-
-        kElevatorConstants.kPositionKp = 0.5;
-        kElevatorConstants.kPositionKi = 0;
-        kElevatorConstants.kPositionKd = 10;
-        kElevatorConstants.kPositionKf = 0;
-        kElevatorConstants.kPositionMaxIntegralAccumulator = 0;
-        kElevatorConstants.kPositionIZone = 0; // Ticks
-        kElevatorConstants.kPositionDeadband = 0; // Ticks
-
-        kElevatorConstants.kMaxUnitsLimit = 31.1; // inches
-        kElevatorConstants.kMinUnitsLimit = 0.0; // inches
-
-        kElevatorConstants.kCruiseVelocity = 4000; // Ticks / 100ms
-        kElevatorConstants.kAcceleration = 8000; // Ticks / 100ms / s
-        kElevatorConstants.kRampRate = 0.005; // s
-        kElevatorConstants.kContinuousCurrentLimit = 35; // amps
-        kElevatorConstants.kPeakCurrentLimit = 40; // amps
-        kElevatorConstants.kPeakCurrentDuration = 10; // milliseconds
-
-    }
-
     // Intake
     public static final int kIntakeRollerID = 15;
 
@@ -157,8 +110,8 @@ public class Constants {
         kTurretConstants.kMinUnitsLimit = -135.0;
         kTurretConstants.kMaxUnitsLimit = 315.0;
 
-        kTurretConstants.kCruiseVelocity = 2500; // Ticks / 100ms
-        kTurretConstants.kAcceleration = 2500; // Ticks / 100ms / s
+        kTurretConstants.kCruiseVelocity = 10000; // Ticks / 100ms
+        kTurretConstants.kAcceleration = 10000; // Ticks / 100ms / s
         kTurretConstants.kRampRate = 0.0; // s
         kTurretConstants.kContinuousCurrentLimit = 20; // amps
         kTurretConstants.kPeakCurrentLimit = 40; // amps
