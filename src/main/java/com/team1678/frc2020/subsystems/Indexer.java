@@ -226,10 +226,9 @@ public class Indexer extends Subsystem {
             mPeriodicIO.indexer_control_mode = ControlMode.Position;
 
             mSlotGoal = mMotionPlanner.findNearestSlot(indexer_angle, turret_angle);
-            mPeriodicIO.indexer_demand = mMotionPlanner.findAngleGoal(mSlotGoal, indexer_angle, turret_angle) + 36.;
+            mPeriodicIO.indexer_demand = mMotionPlanner.findNearestDeadSpot(indexer_angle, turret_angle);
 
-            mIsAtDeadSpot = mMotionPlanner.isAtGoal(mSlotGoal, indexer_angle, turret_angle + 36.);
-
+            mIsAtDeadSpot = mMotionPlanner.isAtDeadSpot(indexer_angle, turret_angle);
             break;
         case REVOLVING:
             mPeriodicIO.indexer_control_mode = ControlMode.Position;

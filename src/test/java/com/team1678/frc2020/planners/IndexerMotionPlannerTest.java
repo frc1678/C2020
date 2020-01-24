@@ -132,7 +132,7 @@ public class IndexerMotionPlannerTest {
     public void testPrepShoot() {
         IndexerMotionPlanner motion_planner = new IndexerMotionPlanner();
         int slotGoal = motion_planner.findNearestSlot(-90, 90);
-        double angleGoal = motion_planner.findAngleToGoal(slotGoal, -90, 90) + 36.;
+        double angleGoal = motion_planner.findNearestDeadSpot(-90, 90);
         Assert.assertEquals(3, slotGoal);
         Assert.assertEquals(0, angleGoal, Constants.kTestEpsilon);
     }
@@ -172,7 +172,7 @@ public class IndexerMotionPlannerTest {
         IndexerMotionPlanner motion_planner = new IndexerMotionPlanner();
         int slotGoal = motion_planner.findNearestSlot(0, 90);
         double angleGoal = 0;
-        for (double t = 0; t < 10; t += 0.05) {
+        for (double t = 0; t < 20; t += 0.05) {
             indexerSim.setCommandedPosition(angleGoal);
             turretSim.setCommandedPosition(190);
             angleGoal = motion_planner.findAngleGoal(slotGoal, indexerSim.update(0.05), turretSim.update(0.05));
@@ -195,13 +195,14 @@ public class IndexerMotionPlannerTest {
         IndexerMotionPlanner motion_planner = new IndexerMotionPlanner();
         int slotGoal = motion_planner.findNearestSlot(0, 90);
         double angleGoal = 0;
-        for (double t = 0; t < 10; t += 0.05) {
+        for (double t = 0; t < 20; t += 0.05) {
             indexerSim.setCommandedPosition(angleGoal);
             turretSim.setCommandedPosition(-10);
             angleGoal = motion_planner.findAngleGoal(slotGoal, indexerSim.update(0.05), turretSim.update(0.05));
         }
         final double indexer_angle = motion_planner.WrapDegrees(indexerSim.update(0));
         final double turret_angle = motion_planner.WrapDegrees(turretSim.update(0));
+        System.out.println(indexer_angle + " " + turret_angle + " " + angleGoal);
         Assert.assertEquals(1, motion_planner.findNearestSlot(indexer_angle, turret_angle));
         Assert.assertTrue(motion_planner.isAtGoal(slotGoal, indexer_angle, turret_angle));
     }

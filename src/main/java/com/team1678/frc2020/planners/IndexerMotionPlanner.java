@@ -165,8 +165,30 @@ public class IndexerMotionPlanner {
         return angleGoal;
     }
 
+    public double findNearestDeadSpot(double indexer_angle, double turret_angle) {
+        double wrappedIndexerAngle = WrapDegrees(indexer_angle);
+        double wrappedTurretAngle = WrapDegrees(turret_angle);
+
+        int slotNumber = findNearestSlot(indexer_angle, turret_angle);
+        double slotAngle = WrapDegrees(slotNumber * Constants.kAnglePerSlot) + wrappedIndexerAngle;
+
+        double angleGoal = WrapDegrees(wrappedTurretAngle - slotAngle);
+
+        if (angleGoal >= 0) {
+            angleGoal -= 36;
+        } else {
+            angleGoal += 36;
+        }
+
+        return angleGoal;
+    }
+
     public boolean isAtGoal(int slotNumber, double indexer_angle, double turret_angle) {
-        return Math.abs(findAngleToGoal(slotNumber, indexer_angle, turret_angle)) <= Constants.kIndexerDeadband;
+        return Math.abs(findAngleToGoal(slotNumber, indexer_angle, turret_angle)) < Constants.kIndexerDeadband;
+    }
+
+    public boolean isAtDeadSpot(double indexer_angle, double turret_angle) {
+        return Math.abs(findNearestDeadSpot(indexer_angle, turret_angle)) < Constants.kIndexerDeadband;
     }
 
     public int findNearestOpenSlot(double indexer_angle, ProxyStatus proxy_status) {
