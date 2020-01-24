@@ -110,7 +110,6 @@ public class Robot extends TimedRobot {
             mLimelight.setLed(Limelight.LedMode.OFF);
             mIntake.registerLogger(mLogger);
             mLogger.registerLoops(mLoggingLooper);
-            mDrive.registerLogger(mLogger);
 
             mTrajectoryGenerator.generateTrajectories();
         } catch (Throwable t) {
