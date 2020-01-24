@@ -12,7 +12,6 @@ import java.util.List;
 
 import com.ctre.phoenix.CANifier;
 import com.ctre.phoenix.CANifier.LEDChannel;
-import com.team1678.frc2020.Ports;
 import com.team1678.frc2020.loops.ILooper;
 import com.team1678.frc2020.loops.Loop;
 import com.team1678.frc2020.Constants;
@@ -35,7 +34,7 @@ public class LEDs extends Subsystem{
     CANifier canifier;
 
     public LEDs(){
-        canifier = new CANifier(Ports.CANIFIER);
+        canifier = new CANifier(Constants.kCanifierId);
     }
 
     boolean lit = false;
