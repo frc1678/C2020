@@ -7,12 +7,11 @@ import com.team1678.frc2020.loops.ILooper;
 import com.team1678.frc2020.loops.Loop;
 
 import com.team254.lib.drivers.SparkMaxFactory;
-
 import com.team254.lib.drivers.LazySparkMax;
-import com.team254.lib.util.ReflectingCSVWriter;
 
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
 import java.util.ArrayList;
 
 public class Intake extends Subsystem {
@@ -35,8 +34,6 @@ public class Intake extends Subsystem {
     private static PeriodicIO mPeriodicIO = new PeriodicIO();
 
     private final LazySparkMax mMaster;
-
-    private ReflectingCSVWriter<PeriodicIO> mCSVWriter = null;
 
     public static class PeriodicIO {
         // INPUTS
@@ -67,11 +64,6 @@ public class Intake extends Subsystem {
     @Override
     public synchronized void outputTelemetry() {
         SmartDashboard.putNumber("Intake Current", mPeriodicIO.current);
-        LogWrite();
-
-        if (mCSVWriter != null) {
-            mCSVWriter.write();
-        }
     }
 
     @Override
@@ -104,7 +96,6 @@ public class Intake extends Subsystem {
             public void onStop(double timestamp) {
                 mState = State.IDLE;
                 stop();
-                stopLogging();
             }
         });
     }
@@ -151,9 +142,7 @@ public class Intake extends Subsystem {
 
     @Override
     public synchronized void readPeriodicInputs() {
-        if (mCSVWriter != null) {
-            mCSVWriter.add(mPeriodicIO);
-        }
+        LogSend();
     }
 
     @Override
@@ -174,7 +163,7 @@ public class Intake extends Subsystem {
         columnNames.add("demand");
         mStorage.setHeaders(columnNames);
     }
-    public void LogWrite() {
+    public void LogSend() {
         ArrayList<Double> items = new ArrayList<Double>();
         items.add(Timer.getFPGATimestamp());
         items.add(mPeriodicIO.current);

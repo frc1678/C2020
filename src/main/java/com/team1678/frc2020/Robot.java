@@ -19,13 +19,11 @@ import com.team1678.frc2020.subsystems.Infrastructure;
 import com.team1678.frc2020.subsystems.Intake;
 import com.team1678.frc2020.subsystems.Limelight;
 import com.team1678.frc2020.controlboard.ControlBoard;
-<<<<<<< HEAD
 import com.team1678.frc2020.logger.*;
 import com.team254.lib.wpilib.TimedRobot;
 import com.team1678.frc2020.SubsystemManager;
 import com.team1678.frc2020.subsystems.*;
 import com.team254.lib.util.*;
-=======
 import com.team254.lib.wpilib.TimedRobot;
 
 import java.util.Optional;
@@ -34,7 +32,6 @@ import com.team1678.frc2020.SubsystemManager;
 import com.team1678.frc2020.subsystems.*;
 import com.team254.lib.util.*;
 import com.team254.lib.vision.AimingParameters;
->>>>>>> b094d839ee345593daf0f969837990f38658c64e
 import com.team254.lib.geometry.Rotation2d;
 import com.team1678.frc2020.subsystems.RobotStateEstimator;
 import com.team254.lib.geometry.Pose2d;
@@ -89,9 +86,7 @@ public class Robot extends TimedRobot {
 
     @Override
     public void robotPeriodic() {
-<<<<<<< HEAD
         outputToSmartDashboard();
-=======
         RobotState.getInstance().outputToSmartDashboard();
         mSubsystemManager.outputToSmartDashboard();
         mAutoModeSelector.outputToSmartDashboard();
@@ -99,7 +94,6 @@ public class Robot extends TimedRobot {
 
     @Override
     public void robotInit() {
->>>>>>> b094d839ee345593daf0f969837990f38658c64e
         try {
             CrashTracker.logRobotInit();
 
