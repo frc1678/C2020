@@ -34,6 +34,7 @@ public class LoggingSystem {
                     }
                 } 
             } catch (Exception e) {
+                //  Files that are not numbers are expected and ignored
             }
         }
         maxNum++;
@@ -53,7 +54,7 @@ public class LoggingSystem {
         try {
             fileWriter = new FileWriter(mDirectory + "/" + fileName);
         } catch (Exception e) {
-            System.err.println("Couldn't register new File");  //  Exception Handling 
+            System.err.println("Couldn't register new file" + fileName);
         }
         ArrayList<String> itemNames = newLoggable.getItemNames();
         loggableFiles.add(fileWriter);
