@@ -14,9 +14,58 @@ public class GamepadButtonControlBoard {
 
     private final double kDPadDelay = 0.02;
     private DelayedBoolean mDPadValid;
-    // private TurretCardinal mLastCardinal;
+    private TurretCardinal mLastCardinal;
 
     private static GamepadButtonControlBoard mInstance = null;
+
+    // Turret
+    public enum TurretCardinal {
+        BACK(180),
+        FRONT(0),
+        LEFT(90),
+        RIGHT(-90),
+        NONE(0),
+        FRONT_LEFT(30, 45),
+        FRONT_RIGHT(-30, -45),
+        BACK_LEFT(150, 135),
+        BACK_RIGHT(210, 235);
+
+        public final Rotation2d rotation;
+        private final Rotation2d inputDirection;
+
+        TurretCardinal(double degrees) {
+            this(degrees, degrees);
+        }
+
+        TurretCardinal(double degrees, double inputDirectionDegrees) {
+            rotation = Rotation2d.fromDegrees(degrees);
+            inputDirection = Rotation2d.fromDegrees(inputDirectionDegrees);
+        }
+
+        public static TurretCardinal findClosest(double xAxis, double yAxis) {
+            return findClosest(new Rotation2d(yAxis, -xAxis, true));
+        }
+
+        public static TurretCardinal findClosest(Rotation2d stickDirection) {
+            var values = TurretCardinal.values();
+
+            TurretCardinal closest = null;
+            double closestDistance = Double.MAX_VALUE;
+            for (int i = 0; i < values.length; i++) {
+                var checkDirection = values[i];
+                var distance = Math.abs(stickDirection.distance(checkDirection.inputDirection));
+                if (distance < closestDistance) {
+                    closestDistance = distance;
+                    closest = checkDirection;
+                }
+            }
+            return closest;
+        }
+
+        public static boolean isDiagonal(TurretCardinal cardinal) {
+            return cardinal == FRONT_LEFT || cardinal == FRONT_RIGHT || cardinal == BACK_LEFT || cardinal == BACK_RIGHT;
+        }
+    }
 
     public static GamepadButtonControlBoard getInstance() {
         if (mInstance == null) {
@@ -90,10 +139,10 @@ public class GamepadButtonControlBoard {
     }
 
     public void reset() {
-        // mLastCardinal = TurretCardinal.NONE;
+        mLastCardinal = TurretCardinal.NONE;
         mDPadValid = new DelayedBoolean(Timer.getFPGATimestamp(), kDPadDelay);
     }
-/*
+
     public TurretCardinal getTurretCardinal() {
         int dPad = mController.getDPad();
         TurretCardinal newCardinal = dPad == -1 ? TurretCardinal.NONE
@@ -115,7 +164,6 @@ public class GamepadButtonControlBoard {
         }
         return TurretCardinal.NONE;
     }
-*/
 
     public boolean getAutoAim() {
         return mController.getTrigger(XboxController.Side.LEFT);

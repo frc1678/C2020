@@ -1,6 +1,7 @@
 package com.team1678.frc2020.controlboard;
 
 import com.team1678.frc2020.Constants;
+import com.team1678.frc2020.controlboard.GamepadButtonControlBoard.TurretCardinal;
 
 public class ControlBoard {
     private static ControlBoard mInstance = null;
@@ -106,9 +107,9 @@ public class ControlBoard {
         return mButtonControlBoard.getElevatorThrottle();
     }
 
-    //public TurretCardinal getTurretCardinal() {
-    //    return mButtonControlBoard.getTurretCardinal();
-    //}
+    public TurretCardinal getTurretCardinal() {
+        return mButtonControlBoard.getTurretCardinal();
+    }
 
     public boolean getAutoAim() {
         return mButtonControlBoard.getAutoAim();

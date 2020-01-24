@@ -158,7 +158,7 @@ public class Drive extends Subsystem {
     }
     private void configureMaster(TalonFX talon, boolean left) {
         talon.setStatusFramePeriod(StatusFrameEnhanced.Status_2_Feedback0, 5, 100);
-        final ErrorCode sensorPresent = talon.configSelectedFeedbackSensor(FeedbackDevice
+        final ErrorCode sensorPresent = talon.configSelectedFeedbackSensor(TalonFXFeedbackDevice
                 .IntegratedSensor, 0, 100); //primary closed-loop, 100 ms timeout
         if (sensorPresent != ErrorCode.OK) {
             DriverStation.reportError("Could not detect " + (left ? "left" : "right") + " encoder: " + sensorPresent, false);

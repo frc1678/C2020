@@ -19,11 +19,22 @@ import com.team1678.frc2020.subsystems.Infrastructure;
 import com.team1678.frc2020.subsystems.Intake;
 import com.team1678.frc2020.subsystems.Limelight;
 import com.team1678.frc2020.controlboard.ControlBoard;
+<<<<<<< HEAD
 import com.team1678.frc2020.logger.*;
 import com.team254.lib.wpilib.TimedRobot;
 import com.team1678.frc2020.SubsystemManager;
 import com.team1678.frc2020.subsystems.*;
 import com.team254.lib.util.*;
+=======
+import com.team254.lib.wpilib.TimedRobot;
+
+import java.util.Optional;
+
+import com.team1678.frc2020.SubsystemManager;
+import com.team1678.frc2020.subsystems.*;
+import com.team254.lib.util.*;
+import com.team254.lib.vision.AimingParameters;
+>>>>>>> b094d839ee345593daf0f969837990f38658c64e
 import com.team254.lib.geometry.Rotation2d;
 import com.team1678.frc2020.subsystems.RobotStateEstimator;
 import com.team254.lib.geometry.Pose2d;
@@ -60,6 +71,8 @@ public class Robot extends TimedRobot {
     private final Infrastructure mInfrastructure = Infrastructure.getInstance();
     private final Limelight mLimelight = Limelight.getInstance();
     private final Intake mIntake = Intake.getInstance();
+    private final Superstructure mSuperstructure = Superstructure.getInstance();
+    private final Turret mTurret = Turret.getInstance();
 
     private final RobotState mRobotState = RobotState.getInstance();
     private final RobotStateEstimator mRobotStateEstimator = RobotStateEstimator.getInstance();
@@ -74,30 +87,30 @@ public class Robot extends TimedRobot {
         mTrajectoryGenerator.generateTrajectories();
     }
 
-    public void outputToSmartDashboard() {
+    @Override
+    public void robotPeriodic() {
+<<<<<<< HEAD
+        outputToSmartDashboard();
+=======
         RobotState.getInstance().outputToSmartDashboard();
-        Drive.getInstance().outputTelemetry();
-        // Intake.getInstance().outputTelemetry();
-        // Infrastructure.getInstance().outputTelemetry();
-        Limelight.getInstance().outputTelemetry();
-        mEnabledLooper.outputToSmartDashboard();
+        mSubsystemManager.outputToSmartDashboard();
         mAutoModeSelector.outputToSmartDashboard();
-        // SmartDashboard.updateValues();
     }
 
     @Override
-    public void robotPeriodic() {
-        outputToSmartDashboard();
+    public void robotInit() {
+>>>>>>> b094d839ee345593daf0f969837990f38658c64e
         try {
             CrashTracker.logRobotInit();
 
-            mSubsystemManager.setSubsystems(mRobotStateEstimator, mDrive, mLimelight, mIntake);
+            mSubsystemManager.setSubsystems(mRobotStateEstimator, mDrive, mLimelight, mIntake, mSuperstructure,
+                    mTurret);
 
             mSubsystemManager.registerEnabledLoops(mEnabledLooper);
             mSubsystemManager.registerDisabledLoops(mDisabledLooper);
 
             // Robot starts forwards.
-            mRobotState.reset(Timer.getFPGATimestamp(), Pose2d.identity(), Rotation2d.identity());
+            mRobotState.reset(Timer.getFPGATimestamp(), Pose2d.identity(), Rotation2d.identity(),0.0);
             mDrive.setHeading(Rotation2d.identity());
 
             mLimelight.setLed(Limelight.LedMode.OFF);
@@ -110,6 +123,11 @@ public class Robot extends TimedRobot {
             CrashTracker.logThrowableCrash(t);
             throw t;
         }
+    }
+
+    public void outputToSmartDashboard() {
+        RobotState.getInstance().outputToSmartDashboard();
+        mSubsystemManager.outputToSmartDashboard();
     }
 
     @Override
@@ -138,7 +156,6 @@ public class Robot extends TimedRobot {
     public void autonomousPeriodic() {
         SmartDashboard.putString("Match Cycle", "AUTONOMOUS");
 
-        outputToSmartDashboard();
         try {
 
         } catch (Throwable t) {
@@ -170,16 +187,6 @@ public class Robot extends TimedRobot {
         }
     }
 
-    private void controls() {
-        if (mControlBoard.getRunIntake()) {
-            mIntake.setState(Intake.WantedAction.INTAKE);
-        } else if (mControlBoard.getRunOuttake()) {
-            mIntake.setState(Intake.WantedAction.OUTTAKE);
-        } else {
-            mIntake.setState(Intake.WantedAction.NONE);
-        }
-    }
-
     @Override
     public void teleopPeriodic() {
         try {
@@ -189,7 +196,15 @@ public class Robot extends TimedRobot {
 
             mDrive.setCheesyishDrive(throttle, -turn, mControlBoard.getQuickTurn());
 
-            controls();
+            if (mControlBoard.getRunIntake()) {
+                mIntake.setState(Intake.WantedAction.INTAKE);
+            } else if (mControlBoard.getRunOuttake()) {
+                mIntake.setState(Intake.WantedAction.OUTTAKE);
+            } else {
+                mIntake.setState(Intake.WantedAction.NONE);
+            }
+
+            mSuperstructure.setWantFieldRelativeTurret(mControlBoard.getTurretCardinal().rotation);
 
         } catch (Throwable t) {
             CrashTracker.logThrowableCrash(t);
@@ -261,8 +276,6 @@ public class Robot extends TimedRobot {
         // mLimelight.setStream(2);
 
         try {
-            outputToSmartDashboard();
-
             mLimelight.setLed(Limelight.LedMode.OFF);
 
             mAutoModeSelector.updateModeCreator();
@@ -271,7 +284,6 @@ public class Robot extends TimedRobot {
             if (autoMode.isPresent() && autoMode.get() != mAutoModeExecutor.getAutoMode()) {
                 System.out.println("Set auto mode to: " + autoMode.get().getClass().toString());
                 mAutoModeExecutor.setAutoMode(autoMode.get());
-                System.gc();
             }
 
         } catch (Throwable t) {
