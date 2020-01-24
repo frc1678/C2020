@@ -99,9 +99,9 @@ public class Robot extends TimedRobot {
         boolean slotsFilled = mIndexer.slotsFilled();
         Indexer.State indexerState = mIndexer.getState();
         // Climber.State climberState = mClimber.getState();
-        // boolean buddyClimb = mWrangler.getIsBuddyClimbing();
+        // boolean buddyClimb = mWrangler.isBuddyClimbing();
 
-        LEDs.State ledState;
+        LEDs.State ledState = LEDs.State.OFF;
 
         if (isDisabled()) {
             ledState = LEDs.State.DISABLED;
@@ -140,6 +140,8 @@ public class Robot extends TimedRobot {
                 ledState = LEDs.State.CLIMBING;
             }
         }*/
+
+        mLEDs.conformToState(ledState);
     }
 
     @Override
