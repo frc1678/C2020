@@ -9,7 +9,7 @@ import com.ctre.phoenix.sensors.PigeonIMU_StatusFrame;
 import com.team1678.frc2020.Constants;
 import com.team1678.frc2020.Kinematics;
 import com.team1678.frc2020.RobotState;
-import com.team1678.frc2020.logger.*;
+import com.team1678.frc2020.logger.LoggingSystem;
 import com.team1678.frc2020.logger.LogStorage;
 import com.team1678.frc2020.loops.ILooper;
 import com.team1678.frc2020.loops.Loop;
