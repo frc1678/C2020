@@ -28,7 +28,7 @@ public class Superstructure extends Subsystem {
 
     private Rotation2d mFieldRelativeTurretGoal = null;
 
-    enum TurretControlModes {
+    public enum TurretControlModes {
         FIELD_RELATIVE, VISION_AIMED, OPEN_LOOP, JOGGING
     }
 

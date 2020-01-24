@@ -46,13 +46,15 @@ public class LEDs extends Subsystem{
         OFF(0.0, 0.0, 0.0, Double.POSITIVE_INFINITY, 0.0, false), // off
         DISABLED(255.0, 20.0, 30.0, Double.POSITIVE_INFINITY, 0.0, false), // pink
         ENABLED(0.0, 0.0, 255.0, Double.POSITIVE_INFINITY, 0.0, false), // blue
-        EMERGENCY(255.0, 0.0, 0.0, 0.5, 0.5, false), // blinking red
-        INTAKING(255.0, 140.0, 0.0, Double.POSITIVE_INFINITY, 0.0, false), // orange
-        SLOTS_FILLED(255.0, 255.0, 0.0, Double.POSITIVE_INFINITY, 0.0, false), // yellow
-        SHOOTING(255.0, 0.0, 0.0, Double.POSITIVE_INFINITY, 0.0, false), // red
-        TARGET_VISIBLE(0.0, 255.0, 0.0, Double.POSITIVE_INFINITY, 0.0, false), // green
-        TARGET_TRACKING(0.0, 255.0, 0.0, 0.0625, 0.0625, false), // flashing green
+        EMERGENCY(255.0, 0.0, 0.0, 0.5, 0.5, false), // red
+        SLOTS_FILLED(255.0, 0.0, 0.0, .125, .125, false), // blinking red
+        SHOOTING(255.0, 255.0, 0.0, 0.0625, 0.0625, false), // blinking pink
+        TARGET_VISIBLE(255.0, 255.0, 0.0, Double.POSITIVE_INFINITY, 0.0, false), // yellow
+        TARGET_TRACKING(255.0, 255.0, 0.0, 0.0625, 0.0625, false), // blinking yellow
+        AT_TARGET(255.0, 140.0, 0.0, Double.POSITIVE_INFINITY, 0.0, false), // orange
+        SPUN_UP(0.0, 255.0, 0.0, Double.POSITIVE_INFINITY, 0.0, false), // green
         CLIMBING(255.0, 0.0, 255.0, Double.POSITIVE_INFINITY, 0.0, false), // purple
+        BUDDY_CLIMBING(255.0, 0.0, 255.0, .125, .125, false), // blinking purple
         RAINBOW(0, true),
         BREATHING_PINK(357, 10.0, true);
 

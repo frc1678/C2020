@@ -14,10 +14,16 @@ import com.team1678.frc2020.auto.modes.AutoModeBase;
 import com.team1678.frc2020.controlboard.ControlBoard;
 import com.team1678.frc2020.loops.Looper;
 import com.team1678.frc2020.paths.TrajectoryGenerator;
+// import com.team1678.frc2020.subsystems.Climber;
 import com.team1678.frc2020.subsystems.Drive;
+import com.team1678.frc2020.subsystems.Indexer;
 import com.team1678.frc2020.subsystems.Infrastructure;
 import com.team1678.frc2020.subsystems.Intake;
+import com.team1678.frc2020.subsystems.LEDs;
 import com.team1678.frc2020.subsystems.Limelight;
+import com.team1678.frc2020.subsystems.Shooter;
+import com.team1678.frc2020.subsystems.Superstructure.TurretControlModes;
+// import com.team1678.frc2020.subsystems.Wrangler;
 import com.team1678.frc2020.controlboard.ControlBoard;
 import com.team254.lib.wpilib.TimedRobot;
 
@@ -57,12 +63,17 @@ public class Robot extends TimedRobot {
     private TrajectoryGenerator mTrajectoryGenerator = TrajectoryGenerator.getInstance();
 
     private final SubsystemManager mSubsystemManager = SubsystemManager.getInstance();
+    // private final Climber mClimber = Climber.getInstance();
     private final Drive mDrive = Drive.getInstance();
     private final Infrastructure mInfrastructure = Infrastructure.getInstance();
     private final Limelight mLimelight = Limelight.getInstance();
+    private final Indexer mIndexer = Indexer.getInstance();
     private final Intake mIntake = Intake.getInstance();
     private final Superstructure mSuperstructure = Superstructure.getInstance();
     private final Turret mTurret = Turret.getInstance();
+    private final LEDs mLEDs = LEDs.getInstance();
+    private final Shooter mShooter = Shooter.getInstance();
+    // private final Wrangler mWrangler = Wrangler.getInstance();
 
     private final RobotState mRobotState = RobotState.getInstance();
     private final RobotStateEstimator mRobotStateEstimator = RobotStateEstimator.getInstance();
@@ -80,6 +91,55 @@ public class Robot extends TimedRobot {
         RobotState.getInstance().outputToSmartDashboard();
         mSubsystemManager.outputToSmartDashboard();
         mAutoModeSelector.outputToSmartDashboard();
+
+        boolean seesTarget = mLimelight.seesTarget();
+        boolean isAimed = mSuperstructure.isAimed();
+        Superstructure.TurretControlModes turretMode = mSuperstructure.getTurretControlMode();
+        boolean spunUp = mShooter.spunUp();
+        boolean slotsFilled = mIndexer.slotsFilled();
+        Indexer.State indexerState = mIndexer.getState();
+        // Climber.State climberState = mClimber.getState();
+        // boolean buddyClimb = mWrangler.getIsBuddyClimbing();
+
+        LEDs.State ledState;
+
+        if (isDisabled()) {
+            ledState = LEDs.State.DISABLED;
+        }
+
+        if (isEnabled()) {
+            ledState = LEDs.State.ENABLED;
+        }
+
+        if (slotsFilled) {
+            if (!seesTarget) {
+                ledState = LEDs.State.SLOTS_FILLED;
+            } else {
+                if (turretMode == TurretControlModes.VISION_AIMED) {
+                    ledState = LEDs.State.TARGET_TRACKING;
+                } else if (isAimed) {
+                    ledState = LEDs.State.AT_TARGET;
+                } else {
+                    ledState = LEDs.State.TARGET_VISIBLE;
+                }
+            }
+        }
+
+        if (spunUp && seesTarget) {
+            if (indexerState == Indexer.State.ZOOMING) {
+                ledState = LEDs.State.SHOOTING;
+            } else {
+                ledState = LEDs.State.SPUN_UP;
+            }
+        }
+
+        /*if (climberState == Climber.State.WINCHING) {
+            if (buddyClimb) {
+                ledState = LEDs.State.BUDDY_CLIMBING;
+            } else {
+                ledState = LEDs.State.CLIMBING;
+            }
+        }*/
     }
 
     @Override

@@ -191,6 +191,10 @@ public class Indexer extends Subsystem {
         return mIsAtDeadSpot;
     }
 
+    public synchronized State getState() {
+        return mState;
+    }
+
     public void runStateMachine() {
         final double turret_angle = mTurret.getAngle();
         final double indexer_angle = mPeriodicIO.indexer_angle;
