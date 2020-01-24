@@ -129,6 +129,15 @@ public class IndexerMotionPlannerTest {
     }
 
     @Test
+    public void testPrepShoot() {
+        IndexerMotionPlanner motion_planner = new IndexerMotionPlanner();
+        int slotGoal = motion_planner.findNearestSlot(-90, 90);
+        double angleGoal = motion_planner.findAngleToGoal(slotGoal, -90, 90) + 36.;
+        Assert.assertEquals(3, slotGoal);
+        Assert.assertEquals(0, angleGoal, Constants.kTestEpsilon);
+    }
+
+    @Test
     public void testMovingIndexer() {
 
         ControlledActuatorLinearSim turretSim = new ControlledActuatorLinearSim(-1000, 1000, 10);

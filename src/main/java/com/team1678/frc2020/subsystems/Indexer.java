@@ -18,9 +18,6 @@ public class Indexer extends Subsystem {
     private Canifier mCanifier = Canifier.getInstance();
     private Turret mTurret = Turret.getInstance();
 
-    private static final double kFeedingVoltage = 12.;
-    private static final double kOuttakeVoltage = -4.;
-    private static final double kIdleVoltage = 0.;
     // private static final double kIndexingVelocity = 120.; // degrees per second
     private static final double kZoomingVelocity = 360.;
     private static final double kGearRatio = 200.; // TODO(Hanson) verify with design
@@ -40,7 +37,6 @@ public class Indexer extends Subsystem {
         // OUTPUTS
         public ControlMode indexer_control_mode;
         public double indexer_demand;
-        public double feeder_demand;
     }
 
     public static class ProxyStatus {
@@ -64,18 +60,17 @@ public class Indexer extends Subsystem {
     }
 
     public enum WantedAction {
-        NONE, INDEX, REVOLVE, ZOOM,
+        NONE, INDEX, PREP, REVOLVE, ZOOM,
     }
 
     public enum State {
-        IDLE, INDEXING, REVOLVING, ZOOMING, FEEDING,
+        IDLE, INDEXING, PREPPING, REVOLVING, ZOOMING, FEEDING,
     }
 
     private PeriodicIO mPeriodicIO = new PeriodicIO();
     private ProxyStatus mProxyStatus = new ProxyStatus();
     private SlotStatus mSlotStatus = new SlotStatus();
     private final TalonFX mIndexer;
-    private final TalonFX mFeeder;
     private State mState = State.IDLE;
     private double mInitialTime = 0;
     private boolean mStartCounting = false;
@@ -86,17 +81,11 @@ public class Indexer extends Subsystem {
 
     private Indexer() {
         mIndexer = new TalonFX(Constants.kIndexerId);
-        mFeeder = new TalonFX(Constants.kFeederId);
 
         mIndexer.set(ControlMode.Velocity, 0);
         mIndexer.setInverted(false);
         mIndexer.configVoltageCompSaturation(12.0, Constants.kLongCANTimeoutMs);
         mIndexer.enableVoltageCompensation(true);
-
-        mFeeder.set(ControlMode.PercentOutput, 0);
-        mFeeder.setInverted(false);
-        mFeeder.configVoltageCompSaturation(12.0, Constants.kLongCANTimeoutMs);
-        mFeeder.enableVoltageCompensation(true);
 
         mMotionPlanner = new IndexerMotionPlanner();
     }
@@ -112,7 +101,6 @@ public class Indexer extends Subsystem {
     public synchronized void outputTelemetry() {
         SmartDashboard.putString("IndexerControlMode", mPeriodicIO.indexer_control_mode.name());
         SmartDashboard.putNumber("IndexerSetpoint", mPeriodicIO.indexer_demand);
-        SmartDashboard.putNumber("FeederSetpoint", mPeriodicIO.feeder_demand);
 
         SmartDashboard.putBoolean("FrontProxy", mPeriodicIO.front_proxy);
         SmartDashboard.putBoolean("RightProxy", mPeriodicIO.right_proxy);
@@ -128,7 +116,6 @@ public class Indexer extends Subsystem {
     }
 
     public synchronized void setOpenLoop(double percentage) {
-        mPeriodicIO.feeder_demand = percentage;
         mPeriodicIO.indexer_control_mode = ControlMode.PercentOutput;
         mPeriodicIO.indexer_demand = percentage;
     }
@@ -209,11 +196,9 @@ public class Indexer extends Subsystem {
 
         switch (mState) {
         case IDLE:
-            mPeriodicIO.feeder_demand = kIdleVoltage;
             break;
         case INDEXING:
             mPeriodicIO.indexer_control_mode = ControlMode.Position;
-            mPeriodicIO.feeder_demand = kOuttakeVoltage;
 
             if (!mSlotStatus.slotsFilled()) {
                 mSlotGoal = mMotionPlanner.findNearestOpenSlot(indexer_angle, mProxyStatus);
@@ -232,9 +217,15 @@ public class Indexer extends Subsystem {
                 mPeriodicIO.indexer_demand = mMotionPlanner.findAngleGoal(mSlotGoal, indexer_angle, turret_angle);
             }            
             break;
+        case PREPPING:
+            mPeriodicIO.indexer_control_mode = ControlMode.Position;
+
+            mSlotGoal = mMotionPlanner.findNearestSlot(indexer_angle, turret_angle);
+            mPeriodicIO.indexer_demand = mMotionPlanner.findAngleGoal(mSlotGoal, indexer_angle, turret_angle) + 36.;
+
+            break;
         case REVOLVING:
             mPeriodicIO.indexer_control_mode = ControlMode.Position;
-            mPeriodicIO.feeder_demand = kFeedingVoltage;
 
             if (!mBackwards) {
                 mSlotGoal = mMotionPlanner.findNextSlot(indexer_angle, turret_angle);
@@ -251,12 +242,9 @@ public class Indexer extends Subsystem {
         case ZOOMING:
             mPeriodicIO.indexer_control_mode = ControlMode.Velocity;
             mPeriodicIO.indexer_demand = mBackwards ? -kZoomingVelocity : kZoomingVelocity;
-            mPeriodicIO.feeder_demand = kFeedingVoltage;
             break;
         case FEEDING:
             mPeriodicIO.indexer_control_mode = ControlMode.Position;
-            mPeriodicIO.feeder_demand = kFeedingVoltage;
-
             if (mMotionPlanner.isAtGoal(mSlotGoal, indexer_angle, turret_angle)) {
                 final double now = Timer.getFPGATimestamp();
                 if (!mStartCounting) {
@@ -276,10 +264,6 @@ public class Indexer extends Subsystem {
         }
     }
 
-    public double getFeederVoltage() {
-        return mPeriodicIO.feeder_demand;
-    }
-
     public double getIndexerVelocity() {
         if (mPeriodicIO.indexer_control_mode == ControlMode.Velocity) {
             return mPeriodicIO.indexer_demand;
@@ -296,6 +280,9 @@ public class Indexer extends Subsystem {
             break;
         case INDEX:
             mState = State.INDEXING;
+            break;
+        case PREP:
+            mState = State.PREPPING;
             break;
         case REVOLVE:
             mState = State.REVOLVING;
@@ -329,7 +316,6 @@ public class Indexer extends Subsystem {
         } else if (mPeriodicIO.indexer_control_mode == ControlMode.Position) {
             mIndexer.set(mPeriodicIO.indexer_control_mode, mPeriodicIO.indexer_demand / 360 * kGearRatio * 2048);
         }
-        mFeeder.set(ControlMode.PercentOutput, mPeriodicIO.feeder_demand / 12.0);
     }
 
     @Override
