@@ -78,6 +78,7 @@ public class Indexer extends Subsystem {
     private boolean mHasBeenZeroed = false;
     private boolean mBackwards = false;
     private int mSlotGoal;
+    private boolean mIsAtDeadSpot = false;
 
     private Indexer() {
         mIndexer = new TalonFX(Constants.kIndexerId);
@@ -186,6 +187,10 @@ public class Indexer extends Subsystem {
         return mSlotStatus.slotsFilled();
     }
 
+    public synchronized boolean isAtDeadSpot() {
+        return mIsAtDeadSpot;
+    }
+
     public void runStateMachine() {
         final double turret_angle = mTurret.getAngle();
         final double indexer_angle = mPeriodicIO.indexer_angle;
@@ -222,6 +227,8 @@ public class Indexer extends Subsystem {
 
             mSlotGoal = mMotionPlanner.findNearestSlot(indexer_angle, turret_angle);
             mPeriodicIO.indexer_demand = mMotionPlanner.findAngleGoal(mSlotGoal, indexer_angle, turret_angle) + 36.;
+
+            mIsAtDeadSpot = mMotionPlanner.isAtGoal(mSlotGoal, indexer_angle, turret_angle + 36.);
 
             break;
         case REVOLVING:
