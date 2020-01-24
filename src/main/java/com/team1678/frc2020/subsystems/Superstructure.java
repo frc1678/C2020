@@ -289,7 +289,7 @@ public class Superstructure extends Subsystem {
         mHood.setSetpointPositionPID(mHoodSetpoint, mHoodFeedforwardV);
 
         if (mWantsSpinUp || mWantsShoot) {
-            mShooter.setFlywheelVelocity(mShooterSetpoint);
+            mShooter.setVelocity(mShooterSetpoint);
         } else {
             mShooter.setOpenLoop(0);
         }

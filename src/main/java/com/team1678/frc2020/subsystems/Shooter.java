@@ -130,7 +130,7 @@ public class Shooter extends Subsystem {
                 (Util.epsilonEquals(mPeriodicIO.trigger_demand, mPeriodicIO.trigger_velocity, kShooterTolerance)));
     }
 
-    public synchronized void setFlywheelVelocity(double velocity) {
+    public synchronized void setVelocity(double velocity) {
         mPeriodicIO.flywheel_demand = velocity;
         if (velocity > 0) {
             mPeriodicIO.trigger_demand = Constants.kTriggerRPM;
