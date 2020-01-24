@@ -170,4 +170,4 @@ public class Intake extends Subsystem {
         items.add(mPeriodicIO.demand);  
         mStorage.addData(items);
     }
- }
+}
