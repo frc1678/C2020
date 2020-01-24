@@ -192,7 +192,7 @@ public abstract class ServoMotorSubsystem extends Subsystem {
 
         mMaster.setInverted(mConstants.kMasterConstants.invert_motor);
         mMaster.setSensorPhase(mConstants.kMasterConstants.invert_sensor_phase);
-        mMaster.setNeutralMode(NeutralMode.Brake);
+        mMaster.setNeutralMode(NeutralMode.Coast);
         mMaster.setStatusFramePeriod(StatusFrameEnhanced.Status_2_Feedback0, 10, 20);
         mMaster.setStatusFramePeriod(StatusFrameEnhanced.Status_10_MotionMagic, 10, 20);
         mMaster.setStatusFramePeriod(StatusFrameEnhanced.Status_8_PulseWidth, mConstants.kStastusFrame8UpdateRate, 20);
@@ -204,7 +204,7 @@ public abstract class ServoMotorSubsystem extends Subsystem {
             mSlaves[i] = TalonFXFactory.createPermanentSlaveTalon(mConstants.kSlaveConstants[i].id,
                     mConstants.kMasterConstants.id);
             mSlaves[i].setInverted(mConstants.kSlaveConstants[i].invert_motor);
-            mSlaves[i].setNeutralMode(NeutralMode.Brake);
+            mSlaves[i].setNeutralMode(NeutralMode.Coast);
             mSlaves[i].follow(mMaster);
         }
 

@@ -12,17 +12,18 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 public class Climber extends Subsystem  {
     static Climber mInstance = null;
 
-    private static final double kWinchVoltage = 12.;
+    private static final double kClimbVoltage = 12.;
+    private static final double kSlowClimbVoltage = 8.;
     private static final double kHoldingVoltage = 0.;
 
     private PeriodicIO mPeriodicIO = new PeriodicIO();
 
     public enum WantedAction {
-        NONE, EXTEND, WINCH, BRAKE,
+        NONE, EXTEND, CLIMB, SLOW_CLIMB, BRAKE,
     }
 
     private enum State {
-        IDLE, EXTENDING, WINCHING, BRAKING,
+        IDLE, EXTENDING, CLIMBING, SLOW_CLIMBING, BRAKING,
     }
 
     private State mState = State.IDLE;
@@ -59,7 +60,7 @@ public class Climber extends Subsystem  {
         SmartDashboard.putString("ClimberState", mState.name());
         SmartDashboard.putBoolean("ArmExtended", mPeriodicIO.arm_solenoid);
         SmartDashboard.putBoolean("BrakeEngaged", mPeriodicIO.brake_solenoid);
-        SmartDashboard.putNumber("WinchVoltage", mPeriodicIO.demand);
+        SmartDashboard.putNumber("ClimbVoltage", mPeriodicIO.demand);
     }
 
     @Override
@@ -118,8 +119,13 @@ public class Climber extends Subsystem  {
             mPeriodicIO.demand = kHoldingVoltage;
             mPeriodicIO.arm_solenoid = true;
             mPeriodicIO.brake_solenoid = false;
-        case WINCHING:
-            mPeriodicIO.demand = kWinchVoltage;
+        case CLIMBING:
+            mPeriodicIO.demand = kClimbVoltage;
+            mPeriodicIO.arm_solenoid = true;
+            mPeriodicIO.brake_solenoid = false;
+            break;
+        case SLOW_CLIMBING:
+            mPeriodicIO.demand = kSlowClimbVoltage;
             mPeriodicIO.arm_solenoid = true;
             mPeriodicIO.brake_solenoid = false;
             break;
@@ -140,8 +146,11 @@ public class Climber extends Subsystem  {
         case EXTEND:
             mState = State.EXTENDING;
             break;
-        case WINCH:
-            mState = State.WINCHING;
+        case CLIMB:
+            mState = State.CLIMBING;
+            break;
+        case SLOW_CLIMB:
+            mState = State.SLOW_CLIMBING;
             break;
         case BRAKE:
             mState = State.BRAKING;

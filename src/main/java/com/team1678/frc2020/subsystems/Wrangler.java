@@ -19,6 +19,8 @@ public class Wrangler extends Subsystem {
     private final TalonFX mMaster;
     private final Solenoid mDeployer;
 
+    private boolean mBuddyClimb = false;
+
     public enum WantedAction {
         NONE, DEPLOY, WRANGLE, UNWRANGLE, RETRACT,
     }
@@ -86,6 +88,10 @@ public class Wrangler extends Subsystem {
         return mDeployer.get() && mPeriodicOutputs.deployer_solenoid;
     }
 
+    public synchronized boolean isBuddyClimbing() {
+        return mBuddyClimb;
+    }
+
     public void runStateMachine(boolean modifyOutputs) {
         switch (mState) {
         case IDLE:
@@ -137,6 +143,7 @@ public class Wrangler extends Subsystem {
             break;
         case DEPLOY:
             mState = State.DEPLOYING;
+            mBuddyClimb = true;
             break;
         case WRANGLE:
             mState = State.WRANGLING;
