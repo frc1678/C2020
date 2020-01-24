@@ -147,11 +147,9 @@ public class Drive extends Subsystem {
         items.add(mPeriodicIO.right_accel);
         items.add(mPeriodicIO.left_feedforward);
         items.add(mPeriodicIO.right_feedforward);
-        //items.add(Double.valueOf(mPeriodicIO.path_setpoint.toString()));
+        items.add(Double.valueOf(mPeriodicIO.path_setpoint.toString()));
 
-        try {
-            mStorage.addData(items);
-        } catch(Exception e) {}
+        mStorage.addData(items);
     }
 
     public void registerLogger(LoggingSystem LS) {
@@ -177,7 +175,6 @@ public class Drive extends Subsystem {
 
     private Drive() {
         mPeriodicIO = new PeriodicIO();
-        startLogging();
 
         // Start all Talons in open loop mode.
         mLeftMaster = TalonFXFactory.createDefaultTalon(Constants.kLeftDriveMasterId);
@@ -413,7 +410,7 @@ public class Drive extends Subsystem {
         System.out.println("SET HEADING: " + heading.getDegrees());
 
         mGyroOffset = heading.rotateBy(Rotation2d.fromDegrees(-mPigeon.getFusedHeading()).inverse());
-     //  System.out.println("Gyro offset: " + mGyroOffset.getDegrees());
+        System.out.println("Gyro offset: " + mGyroOffset.getDegrees());
 
         mPeriodicIO.gyro_heading = heading;
     }

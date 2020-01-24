@@ -81,14 +81,13 @@ public class Robot extends TimedRobot {
         // Infrastructure.getInstance().outputTelemetry();
         Limelight.getInstance().outputTelemetry();
         mEnabledLooper.outputToSmartDashboard();
-        // mAutoModeSelector.outputToSmartDashboard();
+        mAutoModeSelector.outputToSmartDashboard();
         // SmartDashboard.updateValues();
     }
 
     @Override
     public void robotPeriodic() {
         outputToSmartDashboard();
-        System.out.println(mDrive.getLeftLinearVelocity());
         try {
             CrashTracker.logRobotInit();
 
@@ -238,9 +237,9 @@ public class Robot extends TimedRobot {
             RobotState.getInstance().reset(Timer.getFPGATimestamp(), Pose2d.identity());
 
             // Reset all auto mode state.
-            // mAutoModeSelector.reset();
-            // mAutoModeSelector.updateModeCreator();
-            // mAutoModeExecutor = new AutoModeExecutor();
+            mAutoModeSelector.reset();
+            mAutoModeSelector.updateModeCreator();
+            mAutoModeExecutor = new AutoModeExecutor();
 
             mDisabledLooper.start();
 
@@ -261,14 +260,14 @@ public class Robot extends TimedRobot {
 
         // mLimelight.setStream(2);
 
-        /*try {
+        try {
             outputToSmartDashboard();
 
             mLimelight.setLed(Limelight.LedMode.OFF);
 
-            // mAutoModeSelector.updateModeCreator();
+            mAutoModeSelector.updateModeCreator();
 
-            //Optional<AutoModeBase> autoMode = mAutoModeSelector.getAutoMode();
+            Optional<AutoModeBase> autoMode = mAutoModeSelector.getAutoMode();
             if (autoMode.isPresent() && autoMode.get() != mAutoModeExecutor.getAutoMode()) {
                 System.out.println("Set auto mode to: " + autoMode.get().getClass().toString());
                 mAutoModeExecutor.setAutoMode(autoMode.get());
@@ -279,6 +278,5 @@ public class Robot extends TimedRobot {
             CrashTracker.logThrowableCrash(t);
             throw t;
         }
-        */
     }
 }
