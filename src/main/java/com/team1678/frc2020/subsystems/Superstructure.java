@@ -14,6 +14,7 @@ import com.team254.lib.util.InterpolatingDouble;
 import com.team254.lib.util.Units;
 import com.team254.lib.util.Util;
 import com.team254.lib.vision.AimingParameters;
+
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Superstructure extends Subsystem {
@@ -122,7 +123,7 @@ public class Superstructure extends Subsystem {
         }
     }
 
-    private double getmHoodSetpointAngle(double range) {
+    private double getHoodSetpointAngle(double range) {
         if (SuperstructureConstants.kUseHoodAutoAimPolynomial) {
             return SuperstructureConstants.kHoodAutoAimPolynomial.predict(range);
         } else {
@@ -220,7 +221,7 @@ public class Superstructure extends Subsystem {
             final double shooting_setpoint = getShootingSetpointRpm(mCorrectedRangeToTarget);
             mShooterSetpoint = shooting_setpoint;
 
-            final double aiming_setpoint = getmHoodSetpointAngle(mCorrectedRangeToTarget);
+            final double aiming_setpoint = getHoodSetpointAngle(mCorrectedRangeToTarget);
             mHoodSetpoint = aiming_setpoint;
 
             final Rotation2d turret_error = mRobotState.getVehicleToTurret(timestamp).getRotation().inverse()
@@ -288,23 +289,26 @@ public class Superstructure extends Subsystem {
 
         mHood.setSetpointPositionPID(mHoodSetpoint, mHoodFeedforwardV);
 
-        if (mWantsSpinUp || mWantsShoot) {
+        Indexer.WantedAction indexerAction = Indexer.WantedAction.NONE;
+
+        if (Intake.getInstance().getState() != Intake.State.IDLE) {
+            indexerAction = Indexer.WantedAction.INDEX;
+        }
+
+        if ((mWantsSpinUp && mIndexer.isAtDeadSpot())) {
             mShooter.setVelocity(mShooterSetpoint);
+            indexerAction = Indexer.WantedAction.PREP;
+        } else if (mWantsShoot) {
+            mShooter.setVelocity(mShooterSetpoint);
+            if (mShooter.spunUp()) {
+                indexerAction = Indexer.WantedAction.ZOOM;
+            } else {
+                indexerAction = Indexer.WantedAction.PREP;
+            }
         } else {
             mShooter.setOpenLoop(0);
         }
-
-        if (Intake.getInstance().getState() != Intake.State.IDLE) {
-            mIndexer.setState(Indexer.WantedAction.INDEX);
-        } else if (mOnTarget && mWantsShoot) {
-            if (mShooter.spunUp()) {
-                mIndexer.setState(Indexer.WantedAction.ZOOM);
-            } else {
-                mIndexer.setState(Indexer.WantedAction.NONE);
-            }
-        } else {
-            mIndexer.setState(Indexer.WantedAction.NONE);
-        }
+        mIndexer.setState(indexerAction);
     }
 
     public synchronized void setWantAutoAim(Rotation2d field_to_turret_hint, boolean enforce_min_distance,
