@@ -25,7 +25,6 @@ import com.team254.lib.geometry.Twist2d;
 import com.team254.lib.trajectory.TrajectoryIterator;
 import com.team254.lib.trajectory.timing.TimedState;
 import com.team254.lib.util.DriveSignal;
-import com.team254.lib.util.ReflectingCSVWriter;
 import com.team254.lib.util.Util;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
@@ -46,7 +45,6 @@ public class Drive extends Subsystem {
     // Hardware states
     private PeriodicIO mPeriodicIO;
     private boolean mIsBrakeMode;
-    private ReflectingCSVWriter<PeriodicIO> mCSVWriter = null;
     private DriveMotionPlanner mMotionPlanner;
     private Rotation2d mGyroOffset = Rotation2d.identity();
     private boolean mOverrideTrajectory = false;
@@ -444,9 +442,6 @@ public class Drive extends Subsystem {
             SmartDashboard.putNumber("y err", mPeriodicIO.error.getTranslation().y());
             SmartDashboard.putNumber("theta err", mPeriodicIO.error.getRotation().getDegrees());
         }
-        if (mCSVWriter != null) {
-            mCSVWriter.write();
-        }
     }
 
     public synchronized void resetEncoders() {
@@ -578,9 +573,6 @@ public class Drive extends Subsystem {
         mPeriodicIO.left_current = mLeftMaster.getOutputCurrent();
         mPeriodicIO.right_current = mRightMaster.getOutputCurrent();
 
-        if (mCSVWriter != null) {
-            mCSVWriter.add(mPeriodicIO);
-        }
         // System.out.println("control state: " + mDriveControlState + ", left: " + mPeriodicIO.left_demand + ", right: " + mPeriodicIO.right_demand);
     }
 
@@ -637,19 +629,6 @@ public class Drive extends Subsystem {
                     }
                 });
         return leftSide && rightSide;
-    }
-
-    public synchronized void startLogging() {
-        if (mCSVWriter == null) {
-            mCSVWriter = new ReflectingCSVWriter<>("/home/lvuser/DRIVE-LOGS.csv", PeriodicIO.class);
-        }
-    }
-
-    public synchronized void stopLogging() {
-        if (mCSVWriter != null) {
-            mCSVWriter.flush();
-            mCSVWriter = null;
-        }
     }
 
     // The robot drivetrain's various states.
