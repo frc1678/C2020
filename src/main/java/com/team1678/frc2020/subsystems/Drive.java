@@ -92,12 +92,12 @@ public class Drive extends Subsystem {
 
     private void configureMaster(TalonFX talon, boolean left) {
         talon.setStatusFramePeriod(StatusFrameEnhanced.Status_2_Feedback0, 5, 100);
-        final ErrorCode sensorPresent = talon.configSelectedFeedbackSensor(FeedbackDevice
-                .CTRE_MagEncoder_Relative, 0, 100); //primary closed-loop, 100 ms timeout
+        final ErrorCode sensorPresent = talon.configSelectedFeedbackSensor(TalonFXFeedbackDevice
+                .IntegratedSensor, 0, 100); //primary closed-loop, 100 ms timeout
         if (sensorPresent != ErrorCode.OK) {
             DriverStation.reportError("Could not detect " + (left ? "left" : "right") + " encoder: " + sensorPresent, false);
         }
-        talon.setInverted(left);
+        talon.setInverted(!left);
         talon.setSensorPhase(false);
         talon.enableVoltageCompensation(true);
         talon.configVoltageCompSaturation(12.0, Constants.kLongCANTimeoutMs);
@@ -116,14 +116,14 @@ public class Drive extends Subsystem {
 
         mLeftSlave = TalonFXFactory.createPermanentSlaveTalon(Constants.kLeftDriveSlaveId,
                 Constants.kLeftDriveMasterId);
-        mLeftSlave.setInverted(true);
+        mLeftSlave.setInverted(false);
 
         mRightMaster = TalonFXFactory.createDefaultTalon(Constants.kRightDriveMasterId);
         configureMaster(mRightMaster, false);
 
         mRightSlave = TalonFXFactory.createPermanentSlaveTalon(Constants.kRightDriveSlaveId,
                 Constants.kRightDriveMasterId);
-        mRightSlave.setInverted(false);
+        mRightSlave.setInverted(true);
 
         reloadGains();
 
