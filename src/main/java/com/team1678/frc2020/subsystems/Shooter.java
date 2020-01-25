@@ -232,5 +232,6 @@ public class Shooter extends Subsystem {
         items.add(mPeriodicIO.flywheel_demand);
         items.add(mPeriodicIO.trigger_demand);
 
+        mStorage.addData(items);
     }
 }
