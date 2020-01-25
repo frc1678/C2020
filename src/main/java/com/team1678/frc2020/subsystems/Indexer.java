@@ -17,7 +17,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 public class Indexer extends Subsystem {
     private static Indexer mInstance = null;
     private IndexerMotionPlanner mMotionPlanner;
-    private Canifier mCanifier = Canifier.getInstance();
     private Turret mTurret = Turret.getInstance();
 
     // private static final double kIndexingVelocity = 120.; // degrees per second
@@ -81,11 +80,11 @@ public class Indexer extends Subsystem {
     private boolean mBackwards = false;
     private int mSlotGoal;
     private boolean mIsAtDeadSpot = false;
-    private DigitalInput mFrontProxy = new DigitalInput(Constants.kFrontIndexerProxy);
-    private DigitalInput mRightProxy = new DigitalInput(Constants.kRightIndexerProxy);
-    private DigitalInput mBackRightProxy = new DigitalInput(Constants.kBackRightIndexerProxy);
-    private DigitalInput mBackLeftProxy = new DigitalInput(Constants.kBackLeftIndexerProxy);
-    private DigitalInput mLeftProxy = new DigitalInput(Constants.kLeftIndexerProxy);
+    private DigitalInput mSlot0Proxy = new DigitalInput(Constants.kFrontIndexerProxy);
+    private DigitalInput mSlot1Proxy = new DigitalInput(Constants.kRightIndexerProxy);
+    private DigitalInput mSlot2Proxy = new DigitalInput(Constants.kBackRightIndexerProxy);
+    private DigitalInput mSlot3Proxy = new DigitalInput(Constants.kBackLeftIndexerProxy);
+    private DigitalInput mSlot4Proxy = new DigitalInput(Constants.kLeftIndexerProxy);
     private DigitalInput mLimitSwitch = new DigitalInput(Constants.kIndexerLimitSwitch);
 
     private Indexer() {
@@ -314,11 +313,11 @@ public class Indexer extends Subsystem {
 
     @Override
     public synchronized void readPeriodicInputs() {
-        mPeriodicIO.front_proxy = mFrontProxy.get();
-        mPeriodicIO.right_proxy = mRightProxy.get();
-        mPeriodicIO.left_proxy = mLeftProxy.get();
-        mPeriodicIO.back_right_proxy = mBackRightProxy.get();
-        mPeriodicIO.back_left_proxy = mBackLeftProxy.get();
+        mPeriodicIO.front_proxy = mSlot0Proxy.get();
+        mPeriodicIO.right_proxy = mSlot1Proxy.get();
+        mPeriodicIO.back_right_proxy = mSlot2Proxy.get();
+        mPeriodicIO.back_left_proxy = mSlot3Proxy.get();
+        mPeriodicIO.left_proxy = mSlot4Proxy.get();
         mPeriodicIO.limit_switch = !mLimitSwitch.get();
 
         mPeriodicIO.indexer_angle = mIndexer.getSelectedSensorPosition() / 2048 / kGearRatio * 360;
