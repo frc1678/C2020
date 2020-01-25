@@ -9,6 +9,7 @@ import com.team1678.frc2020.subsystems.Canifier;
 import com.team1678.frc2020.subsystems.Turret;
 import com.team254.lib.drivers.TalonFXFactory;
 import com.team1678.frc2020.planners.IndexerMotionPlanner;
+import com.team1678.lib.util.HallCalibration;
 
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Timer;
@@ -72,7 +73,7 @@ public class Indexer extends Subsystem {
     private PeriodicIO mPeriodicIO = new PeriodicIO();
     private ProxyStatus mProxyStatus = new ProxyStatus();
     private SlotStatus mSlotStatus = new SlotStatus();
-    private final TalonFX mIndexer;
+    private final TalonFX mMaster;
     private State mState = State.IDLE;
     private double mInitialTime = 0;
     private boolean mStartCounting = false;
@@ -87,14 +88,16 @@ public class Indexer extends Subsystem {
     private DigitalInput mBackLeftProxy = new DigitalInput(Constants.kBackLeftIndexerProxy);
     private DigitalInput mLeftProxy = new DigitalInput(Constants.kLeftIndexerProxy);
     private DigitalInput mLimitSwitch = new DigitalInput(Constants.kIndexerLimitSwitch);
+    private HallCalibration calibration = new HallCalibration(0);
+    private double mOffset = 0;
 
     private Indexer() {
-        mIndexer = TalonFXFactory.createDefaultTalon(Constants.kIndexerId);
+        mMaster = TalonFXFactory.createDefaultTalon(Constants.kIndexerId);
 
-        mIndexer.set(ControlMode.Velocity, 0);
-        mIndexer.setInverted(false);
-        mIndexer.configVoltageCompSaturation(12.0, Constants.kLongCANTimeoutMs);
-        mIndexer.enableVoltageCompensation(true);
+        mMaster.set(ControlMode.Velocity, 0);
+        mMaster.setInverted(false);
+        mMaster.configVoltageCompSaturation(12.0, Constants.kLongCANTimeoutMs);
+        mMaster.enableVoltageCompensation(true);
 
         mMotionPlanner = new IndexerMotionPlanner();
     }
@@ -104,6 +107,15 @@ public class Indexer extends Subsystem {
             mInstance = new Indexer();
         }
         return mInstance;
+    }
+
+    public boolean atHomingLocation() {
+        calibration.update(mPeriodicIO.indexer_angle, mPeriodicIO.limit_switch);
+        if (calibration.isCalibrated()) {
+            mOffset = mPeriodicIO.indexer_angle + calibration.getOffset();
+            return true;
+        }
+        return false;
     }
 
     @Override
@@ -137,7 +149,7 @@ public class Indexer extends Subsystem {
 
     @Override
     public void zeroSensors() {
-        mIndexer.setSelectedSensorPosition(0, 0, 10);
+        mMaster.setSelectedSensorPosition(0, 0, 10);
         mHasBeenZeroed = true;
     }
 
@@ -321,15 +333,24 @@ public class Indexer extends Subsystem {
         mPeriodicIO.back_left_proxy = mBackLeftProxy.get();
         mPeriodicIO.limit_switch = !mLimitSwitch.get();
 
-        mPeriodicIO.indexer_angle = mIndexer.getSelectedSensorPosition() / 2048 / kGearRatio * 360;
+        mPeriodicIO.indexer_angle = mMaster.getSelectedSensorPosition() / 2048 / kGearRatio * 360;
+        if (atHomingLocation() && !mHasBeenZeroed) {
+            mMaster.setSelectedSensorPosition((int) Math.floor(mOffset));
+            mMaster.overrideSoftLimitsEnable(true);
+            System.out.println("Homed!!!");
+            mHasBeenZeroed = true;
+        }
     }
 
     @Override
     public synchronized void writePeriodicOutputs() {
+        if (!mHasBeenZeroed) {
+            mMaster.set(ControlMode.PercentOutput, 0.0);
+        }
         if (mPeriodicIO.indexer_control_mode == ControlMode.Velocity) {
-            mIndexer.set(mPeriodicIO.indexer_control_mode, mPeriodicIO.indexer_demand / 10 / 360 * kGearRatio * 2048);
+            mMaster.set(mPeriodicIO.indexer_control_mode, mPeriodicIO.indexer_demand / 10 / 360 * kGearRatio * 2048);
         } else if (mPeriodicIO.indexer_control_mode == ControlMode.Position) {
-            mIndexer.set(mPeriodicIO.indexer_control_mode, mPeriodicIO.indexer_demand / 360 * kGearRatio * 2048);
+            mMaster.set(mPeriodicIO.indexer_control_mode, mPeriodicIO.indexer_demand / 360 * kGearRatio * 2048);
         }
     }
 
