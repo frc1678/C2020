@@ -19,6 +19,11 @@ import com.team1678.frc2020.subsystems.Infrastructure;
 import com.team1678.frc2020.subsystems.Intake;
 import com.team1678.frc2020.subsystems.Limelight;
 import com.team1678.frc2020.controlboard.ControlBoard;
+import com.team1678.frc2020.logger.*;
+import com.team254.lib.wpilib.TimedRobot;
+import com.team1678.frc2020.SubsystemManager;
+import com.team1678.frc2020.subsystems.*;
+import com.team254.lib.util.*;
 import com.team254.lib.wpilib.TimedRobot;
 
 import java.util.Optional;
@@ -52,6 +57,8 @@ public class Robot extends TimedRobot {
 
     private final Looper mEnabledLooper = new Looper();
     private final Looper mDisabledLooper = new Looper();
+    private final Looper mLoggingLooper = new Looper();
+
 
     private final ControlBoard mControlBoard = ControlBoard.getInstance();
     private TrajectoryGenerator mTrajectoryGenerator = TrajectoryGenerator.getInstance();
@@ -68,7 +75,9 @@ public class Robot extends TimedRobot {
     private final RobotStateEstimator mRobotStateEstimator = RobotStateEstimator.getInstance();
 
     private AutoModeExecutor mAutoModeExecutor;
-    private AutoModeSelector mAutoModeSelector = new AutoModeSelector();
+    private AutoModeSelector mAutoModeSelector;
+
+    private LoggingSystem mLogger = LoggingSystem.getInstance();
 
     public Robot() {
         CrashTracker.logRobotConstruction();
@@ -77,6 +86,7 @@ public class Robot extends TimedRobot {
 
     @Override
     public void robotPeriodic() {
+        outputToSmartDashboard();
         RobotState.getInstance().outputToSmartDashboard();
         mSubsystemManager.outputToSmartDashboard();
         mAutoModeSelector.outputToSmartDashboard();
@@ -98,6 +108,8 @@ public class Robot extends TimedRobot {
             mDrive.setHeading(Rotation2d.identity());
 
             mLimelight.setLed(Limelight.LedMode.OFF);
+            mIntake.registerLogger(mLogger);
+            mLogger.registerLoops(mLoggingLooper);
 
             mTrajectoryGenerator.generateTrajectories();
         } catch (Throwable t) {
