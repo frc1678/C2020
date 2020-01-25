@@ -39,7 +39,7 @@ public class Wrangler extends Subsystem {
 
     private Wrangler() {
         mMaster = TalonFXFactory.createDefaultTalon(Constants.kWranglerId);
-        mDeployer = Constants.makeSolenoidForId(Constants.kDeployerSolenoidId);
+        mDeployer = Constants.makeSolenoidForId(Constants.kWranglerSolenoidId);
 
         mMaster.set(ControlMode.PercentOutput, 0.);
         mMaster.setInverted(false);
