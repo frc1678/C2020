@@ -1,16 +1,19 @@
 package com.team1678.frc2020.subsystems;
 
+import com.team1678.frc2020.logger.*;
+import com.team1678.frc2020.logger.LogStorage;
 import com.team1678.frc2020.Constants;
 import com.team1678.frc2020.loops.ILooper;
 import com.team1678.frc2020.loops.Loop;
 
 import com.team254.lib.drivers.SparkMaxFactory;
-
 import com.team254.lib.drivers.LazySparkMax;
-import com.team254.lib.util.ReflectingCSVWriter;
 
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
+import java.util.ArrayList;
 
 public class Intake extends Subsystem {
     private static double kIntakingVoltage = 12.0;
@@ -35,8 +38,6 @@ public class Intake extends Subsystem {
 
     private final LazySparkMax mMaster;
 
-    private ReflectingCSVWriter<PeriodicIO> mCSVWriter = null;
-
     public static class PeriodicIO {
         // INPUTS
         public double timestamp;
@@ -46,10 +47,16 @@ public class Intake extends Subsystem {
         public double demand;
         public boolean deploy;
     }
+    LogStorage<PeriodicIO> mStorage = null;
+
 
     private Intake() {
         mMaster = SparkMaxFactory.createDefaultSparkMax(Constants.kIntakeRollerId);
         mDeploySolenoid = Constants.makeSolenoidForId(Constants.kDeploySolenoidId);
+    }
+    public void registerLogger(LoggingSystem LS) {
+        LogSetup();
+        LS.register(mStorage, "intake.csv");
     }
 
     public synchronized static Intake getInstance() {
@@ -62,10 +69,6 @@ public class Intake extends Subsystem {
     @Override
     public synchronized void outputTelemetry() {
         SmartDashboard.putNumber("Intake Current", mPeriodicIO.current);
-
-        if (mCSVWriter != null) {
-            mCSVWriter.write();
-        }
     }
 
     @Override
@@ -98,7 +101,6 @@ public class Intake extends Subsystem {
             public void onStop(double timestamp) {
                 mState = State.IDLE;
                 stop();
-                stopLogging();
             }
         });
     }
@@ -147,9 +149,7 @@ public class Intake extends Subsystem {
 
     @Override
     public synchronized void readPeriodicInputs() {
-        if (mCSVWriter != null) {
-            mCSVWriter.add(mPeriodicIO);
-        }
+        LogSend();
     }
 
     @Override
@@ -163,16 +163,15 @@ public class Intake extends Subsystem {
         return true;
     }
 
-    public synchronized void startLogging() {
-        if (mCSVWriter == null) {
-            mCSVWriter = new ReflectingCSVWriter<>("/home/lvuser/INTAKE-LOGS.csv", PeriodicIO.class);
-        }
+    public void LogSetup() {
+        mStorage = new LogStorage<PeriodicIO>();
+        mStorage.setHeadersFromClass(PeriodicIO.class);
     }
-
-    public synchronized void stopLogging() {
-        if (mCSVWriter != null) {
-            mCSVWriter.flush();
-            mCSVWriter = null;
-        }
+    public void LogSend() {
+        ArrayList<Double> items = new ArrayList<Double>();
+        items.add(Timer.getFPGATimestamp());
+        items.add(mPeriodicIO.current);
+        items.add(mPeriodicIO.demand);  
+        mStorage.addData(items);
     }
 }
