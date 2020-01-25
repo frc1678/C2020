@@ -81,11 +81,11 @@ public class Constants {
     public static final double kVelocityConversion = 600.0 / 2048.0;
 
     // Indexer
-    public static final int kFrontIndexerProxy = 1;
-    public static final int kRightIndexerProxy = 2;
-    public static final int kBackRightIndexerProxy = 3;
-    public static final int kBackLeftIndexerProxy = 4;
-    public static final int kLeftIndexerProxy = 5;
+    public static final int kSlot0Proxy = 1;
+    public static final int kSlot1Proxy = 2;
+    public static final int kSlot2Proxy = 3;
+    public static final int kSlot3Proxy = 4;
+    public static final int kSlot4Proxy = 5;
     public static final int kIndexerLimitSwitch = 6;
 
     public static final int kIndexerSlots = 5;

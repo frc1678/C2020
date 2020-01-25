@@ -80,11 +80,11 @@ public class Indexer extends Subsystem {
     private boolean mBackwards = false;
     private int mSlotGoal;
     private boolean mIsAtDeadSpot = false;
-    private DigitalInput mFrontProxy = new DigitalInput(Constants.kFrontIndexerProxy);
-    private DigitalInput mRightProxy = new DigitalInput(Constants.kRightIndexerProxy);
-    private DigitalInput mBackRightProxy = new DigitalInput(Constants.kBackRightIndexerProxy);
-    private DigitalInput mBackLeftProxy = new DigitalInput(Constants.kBackLeftIndexerProxy);
-    private DigitalInput mLeftProxy = new DigitalInput(Constants.kLeftIndexerProxy);
+    private DigitalInput mSlot0Proxy = new DigitalInput(Constants.kSlot0Proxy);
+    private DigitalInput mSlot1Proxy = new DigitalInput(Constants.kSlot1Proxy);
+    private DigitalInput mSlot2Proxy = new DigitalInput(Constants.kSlot2Proxy);
+    private DigitalInput mSlot3Proxy = new DigitalInput(Constants.kSlot3Proxy);
+    private DigitalInput mSlot4Proxy = new DigitalInput(Constants.kSlot4Proxy);
     private DigitalInput mLimitSwitch = new DigitalInput(Constants.kIndexerLimitSwitch);
     private HallCalibration calibration = new HallCalibration(0);
     private double mOffset = 0;
@@ -324,11 +324,11 @@ public class Indexer extends Subsystem {
 
     @Override
     public synchronized void readPeriodicInputs() {
-        mPeriodicIO.front_proxy = mFrontProxy.get();
-        mPeriodicIO.right_proxy = mRightProxy.get();
-        mPeriodicIO.left_proxy = mLeftProxy.get();
-        mPeriodicIO.back_right_proxy = mBackRightProxy.get();
-        mPeriodicIO.back_left_proxy = mBackLeftProxy.get();
+        mPeriodicIO.front_proxy = mSlot0Proxy.get();
+        mPeriodicIO.right_proxy = mSlot1Proxy.get();
+        mPeriodicIO.back_right_proxy = mSlot2Proxy.get();
+        mPeriodicIO.back_left_proxy = mSlot3Proxy.get();
+        mPeriodicIO.left_proxy = mSlot4Proxy.get();
         mPeriodicIO.limit_switch = !mLimitSwitch.get();
 
         mPeriodicIO.indexer_angle = mMaster.getSelectedSensorPosition() / 2048 / kGearRatio * 360;
