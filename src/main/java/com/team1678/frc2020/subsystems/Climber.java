@@ -203,7 +203,7 @@ public class Climber extends Subsystem  {
 
     public void LogSetup() {
         mStorage = new LogStorage<PeriodicIO>();
-        mStorage.setHeadersFromClass(PeriodicIO.class)
+        mStorage.setHeadersFromClass(PeriodicIO.class);
     }
 
     public void LogSend() {
