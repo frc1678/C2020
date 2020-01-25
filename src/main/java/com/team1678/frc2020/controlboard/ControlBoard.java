@@ -67,8 +67,8 @@ public class ControlBoard {
         return mButtonControlBoard.getRunIntake();
     }
 
-    public boolean getRunOuttake() {
-        return mButtonControlBoard.getRunOuttake();
+    public boolean getRetractIntake() {
+        return mButtonControlBoard.getRetractIntake();
     }
 
     public boolean getScorePresetHigh() {
