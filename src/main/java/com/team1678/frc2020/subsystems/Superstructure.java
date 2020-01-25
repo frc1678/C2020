@@ -324,6 +324,7 @@ public class Superstructure extends Subsystem {
     }
 
     public synchronized void setWantShoot(boolean shoot) {
+        mWantsSpinUp = false;
         mWantsShoot = shoot;
     }
 
@@ -333,6 +334,7 @@ public class Superstructure extends Subsystem {
 
     public synchronized void setWantSpinUp(boolean spin_up) {
         mWantsSpinUp = spin_up;
+        mWantsShoot = false;
     }
 
     public synchronized void setWantFieldRelativeTurret(Rotation2d field_to_turret) {

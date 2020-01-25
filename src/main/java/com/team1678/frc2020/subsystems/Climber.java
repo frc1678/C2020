@@ -10,7 +10,6 @@ import com.team1678.frc2020.logger.LogStorage;
 import com.team1678.frc2020.logger.LoggingSystem;
 
 import com.team254.lib.drivers.TalonFXFactory;
-
 import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.Timer;

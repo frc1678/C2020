@@ -19,7 +19,8 @@ import com.team1678.frc2020.subsystems.Infrastructure;
 import com.team1678.frc2020.subsystems.Intake;
 import com.team1678.frc2020.subsystems.Limelight;
 import com.team1678.frc2020.controlboard.ControlBoard;
-import com.team1678.frc2020.logger.*;
+import com.team1678.frc2020.controlboard.GamepadButtonControlBoard;
+import com.team1678.frc2020.logger.LoggingSystem;
 import com.team254.lib.wpilib.TimedRobot;
 import com.team1678.frc2020.SubsystemManager;
 import com.team1678.frc2020.subsystems.*;
@@ -65,17 +66,21 @@ public class Robot extends TimedRobot {
 
     private final SubsystemManager mSubsystemManager = SubsystemManager.getInstance();
     private final Drive mDrive = Drive.getInstance();
+    private final Indexer mIndexer = Indexer.getInstance();
     private final Infrastructure mInfrastructure = Infrastructure.getInstance();
     private final Limelight mLimelight = Limelight.getInstance();
     private final Intake mIntake = Intake.getInstance();
     private final Superstructure mSuperstructure = Superstructure.getInstance();
     private final Turret mTurret = Turret.getInstance();
+    private final Shooter mShooter = Shooter.getInstance();
+    private final Climber mClimber = Climber.getInstance();
+    private final Wrangler mWrangler = Wrangler.getInstance();
 
     private final RobotState mRobotState = RobotState.getInstance();
     private final RobotStateEstimator mRobotStateEstimator = RobotStateEstimator.getInstance();
-
+    private boolean climb_mode = false;
     private AutoModeExecutor mAutoModeExecutor;
-    private AutoModeSelector mAutoModeSelector;
+    private AutoModeSelector mAutoModeSelector = new AutoModeSelector();
 
     private LoggingSystem mLogger = LoggingSystem.getInstance();
 
@@ -86,7 +91,6 @@ public class Robot extends TimedRobot {
 
     @Override
     public void robotPeriodic() {
-        outputToSmartDashboard();
         RobotState.getInstance().outputToSmartDashboard();
         mSubsystemManager.outputToSmartDashboard();
         mAutoModeSelector.outputToSmartDashboard();
@@ -116,11 +120,6 @@ public class Robot extends TimedRobot {
             CrashTracker.logThrowableCrash(t);
             throw t;
         }
-    }
-
-    public void outputToSmartDashboard() {
-        RobotState.getInstance().outputToSmartDashboard();
-        mSubsystemManager.outputToSmartDashboard();
     }
 
     @Override
@@ -187,17 +186,52 @@ public class Robot extends TimedRobot {
             double throttle = mControlBoard.getThrottle();
             double turn = mControlBoard.getTurn();
 
-            mDrive.setCheesyishDrive(throttle, -turn, mControlBoard.getQuickTurn());
-
-            if (mControlBoard.getRunIntake()) {
-                mIntake.setState(Intake.WantedAction.INTAKE);
-            } else if (mControlBoard.getRetractIntake()) {
-                mIntake.setState(Intake.WantedAction.RETRACT);
-            } else {
-                mIntake.setState(Intake.WantedAction.NONE);
-            }
+            mDrive.setCheesyishDrive(throttle, turn, mControlBoard.getQuickTurn());
 
             mSuperstructure.setWantFieldRelativeTurret(mControlBoard.getTurretCardinal().rotation);
+
+            if (!climb_mode){ //TODO: turret preset stuff and jog turret and rumbles
+                if (mIndexer.slotsFilled()) {
+                    mControlBoard.setRumble(true);
+                } else {
+                    mControlBoard.setRumble(false);
+                }
+                
+                if (mControlBoard.getShoot()){
+                    mSuperstructure.setWantShoot(true);    
+                } else if (mControlBoard.getSpinUp()) {
+                    mSuperstructure.setWantSpinUp(true);
+                } else if (mControlBoard.getRunIntake()) {
+                    mIntake.setState(Intake.WantedAction.INTAKE);
+                } else if (mControlBoard.getRetractIntake()) {
+                    mIntake.setState(Intake.WantedAction.RETRACT);
+                } else if (mControlBoard.getControlPanelRotation()) {
+                    // mRoller.setState(Roller.WantedAction.ACHIEVE_ROTATION_CONTROL);
+                } else if (mControlBoard.getControlPanelPosition()) {
+                    // mRoller.setState(Roller.WantedAction.ACHIEVE_POSITION_CONTROL);
+                } else {
+                    mIntake.setState(Intake.WantedAction.NONE);
+                } 
+            } else {
+                if (mControlBoard.getArmDeploy()) {
+                    mClimber.setState(Climber.WantedAction.EXTEND);
+                } else if (mControlBoard.getBuddyDeploy()) {
+                    mWrangler.setState(Wrangler.WantedAction.DEPLOY);
+                } else if (mControlBoard.getWrangle()) {
+                    mWrangler.setState(Wrangler.WantedAction.WRANGLE);
+                } else if (mControlBoard.getClimb()) {
+                    mClimber.setState(Climber.WantedAction.CLIMB);
+                } else if (mControlBoard.getSlowClimb()) {
+                    mClimber.setState(Climber.WantedAction.SLOW_CLIMB);
+                } else if (mControlBoard.getLeaveClimbMode()) {
+                    climb_mode = false;
+                }
+            }
+            
+            if (mControlBoard.climbMode()) {
+                climb_mode = true;
+                System.out.println("climb mode");
+            }
 
         } catch (Throwable t) {
             CrashTracker.logThrowableCrash(t);
