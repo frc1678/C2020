@@ -2,18 +2,30 @@ package com.team1678.frc2020.subsystems;
 
 import com.ctre.phoenix.CANifier;
 import com.ctre.phoenix.CANifierStatusFrame;
+import edu.wpi.first.wpilibj.Timer;
 import com.team1678.frc2020.Constants;
+import com.team1678.frc2020.logger.LogStorage;
+import com.team1678.frc2020.logger.LoggingSystem;
+
+import java.util.ArrayList;
 
 public class Canifier extends Subsystem {
     private static Canifier mInstance;
     private CANifier mCanifier;
     private PeriodicInputs mPeriodicInputs;
 
+    LogStorage<PeriodicInputs> mStorage = null;
+
     private Canifier() {
         mCanifier = new CANifier(Constants.kCanifierId);
         mCanifier.setStatusFramePeriod(CANifierStatusFrame.Status_1_General, 100, Constants.kLongCANTimeoutMs);
         mCanifier.setStatusFramePeriod(CANifierStatusFrame.Status_2_General, 2, Constants.kLongCANTimeoutMs);
         mPeriodicInputs = new PeriodicInputs();
+    }
+
+    public void registerLogger(LoggingSystem LS) {
+        LogSetup();
+        LS.register(mStorage, "canifier.csv");
     }
 
     public synchronized static Canifier getInstance() {
@@ -103,7 +115,7 @@ public class Canifier extends Subsystem {
         mPeriodicInputs = new PeriodicInputs();
     }
 
-    private static class PeriodicInputs {
+    private static class PeriodicInputs { 
         public boolean indexer_limit_;
         public boolean turret_limit_;
         public boolean hood_limit_;
@@ -112,5 +124,24 @@ public class Canifier extends Subsystem {
         public boolean left_proxy_;
         public boolean back_right_proxy_;
         public boolean back_left_proxy_;
+    }
+
+    public void LogSetup() {
+        mStorage = new LogStorage<PeriodicInputs>();
+        mStorage.setHeadersFromClass(PeriodicInputs.class);
+    }
+
+    public void LogSend() {
+        ArrayList<Double> items = new ArrayList<Double>();
+        items.add(Timer.getFPGATimestamp());
+        items.add(Double.valueOf(mPeriodicInputs.indexer_limit_? 0.0 : 1.0));
+        items.add(Double.valueOf(mPeriodicInputs.turret_limit_? 0.0 : 1.0));
+        items.add(Double.valueOf(mPeriodicInputs.hood_limit_? 0.0 : 1.0));
+        items.add(Double.valueOf(mPeriodicInputs.front_proxy_? 0.0 : 1.0));
+        items.add(Double.valueOf(mPeriodicInputs.right_proxy_? 0.0 : 1.0));
+        items.add(Double.valueOf(mPeriodicInputs.left_proxy_? 0.0 : 1.0));
+        items.add(Double.valueOf(mPeriodicInputs.back_right_proxy_? 0.0 : 1.0));
+        items.add(Double.valueOf(mPeriodicInputs.back_left_proxy_? 0.0 : 1.0));
+
     }
 }
