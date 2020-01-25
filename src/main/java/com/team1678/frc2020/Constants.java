@@ -51,8 +51,14 @@ public class Constants {
     public static final int kDriveVelocityIZone = 0;
     public static final double kDriveVoltageRampRate = 0.0;
 
-    // drive
+    // climber
+    public static final int kWinchMasterId = 11;
+    public static final int kWinchSlaveId = 12;
 
+    // wrangler
+    public static final int kWranglerId = 13;
+
+    // drive
     public static final int kRightDriveMasterId = 4;
     public static final int kRightDriveSlaveId = 3;
 
@@ -172,6 +178,9 @@ public class Constants {
     public static final double kJoystickThreshold = 0.2;
 
     // solenoids
+    public static final int kArmSolenoidId = 1;
+    public static final int kDeployerSolenoidId = 2;
+    public static final int kBrakeSolenoidId = 3;
     public static final int kPCMId = 20;
     public static final int kDiskBrakeSolenoidId = 0;
     public static final int kPDPId = 21;
@@ -233,7 +242,7 @@ public class Constants {
 
     public static Solenoid makeSolenoidForId(int solenoidId) {
         if (solenoidId < 8) {
-            return new Solenoid(solenoidId);
+            return new Solenoid(kPCMId, solenoidId);
         }
         throw new IllegalArgumentException("Solenoid ID not valid: " + solenoidId);
     }
