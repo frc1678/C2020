@@ -135,14 +135,14 @@ public class Canifier extends Subsystem {
     public void LogSend() {
         ArrayList<Double> items = new ArrayList<Double>();
         items.add(Timer.getFPGATimestamp());
-        items.add(Double.valueOf(mPeriodicInputs.indexer_limit_? 0.0 : 1.0));
-        items.add(Double.valueOf(mPeriodicInputs.turret_limit_? 0.0 : 1.0));
-        items.add(Double.valueOf(mPeriodicInputs.hood_limit_? 0.0 : 1.0));
-        items.add(Double.valueOf(mPeriodicInputs.front_proxy_? 0.0 : 1.0));
-        items.add(Double.valueOf(mPeriodicInputs.right_proxy_? 0.0 : 1.0));
-        items.add(Double.valueOf(mPeriodicInputs.left_proxy_? 0.0 : 1.0));
-        items.add(Double.valueOf(mPeriodicInputs.back_right_proxy_? 0.0 : 1.0));
-        items.add(Double.valueOf(mPeriodicInputs.back_left_proxy_? 0.0 : 1.0));
+        items.add(mPeriodicInputs.indexer_limit_? 0.0 : 1.0);
+        items.add(mPeriodicInputs.turret_limit_? 0.0 : 1.0);
+        items.add(mPeriodicInputs.hood_limit_? 0.0 : 1.0);
+        items.add(mPeriodicInputs.front_proxy_? 0.0 : 1.0);
+        items.add(mPeriodicInputs.right_proxy_? 0.0 : 1.0);
+        items.add(mPeriodicInputs.left_proxy_? 0.0 : 1.0);
+        items.add(mPeriodicInputs.back_right_proxy_? 0.0 : 1.0);
+        items.add(mPeriodicInputs.back_left_proxy_? 0.0 : 1.0);
 
         mStorage.addData(items);
     }
