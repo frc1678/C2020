@@ -5,6 +5,8 @@ import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.team1678.frc2020.Constants;
 import com.team1678.frc2020.loops.ILooper;
 import com.team1678.frc2020.loops.Loop;
+import com.team1678.frc2020.logger.LoggingSystem;
+import com.team1678.frc2020.logger.LogStorage;
 import com.team254.lib.drivers.TalonFXFactory;
 import com.team254.lib.drivers.TalonUtil;
 import com.team254.lib.motion.MotionProfileConstraints;
@@ -19,12 +21,16 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
+import java.util.ArrayList;
+
 /**
  * Abstract base class for a subsystem with a single sensored servo-mechanism.
  */
 public abstract class ServoMotorSubsystem extends Subsystem {
     private static final int kMotionProfileSlot = 0;
     private static final int kPositionPIDSlot = 1;
+
+    LogStorage<PeriodicIO> mStorage = null;
 
     // Recommend initializing in a static block!
     public static class TalonFXConstants {
@@ -215,6 +221,11 @@ public abstract class ServoMotorSubsystem extends Subsystem {
         stop();
     }
 
+    public void registerLogger(LoggingSystem LS) {
+        LogSetup();
+        LS.register(mStorage, "ServoMotorSubsystem.csv");
+    }
+
     public static class PeriodicIO {
         // INPUTS
         public double timestamp;
@@ -240,6 +251,37 @@ public abstract class ServoMotorSubsystem extends Subsystem {
         public double feedforward;
     }
 
+    public void LogSetup() {
+        mStorage = new LogStorage();
+        mStorage.setHeadersFromClass(PeriodicIO.class);
+    }
+
+    public void LogSend() {
+        ArrayList<Double> items = new ArrayList<Double>();
+
+        items.add(Timer.getFPGATimestamp());
+        items.add(mPeriodicIO.position_units);
+        items.add(Double.valueOf(mPeriodicIO.position_ticks));
+        items.add(Double.valueOf(mPeriodicIO.velocity_ticks_per_100ms));
+        items.add(Double.valueOf(mPeriodicIO.active_trajectory_position)); // ticks
+        items.add(Double.valueOf(mPeriodicIO.active_trajectory_velocity)); // ticks/100ms
+        items.add(mPeriodicIO.active_trajectory_acceleration); // ticks/100ms/s
+        items.add(mPeriodicIO.output_percent);
+        items.add(mPeriodicIO.output_voltage);
+        items.add(mPeriodicIO.master_supply_current);
+        items.add(mPeriodicIO.master_stator_current);
+        items.add(mPeriodicIO.error_ticks);
+        items.add(Double.valueOf(mPeriodicIO.encoder_wraps));
+        items.add(mPeriodicIO.absolute_pulse_offset);
+        items.add(mPeriodicIO.absolute_pulse_position);
+        items.add(mPeriodicIO.absolute_pulse_position_modded);
+        items.add(mPeriodicIO.reset_occured? 0.0 : 1.0);
+        items.add(mPeriodicIO.demand);
+        items.add(mPeriodicIO.feedforward);
+
+        mStorage.addData(items);
+    }
+
     protected enum ControlState {
         OPEN_LOOP, MOTION_MAGIC, POSITION_PID, MOTION_PROFILING
     }
@@ -254,6 +296,7 @@ public abstract class ServoMotorSubsystem extends Subsystem {
 
     @Override
     public synchronized void readPeriodicInputs() {
+        LogSend();
         mPeriodicIO.timestamp = Timer.getFPGATimestamp();
 
         if (mMaster.hasResetOccurred()) {
