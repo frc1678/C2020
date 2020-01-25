@@ -7,8 +7,10 @@ import com.team1678.frc2020.loops.ILooper;
 import com.team1678.frc2020.loops.Loop;
 import com.team1678.frc2020.subsystems.Canifier;
 import com.team1678.frc2020.subsystems.Turret;
+import com.team254.lib.drivers.TalonFXFactory;
 import com.team1678.frc2020.planners.IndexerMotionPlanner;
 
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -79,9 +81,15 @@ public class Indexer extends Subsystem {
     private boolean mBackwards = false;
     private int mSlotGoal;
     private boolean mIsAtDeadSpot = false;
+    private DigitalInput mFrontProxy = new DigitalInput(Constants.kFrontIndexerProxy);
+    private DigitalInput mRightProxy = new DigitalInput(Constants.kRightIndexerProxy);
+    private DigitalInput mBackRightProxy = new DigitalInput(Constants.kBackRightIndexerProxy);
+    private DigitalInput mBackLeftProxy = new DigitalInput(Constants.kBackLeftIndexerProxy);
+    private DigitalInput mLeftProxy = new DigitalInput(Constants.kLeftIndexerProxy);
+    private DigitalInput mLimitSwitch = new DigitalInput(Constants.kIndexerLimitSwitch);
 
     private Indexer() {
-        mIndexer = new TalonFX(Constants.kIndexerId);
+        mIndexer = TalonFXFactory.createDefaultTalon(Constants.kIndexerId);
 
         mIndexer.set(ControlMode.Velocity, 0);
         mIndexer.setInverted(false);
@@ -102,6 +110,7 @@ public class Indexer extends Subsystem {
     public synchronized void outputTelemetry() {
         SmartDashboard.putString("IndexerControlMode", mPeriodicIO.indexer_control_mode.name());
         SmartDashboard.putNumber("IndexerSetpoint", mPeriodicIO.indexer_demand);
+        SmartDashboard.putNumber("IndexerAngle", mPeriodicIO.indexer_angle);
 
         SmartDashboard.putBoolean("FrontProxy", mPeriodicIO.front_proxy);
         SmartDashboard.putBoolean("RightProxy", mPeriodicIO.right_proxy);
@@ -305,12 +314,12 @@ public class Indexer extends Subsystem {
 
     @Override
     public synchronized void readPeriodicInputs() {
-        mPeriodicIO.front_proxy = mCanifier.getFrontProxy();
-        mPeriodicIO.right_proxy = mCanifier.getRightProxy();
-        mPeriodicIO.left_proxy = mCanifier.getLeftProxy();
-        mPeriodicIO.back_right_proxy = mCanifier.getBackRightProxy();
-        mPeriodicIO.back_left_proxy = mCanifier.getBackLeftProxy();
-        mPeriodicIO.limit_switch = mCanifier.getIndexerLimit();
+        mPeriodicIO.front_proxy = mFrontProxy.get();
+        mPeriodicIO.right_proxy = mRightProxy.get();
+        mPeriodicIO.left_proxy = mLeftProxy.get();
+        mPeriodicIO.back_right_proxy = mBackRightProxy.get();
+        mPeriodicIO.back_left_proxy = mBackLeftProxy.get();
+        mPeriodicIO.limit_switch = !mLimitSwitch.get();
 
         mPeriodicIO.indexer_angle = mIndexer.getSelectedSensorPosition() / 2048 / kGearRatio * 360;
     }

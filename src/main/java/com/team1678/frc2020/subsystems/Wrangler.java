@@ -72,7 +72,7 @@ public class Wrangler extends Subsystem {
             @Override
             public void onLoop(double timestamp) {
                 synchronized (Wrangler.this) {
-                    runStateMachine(true);
+                    runStateMachine();
                 }
             }
 
@@ -91,30 +91,22 @@ public class Wrangler extends Subsystem {
         return mBuddyClimb;
     }
 
-    public void runStateMachine(boolean modifyOutputs) {
+    public void runStateMachine() {
         switch (mState) {
         case IDLE:
-            if (modifyOutputs) {
-                mPeriodicOutputs.demand = kHoldingVoltage;
-            }
+            mPeriodicOutputs.demand = kHoldingVoltage;
             break;
         case DEPLOYING:
-            if (modifyOutputs) {
-                mPeriodicOutputs.demand = kHoldingVoltage;
-                mPeriodicOutputs.deployer_solenoid = true;
-            }
+            mPeriodicOutputs.demand = kHoldingVoltage;
+            mPeriodicOutputs.deployer_solenoid = true;
             break;
         case WRANGLING:
-            if (modifyOutputs) {
-                mPeriodicOutputs.demand = kWrangleVoltage;
-                mPeriodicOutputs.deployer_solenoid = true;
-            }
+            mPeriodicOutputs.demand = kWrangleVoltage;
+            mPeriodicOutputs.deployer_solenoid = true;
             break;
         case RETRACTING:
-            if (modifyOutputs) {
-                mPeriodicOutputs.demand = kHoldingVoltage;
-                mPeriodicOutputs.deployer_solenoid = false;
-            }
+            mPeriodicOutputs.demand = kHoldingVoltage;
+            mPeriodicOutputs.deployer_solenoid = false;
             break;
         default:
             System.out.println("Fell through on Wrangler states!");
