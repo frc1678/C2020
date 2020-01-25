@@ -92,8 +92,8 @@ public class Drive extends Subsystem {
 
     private void configureMaster(TalonFX talon, boolean left) {
         talon.setStatusFramePeriod(StatusFrameEnhanced.Status_2_Feedback0, 5, 100);
-        final ErrorCode sensorPresent = talon.configSelectedFeedbackSensor(FeedbackDevice
-                .CTRE_MagEncoder_Relative, 0, 100); //primary closed-loop, 100 ms timeout
+        final ErrorCode sensorPresent = talon.configSelectedFeedbackSensor(TalonFXFeedbackDevice
+                .IntegratedSensor, 0, 100); //primary closed-loop, 100 ms timeout
         if (sensorPresent != ErrorCode.OK) {
             DriverStation.reportError("Could not detect " + (left ? "left" : "right") + " encoder: " + sensorPresent, false);
         }
@@ -356,7 +356,6 @@ public class Drive extends Subsystem {
 
     @Override
     public void outputTelemetry() {
-        
         SmartDashboard.putNumber("Right Drive Distance", mPeriodicIO.right_distance);
         SmartDashboard.putNumber("Left Drive Distance", mPeriodicIO.left_distance);
         SmartDashboard.putNumber("Right Linear Velocity", getRightLinearVelocity());
@@ -616,4 +615,5 @@ public class Drive extends Subsystem {
         public double right_feedforward;
         public TimedState<Pose2dWithCurvature> path_setpoint = new TimedState<Pose2dWithCurvature>(Pose2dWithCurvature.identity());
     }
+  
 }

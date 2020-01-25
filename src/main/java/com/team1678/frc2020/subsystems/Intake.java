@@ -1,67 +1,74 @@
 package com.team1678.frc2020.subsystems;
 
+import com.team1678.frc2020.logger.*;
+import com.team1678.frc2020.logger.LogStorage;
 import com.team1678.frc2020.Constants;
 import com.team1678.frc2020.loops.ILooper;
 import com.team1678.frc2020.loops.Loop;
 
 import com.team254.lib.drivers.SparkMaxFactory;
-
 import com.team254.lib.drivers.LazySparkMax;
-import com.team254.lib.util.ReflectingCSVWriter;
 
+import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
+import java.util.ArrayList;
 
 public class Intake extends Subsystem {
-    public static double kIntakingVoltage = 12.0;
-    public static double kOuttakingVoltage = -12.0;
-    public static double kIdleVoltage = 0;
+    private static double kIntakingVoltage = 12.0;
+    private static double kOuttakingVoltage = -12.0;
+    private static double kIdleVoltage = 0;
 
-    public static Intake mInstanceIntake;
+    private static Intake mInstance;
+
+    private Solenoid mDeploySolenoid;
 
     public enum WantedAction {
-        NONE, INTAKE, OUTTAKE,
+        NONE, INTAKE, RETRACT,
     }
+
     public enum State {
-        IDLE, INTAKING, OUTTAKING,
+        IDLE, INTAKING, RETRACTING,
     }
+
     private State mState = State.IDLE;
 
-    private boolean mRunningManual = false;
-
     private static PeriodicIO mPeriodicIO = new PeriodicIO();
-    
+
     private final LazySparkMax mMaster;
 
-    private ReflectingCSVWriter<PeriodicIO> mCSVWriter = null;
-
     public static class PeriodicIO {
-        //INPUTS
+        // INPUTS
         public double timestamp;
         public double current;
-        
-        //OUTPUTS
-        public static double demand;
+
+        // OUTPUTS
+        public double demand;
+        public boolean deploy;
     }
+    LogStorage<PeriodicIO> mStorage = null;
+
 
     private Intake() {
-        mMaster = SparkMaxFactory.createDefaultSparkMax(Constants.kIntakeRollerID);
+        mMaster = SparkMaxFactory.createDefaultSparkMax(Constants.kIntakeRollerId);
+        mDeploySolenoid = Constants.makeSolenoidForId(Constants.kDeploySolenoidId);
+    }
+    public void registerLogger(LoggingSystem LS) {
+        LogSetup();
+        LS.register(mStorage, "intake.csv");
     }
 
     public synchronized static Intake getInstance() {
-        if (mInstanceIntake == null) {
-            mInstanceIntake = new Intake();
+        if (mInstance == null) {
+            mInstance = new Intake();
         }
-        return mInstanceIntake;
+        return mInstance;
     }
 
     @Override
     public synchronized void outputTelemetry() {
         SmartDashboard.putNumber("Intake Current", mPeriodicIO.current);
-
-        if (mCSVWriter != null) {
-            mCSVWriter.write();
-        }
     }
 
     @Override
@@ -79,53 +86,45 @@ public class Intake extends Subsystem {
             @Override
             public void onStart(double timestamp) {
                 // startLogging();
-                mRunningManual = false;
                 mState = State.IDLE;
             }
 
             @Override
             public void onLoop(double timestamp) {
                 synchronized (Intake.this) {
-                    if (mRunningManual) {
-                        runStateMachine(false);
-                        return;
-                    } else {
-                        runStateMachine(true);
-                    }
+                    runStateMachine();
+
                 }
             }
 
             @Override
             public void onStop(double timestamp) {
-                mRunningManual = false;
                 mState = State.IDLE;
                 stop();
-                stopLogging();
             }
         });
     }
 
-    public void runStateMachine(boolean modifyingOutputs) {
+    public synchronized State getState() {
+        return mState;
+    }
+
+    public void runStateMachine() {
         switch (mState) {
         case INTAKING:
-            if (modifyingOutputs) {
                 mPeriodicIO.demand = kIntakingVoltage;
-            }
+                mPeriodicIO.deploy = true;
             break;
-        case OUTTAKING:
-            if (modifyingOutputs) {
-                mPeriodicIO.demand = kOuttakingVoltage;
-            }
+        case RETRACTING:
+                mPeriodicIO.demand = 0;
+                mPeriodicIO.deploy = false;
             break;
         case IDLE:
-            if (modifyingOutputs) {
                 mPeriodicIO.demand = kIdleVoltage;
-            }
         }
     }
 
     public synchronized void setOpenLoop(double percentage) {
-        mRunningManual = true;
         mPeriodicIO.demand = percentage;
     }
 
@@ -134,7 +133,6 @@ public class Intake extends Subsystem {
     }
 
     public void setState(WantedAction wanted_state) {
-        mRunningManual = false;
         switch (wanted_state) {
         case NONE:
             mState = State.IDLE;
@@ -142,8 +140,8 @@ public class Intake extends Subsystem {
         case INTAKE:
             mState = State.INTAKING;
             break;
-        case OUTTAKE:
-            mState = State.OUTTAKING;
+        case RETRACT:
+            mState = State.RETRACTING;
             break;
         }
 
@@ -151,28 +149,29 @@ public class Intake extends Subsystem {
 
     @Override
     public synchronized void readPeriodicInputs() {
-        if (mCSVWriter != null) {
-            mCSVWriter.add(mPeriodicIO);
-        }
+        LogSend();
     }
 
     @Override
     public void writePeriodicOutputs() {
         mMaster.set(mPeriodicIO.demand / 12.0);
+        mDeploySolenoid.set(mPeriodicIO.deploy);
     }
+
     @Override
     public boolean checkSystem() {
         return true;
     }
-    public synchronized void startLogging() {
-        if (mCSVWriter == null) {
-            mCSVWriter = new ReflectingCSVWriter<>("/home/lvuser/INTAKE-LOGS.csv", PeriodicIO.class); 
-        }
+
+    public void LogSetup() {
+        mStorage = new LogStorage<PeriodicIO>();
+        mStorage.setHeadersFromClass(PeriodicIO.class);
     }
-    public synchronized void stopLogging() {
-        if (mCSVWriter != null) {
-            mCSVWriter.flush();
-            mCSVWriter = null;
-        }
+    public void LogSend() {
+        ArrayList<Double> items = new ArrayList<Double>();
+        items.add(Timer.getFPGATimestamp());
+        items.add(mPeriodicIO.current);
+        items.add(mPeriodicIO.demand);  
+        mStorage.addData(items);
     }
- }
+}
