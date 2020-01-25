@@ -6,17 +6,13 @@ import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.ctre.phoenix.sensors.PigeonIMU;
 import com.ctre.phoenix.sensors.PigeonIMU_StatusFrame;
-
 import com.team1678.frc2020.Constants;
 import com.team1678.frc2020.Kinematics;
 import com.team1678.frc2020.RobotState;
 import com.team1678.frc2020.loops.ILooper;
 import com.team1678.frc2020.loops.Loop;
-import com.team1678.frc2020.logger.LoggingSystem;
-import com.team1678.frc2020.logger.LogStorage;
 import com.team1678.frc2020.planners.DriveMotionPlanner;
 import com.team1678.lib.control.PIDController;
-
 import com.team254.lib.drivers.MotorChecker;
 import com.team254.lib.drivers.TalonFXChecker;
 import com.team254.lib.drivers.TalonFXFactory;
@@ -29,11 +25,9 @@ import com.team254.lib.trajectory.timing.TimedState;
 import com.team254.lib.util.DriveSignal;
 import com.team254.lib.util.ReflectingCSVWriter;
 import com.team254.lib.util.Util;
-
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-
 import java.util.ArrayList;
 
 
@@ -59,14 +53,6 @@ public class Drive extends Subsystem {
     
     private boolean mHasResetSteering = false;
     private boolean mStartedResetTimer = false;
-
-    LogStorage<PeriodicIO> mStorage = null;
-
-    public void registerLogger(LoggingSystem LS) {
-        logSetup();
-        LS.register(mStorage, "intake.csv");
-    }
-
 
     private final Loop mLoop = new Loop() {
         @Override
@@ -497,7 +483,6 @@ public class Drive extends Subsystem {
 
     @Override
     public synchronized void readPeriodicInputs() {
-        LogSend();
         mPeriodicIO.timestamp = Timer.getFPGATimestamp();
 
         double prevLeftTicks = mPeriodicIO.left_position_ticks;
@@ -629,39 +614,6 @@ public class Drive extends Subsystem {
         public double left_feedforward;
         public double right_feedforward;
         public TimedState<Pose2dWithCurvature> path_setpoint = new TimedState<Pose2dWithCurvature>(Pose2dWithCurvature.identity());
-    }
-
-    public void logSetup() {
-        mStorage = new LogStorage<PeriodicIO>();
-        mStorage.setHeadersFromClass(PeriodicIO.class);
-    }
-
-    public void LogSend() {
-        ArrayList<Double> items = new ArrayList<Double>();
-        items.add(mPeriodicIO.timestamp);
-
-        // INPUTS
-        items.add(Double.valueOf(mPeriodicIO.left_position_ticks));
-        items.add(Double.valueOf(mPeriodicIO.right_position_ticks));
-        items.add(mPeriodicIO.left_distance);
-        items.add(mPeriodicIO.right_distance);
-        items.add(mPeriodicIO.left_current);
-        items.add(mPeriodicIO.right_current);
-        items.add(Double.valueOf(mPeriodicIO.left_velocity_ticks_per_100ms));
-        items.add(Double.valueOf(mPeriodicIO.right_velocity_ticks_per_100ms));
-        items.add(Double.valueOf(mPeriodicIO.gyro_heading.getDegrees()));
-        items.add(Double.valueOf(mPeriodicIO.error.toString()));
-
-        // OUTPUTS
-        items.add(mPeriodicIO.left_demand);
-        items.add(mPeriodicIO.right_demand);
-        items.add(mPeriodicIO.left_accel);
-        items.add(mPeriodicIO.right_accel);
-        items.add(mPeriodicIO.left_feedforward);
-        items.add(mPeriodicIO.right_feedforward);
-        items.add(Double.valueOf(mPeriodicIO.path_setpoint.toString()));
-
-        mStorage.addData(items);
     }
   
 }
