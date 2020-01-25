@@ -191,7 +191,7 @@ public class GamepadButtonControlBoard {
         return mController.getTrigger(Side.RIGHT);
     }
 
-    public boolean getRunOuttake() {
+    public boolean getRetractIntake() {
         return mController.getTrigger(Side.LEFT);
     }
 }

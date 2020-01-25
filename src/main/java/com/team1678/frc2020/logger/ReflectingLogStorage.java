@@ -17,11 +17,11 @@ public class ReflectingLogStorage<T> extends LogStorage {
     }
     public ArrayList<String> getItemNames() {
         //  create array list to the names of the member variables collected
-    ArrayList<String> getItemNames = new ArrayList<String>();
-        //  For the member variables, get the variable  and add it to the array list
-        for (Field variableName : mVars) {
-            getItemNames.add(variableName.getName());
-        }
+        ArrayList<String> getItemNames = new ArrayList<String>();
+            //  For the member variables, get the variable  and add it to the array list
+            for (Field variableName : mVars) {
+                getItemNames.add(variableName.getName());
+            }
         //  Log item names from array list
         return getItemNames;
     }
