@@ -5,7 +5,6 @@ import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.team1678.frc2020.Constants;
 import com.team1678.frc2020.loops.ILooper;
 import com.team1678.frc2020.loops.Loop;
-import com.team1678.frc2020.subsystems.Canifier;
 import com.team1678.frc2020.subsystems.Turret;
 import com.team254.lib.drivers.TalonFXFactory;
 import com.team1678.frc2020.planners.IndexerMotionPlanner;
@@ -18,7 +17,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 public class Indexer extends Subsystem {
     private static Indexer mInstance = null;
     private IndexerMotionPlanner mMotionPlanner;
-    private Canifier mCanifier = Canifier.getInstance();
     private Turret mTurret = Turret.getInstance();
 
     // private static final double kIndexingVelocity = 120.; // degrees per second
