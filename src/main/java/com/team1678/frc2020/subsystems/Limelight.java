@@ -6,7 +6,6 @@ import com.team1678.frc2020.logger.LoggingSystem;
 import com.team1678.frc2020.logger.LogStorage;
 import com.team1678.frc2020.loops.Loop;
 import com.team1678.frc2020.loops.ILooper;
-import com.team1678.frc2020.RobotState;
 
 import com.team254.lib.geometry.Pose2d;
 import com.team254.lib.geometry.Rotation2d;
