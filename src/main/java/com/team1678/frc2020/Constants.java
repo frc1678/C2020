@@ -63,7 +63,8 @@ public class Constants {
     public static final int kFeederId = 6;
 
     // Intake
-    public static final int kIntakeRollerID = 15;
+    public static final int kIntakeRollerId = 15;
+    public static final int kDeploySolenoidId = 14;
 
     // Color Panel
     public static final int kColorPanelID = 14;
