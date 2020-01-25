@@ -187,7 +187,7 @@ public class Wrangler extends Subsystem {
         ArrayList<Double> items = new ArrayList<Double>();
         items.add(Timer.getFPGATimestamp());
         items.add(PeriodicOutputs.demand);
-        items.add(Double.valueOf(PeriodicOutputs.deployer_solenoid ? 0.0 : 1.0));
+        items.add(PeriodicOutputs.deployer_solenoid ? 0.0 : 1.0);
         mStorage.addData(items);
     }
 }
