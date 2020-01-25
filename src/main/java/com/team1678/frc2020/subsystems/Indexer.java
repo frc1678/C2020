@@ -1,6 +1,7 @@
 package com.team1678.frc2020.subsystems;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.TalonFXFeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.team1678.frc2020.Constants;
 import com.team1678.frc2020.loops.ILooper;
@@ -19,9 +20,8 @@ public class Indexer extends Subsystem {
     private IndexerMotionPlanner mMotionPlanner;
     private Turret mTurret = Turret.getInstance();
 
-    // private static final double kIndexingVelocity = 120.; // degrees per second
     private static final double kZoomingVelocity = 360.;
-    private static final double kGearRatio = 200.; // TODO(Hanson) verify with design
+    private static final double kGearRatio = (60. / 16.) * (160. / 18.);
 
     public static class PeriodicIO {
         // INPUTS
@@ -71,7 +71,7 @@ public class Indexer extends Subsystem {
     private PeriodicIO mPeriodicIO = new PeriodicIO();
     private ProxyStatus mProxyStatus = new ProxyStatus();
     private SlotStatus mSlotStatus = new SlotStatus();
-    private final TalonFX mIndexer;
+    private final TalonFX mMaster;
     private State mState = State.IDLE;
     private double mInitialTime = 0;
     private boolean mStartCounting = false;
@@ -88,12 +88,21 @@ public class Indexer extends Subsystem {
     private DigitalInput mLimitSwitch = new DigitalInput(Constants.kIndexerLimitSwitch);
 
     private Indexer() {
-        mIndexer = TalonFXFactory.createDefaultTalon(Constants.kIndexerId);
+        mMaster = TalonFXFactory.createDefaultTalon(Constants.kIndexerId);
 
-        mIndexer.set(ControlMode.Velocity, 0);
-        mIndexer.setInverted(false);
-        mIndexer.configVoltageCompSaturation(12.0, Constants.kLongCANTimeoutMs);
-        mIndexer.enableVoltageCompensation(true);
+        mMaster.config_kP(0, Constants.kIndexerKp, Constants.kLongCANTimeoutMs);
+        mMaster.config_kI(0, Constants.kIndexerKi, Constants.kLongCANTimeoutMs);
+        mMaster.config_kD(0, Constants.kIndexerKd, Constants.kLongCANTimeoutMs);
+        mMaster.config_kF(0, Constants.kIndexerKf, Constants.kLongCANTimeoutMs);
+
+        mMaster.configSelectedFeedbackSensor(TalonFXFeedbackDevice.IntegratedSensor, 0, Constants.kLongCANTimeoutMs);
+        mMaster.configMotionCruiseVelocity(Constants.kIndexerMaxVelocity);
+        mMaster.configMotionAcceleration(Constants.kIndexerMaxAcceleration);
+
+        mMaster.set(ControlMode.Velocity, 0);
+        mMaster.setInverted(false);
+        mMaster.configVoltageCompSaturation(12.0, Constants.kLongCANTimeoutMs);
+        mMaster.enableVoltageCompensation(true);
 
         mMotionPlanner = new IndexerMotionPlanner();
     }
@@ -136,7 +145,7 @@ public class Indexer extends Subsystem {
 
     @Override
     public void zeroSensors() {
-        mIndexer.setSelectedSensorPosition(0, 0, 10);
+        mMaster.setSelectedSensorPosition(0, 0, 10);
         mHasBeenZeroed = true;
     }
 
@@ -211,7 +220,7 @@ public class Indexer extends Subsystem {
         case IDLE:
             break;
         case INDEXING:
-            mPeriodicIO.indexer_control_mode = ControlMode.Position;
+            mPeriodicIO.indexer_control_mode = ControlMode.MotionMagic;
 
             if (!mSlotStatus.slotsFilled()) {
                 mSlotGoal = mMotionPlanner.findNearestOpenSlot(indexer_angle, mProxyStatus);
@@ -231,7 +240,7 @@ public class Indexer extends Subsystem {
             }            
             break;
         case PREPPING:
-            mPeriodicIO.indexer_control_mode = ControlMode.Position;
+            mPeriodicIO.indexer_control_mode = ControlMode.MotionMagic;
 
             mSlotGoal = mMotionPlanner.findNearestSlot(indexer_angle, turret_angle);
             mPeriodicIO.indexer_demand = mMotionPlanner.findNearestDeadSpot(indexer_angle, turret_angle);
@@ -239,7 +248,7 @@ public class Indexer extends Subsystem {
             mIsAtDeadSpot = mMotionPlanner.isAtDeadSpot(indexer_angle, turret_angle);
             break;
         case REVOLVING:
-            mPeriodicIO.indexer_control_mode = ControlMode.Position;
+            mPeriodicIO.indexer_control_mode = ControlMode.MotionMagic;
 
             if (!mBackwards) {
                 mSlotGoal = mMotionPlanner.findNextSlot(indexer_angle, turret_angle);
@@ -258,7 +267,7 @@ public class Indexer extends Subsystem {
             mPeriodicIO.indexer_demand = mBackwards ? -kZoomingVelocity : kZoomingVelocity;
             break;
         case FEEDING:
-            mPeriodicIO.indexer_control_mode = ControlMode.Position;
+            mPeriodicIO.indexer_control_mode = ControlMode.MotionMagic;
             if (mMotionPlanner.isAtGoal(mSlotGoal, indexer_angle, turret_angle)) {
                 final double now = Timer.getFPGATimestamp();
                 if (!mStartCounting) {
@@ -320,15 +329,15 @@ public class Indexer extends Subsystem {
         mPeriodicIO.left_proxy = mSlot4Proxy.get();
         mPeriodicIO.limit_switch = !mLimitSwitch.get();
 
-        mPeriodicIO.indexer_angle = mIndexer.getSelectedSensorPosition() / 2048 / kGearRatio * 360;
+        mPeriodicIO.indexer_angle = mMaster.getSelectedSensorPosition() / 2048 / kGearRatio * 360;
     }
 
     @Override
     public synchronized void writePeriodicOutputs() {
         if (mPeriodicIO.indexer_control_mode == ControlMode.Velocity) {
-            mIndexer.set(mPeriodicIO.indexer_control_mode, mPeriodicIO.indexer_demand / 10 / 360 * kGearRatio * 2048);
-        } else if (mPeriodicIO.indexer_control_mode == ControlMode.Position) {
-            mIndexer.set(mPeriodicIO.indexer_control_mode, mPeriodicIO.indexer_demand / 360 * kGearRatio * 2048);
+            mMaster.set(mPeriodicIO.indexer_control_mode, (mPeriodicIO.indexer_demand / 10 / 360) * kGearRatio * 2048);
+        } else if (mPeriodicIO.indexer_control_mode == ControlMode.MotionMagic) {
+            mMaster.set(mPeriodicIO.indexer_control_mode, (mPeriodicIO.indexer_demand / 360) * kGearRatio * 2048);
         }
     }
 
