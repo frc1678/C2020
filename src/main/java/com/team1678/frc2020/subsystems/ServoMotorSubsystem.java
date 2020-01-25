@@ -30,7 +30,7 @@ public abstract class ServoMotorSubsystem extends Subsystem {
     private static final int kMotionProfileSlot = 0;
     private static final int kPositionPIDSlot = 1;
 
-    LogStorage mStorage = null;
+    LogStorage<PeriodicIO> mStorage = null;
 
     // Recommend initializing in a static block!
     public static class TalonFXConstants {
@@ -253,32 +253,13 @@ public abstract class ServoMotorSubsystem extends Subsystem {
 
     public void LogSetup() {
         mStorage = new LogStorage();
-        ArrayList<String> columnNames = new ArrayList<String>();
-        columnNames.add("position_ticks");
-        columnNames.add("timestamp");
-        columnNames.add("position_units");
-        columnNames.add("velocity_ticks_per_100ms");
-        columnNames.add("active_trajectory_position"); // ticks
-        columnNames.add("active_trajectory_velocity"); // ticks/100ms
-        columnNames.add("active_trajectory_acceleration"); // ticks/100ms/s
-        columnNames.add("output_percent");
-        columnNames.add("output_voltage");
-        columnNames.add("master_supply_current");
-        columnNames.add("master_stator_current");
-        columnNames.add("error_ticks");
-        columnNames.add("encoder_wraps");
-        columnNames.add("absolute_pulse_offset");
-        columnNames.add("absolute_pulse_position");
-        columnNames.add("absolute_pulse_position_modded");
-        columnNames.add("reset_occured");
-        columnNames.add("demand");
-        columnNames.add("feedforward");
-        mStorage.setHeaders(columnNames);
+        mStorage.setHeadersFromClass(PeriodicIO.class);
     }
 
     public void LogSend() {
         ArrayList<Double> items = new ArrayList<Double>();
-        items.add(mPeriodicIO.timestamp);
+
+        items.add(Timer.getFPGATimestamp());
         items.add(mPeriodicIO.position_units);
         items.add(Double.valueOf(mPeriodicIO.position_ticks));
         items.add(Double.valueOf(mPeriodicIO.velocity_ticks_per_100ms));
@@ -297,6 +278,8 @@ public abstract class ServoMotorSubsystem extends Subsystem {
         items.add(mPeriodicIO.reset_occured? 0.0 : 1.0);
         items.add(mPeriodicIO.demand);
         items.add(mPeriodicIO.feedforward);
+
+        mStorage.addData(items);
     }
 
     protected enum ControlState {
