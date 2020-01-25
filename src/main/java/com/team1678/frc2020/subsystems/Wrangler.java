@@ -12,6 +12,7 @@ import com.team1678.frc2020.logger.LogStorage;
 import com.team254.lib.drivers.TalonFXFactory;
 
 import edu.wpi.first.wpilibj.Solenoid;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import java.util.ArrayList;
@@ -185,7 +186,9 @@ public class Wrangler extends Subsystem {
 
     public void LogSend() {
         ArrayList<Double> items = new ArrayList<Double>();
+        items.add(Timer.getFPGATimestamp());
         items.add(PeriodicOutputs.demand);
         items.add(Double.valueOf(PeriodicOutputs.deployer_solenoid ? 0.0 : 1.0));
+        mStorage.addData(items);
     }
 }
