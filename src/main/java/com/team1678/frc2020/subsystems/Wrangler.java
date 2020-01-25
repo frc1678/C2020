@@ -2,12 +2,19 @@ package com.team1678.frc2020.subsystems;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
+
 import com.team1678.frc2020.Constants;
 import com.team1678.frc2020.loops.ILooper;
 import com.team1678.frc2020.loops.Loop;
+import com.team1678.frc2020.logger.LoggingSystem;
+import com.team1678.frc2020.logger.LogStorage;
+
 import com.team254.lib.drivers.TalonFXFactory;
+
 import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
+import java.util.ArrayList;
 
 public class Wrangler extends Subsystem {
     public static double kWrangleVoltage = -12.;
@@ -19,6 +26,8 @@ public class Wrangler extends Subsystem {
     private final Solenoid mDeployer;
 
     private boolean mBuddyClimb = false;
+
+    LogStorage<PeriodicOutputs> mStorage = null;
 
     public enum WantedAction {
         NONE, DEPLOY, WRANGLE, RETRACT,
@@ -47,8 +56,14 @@ public class Wrangler extends Subsystem {
         mMaster.enableVoltageCompensation(true);
     }
 
+    public void registerLogger(LoggingSystem LS) {
+        LogSetup();
+        LS.register(mStorage, "wrangler.csv");
+    }
+
     @Override
     public synchronized void outputTelemetry() {
+        LogSend();
         SmartDashboard.putNumber("WranglerMotorSetpoint", mPeriodicOutputs.demand);
     }
 
@@ -143,6 +158,7 @@ public class Wrangler extends Subsystem {
 
     @Override
     public synchronized void readPeriodicInputs() {
+        LogSend();
     }
 
     @Override
@@ -158,7 +174,18 @@ public class Wrangler extends Subsystem {
 
     public static class PeriodicOutputs {
         // OUTPUTS
-        public double demand;
-        public boolean deployer_solenoid;
+        public static double demand;
+        public static boolean deployer_solenoid;
+    }
+
+    public void LogSetup() {
+        mStorage = new LogStorage<PeriodicOutputs>();
+        mStorage.setHeadersFromClass(PeriodicOutputs.class);
+    }
+
+    public void LogSend() {
+        ArrayList<Double> items = new ArrayList<Double>();
+        items.add(PeriodicOutputs.demand);
+        items.add(Double.valueOf(PeriodicOutputs.deployer_solenoid ? 0.0 : 1.0));
     }
 }
