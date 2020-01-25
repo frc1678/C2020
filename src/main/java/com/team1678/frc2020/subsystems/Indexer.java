@@ -5,6 +5,8 @@ import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.team1678.frc2020.Constants;
 import com.team1678.frc2020.loops.ILooper;
 import com.team1678.frc2020.loops.Loop;
+import com.team1678.frc2020.logger.LogStorage;
+import com.team1678.frc2020.logger.LoggingSystem;
 import com.team1678.frc2020.subsystems.Canifier;
 import com.team1678.frc2020.subsystems.Turret;
 import com.team254.lib.drivers.TalonFXFactory;
@@ -13,6 +15,8 @@ import com.team1678.frc2020.planners.IndexerMotionPlanner;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
+import java.util.ArrayList;
 
 public class Indexer extends Subsystem {
     private static Indexer mInstance = null;
@@ -88,6 +92,8 @@ public class Indexer extends Subsystem {
     private DigitalInput mLeftProxy = new DigitalInput(Constants.kLeftIndexerProxy);
     private DigitalInput mLimitSwitch = new DigitalInput(Constants.kIndexerLimitSwitch);
 
+    LogStorage<PeriodicIO> mStorage = null;
+
     private Indexer() {
         mIndexer = TalonFXFactory.createDefaultTalon(Constants.kIndexerId);
 
@@ -97,6 +103,11 @@ public class Indexer extends Subsystem {
         mIndexer.enableVoltageCompensation(true);
 
         mMotionPlanner = new IndexerMotionPlanner();
+    }
+
+    public void registerLogger(LoggingSystem LS) {
+        LogSetup();
+        LS.register(mStorage, "indexer.csv");
     }
 
     public synchronized static Indexer getInstance() {
@@ -314,6 +325,7 @@ public class Indexer extends Subsystem {
 
     @Override
     public synchronized void readPeriodicInputs() {
+        LogSend();
         mPeriodicIO.front_proxy = mFrontProxy.get();
         mPeriodicIO.right_proxy = mRightProxy.get();
         mPeriodicIO.left_proxy = mLeftProxy.get();
@@ -336,5 +348,28 @@ public class Indexer extends Subsystem {
     @Override
     public boolean checkSystem() {
         return true;
+    }
+
+    public void LogSetup() {
+        mStorage = new LogStorage<PeriodicIO>();
+        mStorage.setHeadersFromClass(PeriodicIO.class);
+    }
+
+    public void LogSend() {
+        ArrayList<Double> items = new ArrayList<Double>();
+        items.add(Timer.getFPGATimestamp());
+        // INPUTS
+        items.add(Double.valueOf(mPeriodicIO.front_proxy? 0.0 : 1.0));
+        items.add(Double.valueOf(mPeriodicIO.right_proxy? 0.0 : 1.0));
+        items.add(Double.valueOf(mPeriodicIO.left_proxy? 0.0 : 1.0));
+        items.add(Double.valueOf(mPeriodicIO.back_right_proxy? 0.0 : 1.0));
+        items.add(Double.valueOf(mPeriodicIO.back_left_proxy? 0.0 : 1.0));
+        items.add(Double.valueOf(mPeriodicIO.limit_switch? 0.0 : 1.0));
+        items.add(mPeriodicIO.indexer_angle);
+        items.add(mPeriodicIO.turret_angle);
+
+        // OUTPUTS
+        items.add(Double.valueOf(mPeriodicIO.indexer_control_mode.toString()));
+        items.add(mPeriodicIO.indexer_demand);
     }
 }
