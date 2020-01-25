@@ -10,23 +10,26 @@ import com.team254.lib.drivers.SparkMaxFactory;
 import com.team254.lib.drivers.LazySparkMax;
 
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import java.util.ArrayList;
 
 public class Intake extends Subsystem {
-    public static double kIntakingVoltage = 12.0;
-    public static double kOuttakingVoltage = -12.0;
-    public static double kIdleVoltage = 0;
+    private static double kIntakingVoltage = 12.0;
+    private static double kOuttakingVoltage = -12.0;
+    private static double kIdleVoltage = 0;
 
-    public static Intake mInstanceIntake;
+    private static Intake mInstance;
+
+    private Solenoid mDeploySolenoid;
 
     public enum WantedAction {
-        NONE, INTAKE, OUTTAKE,
+        NONE, INTAKE, RETRACT,
     }
 
     public enum State {
-        IDLE, INTAKING, OUTTAKING,
+        IDLE, INTAKING, RETRACTING,
     }
 
     private State mState = State.IDLE;
@@ -42,12 +45,14 @@ public class Intake extends Subsystem {
 
         // OUTPUTS
         public double demand;
+        public boolean deploy;
     }
     LogStorage mStorage = null;
 
 
     private Intake() {
-        mMaster = SparkMaxFactory.createDefaultSparkMax(Constants.kIntakeRollerID);
+        mMaster = SparkMaxFactory.createDefaultSparkMax(Constants.kIntakeRollerId);
+        mDeploySolenoid = Constants.makeSolenoidForId(Constants.kDeploySolenoidId);
     }
     public void registerLogger(LoggingSystem LS) {
         LogSetup();
@@ -55,10 +60,10 @@ public class Intake extends Subsystem {
     }
 
     public synchronized static Intake getInstance() {
-        if (mInstanceIntake == null) {
-            mInstanceIntake = new Intake();
+        if (mInstance == null) {
+            mInstance = new Intake();
         }
-        return mInstanceIntake;
+        return mInstance;
     }
 
     @Override
@@ -108,9 +113,11 @@ public class Intake extends Subsystem {
         switch (mState) {
         case INTAKING:
                 mPeriodicIO.demand = kIntakingVoltage;
+                mPeriodicIO.deploy = true;
             break;
-        case OUTTAKING:
-                mPeriodicIO.demand = kOuttakingVoltage;
+        case RETRACTING:
+                mPeriodicIO.demand = 0;
+                mPeriodicIO.deploy = false;
             break;
         case IDLE:
                 mPeriodicIO.demand = kIdleVoltage;
@@ -133,8 +140,8 @@ public class Intake extends Subsystem {
         case INTAKE:
             mState = State.INTAKING;
             break;
-        case OUTTAKE:
-            mState = State.OUTTAKING;
+        case RETRACT:
+            mState = State.RETRACTING;
             break;
         }
 
@@ -148,6 +155,7 @@ public class Intake extends Subsystem {
     @Override
     public void writePeriodicOutputs() {
         mMaster.set(mPeriodicIO.demand / 12.0);
+        mDeploySolenoid.set(mPeriodicIO.deploy);
     }
 
     @Override
