@@ -41,12 +41,12 @@ public class ControlBoard {
         return mDriveControlBoard.getQuickTurn();
     }
  
-    public boolean getIntake() {
-        return mButtonControlBoard.getIntake();
+    public boolean getRunIntake() {
+        return mButtonControlBoard.getRunIntake();
     }
 
-    public boolean getOuttake() {
-        return mButtonControlBoard.getOuttake();
+    public boolean getRetractIntake() {
+        return mButtonControlBoard.getRetractIntake();
     }
 
     public double getJogTurret() {
@@ -109,8 +109,8 @@ public class ControlBoard {
         return mButtonControlBoard.getTurretCardinal();
     }
 
-    public boolean getExitClimbMode() {
-        return mButtonControlBoard.getExitClimbMode(); 
+    public boolean getLeaveClimbMode() {
+        return mButtonControlBoard.getLeaveClimbMode(); 
     }
 }
    

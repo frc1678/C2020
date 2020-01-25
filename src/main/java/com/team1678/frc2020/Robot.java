@@ -204,20 +204,17 @@ public class Robot extends TimedRobot {
                 }
                 
                 if (mControlBoard.getShoot()){
-                    mIndexer.setState(Indexer.WantedAction.ZOOM);    
-                } else if (mControlBoard.getRevolve()) {
-                    mIndexer.setState(Indexer.WantedAction.REVOLVE);
+                    mSuperstructure.setWantShoot(true);    
                 } else if (mControlBoard.getSpinUp()) {
-                    mShooter.spunUp();
-                } else if (mControlBoard.getIntake()) {
+                    mSuperstructure.setWantSpinUp(true);
+                } else if (mControlBoard.getRunIntake()) {
                     mIntake.setState(Intake.WantedAction.INTAKE);
-                    mIndexer.setState(Indexer.WantedAction.INDEX);
-                } else if (mControlBoard.getOuttake()) {
+                } else if (mControlBoard.getRetractIntake()) {
                     mIntake.setState(Intake.WantedAction.RETRACT);
                 } else if (mControlBoard.getControlPanelRotation()) {
-                    mRoller.setState(Roller.WantedAction.ACHIEVE_ROTATION_CONTROL);
+                    // mRoller.setState(Roller.WantedAction.ACHIEVE_ROTATION_CONTROL);
                 } else if (mControlBoard.getControlPanelPosition()) {
-                    mRoller.setState(Roller.WantedAction.ACHIEVE_POSITION_CONTROL);
+                    // mRoller.setState(Roller.WantedAction.ACHIEVE_POSITION_CONTROL);
                 } else {
                     mIntake.setState(Intake.WantedAction.NONE);
                 } 
@@ -233,7 +230,7 @@ public class Robot extends TimedRobot {
                 } else if (mControlBoard.getSlowClimb()) {
                     mClimber.setState(Climber.WantedAction.SLOW_CLIMB);
                 } else if (mControlBoard.getLeaveClimbMode()) {
-                    mClimber.setState(Climber.WantedAction.NONE);
+                    climb_mode = false;
                 }
             }
             

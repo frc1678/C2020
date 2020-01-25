@@ -149,15 +149,8 @@ public class GamepadButtonControlBoard {
         return mController.getButton(XboxController.Button.X);
     }
 
-    public boolean getExitClimbMode() {
-        boolean dPadIsPressed = false;
-        if (mController.getDPad() == 0 || mController.getDPad() == 90 || mController.getDPad() == 180 || mController.getDPad() == 270){
-            dPadIsPressed = true; 
-        } else if (mController.getDPad() == -1){
-            dPadIsPressed = false;
-        }
- 
-        return dPadIsPressed;
+    public boolean getLeaveClimbMode() {
+        return mController.getDPad() != -1;
     }
 
     public void reset() {
@@ -208,7 +201,6 @@ public class GamepadButtonControlBoard {
     }
 
     // Intake
-
     public boolean getRunIntake() {
         return mController.getTrigger(Side.RIGHT);
     }
@@ -216,4 +208,6 @@ public class GamepadButtonControlBoard {
     public boolean getRetractIntake() {
         return mController.getTrigger(Side.LEFT);
     }
+    
+
 }
