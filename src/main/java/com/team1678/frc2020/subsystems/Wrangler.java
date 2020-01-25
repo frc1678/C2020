@@ -11,7 +11,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Wrangler extends Subsystem {
     public static double kWrangleVoltage = -12.;
-    public static double kHoldingVoltage = -4.;
+    public static double kHoldingVoltage = 0.;
     
     private static Wrangler mInstance;
     private PeriodicOutputs mPeriodicOutputs = new PeriodicOutputs();
