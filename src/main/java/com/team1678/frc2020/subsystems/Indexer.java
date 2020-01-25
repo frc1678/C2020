@@ -6,10 +6,10 @@ import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.team1678.frc2020.Constants;
 import com.team1678.frc2020.loops.ILooper;
 import com.team1678.frc2020.loops.Loop;
-import com.team1678.frc2020.subsystems.Canifier;
 import com.team1678.frc2020.subsystems.Turret;
 import com.team254.lib.drivers.TalonFXFactory;
 import com.team1678.frc2020.planners.IndexerMotionPlanner;
+import com.team1678.lib.util.HallCalibration;
 
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Timer;
@@ -86,6 +86,8 @@ public class Indexer extends Subsystem {
     private DigitalInput mSlot3Proxy = new DigitalInput(Constants.kBackLeftIndexerProxy);
     private DigitalInput mSlot4Proxy = new DigitalInput(Constants.kLeftIndexerProxy);
     private DigitalInput mLimitSwitch = new DigitalInput(Constants.kIndexerLimitSwitch);
+    private HallCalibration calibration = new HallCalibration(0);
+    private double mOffset = 0;
 
     private Indexer() {
         mMaster = TalonFXFactory.createDefaultTalon(Constants.kIndexerId);
@@ -112,6 +114,15 @@ public class Indexer extends Subsystem {
             mInstance = new Indexer();
         }
         return mInstance;
+    }
+
+    public boolean atHomingLocation() {
+        calibration.update(mPeriodicIO.indexer_angle, mPeriodicIO.limit_switch);
+        if (calibration.isCalibrated()) {
+            mOffset = mPeriodicIO.indexer_angle + calibration.getOffset();
+            return true;
+        }
+        return false;
     }
 
     @Override
@@ -330,10 +341,19 @@ public class Indexer extends Subsystem {
         mPeriodicIO.limit_switch = !mLimitSwitch.get();
 
         mPeriodicIO.indexer_angle = mMaster.getSelectedSensorPosition() / 2048 / kGearRatio * 360;
+        if (atHomingLocation() && !mHasBeenZeroed) {
+            mMaster.setSelectedSensorPosition((int) Math.floor(mOffset));
+            mMaster.overrideSoftLimitsEnable(true);
+            System.out.println("Homed!!!");
+            mHasBeenZeroed = true;
+        }
     }
 
     @Override
     public synchronized void writePeriodicOutputs() {
+        if (!mHasBeenZeroed) {
+            mMaster.set(ControlMode.PercentOutput, 0.0);
+        }
         if (mPeriodicIO.indexer_control_mode == ControlMode.Velocity) {
             mMaster.set(mPeriodicIO.indexer_control_mode, (mPeriodicIO.indexer_demand / 10 / 360) * kGearRatio * 2048);
         } else if (mPeriodicIO.indexer_control_mode == ControlMode.MotionMagic) {
