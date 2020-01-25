@@ -48,6 +48,11 @@ public class Limelight extends Subsystem {
         mNetworkTable = NetworkTableInstance.getDefault().getTable(mConstants.kTableName);
     }
 
+    public void registerLogger(LoggingSystem LS) {
+        LogSetup();
+        LS.register(mStorage, "limelight.csv");
+    }
+
     public static Limelight getInstance() {
         if (mInstance == null) {
             mInstance = new Limelight();
@@ -119,6 +124,7 @@ public class Limelight extends Subsystem {
 
     @Override
     public synchronized void readPeriodicInputs() {
+        LogSend();
         mPeriodicIO.latency = mNetworkTable.getEntry("tl").getDouble(0) / 1000.0 + Constants.kImageCaptureLatency;
         mPeriodicIO.givenLedMode = (int) mNetworkTable.getEntry("ledMode").getDouble(1.0);
         mPeriodicIO.givenPipeline = (int) mNetworkTable.getEntry("pipeline").getDouble(0);
