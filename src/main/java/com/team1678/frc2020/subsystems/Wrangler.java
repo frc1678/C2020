@@ -64,7 +64,6 @@ public class Wrangler extends Subsystem {
 
     @Override
     public synchronized void outputTelemetry() {
-        LogSend();
         SmartDashboard.putNumber("WranglerMotorSetpoint", mPeriodicOutputs.demand);
     }
 
