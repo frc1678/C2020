@@ -357,6 +357,7 @@ public class Indexer extends Subsystem {
 
     public void LogSend() {
         ArrayList<Double> items = new ArrayList<Double>();
+        items.add(Timer.getFPGATimestamp());
         // INPUTS
         items.add(Double.valueOf(mPeriodicIO.front_proxy? 0.0 : 1.0));
         items.add(Double.valueOf(mPeriodicIO.right_proxy? 0.0 : 1.0));
