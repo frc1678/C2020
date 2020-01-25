@@ -144,9 +144,7 @@ public class Robot extends TimedRobot {
             throw t;
         }
     }
-
-    // private void manualControl() {}
-
+    
     @Override
     public void teleopInit() {
         try {

@@ -83,7 +83,7 @@ public class Climber extends Subsystem  {
             @Override
             public void onLoop(double timestamp) {
                 synchronized (Climber.this) {
-                    runStateMachine(true);
+                    runStateMachine();
                 }
             }
 
@@ -110,7 +110,7 @@ public class Climber extends Subsystem  {
         mPeriodicIO.demand = percentage;
     }
 
-    public void runStateMachine(boolean modifyOutputs) {
+    public void runStateMachine() {
         switch (mState) {
         case IDLE:
             mPeriodicIO.demand = kHoldingVoltage;
