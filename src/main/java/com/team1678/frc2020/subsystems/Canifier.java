@@ -144,5 +144,6 @@ public class Canifier extends Subsystem {
         items.add(Double.valueOf(mPeriodicInputs.back_right_proxy_? 0.0 : 1.0));
         items.add(Double.valueOf(mPeriodicInputs.back_left_proxy_? 0.0 : 1.0));
 
+        mStorage.addData(items);
     }
 }
