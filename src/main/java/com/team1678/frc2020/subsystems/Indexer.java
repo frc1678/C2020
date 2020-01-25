@@ -81,11 +81,11 @@ public class Indexer extends Subsystem {
     private boolean mBackwards = false;
     private int mSlotGoal;
     private boolean mIsAtDeadSpot = false;
-    private DigitalInput mSlot0Proxy = new DigitalInput(Constants.kFrontIndexerProxy);
-    private DigitalInput mSlot1Proxy = new DigitalInput(Constants.kRightIndexerProxy);
-    private DigitalInput mSlot2Proxy = new DigitalInput(Constants.kBackRightIndexerProxy);
-    private DigitalInput mSlot3Proxy = new DigitalInput(Constants.kBackLeftIndexerProxy);
-    private DigitalInput mSlot4Proxy = new DigitalInput(Constants.kLeftIndexerProxy);
+    private DigitalInput mSlot0Proxy = new DigitalInput(Constants.kSlot0Proxy);
+    private DigitalInput mSlot1Proxy = new DigitalInput(Constants.kSlot1Proxy);
+    private DigitalInput mSlot2Proxy = new DigitalInput(Constants.kSlot2Proxy);
+    private DigitalInput mSlot3Proxy = new DigitalInput(Constants.kSlot3Proxy);
+    private DigitalInput mSlot4Proxy = new DigitalInput(Constants.kSlot4Proxy);
     private DigitalInput mLimitSwitch = new DigitalInput(Constants.kIndexerLimitSwitch);
     private HallCalibration calibration = new HallCalibration(0);
     private double mOffset = 0;
