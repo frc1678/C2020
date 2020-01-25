@@ -81,6 +81,7 @@ public class Canifier extends Subsystem {
 
     @Override
     public synchronized void readPeriodicInputs() {
+        LogSend();
         CANifier.PinValues pins = new CANifier.PinValues();
         mCanifier.getGeneralInputs(pins);
 
