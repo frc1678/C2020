@@ -616,7 +616,7 @@ public class Drive extends Subsystem {
 
     public void LogSend() {
         ArrayList<Double> items = new ArrayList<Double>();
-        items.add(mPeriodicIO.timestamp);
+        items.add(Timer.getFPGATimestamp());
 
         // INPUTS
         items.add(Double.valueOf(mPeriodicIO.left_position_ticks));
