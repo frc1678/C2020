@@ -51,8 +51,17 @@ public class Constants {
     public static final int kDriveVelocityIZone = 0;
     public static final double kDriveVoltageRampRate = 0.0;
 
-    // drive
+    // climber
+    public static final int kWinchMasterId = 11;
+    public static final int kWinchSlaveId = 12;
+    public static final int kArmSolenoidId = 1;
+    public static final int kBrakeSolenoidId = 4;
 
+    // wrangler
+    public static final int kWranglerId = 13;
+    public static final int kWranglerSolenoidId = 3;
+
+    // drive
     public static final int kRightDriveMasterId = 4;
     public static final int kRightDriveSlaveId = 3;
 
@@ -63,13 +72,22 @@ public class Constants {
     public static final int kFeederId = 6;
 
     // Intake
-    public static final int kIntakeRollerID = 15;
+    public static final int kIntakeRollerId = 15;
+    public static final int kDeploySolenoidId = 0;
 
     // Color Panel
     public static final int kColorPanelID = 14;
 
     public static final double kVelocityConversion = 600.0 / 2048.0;
+
     // Indexer
+    public static final int kFrontIndexerProxy = 1;
+    public static final int kRightIndexerProxy = 2;
+    public static final int kBackRightIndexerProxy = 3;
+    public static final int kBackLeftIndexerProxy = 4;
+    public static final int kLeftIndexerProxy = 5;
+    public static final int kIndexerLimitSwitch = 6;
+
     public static final int kIndexerSlots = 5;
     public static final int kAnglePerSlot = 360 / kIndexerSlots;
     public static final double kIndexerDeadband = 0.5; // degrees
@@ -170,9 +188,7 @@ public class Constants {
     public static final int kMainTurnJoystickPort = 0;
     public static final double kJoystickThreshold = 0.2;
 
-    // solenoids
     public static final int kPCMId = 20;
-    public static final int kDiskBrakeSolenoidId = 0;
     public static final int kPDPId = 21;
 
     // limelight
@@ -232,7 +248,7 @@ public class Constants {
 
     public static Solenoid makeSolenoidForId(int solenoidId) {
         if (solenoidId < 8) {
-            return new Solenoid(solenoidId);
+            return new Solenoid(kPCMId, solenoidId);
         }
         throw new IllegalArgumentException("Solenoid ID not valid: " + solenoidId);
     }

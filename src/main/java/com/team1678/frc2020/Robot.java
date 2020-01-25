@@ -1,8 +1,8 @@
 /*----------------------------------------------------------------------------*/
-/* Copyright (c) 2018 FIRST. All Rights Reserved.                                                         */
-/* Open Source Software - may be modified and shared by FRC teams. The code     */
+/* Copyright (c) 2018 FIRST. All Rights Reserved.                             */
+/* Open Source Software - may be modified and shared by FRC teams. The code   */
 /* must be accompanied by the FIRST BSD license file in the root directory of */
-/* the project.                                                                                                                             */
+/* the project.                                                               */
 /*----------------------------------------------------------------------------*/
 
 package com.team1678.frc2020;
@@ -110,7 +110,6 @@ public class Robot extends TimedRobot {
             mLimelight.setLed(Limelight.LedMode.OFF);
             mIntake.registerLogger(mLogger);
             mLogger.registerLoops(mLoggingLooper);
-            mDrive.registerLogger(mLogger);
 
             mTrajectoryGenerator.generateTrajectories();
         } catch (Throwable t) {
@@ -157,7 +156,7 @@ public class Robot extends TimedRobot {
             throw t;
         }
     }
-
+    
     @Override
     public void teleopInit() {
         try {
@@ -192,8 +191,8 @@ public class Robot extends TimedRobot {
 
             if (mControlBoard.getRunIntake()) {
                 mIntake.setState(Intake.WantedAction.INTAKE);
-            } else if (mControlBoard.getRunOuttake()) {
-                mIntake.setState(Intake.WantedAction.OUTTAKE);
+            } else if (mControlBoard.getRetractIntake()) {
+                mIntake.setState(Intake.WantedAction.RETRACT);
             } else {
                 mIntake.setState(Intake.WantedAction.NONE);
             }
