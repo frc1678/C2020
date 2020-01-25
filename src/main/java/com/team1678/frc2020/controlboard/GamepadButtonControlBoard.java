@@ -1,6 +1,8 @@
 package com.team1678.frc2020.controlboard;
 
+import com.team1678.frc2020.Robot;
 import com.team1678.frc2020.Constants;
+import com.team1678.frc2020.controlboard.XboxController.Button;
 import com.team1678.frc2020.controlboard.XboxController.Side;
 import com.team254.lib.geometry.Rotation2d;
 import com.team254.lib.util.Deadband;
@@ -90,52 +92,72 @@ public class GamepadButtonControlBoard {
         return (jog - kDeadband * Math.signum(jog));
     }
 
-    public void setRumble(boolean on) {
+    public void setRumble(boolean on) { //TODO: all 5 power cells indexed
         mController.setRumble(on);
     }
 
-    public boolean getScorePresetLow() {
+    public boolean getSpinUp() {
         return mController.getButton(XboxController.Button.A);
     }
 
-    public boolean getScorePresetMiddle() {
-        return mController.getButton(XboxController.Button.B);
-    }
-
-    public boolean getScorePresetHigh() {
-        return mController.getButton(XboxController.Button.Y);
-    }
-
-    public boolean getScorePresetCargo() {
+    public boolean getRevolve() {
         return mController.getButton(XboxController.Button.X);
     }
 
-    public boolean getPresetStow() {
+    public boolean getShoot() {
+        return mController.getButton(XboxController.Button.B);
+    }
+    
+    public boolean getIntake() {
+        return mController.getTrigger(XboxController.Side.RIGHT);
+    } 
+    
+    public boolean getOuttake(){
+        return mController.getTrigger(XboxController.Side.LEFT);
+    }
+
+    public boolean getControlPanelRotation() {
         return mController.getButton(XboxController.Button.LB);
     }
 
-    public boolean getPickupDiskWall() {
-        return mController.getTrigger(XboxController.Side.RIGHT);
-    }
-
-    public boolean getPickupBallGround() {
+    public boolean getControlPanelPosition() {
         return mController.getButton(XboxController.Button.RB);
     }
 
-    public boolean getToggleHangMode() {
-        return mController.getButton(XboxController.Button.START);
+    public boolean climbMode() {
+        return mController.getButton(XboxController.Button.LB) && mController.getButton(XboxController.Button.RB)  && 
+        mController.getTrigger(XboxController.Side.LEFT) &&  mController.getTrigger(XboxController.Side.RIGHT);
     }
 
-    public boolean getToggleHangModeLow() {
-        return mController.getButton(XboxController.Button.BACK);
+    public boolean getArmDeploy() {
+        return mController.getButton(XboxController.Button.A);
     }
 
-    public double getElevatorThrottle() {
-        double jog = mController.getJoystick(XboxController.Side.RIGHT, XboxController.Axis.Y);
-        if (Deadband.inDeadband(jog, kDeadband)) {
-            return 0.0;
+    public boolean getBuddyDeploy() {
+        return mController.getButton(XboxController.Button.B);
+    }
+
+    public boolean getClimb() {
+        return mController.getButton(XboxController.Button.Y);
+    }
+
+    public boolean getSlowClimb() {
+        return mController.getButton(XboxController.Button.RB);
+    }
+
+    public boolean getWrangle() {
+        return mController.getButton(XboxController.Button.X);
+    }
+
+    public boolean getExitClimbMode() {
+        boolean dPadIsPressed = false;
+        if (mController.getDPad() == 0 || mController.getDPad() == 90 || mController.getDPad() == 180 || mController.getDPad() == 270){
+            dPadIsPressed = true; 
+        } else if (mController.getDPad() == -1){
+            dPadIsPressed = false;
         }
-        return (jog - kDeadband * Math.signum(jog));
+ 
+        return dPadIsPressed;
     }
 
     public void reset() {
