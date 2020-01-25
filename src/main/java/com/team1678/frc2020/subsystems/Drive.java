@@ -356,7 +356,6 @@ public class Drive extends Subsystem {
 
     @Override
     public void outputTelemetry() {
-        
         SmartDashboard.putNumber("Right Drive Distance", mPeriodicIO.right_distance);
         SmartDashboard.putNumber("Left Drive Distance", mPeriodicIO.left_distance);
         SmartDashboard.putNumber("Right Linear Velocity", getRightLinearVelocity());
@@ -616,4 +615,5 @@ public class Drive extends Subsystem {
         public double right_feedforward;
         public TimedState<Pose2dWithCurvature> path_setpoint = new TimedState<Pose2dWithCurvature>(Pose2dWithCurvature.identity());
     }
+  
 }
