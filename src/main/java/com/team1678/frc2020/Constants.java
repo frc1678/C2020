@@ -88,6 +88,13 @@ public class Constants {
     public static final int kSlot4Proxy = 5;
     public static final int kIndexerLimitSwitch = 6;
 
+    public static final double kIndexerKp = .5;
+    public static final double kIndexerKi = 0.;
+    public static final double kIndexerKd = 0.;
+    public static final double kIndexerKf = .05;
+    public static final int kIndexerMaxVelocity = 20000; // ticks / 100ms
+    public static final int kIndexerMaxAcceleration = 40000; // ticks / 100ms / sec
+
     public static final int kIndexerSlots = 5;
     public static final int kAnglePerSlot = 360 / kIndexerSlots;
     public static final double kIndexerDeadband = 0.5; // degrees
