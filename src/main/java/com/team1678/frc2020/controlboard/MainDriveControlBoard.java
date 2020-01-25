@@ -23,11 +23,11 @@ public class MainDriveControlBoard {
     }
 
     public double getThrottle() {
-        return mThrottleStick.getRawAxis(1);
+        return -mThrottleStick.getRawAxis(1);
     }
 
     public double getTurn() {
-        return -mTurnStick.getRawAxis(0);
+        return mTurnStick.getRawAxis(0);
     }
 
     public boolean getQuickTurn() {

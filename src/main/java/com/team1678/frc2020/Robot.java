@@ -75,7 +75,7 @@ public class Robot extends TimedRobot {
     private final RobotStateEstimator mRobotStateEstimator = RobotStateEstimator.getInstance();
 
     private AutoModeExecutor mAutoModeExecutor;
-    private AutoModeSelector mAutoModeSelector;
+    private AutoModeSelector mAutoModeSelector = new AutoModeSelector();
 
     private LoggingSystem mLogger = LoggingSystem.getInstance();
 
@@ -86,7 +86,6 @@ public class Robot extends TimedRobot {
 
     @Override
     public void robotPeriodic() {
-        outputToSmartDashboard();
         RobotState.getInstance().outputToSmartDashboard();
         mSubsystemManager.outputToSmartDashboard();
         mAutoModeSelector.outputToSmartDashboard();
@@ -116,11 +115,6 @@ public class Robot extends TimedRobot {
             CrashTracker.logThrowableCrash(t);
             throw t;
         }
-    }
-
-    public void outputToSmartDashboard() {
-        RobotState.getInstance().outputToSmartDashboard();
-        mSubsystemManager.outputToSmartDashboard();
     }
 
     @Override
@@ -187,7 +181,7 @@ public class Robot extends TimedRobot {
             double throttle = mControlBoard.getThrottle();
             double turn = mControlBoard.getTurn();
 
-            mDrive.setCheesyishDrive(throttle, -turn, mControlBoard.getQuickTurn());
+            mDrive.setCheesyishDrive(throttle, turn, mControlBoard.getQuickTurn());
 
             if (mControlBoard.getRunIntake()) {
                 mIntake.setState(Intake.WantedAction.INTAKE);
