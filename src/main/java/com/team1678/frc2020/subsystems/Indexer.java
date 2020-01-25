@@ -20,7 +20,8 @@ public class Indexer extends Subsystem {
     private IndexerMotionPlanner mMotionPlanner;
     private Turret mTurret = Turret.getInstance();
 
-    private static final double kZoomingVelocity = 360.;
+    private static final double kZoomingVelocity = 720.;
+    private static final double kPassiveIndexingVelocity = 180.;
     private static final double kGearRatio = (60. / 16.) * (160. / 18.);
 
     public static class PeriodicIO {
@@ -61,11 +62,11 @@ public class Indexer extends Subsystem {
     }
 
     public enum WantedAction {
-        NONE, INDEX, PREP, REVOLVE, ZOOM,
+        NONE, INDEX, PASSIVE_INDEX, PREP, REVOLVE, ZOOM,
     }
 
     public enum State {
-        IDLE, INDEXING, PREPPING, REVOLVING, ZOOMING, FEEDING,
+        IDLE, INDEXING, PASSIVE_INDEXING, PREPPING, REVOLVING, ZOOMING, FEEDING,
     }
 
     private PeriodicIO mPeriodicIO = new PeriodicIO();
@@ -250,6 +251,10 @@ public class Indexer extends Subsystem {
                 mPeriodicIO.indexer_demand = mMotionPlanner.findAngleGoal(mSlotGoal, indexer_angle, turret_angle);
             }            
             break;
+        case PASSIVE_INDEXING:
+            mPeriodicIO.indexer_control_mode = ControlMode.Velocity;
+            mPeriodicIO.indexer_demand = mBackwards ? -kPassiveIndexingVelocity : kPassiveIndexingVelocity;
+            break;
         case PREPPING:
             mPeriodicIO.indexer_control_mode = ControlMode.MotionMagic;
 
@@ -314,6 +319,9 @@ public class Indexer extends Subsystem {
             break;
         case INDEX:
             mState = State.INDEXING;
+            break;
+        case PASSIVE_INDEX:
+            mState = State.PASSIVE_INDEXING;
             break;
         case PREP:
             mState = State.PREPPING;
