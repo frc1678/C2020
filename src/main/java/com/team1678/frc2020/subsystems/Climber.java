@@ -11,7 +11,7 @@ import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Climber extends Subsystem  {
-    static Climber mInstance = null;
+    private static Climber mInstance = null;
 
     private static final double kClimbVoltage = 12.;
     private static final double kSlowClimbVoltage = 8.;
