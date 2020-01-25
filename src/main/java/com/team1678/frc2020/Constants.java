@@ -51,17 +51,22 @@ public class Constants {
     public static final int kDriveVelocityIZone = 0;
     public static final double kDriveVoltageRampRate = 0.0;
 
-    // motor IDs
+    // climber
+    public static final int kWinchMasterId = 11;
+    public static final int kWinchSlaveId = 12;
+
+    // wrangler
+    public static final int kWranglerId = 13;
+
+    // drive
+    public static final int kRightDriveMasterId = 4;
+    public static final int kRightDriveSlaveId = 3;
+
     public static final int kLeftDriveMasterId = 1;
     public static final int kLeftDriveSlaveId = 2;
 
-    public static final int kRightDriveMasterId = 3;
-    public static final int kRightDriveSlaveId = 4;
-
-    public static final int kWranglerId = 7;
-    public static final int kWinchMasterId = 8;
-    public static final int kIndexerId = 5; // change
-    public static final int kFeederId = 6; // change
+    public static final int kIndexerId = 5;
+    public static final int kFeederId = 6;
 
     // Intake
     public static final int kIntakeRollerID = 15;
@@ -172,10 +177,12 @@ public class Constants {
     public static final double kJoystickThreshold = 0.2;
 
     // solenoids
-    public static final int kPCMId = 1;
-    public static final int kBrakeSolenoidId = 3;
-    public static final int kArmSolenoidId = 0;
+    public static final int kArmSolenoidId = 1;
     public static final int kDeployerSolenoidId = 2;
+    public static final int kBrakeSolenoidId = 3;
+    public static final int kPCMId = 20;
+    public static final int kDiskBrakeSolenoidId = 0;
+    public static final int kPDPId = 21;
 
     // limelight
     public static final LimelightConstants kTopLimelightConstants = new LimelightConstants();
@@ -234,7 +241,7 @@ public class Constants {
 
     public static Solenoid makeSolenoidForId(int solenoidId) {
         if (solenoidId < 8) {
-            return new Solenoid(Constants.kPCMId, solenoidId);
+            return new Solenoid(kPCMId, solenoidId);
         }
         throw new IllegalArgumentException("Solenoid ID not valid: " + solenoidId);
     }

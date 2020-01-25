@@ -5,6 +5,7 @@ import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.team1678.frc2020.Constants;
 import com.team1678.frc2020.loops.ILooper;
 import com.team1678.frc2020.loops.Loop;
+import com.team254.lib.drivers.TalonFXFactory;
 
 import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -29,6 +30,7 @@ public class Climber extends Subsystem  {
     private State mState = State.IDLE;
 
     private final TalonFX mMaster;
+    private final TalonFX mSlave;
     private final Solenoid mArmSolenoid;
     private Solenoid mBrakeSolenoid;
 
@@ -36,11 +38,15 @@ public class Climber extends Subsystem  {
         mArmSolenoid = Constants.makeSolenoidForId(Constants.kArmSolenoidId);
         mBrakeSolenoid = Constants.makeSolenoidForId(Constants.kBrakeSolenoidId);
 
-        mMaster = new TalonFX(Constants.kWinchMasterId);
+        mMaster = TalonFXFactory.createDefaultTalon(Constants.kWinchMasterId);
         mMaster.set(ControlMode.PercentOutput, 0);
         mMaster.setInverted(false);
         mMaster.configVoltageCompSaturation(12.0, Constants.kLongCANTimeoutMs);
         mMaster.enableVoltageCompensation(true);
+
+        mSlave = TalonFXFactory.createPermanentSlaveTalon(Constants.kWinchSlaveId, Constants.kWinchMasterId);
+        mSlave.setInverted(false);
+        mSlave.follow(mMaster);
     }
 
     public synchronized static Climber getInstance() {
