@@ -47,7 +47,7 @@ public class Intake extends Subsystem {
         public double demand;
         public boolean deploy;
     }
-    LogStorage mStorage = null;
+    LogStorage<PeriodicIO> mStorage = null;
 
 
     private Intake() {
@@ -164,12 +164,8 @@ public class Intake extends Subsystem {
     }
 
     public void LogSetup() {
-        mStorage = new LogStorage();
-        ArrayList<String> columnNames = new ArrayList<String>();
-        columnNames.add("timestamp");
-        columnNames.add("current");
-        columnNames.add("demand");
-        mStorage.setHeaders(columnNames);
+        mStorage = new LogStorage<PeriodicIO>();
+        mStorage.setHeadersFromClass(PeriodicIO.class);
     }
     public void LogSend() {
         ArrayList<Double> items = new ArrayList<Double>();
