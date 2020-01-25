@@ -3,6 +3,8 @@ package com.team1678.frc2020.subsystems;
 import com.team1678.frc2020.Constants;
 import com.team1678.frc2020.loops.ILooper;
 import com.team1678.frc2020.loops.Loop;
+import com.team1678.frc2020.logger.LogStorage;
+import com.team1678.frc2020.logger.LoggingSystem;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.TalonFXControlMode;
@@ -13,6 +15,8 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import com.team254.lib.drivers.TalonFXFactory;
 import com.team254.lib.util.ReflectingCSVWriter;
 import com.team254.lib.util.Util;
+
+import java.util.ArrayList;
 
 public class Shooter extends Subsystem {
     private static Shooter mInstance;
@@ -29,6 +33,8 @@ public class Shooter extends Subsystem {
     private static double kTriggerVelocityConversion = 600.0 / 2048.0;
 
     private static double kShooterTolerance = 600.0;
+
+    LogStorage<PeriodicIO> mStorage = null;
 
     private Shooter() {
         mMaster = TalonFXFactory.createDefaultTalon(Constants.kMasterFlywheelID);
@@ -51,6 +57,11 @@ public class Shooter extends Subsystem {
         mTrigger.setInverted(false); //TODO: check value
         mTrigger.configVoltageCompSaturation(12.0, Constants.kLongCANTimeoutMs);
         mTrigger.enableVoltageCompensation(true);
+    }
+
+    public void registerLogger(LoggingSystem LS) {
+        LogSetup();
+        LS.register(mStorage, "intake.csv");
     }
 
     public synchronized static Shooter mInstance() {
@@ -142,6 +153,7 @@ public class Shooter extends Subsystem {
 
     @Override
     public synchronized void readPeriodicInputs() {
+        LogSend();
         mPeriodicIO.timestamp = Timer.getFPGATimestamp();
         
         mPeriodicIO.flywheel_velocity = mMaster.getSelectedSensorVelocity() * kFlywheelVelocityConversion;
@@ -195,5 +207,31 @@ public class Shooter extends Subsystem {
         //OUTPUTS
         public double flywheel_demand;
         public double trigger_demand;
+    }
+
+    public void LogSetup() {
+        mStorage = new LogStorage<PeriodicIO>();
+        mStorage.setHeadersFromClass(PeriodicIO.class);
+    }
+
+    public void LogSend() {
+        ArrayList<Double> items = new ArrayList<Double>();
+        items.add(Timer.getFPGATimestamp());
+
+        //INPUTS
+        items.add(mPeriodicIO.flywheel_velocity);
+        items.add(mPeriodicIO.flywheel_voltage);
+        items.add(mPeriodicIO.flywheel_current);
+        items.add(mPeriodicIO.flywheel_temperature);
+
+        items.add(mPeriodicIO.trigger_velocity);
+        items.add(mPeriodicIO.trigger_current);
+        items.add(mPeriodicIO.trigger_voltage);
+        items.add(mPeriodicIO.trigger_temperature);
+        
+        //OUTPUTS
+        items.add(mPeriodicIO.flywheel_demand);
+        items.add(mPeriodicIO.trigger_demand);
+
     }
 }
