@@ -234,7 +234,7 @@ public class Constants {
 
     public static Solenoid makeSolenoidForId(int solenoidId) {
         if (solenoidId < 8) {
-            return new Solenoid(solenoidId);
+            return new Solenoid(Constants.kPCMId, solenoidId);
         }
         throw new IllegalArgumentException("Solenoid ID not valid: " + solenoidId);
     }

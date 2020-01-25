@@ -12,7 +12,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 public class Wrangler extends Subsystem {
     public static double kWrangleVoltage = -12.;
     public static double kHoldingVoltage = -4.;
-    public static double kUnwrangleVoltage = 10.;
     
     private static Wrangler mInstance;
     private PeriodicOutputs mPeriodicOutputs = new PeriodicOutputs();
@@ -22,11 +21,11 @@ public class Wrangler extends Subsystem {
     private boolean mBuddyClimb = false;
 
     public enum WantedAction {
-        NONE, DEPLOY, WRANGLE, UNWRANGLE, RETRACT,
+        NONE, DEPLOY, WRANGLE, RETRACT,
     }
 
     public enum State {
-        IDLE, DEPLOYING, WRANGLING, UNWRANGLING, RETRACTING,
+        IDLE, DEPLOYING, WRANGLING, RETRACTING,
     }
 
     private State mState = State.IDLE;
@@ -111,12 +110,6 @@ public class Wrangler extends Subsystem {
                 mPeriodicOutputs.deployer_solenoid = true;
             }
             break;
-        case UNWRANGLING:
-            if (modifyOutputs) {
-                mPeriodicOutputs.demand = kUnwrangleVoltage;
-                mPeriodicOutputs.deployer_solenoid = true;
-            }
-            break;
         case RETRACTING:
             if (modifyOutputs) {
                 mPeriodicOutputs.demand = kHoldingVoltage;
@@ -147,9 +140,6 @@ public class Wrangler extends Subsystem {
             break;
         case WRANGLE:
             mState = State.WRANGLING;
-            break;
-        case UNWRANGLE:
-            mState = State.UNWRANGLING;
             break;
         case RETRACT:
             mState = State.RETRACTING;
