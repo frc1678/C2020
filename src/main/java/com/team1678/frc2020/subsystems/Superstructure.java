@@ -281,34 +281,37 @@ public class Superstructure extends Subsystem {
     }
 
     public synchronized void followSetpoint() {
-        if (mTurretMode == TurretControlModes.OPEN_LOOP) {
-            mTurret.setOpenLoop(mTurretThrottle);
-        } else {
-            mTurret.setSetpointMotionMagic(mTurretSetpoint);
-        }
-
         mHood.setSetpointPositionPID(mHoodSetpoint, mHoodFeedforwardV);
 
-        Indexer.WantedAction indexerAction = Indexer.WantedAction.NONE;
+        Indexer.WantedAction indexerAction = Indexer.WantedAction.PREP;
 
-        if (Intake.getInstance().getState() != Intake.State.IDLE) {
+        if (Intake.getInstance().getState() == Intake.State.INTAKING) {
             indexerAction = Indexer.WantedAction.INDEX;
+            mTurretSetpoint = 180.0;
+            mShooter.setOpenLoop(0, 0);
         }
 
-        if ((mWantsSpinUp && mIndexer.isAtDeadSpot())) {
-            mShooter.setVelocity(mShooterSetpoint);
+        if (mWantsSpinUp && mIndexer.isAtDeadSpot()) {
+            mShooter.setVelocity(1000);
             indexerAction = Indexer.WantedAction.PREP;
         } else if (mWantsShoot) {
-            mShooter.setVelocity(mShooterSetpoint);
+            mShooter.setVelocity(1000);
             if (mShooter.spunUp()) {
                 indexerAction = Indexer.WantedAction.ZOOM;
             } else {
                 indexerAction = Indexer.WantedAction.PREP;
             }
         } else {
-            mShooter.setOpenLoop(0);
+            mShooter.setOpenLoop(0, 0);
         }
+
         mIndexer.setState(indexerAction);
+
+        if (mTurretMode == TurretControlModes.OPEN_LOOP) {
+            mTurret.setOpenLoop(mTurretThrottle);
+        } else {
+            mTurret.setSetpointMotionMagic(mTurretSetpoint);
+        }
     }
 
     public synchronized void setWantAutoAim(Rotation2d field_to_turret_hint, boolean enforce_min_distance,
@@ -323,17 +326,17 @@ public class Superstructure extends Subsystem {
         setWantAutoAim(field_to_turret_hint, false, 500);
     }
 
-    public synchronized void setWantShoot(boolean shoot) {
+    public synchronized void setWantShoot() {
         mWantsSpinUp = false;
-        mWantsShoot = shoot;
+        mWantsShoot = !mWantsShoot;
     }
 
     public synchronized void setWantInnerTarget(boolean inner) {
         mUseInnerTarget = inner;
     }
 
-    public synchronized void setWantSpinUp(boolean spin_up) {
-        mWantsSpinUp = spin_up;
+    public synchronized void setWantSpinUp() {
+        mWantsSpinUp = !mWantsSpinUp;
         mWantsShoot = false;
     }
 
