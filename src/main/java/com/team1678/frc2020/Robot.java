@@ -101,8 +101,17 @@ public class Robot extends TimedRobot {
         try {
             CrashTracker.logRobotInit();
 
-            mSubsystemManager.setSubsystems(mRobotStateEstimator, mDrive, mLimelight, mIntake, mSuperstructure,
-                    mTurret);
+            mSubsystemManager.setSubsystems(
+                mRobotStateEstimator, 
+                mDrive, 
+                mLimelight, 
+                mIntake, 
+                mIndexer, 
+                mWrangler, 
+                mShooter,
+                mSuperstructure,
+                mTurret
+            );
 
             mSubsystemManager.registerEnabledLoops(mEnabledLooper);
             mSubsystemManager.registerDisabledLoops(mDisabledLooper);
@@ -192,15 +201,15 @@ public class Robot extends TimedRobot {
 
             if (!climb_mode){ //TODO: turret preset stuff and jog turret and rumbles
                 if (mIndexer.slotsFilled()) {
-                    mControlBoard.setRumble(true);
+                    mControlBoard.setRumble(false);
                 } else {
                     mControlBoard.setRumble(false);
                 }
                 
                 if (mControlBoard.getShoot()){
-                    mSuperstructure.setWantShoot(true);    
+                    mSuperstructure.setWantShoot();    
                 } else if (mControlBoard.getSpinUp()) {
-                    mSuperstructure.setWantSpinUp(true);
+                    mSuperstructure.setWantSpinUp();
                 } else if (mControlBoard.getRunIntake()) {
                     mIntake.setState(Intake.WantedAction.INTAKE);
                 } else if (mControlBoard.getRetractIntake()) {

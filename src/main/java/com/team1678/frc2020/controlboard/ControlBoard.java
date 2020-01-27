@@ -3,12 +3,12 @@ package com.team1678.frc2020.controlboard;
 import com.team1678.frc2020.Constants;
 import com.team1678.frc2020.controlboard.GamepadButtonControlBoard;
 import com.team1678.frc2020.controlboard.GamepadButtonControlBoard.TurretCardinal;
-import com.team1678.frc2020.controlboard.XboxController.Side;
+import com.team1678.frc2020.controlboard.CustomXboxController.Side;
 
 public class ControlBoard {
     private static ControlBoard mInstance = null;
 
-    private XboxController mController;
+    private CustomXboxController mController;
     
     public static ControlBoard getInstance() {
         if (mInstance == null) {
@@ -101,8 +101,9 @@ public class ControlBoard {
 
     
     public boolean climbMode() {
-        return mController.getButton(XboxController.Button.LB) && mController.getButton(XboxController.Button.RB)  && 
-        mController.getTrigger(XboxController.Side.LEFT) &&  mController.getTrigger(XboxController.Side.RIGHT);
+        return mButtonControlBoard.climbMode();
+        //return mController.getButton(XboxController.Button.LB) && mController.getButton(XboxController.Button.RB)  && 
+        //mController.getTrigger(XboxController.Side.LEFT) &&  mController.getTrigger(XboxController.Side.RIGHT);
     }
 
     public TurretCardinal getTurretCardinal() {
