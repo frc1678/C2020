@@ -20,7 +20,7 @@ import com.team1678.lib.util.HallCalibration;
 public class Turret extends ServoMotorSubsystem {
     private static Turret mInstance;
     private LatchedBoolean mJustReset = new LatchedBoolean();
-    private boolean mHoming = true;
+    private boolean mHoming = false;
     public static final boolean kUseManualHomingRoutine = false;
     private HallCalibration calibration = new HallCalibration(0);
     private double mOffset = 0;

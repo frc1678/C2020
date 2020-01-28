@@ -243,7 +243,7 @@ public class Constants {
     public static final double kShooterF = 0.05;
 
 
-    public static final double kTriggerRPM = 1000.0;
+    public static final double kTriggerRPM = 6000.0;
 
     public static final double kMaxTopLimelightHeight = 16.0;
 

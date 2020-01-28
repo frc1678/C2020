@@ -115,7 +115,7 @@ public class Intake extends Subsystem {
                 mPeriodicIO.deploy = true;
             break;
         case RETRACTING:
-                mPeriodicIO.demand = 0;
+                mPeriodicIO.demand = 12;
                 mPeriodicIO.deploy = false;
             break;
         case IDLE:

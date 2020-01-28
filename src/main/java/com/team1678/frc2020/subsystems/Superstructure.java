@@ -54,6 +54,7 @@ public class Superstructure extends Subsystem {
     private double mTurretSetpoint = 0.0;
     private double mHoodSetpoint = 0.0;
     private double mShooterSetpoint = 0.0;
+    private boolean mGotSpunUp = false;
 
     private TurretControlModes mTurretMode = TurretControlModes.FIELD_RELATIVE;
 
@@ -301,10 +302,13 @@ public class Superstructure extends Subsystem {
             indexerAction = Indexer.WantedAction.PREP;
         } else if (mWantsShoot) {
             mShooter.setVelocity(1000);
-            if (mShooter.spunUp()) {
+            if (mShooter.spunUp() || mGotSpunUp) {
                 indexerAction = Indexer.WantedAction.ZOOM;
             } else {
                 indexerAction = Indexer.WantedAction.PREP;
+            }
+            if (mShooter.spunUp()) {
+                mGotSpunUp = true;
             }
         } else {
             mShooter.setOpenLoop(0, 0);
@@ -334,6 +338,7 @@ public class Superstructure extends Subsystem {
     public synchronized void setWantShoot() {
         mWantsSpinUp = false;
         mWantsShoot = !mWantsShoot;
+        mGotSpunUp = false;
     }
 
     public synchronized void setWantInnerTarget(boolean inner) {

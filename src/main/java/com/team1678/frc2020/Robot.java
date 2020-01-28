@@ -35,6 +35,7 @@ import com.team254.lib.util.*;
 import com.team254.lib.vision.AimingParameters;
 import com.team254.lib.geometry.Rotation2d;
 import com.team1678.frc2020.subsystems.RobotStateEstimator;
+import com.team1678.frc2020.subsystems.Indexer.WantedAction;
 import com.team254.lib.geometry.Pose2d;
 import com.team254.lib.geometry.Rotation2d;
 import com.team254.lib.util.CrashTracker;
@@ -199,6 +200,11 @@ public class Robot extends TimedRobot {
 
             mSuperstructure.setWantFieldRelativeTurret(mControlBoard.getTurretCardinal().rotation);
 
+            if (mControlBoard.climbMode()) {
+                climb_mode = true;
+                System.out.println("climb mode");
+            }
+
             if (!climb_mode){ //TODO: turret preset stuff and jog turret and rumbles
                 if (mIndexer.slotsFilled()) {
                     mControlBoard.setRumble(false);
@@ -218,12 +224,18 @@ public class Robot extends TimedRobot {
                 } else if (mControlBoard.getControlPanelRotation()) {
                     mIntake.setState(Intake.WantedAction.INTAKE);
                     mSuperstructure.setAutoIndex(false);
+                    mIndexer.setBackwardsMode(false);
                 } else if (mControlBoard.getControlPanelPosition()) {
                     // mRoller.setState(Roller.WantedAction.ACHIEVE_POSITION_CONTROL);
+                    mIntake.setState(Intake.WantedAction.INTAKE);
+                    mSuperstructure.setAutoIndex(false);
+                    mIndexer.setBackwardsMode(true);
                 } else {
                     mIntake.setState(Intake.WantedAction.NONE);
                 } 
             } else {
+                mIndexer.setState(WantedAction.PREP);
+                mIntake.setState(Intake.WantedAction.NONE);
                 if (mControlBoard.getArmDeploy()) {
                     mClimber.setState(Climber.WantedAction.EXTEND);
                 } else if (mControlBoard.getBuddyDeploy()) {
@@ -236,14 +248,10 @@ public class Robot extends TimedRobot {
                     mClimber.setState(Climber.WantedAction.SLOW_CLIMB);
                 } else if (mControlBoard.getLeaveClimbMode()) {
                     climb_mode = false;
+                } else {
+                    mWrangler.setState(Wrangler.WantedAction.NONE);
                 }
             }
-            
-            if (mControlBoard.climbMode()) {
-                climb_mode = true;
-                System.out.println("climb mode");
-            }
-
         } catch (Throwable t) {
             CrashTracker.logThrowableCrash(t);
             throw t;

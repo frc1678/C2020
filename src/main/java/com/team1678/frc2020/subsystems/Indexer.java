@@ -10,6 +10,7 @@ import com.team1678.frc2020.loops.ILooper;
 import com.team1678.frc2020.loops.Loop;
 import com.team1678.frc2020.subsystems.Turret;
 import com.team254.lib.drivers.TalonFXFactory;
+import com.team254.lib.util.Util;
 import com.team1678.frc2020.planners.IndexerMotionPlanner;
 import com.team1678.lib.util.HallCalibration;
 
@@ -22,7 +23,7 @@ public class Indexer extends Subsystem {
     private IndexerMotionPlanner mMotionPlanner;
     private Turret mTurret = Turret.getInstance();
 
-    private static final double kZoomingVelocity = 60.;
+    private static final double kZoomingVelocity = 15.;
     private static final double kPassiveIndexingVelocity = 45.0;
     private static final double kGearRatio = (60. / 16.) * (160. / 16.);
 
@@ -59,7 +60,6 @@ public class Indexer extends Subsystem {
     private boolean mHasBeenZeroed = false;
     private boolean mBackwards = false;
     private int mSlotGoal;
-    private boolean mIsAtDeadSpot = false;
     private DigitalInput mSlot0Proxy = new DigitalInput(Constants.kSlot0Proxy);
     private DigitalInput mSlot1Proxy = new DigitalInput(Constants.kSlot1Proxy);
     private DigitalInput mSlot2Proxy = new DigitalInput(Constants.kSlot2Proxy);
@@ -68,6 +68,7 @@ public class Indexer extends Subsystem {
     private DigitalInput mLimitSwitch = new DigitalInput(Constants.kIndexerLimitSwitch);
     private HallCalibration calibration = new HallCalibration(0);
     private double mOffset = 0;
+    private double mAngleGoal = 0;
 
     private Indexer() {
         mMaster = TalonFXFactory.createDefaultTalon(Constants.kIndexerId);
@@ -206,24 +207,20 @@ public class Indexer extends Subsystem {
         case INDEXING:
             mPeriodicIO.indexer_control_mode = ControlMode.MotionMagic;
 
-            if (true) {
-                if (!mGeneratedGoal) {
-                    mSlotGoal = mMotionPlanner.findNearestOpenSlot(indexer_angle);
-                    mGeneratedGoal = true;
-                }
-                mPeriodicIO.indexer_demand = mMotionPlanner.findAngleGoal(mSlotGoal, indexer_angle, 0);
+            if (!mGeneratedGoal) {
+                mSlotGoal = mMotionPlanner.findNearestOpenSlot(indexer_angle);
+                mGeneratedGoal = true;
+            }
+            mPeriodicIO.indexer_demand = mMotionPlanner.findAngleGoal(mSlotGoal, indexer_angle, 0);
 
-                if (mMotionPlanner.isAtGoal(mSlotGoal, indexer_angle, 0)) {
-                    if (mCleanSlots[mSlotGoal]) {
-                        mGeneratedGoal = false;
-                        //mSlotGoal = mMotionPlanner.findNearestOpenSlot(indexer_angle, mProxyStatus);
-                        //mPeriodicIO.indexer_demand = mMotionPlanner.findAngleGoalToIntake(mSlotGoal, indexer_angle);
-                    }   
-                }                 
-            } else {
-                mSlotGoal = mMotionPlanner.findNearestSlot(indexer_angle, turret_angle);
-                mPeriodicIO.indexer_demand = mMotionPlanner.findAngleGoal(mSlotGoal, indexer_angle, turret_angle);
-            }            
+            if (mMotionPlanner.isAtGoal(mSlotGoal, indexer_angle, 0)) {
+                if (mCleanSlots[mSlotGoal]) {
+                    mGeneratedGoal = false;
+                    // mSlotGoal = mMotionPlanner.findNearestOpenSlot(indexer_angle, mProxyStatus);
+                    // mPeriodicIO.indexer_demand = mMotionPlanner.findAngleGoalToIntake(mSlotGoal,
+                    // indexer_angle);
+                }
+            }
             break;
         case PASSIVE_INDEXING:
             mPeriodicIO.indexer_control_mode = ControlMode.Velocity;
@@ -337,6 +334,7 @@ public class Indexer extends Subsystem {
     public synchronized void writePeriodicOutputs() {        
         if (mPeriodicIO.indexer_control_mode == ControlMode.Velocity) {
             mMaster.selectProfileSlot(1, 0);
+            System.out.println("Real demand: " + mPeriodicIO.indexer_demand);
             mMaster.set(mPeriodicIO.indexer_control_mode, (mPeriodicIO.indexer_demand / 600.0) * kGearRatio * 2048.0);
         } else if (mPeriodicIO.indexer_control_mode == ControlMode.MotionMagic) {
             mMaster.selectProfileSlot(0, 0);
