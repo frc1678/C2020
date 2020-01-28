@@ -212,10 +212,12 @@ public class Robot extends TimedRobot {
                     mSuperstructure.setWantSpinUp();
                 } else if (mControlBoard.getRunIntake()) {
                     mIntake.setState(Intake.WantedAction.INTAKE);
+                    mSuperstructure.setAutoIndex(true);
                 } else if (mControlBoard.getRetractIntake()) {
                     mIntake.setState(Intake.WantedAction.RETRACT);
                 } else if (mControlBoard.getControlPanelRotation()) {
-                    // mRoller.setState(Roller.WantedAction.ACHIEVE_ROTATION_CONTROL);
+                    mIntake.setState(Intake.WantedAction.INTAKE);
+                    mSuperstructure.setAutoIndex(false);
                 } else if (mControlBoard.getControlPanelPosition()) {
                     // mRoller.setState(Roller.WantedAction.ACHIEVE_POSITION_CONTROL);
                 } else {

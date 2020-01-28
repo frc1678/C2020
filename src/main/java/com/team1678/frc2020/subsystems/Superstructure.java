@@ -26,6 +26,7 @@ public class Superstructure extends Subsystem {
     private final Hood mHood = Hood.getInstance();
     private final Indexer mIndexer = Indexer.getInstance();
     private final RobotState mRobotState = RobotState.getInstance();
+    private boolean mAutoIndex = false;
 
     private Rotation2d mFieldRelativeTurretGoal = null;
 
@@ -286,7 +287,11 @@ public class Superstructure extends Subsystem {
         Indexer.WantedAction indexerAction = Indexer.WantedAction.PREP;
 
         if (Intake.getInstance().getState() == Intake.State.INTAKING) {
-            indexerAction = Indexer.WantedAction.INDEX;
+            if (mAutoIndex) {
+                indexerAction = Indexer.WantedAction.INDEX;
+            } else {
+                indexerAction = Indexer.WantedAction.PASSIVE_INDEX;
+            }
             mTurretSetpoint = 180.0;
             mShooter.setOpenLoop(0, 0);
         }
@@ -338,6 +343,10 @@ public class Superstructure extends Subsystem {
     public synchronized void setWantSpinUp() {
         mWantsSpinUp = !mWantsSpinUp;
         mWantsShoot = false;
+    }
+
+    public synchronized void setAutoIndex(boolean auto_index) {
+        mAutoIndex = auto_index;
     }
 
     public synchronized void setWantFieldRelativeTurret(Rotation2d field_to_turret) {
