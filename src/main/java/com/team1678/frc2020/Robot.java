@@ -95,6 +95,7 @@ public class Robot extends TimedRobot {
         RobotState.getInstance().outputToSmartDashboard();
         mSubsystemManager.outputToSmartDashboard();
         mAutoModeSelector.outputToSmartDashboard();
+        mEnabledLooper.outputToSmartDashboard();
     }
 
     @Override
@@ -111,7 +112,8 @@ public class Robot extends TimedRobot {
                 mWrangler, 
                 mShooter,
                 mSuperstructure,
-                mTurret
+                mTurret,
+                mInfrastructure
             );
 
             mSubsystemManager.registerEnabledLoops(mEnabledLooper);

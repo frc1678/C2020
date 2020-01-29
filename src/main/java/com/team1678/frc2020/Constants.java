@@ -16,7 +16,7 @@ import java.util.Enumeration;
  * constants as well as constants determined through calibration.
  */
 public class Constants {
-    public static final double kLooperDt = 0.02;
+    public static final double kLooperDt = 0.01;
     public static final boolean kDebuggingOutput = false;
 
     /* I/O */
