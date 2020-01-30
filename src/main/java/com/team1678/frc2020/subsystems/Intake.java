@@ -16,8 +16,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import java.util.ArrayList;
 
 public class Intake extends Subsystem {
-    private static double kIntakingVoltage = 12.0;
-    private static double kOuttakingVoltage = -12.0;
+    private static double kIntakingVoltage = -12.0;
     private static double kIdleVoltage = 0;
 
     private static Intake mInstance;
@@ -116,7 +115,7 @@ public class Intake extends Subsystem {
                 mPeriodicIO.deploy = true;
             break;
         case RETRACTING:
-                mPeriodicIO.demand = 0;
+                mPeriodicIO.demand = 12;
                 mPeriodicIO.deploy = false;
             break;
         case IDLE:
