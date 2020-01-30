@@ -12,7 +12,6 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import com.team254.lib.drivers.TalonFXFactory;
-import com.team254.lib.util.ReflectingCSVWriter;
 import com.team254.lib.util.Util;
 
 import java.util.ArrayList;
@@ -60,7 +59,7 @@ public class Shooter extends Subsystem {
 
     public void registerLogger(LoggingSystem LS) {
         LogSetup();
-        LS.register(mStorage, "intake.csv");
+        LS.register(mStorage, "shooter.csv");
     }
 
     public synchronized static Shooter mInstance() {
@@ -69,8 +68,6 @@ public class Shooter extends Subsystem {
         }
         return mInstance;
     }
-
-    private ReflectingCSVWriter<PeriodicIO> mCSVWriter = null;
 
     @Override
     public synchronized void outputTelemetry() {
@@ -84,10 +81,6 @@ public class Shooter extends Subsystem {
         SmartDashboard.putNumber("Trigger Current", mPeriodicIO.trigger_current);
         SmartDashboard.putNumber("Trigger Goal", mPeriodicIO.trigger_demand);
         SmartDashboard.putNumber("Trigger Temperature", mPeriodicIO.trigger_temperature);
-
-        if (mCSVWriter != null) {
-            mCSVWriter.write();
-        }
     }
 
     @Override
