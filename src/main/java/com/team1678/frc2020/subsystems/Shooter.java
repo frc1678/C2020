@@ -44,7 +44,7 @@ public class Shooter extends Subsystem {
         mMaster.config_kP(0, Constants.kShooterP, Constants.kLongCANTimeoutMs);
         mMaster.config_kI(0, Constants.kShooterI, Constants.kLongCANTimeoutMs);
         mMaster.config_kD(0, Constants.kShooterD, Constants.kLongCANTimeoutMs);
-        mMaster.config_kD(0, Constants.kShooterD, Constants.kLongCANTimeoutMs);
+        mMaster.config_kF(0, Constants.kShooterF, Constants.kLongCANTimeoutMs);
 
 
         mSlave.follow(mMaster);
