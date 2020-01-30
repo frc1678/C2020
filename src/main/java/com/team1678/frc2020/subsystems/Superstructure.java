@@ -79,7 +79,7 @@ public class Superstructure extends Subsystem {
                 synchronized (Superstructure.this) {
                     mTurretMode = TurretControlModes.FIELD_RELATIVE;
                     if (SuperstructureConstants.kUseSmartdashboard) {
-                        SmartDashboard.putNumber("Shooting RPM", mShooter.getShooterRPM()
+                        SmartDashboard.putNumber("Shooting RPM", mShooter.getShooterRPM());
                         SmartDashboard.putNumber("Hood Angle", mHood.getAngle());
                     }
                 }
