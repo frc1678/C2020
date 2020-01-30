@@ -102,7 +102,7 @@ public class Constants {
     public static final int kAnglePerSlot = 360 / kIndexerSlots;
     public static final double kIndexerDeadband = 5.; // degrees
 
-    public static final double kIndexerOscillationInterval = 3000.; // ms
+    public static final double kIndexerOscillationInterval = 2.; // seconds
 
     public static final double kTestEpsilon = 1e-6;
 
