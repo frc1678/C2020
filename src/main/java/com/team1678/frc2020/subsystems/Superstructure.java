@@ -120,6 +120,8 @@ public class Superstructure extends Subsystem {
     private double getShootingSetpointRpm(double range) {
         if (SuperstructureConstants.kUseFlywheelAutoAimPolynomial) {
             return SuperstructureConstants.kFlywheelAutoAimPolynomial.predict(range);
+        } else if (SuperstructureConstants.kUseSmartdashboard) {
+            return SmartDashboard.getNumber("shooting RPM",0);
         } else {
             return SuperstructureConstants.kFlywheelAutoAimMap.getInterpolated(new InterpolatingDouble(range)).value;
         }
@@ -128,7 +130,9 @@ public class Superstructure extends Subsystem {
     private double getHoodSetpointAngle(double range) {
         if (SuperstructureConstants.kUseHoodAutoAimPolynomial) {
             return SuperstructureConstants.kHoodAutoAimPolynomial.predict(range);
-        } else {
+        } else if (SuperstructureConstants.kUseSmartdashboard) {
+            return SmartDashboard.getNumber("hood RPM", 0);
+        }else {
             return SuperstructureConstants.kHoodAutoAimMap.getInterpolated(new InterpolatingDouble(range)).value;
         }
     }
