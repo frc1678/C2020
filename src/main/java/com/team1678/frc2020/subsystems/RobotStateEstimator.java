@@ -66,7 +66,7 @@ public class RobotStateEstimator extends Subsystem {
             mRobotState.addVehicleToTurretObservation(timestamp,
                     Rotation2d.fromDegrees(Turret.getInstance().getAngle()));
             mRobotState.addObservations(timestamp, odometry_twist, measured_velocity, predicted_velocity);
-            mRobotState.addVehicleToHoodObservation(timestamp, Hood.getInstance().getAngle());
+            mRobotState.addVehicleToHoodObservation(timestamp, Rotation2d.fromDegrees(Hood.getInstance().getAngle()));
             left_encoder_prev_distance_ = left_distance;
             right_encoder_prev_distance_ = right_distance;
             prev_heading_ = gyro_angle;

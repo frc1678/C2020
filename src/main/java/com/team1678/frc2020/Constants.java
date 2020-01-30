@@ -188,6 +188,8 @@ public class Constants {
         kHoodConstants.kMaxVoltage = 12.0;
     }
 
+    public static final double kHoodRadius = 7; // radius of hood
+
     // pigeon
     public static final int kPigeonIMUId = 16;
 
