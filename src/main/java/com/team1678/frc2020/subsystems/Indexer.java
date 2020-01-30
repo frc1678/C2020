@@ -395,12 +395,12 @@ public class Indexer extends Subsystem {
         ArrayList<Double> items = new ArrayList<Double>();
         items.add(Timer.getFPGATimestamp());
         // INPUTS
-        items.add(Double.valueOf(mPeriodicIO.front_proxy? 0.0 : 1.0));
-        items.add(Double.valueOf(mPeriodicIO.right_proxy? 0.0 : 1.0));
-        items.add(Double.valueOf(mPeriodicIO.left_proxy? 0.0 : 1.0));
-        items.add(Double.valueOf(mPeriodicIO.back_right_proxy? 0.0 : 1.0));
-        items.add(Double.valueOf(mPeriodicIO.back_left_proxy? 0.0 : 1.0));
-        items.add(Double.valueOf(mPeriodicIO.limit_switch? 0.0 : 1.0));
+        items.add(mPeriodicIO.front_proxy? 0.0 : 1.0);
+        items.add(mPeriodicIO.right_proxy? 0.0 : 1.0);
+        items.add(mPeriodicIO.left_proxy? 0.0 : 1.0);
+        items.add(mPeriodicIO.back_right_proxy? 0.0 : 1.0);
+        items.add(mPeriodicIO.back_left_proxy? 0.0 : 1.0);
+        items.add(mPeriodicIO.limit_switch? 0.0 : 1.0);
         items.add(mPeriodicIO.indexer_angle);
         items.add(mPeriodicIO.turret_angle);
 
