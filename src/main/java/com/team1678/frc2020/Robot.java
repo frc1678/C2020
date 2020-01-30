@@ -188,6 +188,19 @@ public class Robot extends TimedRobot {
             double throttle = mControlBoard.getThrottle();
             double turn = mControlBoard.getTurn();
 
+
+            //TODO: George Fix this
+            //mDrive.setAssistedDrive(timestamp, throttle, -turn, mControlBoard.getQuickTurn());
+            //
+            //if (mControlBoard.getScorePresetLow()) {
+            //    mRoller.setState(Roller.WantedAction.NONE);
+            //} else if (mControlBoard.getScorePresetMiddle()) {
+            //    mRoller.setState(Roller.WantedAction.ACHIEVE_ROTATION_CONTROL);
+            //} else if (mControlBoard.getScorePresetHigh()) {
+            //    mRoller.setState(Roller.WantedAction.ACHIEVE_POSITION_CONTROL);
+            //}
+          
+          
             mDrive.setCheesyishDrive(throttle, turn, mControlBoard.getQuickTurn());
 
             mSuperstructure.setWantFieldRelativeTurret(mControlBoard.getTurretCardinal().rotation);
