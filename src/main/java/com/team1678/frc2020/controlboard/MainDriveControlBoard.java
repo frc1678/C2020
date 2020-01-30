@@ -3,7 +3,7 @@ package com.team1678.frc2020.controlboard;
 import com.team1678.frc2020.Constants;
 import edu.wpi.first.wpilibj.Joystick;
 
-public class MainDriveControlBoard implements IDriveControlBoard {
+public class MainDriveControlBoard {
     private static MainDriveControlBoard mInstance = null;
 
     public static MainDriveControlBoard getInstance() {
@@ -22,32 +22,31 @@ public class MainDriveControlBoard implements IDriveControlBoard {
         mTurnStick = new Joystick(Constants.kMainTurnJoystickPort);
     }
 
-    @Override
     public double getThrottle() {
-        return mThrottleStick.getRawAxis(1);
+        return -mThrottleStick.getRawAxis(1);
     }
 
-    @Override
     public double getTurn() {
-        return -mTurnStick.getRawAxis(0);
+        return mTurnStick.getRawAxis(0);
     }
 
-    @Override
     public boolean getQuickTurn() {
-        return mTurnStick.getRawButton(1);
+        return mTurnStick.getRawButton(5);
     }
 
-    @Override
     public boolean getShoot() {
         return mTurnStick.getRawButton(2);
     }
 
-    @Override
     public boolean getWantsLowGear() {
         return mThrottleStick.getRawButton(2);
     }
 
     public boolean getThrust() {
         return mThrottleStick.getRawButton(1);
+    }
+
+    public boolean getInterruptAuto() {
+        return mThrottleStick.getRawButton(3);
     }
 }

@@ -26,7 +26,7 @@ public class Roller extends Subsystem {
     public static double kRotateVoltage = 3.0; // Positive value rotates the control panel counter-clockwise
 
     // Motors, solenoids and sensors
-    public I2C.Port i2cPort = I2C.Port.kOnboard;
+    public I2C.Port i2cPort;
     public ColorSensorV3 mColorSensor;
     private final Spark mRollerMotor;
     public Solenoid mPopoutSolenoid;
@@ -40,11 +40,11 @@ public class Roller extends Subsystem {
     private final Color kRedTarget = ColorMatch.makeColor(0.485, 0.364, 0.150);
     private final Color kYellowTarget = ColorMatch.makeColor(0.314, 0.553, 0.120);
 
-    private int mColorCounter;
+    private int mColorCounter = 0;
 
     private Color mInitialColor;
-    private Color mPreviousColor;
-    private Color mPreviousPreviousColor;
+    private Color mOneColorAgo;
+    private Color mTwoColorsAgo;
 
     private Color mColorPositionTarget;
     private Color mSlowDownTarget;
@@ -65,7 +65,6 @@ public class Roller extends Subsystem {
 
     // General management
     private static Roller mInstance;
-    private boolean mRunningManual = false;
 
     private PeriodicIO mPeriodicIO = new PeriodicIO();
 
@@ -73,14 +72,13 @@ public class Roller extends Subsystem {
         mRollerMotor = new Spark(Constants.kRollerId);
         mPopoutSolenoid = Constants.makeSolenoidForId(Constants.kRollerSolenoid);
 
+        i2cPort = I2C.Port.kOnboard;
         mColorSensor = new ColorSensorV3(i2cPort);
 
         mColorMatcher.addColorMatch(kBlueTarget);
         mColorMatcher.addColorMatch(kGreenTarget);
         mColorMatcher.addColorMatch(kRedTarget);
         mColorMatcher.addColorMatch(kYellowTarget);   
-        
-        mColorCounter = 0;
     }
 
     public synchronized static Roller getInstance() {
@@ -90,8 +88,6 @@ public class Roller extends Subsystem {
 
         return mInstance;
     }
-
-    public void writeToLog() {}
 
     // Optional design pattern for caching periodic reads to avoid hammering the HAL/CAN.
     public synchronized void readPeriodicInputs() {
@@ -104,7 +100,6 @@ public class Roller extends Subsystem {
                 case 'B' :
                     mColorPositionTarget = kRedTarget;
                     mSlowDownTarget = kGreenTarget;
-                    //System.out.println("Color is blue");
                     break;
                 case 'G' :
                     mColorPositionTarget = kYellowTarget;
@@ -137,25 +132,18 @@ public class Roller extends Subsystem {
         enabledLooper.register(new Loop() {
             @Override
             public void onStart(double timestamp) {
-                mRunningManual = false;
                 mState = State.IDLE;
             } 
 
             @Override 
             public void onLoop(double timestamp) {
                 synchronized (Roller.this) {
-                    if (mRunningManual) {
-                        runStateMachine(false);
-                        return;
-                    } else {
-                        runStateMachine(true);
-                    }
+                    runStateMachine(true);
                 }
             }
 
             @Override
             public void onStop(double timestamp) {
-                mRunningManual = false;
                 mState = State.IDLE;
             }
 
@@ -176,12 +164,12 @@ public class Roller extends Subsystem {
                 if (mColorCounter < 7) {
                     mPeriodicIO.roller_demand = kRotateVoltage;
             
-                    if (mMatch.color != mPreviousColor) {
+                    if (mMatch.color != mOneColorAgo) {
                       if (mMatch.color == mInitialColor) {
                         // Necessary to avoid color confusion between red/green and blue/yellow
                         // Haven't tested this logic yet
-                        if (!(mInitialColor == kYellowTarget && mMatch.color == kYellowTarget && mPreviousColor == kGreenTarget && mPreviousPreviousColor == kBlueTarget)
-                        || !(mInitialColor == kGreenTarget && mMatch.color == kGreenTarget && mPreviousColor == kYellowTarget && mPreviousPreviousColor == kRedTarget)) {
+                        if (!(mInitialColor == kYellowTarget && mMatch.color == kYellowTarget && mOneColorAgo == kGreenTarget && mTwoColorsAgo == kBlueTarget)
+                        || !(mInitialColor == kGreenTarget && mMatch.color == kGreenTarget && mOneColorAgo == kYellowTarget && mTwoColorsAgo == kRedTarget)) {
                             mColorCounter++;
                         }
                       }
@@ -193,9 +181,9 @@ public class Roller extends Subsystem {
                     setState(WantedAction.NONE);
                   }
 
-                  if (mPreviousColor != mMatch.color) {
-                    mPreviousPreviousColor = mPreviousColor;
-                    mPreviousColor = mMatch.color;
+                  if (mOneColorAgo != mMatch.color) {
+                    mTwoColorsAgo = mOneColorAgo;
+                    mOneColorAgo = mMatch.color;
                   }
 
                 break;
@@ -203,11 +191,13 @@ public class Roller extends Subsystem {
                 mMatch = mColorMatcher.matchClosestColor(mPeriodicIO.detected_color);
 
                 if (gameData.length() > 0) {
+                    mPeriodicIO.pop_out_solenoid = true;
+
                     if (mMatch.color != mColorPositionTarget) {
-                        mPeriodicIO.roller_demand = 3.0;
+                        mPeriodicIO.roller_demand = kRotateVoltage;
             
                         if (mMatch.color == mSlowDownTarget) {
-                            mPeriodicIO.roller_demand = 1.0;
+                            mPeriodicIO.roller_demand = kRotateVoltage - 2;
                         }
                     } else {
                         mColorCounter = 0;
@@ -226,7 +216,6 @@ public class Roller extends Subsystem {
 
     @Override
     public void stop() {
-        mRunningManual = true;
         mPeriodicIO.roller_demand = 0.0;
         mPeriodicIO.pop_out_solenoid = false;
     }
@@ -244,15 +233,13 @@ public class Roller extends Subsystem {
     }
 
     public void setState(WantedAction action) {
-        mRunningManual = false;
-
         switch(action) {
             case NONE:
                 mState = State.IDLE;
                 break;
             case ACHIEVE_ROTATION_CONTROL:
                 // This is frowned upon by Java developers, so I'm willing to change it
-                mInitialColor = mPreviousColor = mPreviousPreviousColor = mMatch.color;
+                mInitialColor = mOneColorAgo = mTwoColorsAgo = mMatch.color;
                 mState = State.ACHIEVING_ROTATION_CONTROL;
                 break;
             case ACHIEVE_POSITION_CONTROL:
