@@ -197,7 +197,7 @@ public class RobotState {
         vision_target_.reset();
     }
 
-    private Translation2d getCameraToVisionTargetPose(TargetInfo target, Limelight source, double timestamp) {
+    private Translation2d getCameraToVisionTargetPose(double timestamp, TargetInfo target, Limelight source) {
         // Compensate for camera pitch
         Translation2d xz_plane_translation = new Translation2d(target.getX(), target.getZ())
                 .rotateBy(source.getHorizontalPlaneToLens());
@@ -242,7 +242,7 @@ public class RobotState {
         Limelight source = Limelight.getInstance();
 
         for (TargetInfo target : observations) {
-            mCameraToVisionTargetPoses.add(getCameraToVisionTargetPose(target, source, timestamp));
+            mCameraToVisionTargetPoses.add(getCameraToVisionTargetPose(timestamp, target, source));
         }
 
         updateGoalTracker(timestamp, mCameraToVisionTargetPoses, vision_target_, source);
