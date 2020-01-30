@@ -407,5 +407,7 @@ public class Indexer extends Subsystem {
         // OUTPUTS
         items.add(Double.valueOf(mPeriodicIO.indexer_control_mode.toString()));
         items.add(mPeriodicIO.indexer_demand);
+
+        mStorage.addData(items);
     }
 }
