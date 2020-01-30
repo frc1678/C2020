@@ -1,5 +1,6 @@
 package com.team1678.frc2020.auto.actions;
 
+import com.team1678.frc2020.Constants;
 import com.team1678.frc2020.subsystems.Drive;
 import com.team254.lib.physics.DriveCharacterization;
 import com.team254.lib.util.DriveSignal;
@@ -10,8 +11,10 @@ import edu.wpi.first.wpilibj.Timer;
 import java.util.List;
 
 public class CollectAccelerationDataAction implements Action {
-    private static final double kPower = 0.5;
-    private static final double kTotalTime = 2.0; //how long to run the test for
+    private static final double kStartPower = 0.1;
+    private static final double kPower = 0.8;
+    private static final double kTotalTime = 2.0; // how long to run the test for
+    private static final double kStartTime = 1.0;
     private static final Drive mDrive = Drive.getInstance();
 
     private final ReflectingCSVWriter<DriveCharacterization.DataPoint> mCSVWriter;
@@ -24,10 +27,9 @@ public class CollectAccelerationDataAction implements Action {
     private double mPrevTime = 0.0;
 
     /**
-     * @param data reference to the list where data points should be stored
-     * @param reverse if true drive in reverse, if false drive normally
-     * @param turn if true turn, if false drive straight
-     *
+     * @param data     reference to the list where data points should be stored
+     * @param reverse  if true drive in reverse, if false drive normally
+     * @param turn     if true turn, if false drive straight
      */
     public CollectAccelerationDataAction(List<DriveCharacterization.DataPoint> data, boolean reverse, boolean turn) {
         mAccelerationData = data;
@@ -38,36 +40,46 @@ public class CollectAccelerationDataAction implements Action {
 
     @Override
     public void start() {
-        mDrive.setOpenLoop(new DriveSignal((mReverse ? -1.0 : 1.0) * kPower, (mReverse ? -1.0 : 1.0) * (mTurn ? -1.0 : 1.0) * kPower));
+        mDrive.setOpenLoop(new DriveSignal((mReverse ? -1.0 : 1.0) * kStartPower, (mReverse ? -1.0 : 1.0) * (mTurn ? -1.0 : 1.0) * kStartPower));
         mStartTime = Timer.getFPGATimestamp();
         mPrevTime = mStartTime;
     }
 
     @Override
     public void update() {
-        double currentVelocity = (Math.abs(mDrive.getLeftVelocityNativeUnits()) + Math.abs(mDrive.getRightVelocityNativeUnits())) / 4096.0 * Math.PI * 10;
-        double currentTime = Timer.getFPGATimestamp();
+        double currentVelocity;
+        double currentTime;
+        synchronized (mDrive) {
+            currentVelocity = Math.abs(mDrive.getLeftLinearVelocity()) / Constants.kDriveWheelRadiusInches; // rad/s
+            currentTime = Timer.getFPGATimestamp();
+        }
 
-        //don't calculate acceleration until we've populated prevTime and prevVelocity
-        if(mPrevTime == mStartTime) {
+        // don't calculate acceleration until we've populated prevTime and prevVelocity
+        if (mPrevTime == mStartTime) {
             mPrevTime = currentTime;
             mPrevVelocity = currentVelocity;
             return;
         }
 
+        if (currentTime - mStartTime > kStartTime) {
+            mDrive.setOpenLoop(new DriveSignal((mReverse ? -1.0 : 1.0) * kPower, (mReverse ? -1.0 : 1.0) * (mTurn ? -1.0 : 1.0) * kPower));
+        } else {
+            return;
+        }
+
         double acceleration = (currentVelocity - mPrevVelocity) / (currentTime - mPrevTime);
 
-        //ignore accelerations that are too small
-        if(acceleration < Util.kEpsilon) {
+        // ignore accelerations that are too small
+        if (acceleration < Util.kEpsilon) {
             mPrevTime = currentTime;
             mPrevVelocity = currentVelocity;
             return;
         }
 
         mAccelerationData.add(new DriveCharacterization.DataPoint(
-                currentVelocity, //convert to radians per second
-                kPower * 12.0, //convert to volts
-                acceleration
+                currentVelocity, // convert to radians per second
+                kPower * 12.0, // convert to volts
+                currentTime - mStartTime
         ));
 
         mCSVWriter.add(mAccelerationData.get(mAccelerationData.size() - 1));
@@ -78,7 +90,7 @@ public class CollectAccelerationDataAction implements Action {
 
     @Override
     public boolean isFinished() {
-        return Timer.getFPGATimestamp() - mStartTime > kTotalTime;
+        return Timer.getFPGATimestamp() - mStartTime > kTotalTime + kStartTime;
     }
 
     @Override

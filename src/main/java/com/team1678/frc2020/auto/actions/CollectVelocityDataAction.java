@@ -1,5 +1,6 @@
 package com.team1678.frc2020.auto.actions;
 
+import com.team1678.frc2020.Constants;
 import com.team1678.frc2020.subsystems.Drive;
 import com.team254.lib.physics.DriveCharacterization;
 import com.team254.lib.util.DriveSignal;
@@ -22,12 +23,10 @@ public class CollectVelocityDataAction implements Action {
     private double mStartTime = 0.0;
 
     /**
-     * @param data reference to the list where data points should be stored
-     * @param reverse if true drive in reverse, if false drive normally
-     * @param turn if true turn, if false drive straight
-     *
+     * @param data     reference to the list where data points should be stored
+     * @param reverse  if true drive in reverse, if false drive normally
+     * @param turn     if true turn, if false drive straight
      */
-
     public CollectVelocityDataAction(List<DriveCharacterization.DataPoint> data, boolean reverse, boolean turn) {
         mVelocityData = data;
         mReverse = reverse;
@@ -43,20 +42,26 @@ public class CollectVelocityDataAction implements Action {
 
     @Override
     public void update() {
-        double dt = Timer.getFPGATimestamp() - mStartTime;
-        double percentPower = kRampRate * dt;
-        if(percentPower > kMaxPower) {
-            isFinished = true;
-            return;
+        synchronized (mDrive) {
+            double dt = Timer.getFPGATimestamp() - mStartTime;
+            double percentPower = kRampRate * dt;
+            if (percentPower > kMaxPower) {
+                isFinished = true;
+                return;
+            }
+            mDrive.setOpenLoop(new DriveSignal((mReverse ? -1.0 : 1.0) * percentPower, (mReverse ? -1.0 : 1.0) * (mTurn ? -1.0 : 1.0) * percentPower));
+            double velocity = Math.abs(mDrive.getLeftLinearVelocity()) / Constants.kDriveWheelRadiusInches;  // rad/s
+            if (velocity < 0.5) {
+                // Small velocities tend to be untrustworthy.
+                return;
+            }
+            mVelocityData.add(new DriveCharacterization.DataPoint(
+                    velocity, // rad/s
+                    percentPower * 12.0, // convert to volts
+                    dt
+            ));
         }
-        mDrive.setOpenLoop(new DriveSignal((mReverse ? -1.0 : 1.0) * percentPower, (mReverse ? -1.0 : 1.0) * (mTurn ? -1.0 : 1.0) * percentPower));
-        mVelocityData.add(new DriveCharacterization.DataPoint(
-                (Math.abs(mDrive.getLeftVelocityNativeUnits()) + Math.abs(mDrive.getRightVelocityNativeUnits())) / 4096.0 * Math.PI * 10, //convert velocity to radians per second
-                percentPower * 12.0, //convert to volts
-                dt
-        ));
         mCSVWriter.add(mVelocityData.get(mVelocityData.size() - 1));
-
     }
 
     @Override

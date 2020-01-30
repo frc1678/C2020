@@ -27,7 +27,7 @@ public class MainDriveControlBoard {
     }
 
     public double getTurn() {
-        return mTurnStick.getRawAxis(0);
+        return -mTurnStick.getRawAxis(0);
     }
 
     public boolean getQuickTurn() {

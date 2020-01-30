@@ -6,6 +6,7 @@ import com.team1678.frc2020.loops.Loop;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.TalonFXControlMode;
+import com.ctre.phoenix.motorcontrol.TalonFXFeedbackDevice;
 
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -40,13 +41,23 @@ public class Shooter extends Subsystem {
         mMaster.configVoltageCompSaturation(12.0, Constants.kLongCANTimeoutMs);
         mMaster.enableVoltageCompensation(true);
         
-        mMaster.config_kP(0, Constants.kShooterP);
-        mMaster.config_kI(0, Constants.kShooterI);
-        mMaster.config_kD(0, Constants.kShooterD);
+        mMaster.config_kP(0, Constants.kShooterP, Constants.kLongCANTimeoutMs);
+        mMaster.config_kI(0, Constants.kShooterI, Constants.kLongCANTimeoutMs);
+        mMaster.config_kD(0, Constants.kShooterD, Constants.kLongCANTimeoutMs);
+        mMaster.config_kF(0, Constants.kShooterF, Constants.kLongCANTimeoutMs);
+
 
         mSlave.follow(mMaster);
         mSlave.setInverted(false); //TODO: check value
+        
+        mMaster.set(ControlMode.PercentOutput, 0);
 
+        mTrigger.config_kP(0, Constants.kShooterP, Constants.kLongCANTimeoutMs);
+        mTrigger.config_kI(0, Constants.kShooterI, Constants.kLongCANTimeoutMs);
+        mTrigger.config_kD(0, Constants.kShooterD, Constants.kLongCANTimeoutMs);
+        mTrigger.config_kF(0, Constants.kShooterF, Constants.kLongCANTimeoutMs);
+
+        mTrigger.configSelectedFeedbackSensor(TalonFXFeedbackDevice.IntegratedSensor, 0, Constants.kLongCANTimeoutMs);
         mTrigger.set(ControlMode.PercentOutput, 0);
         mTrigger.setInverted(false); //TODO: check value
         mTrigger.configVoltageCompSaturation(12.0, Constants.kLongCANTimeoutMs);
@@ -82,7 +93,7 @@ public class Shooter extends Subsystem {
 
     @Override
     public void stop() {
-        setOpenLoop(0);
+        setOpenLoop(0, 0);
     }
 
     @Override
@@ -104,8 +115,9 @@ public class Shooter extends Subsystem {
         });
     }
 
-    public synchronized void setOpenLoop(double percentage) {
-        mPeriodicIO.flywheel_demand = percentage;
+    public synchronized void setOpenLoop(double flywheel, double trigger) {
+        mPeriodicIO.flywheel_demand = flywheel;
+        mPeriodicIO.trigger_demand = trigger;
         mRunningManual = true;
     }
 
@@ -126,7 +138,7 @@ public class Shooter extends Subsystem {
     }
 
     public synchronized boolean spunUp() {
-        return (Util.epsilonEquals(mPeriodicIO.flywheel_demand, mPeriodicIO.flywheel_velocity, kShooterTolerance) &&
+        return (//Util.epsilonEquals(mPeriodicIO.flywheel_demand, mPeriodicIO.flywheel_velocity, kShooterTolerance) &&
                 (Util.epsilonEquals(mPeriodicIO.trigger_demand, mPeriodicIO.trigger_velocity, kShooterTolerance)));
     }
 
@@ -159,11 +171,11 @@ public class Shooter extends Subsystem {
     public void writePeriodicOutputs() {
         if (!mRunningManual) {
             mMaster.set(ControlMode.Velocity, mPeriodicIO.flywheel_demand / kFlywheelVelocityConversion);
+            mTrigger.set(ControlMode.Velocity, mPeriodicIO.trigger_demand / kTriggerVelocityConversion);
         } else {
             mMaster.set(ControlMode.PercentOutput, 0);
+            mTrigger.set(ControlMode.PercentOutput, mPeriodicIO.trigger_demand);
         }
-
-        mTrigger.set(ControlMode.Velocity, mPeriodicIO.trigger_demand / kTriggerVelocityConversion);
     }
 
     @Override
