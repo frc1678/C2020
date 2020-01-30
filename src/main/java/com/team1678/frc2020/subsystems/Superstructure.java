@@ -78,6 +78,10 @@ public class Superstructure extends Subsystem {
             public void onStart(double timestamp) {
                 synchronized (Superstructure.this) {
                     mTurretMode = TurretControlModes.FIELD_RELATIVE;
+                    if (SuperstructureConstants.kUseSmartdashboard) {
+                        SmartDashboard.putNumber("Shooting RPM", mShooter.getShooterRPM()
+                        SmartDashboard.putNumber("Hood Angle", mHood.getAngle());
+                    }
                 }
             }
 
@@ -118,21 +122,21 @@ public class Superstructure extends Subsystem {
     }
 
     private double getShootingSetpointRpm(double range) {
-        if (SuperstructureConstants.kUseFlywheelAutoAimPolynomial) {
+        if (SuperstructureConstants.kUseSmartdashboard) {
+            return SmartDashboard.getNumber("Shooting RPM", 0);
+        } else if (SuperstructureConstants.kUseFlywheelAutoAimPolynomial) {
             return SuperstructureConstants.kFlywheelAutoAimPolynomial.predict(range);
-        } else if (SuperstructureConstants.kUseSmartdashboard) {
-            return SmartDashboard.getNumber("shooting RPM",0);
         } else {
             return SuperstructureConstants.kFlywheelAutoAimMap.getInterpolated(new InterpolatingDouble(range)).value;
         }
     }
 
     private double getHoodSetpointAngle(double range) {
-        if (SuperstructureConstants.kUseHoodAutoAimPolynomial) {
+        if (SuperstructureConstants.kUseSmartdashboard) {
+            return SmartDashboard.getNumber("Hood Angle", 0);
+        } else if (SuperstructureConstants.kUseHoodAutoAimPolynomial) {
             return SuperstructureConstants.kHoodAutoAimPolynomial.predict(range);
-        } else if (SuperstructureConstants.kUseSmartdashboard) {
-            return SmartDashboard.getNumber("hood RPM", 0);
-        }else {
+        } else {
             return SuperstructureConstants.kHoodAutoAimMap.getInterpolated(new InterpolatingDouble(range)).value;
         }
     }
@@ -302,10 +306,10 @@ public class Superstructure extends Subsystem {
         }
 
         if (mWantsSpinUp && mIndexer.isAtDeadSpot()) {
-            mShooter.setVelocity(1000);
+            mShooter.setVelocity(mShooterSetpoint);
             indexerAction = Indexer.WantedAction.PREP;
         } else if (mWantsShoot) {
-            mShooter.setVelocity(1000);
+            mShooter.setVelocity(mShooterSetpoint);
             if (mShooter.spunUp() || mGotSpunUp) {
                 indexerAction = Indexer.WantedAction.ZOOM;
             } else {

@@ -200,7 +200,7 @@ public class RobotState {
     private Translation2d getCameraToVisionTargetPose(double timestamp, TargetInfo target, Limelight source) {
         // Compensate for camera pitch
         Translation2d xz_plane_translation = new Translation2d(target.getX(), target.getZ())
-                .rotateBy(source.getHorizontalPlaneToLens());
+                .rotateBy(source.getHorizontalPlaneToLens().rotateBy(getVehicleToHood(timestamp)));
         double x = xz_plane_translation.x();
         double y = target.getY();
         double z = xz_plane_translation.y();
