@@ -133,8 +133,8 @@ public class Constants {
         kTurretConstants.kPositionIZone = 0; // Ticks
         kTurretConstants.kPositionDeadband = 0; // Ticks
 
-        kTurretConstants.kMinUnitsLimit = -700.0;
-        kTurretConstants.kMaxUnitsLimit = 700.0;
+        kTurretConstants.kMinUnitsLimit = -360.0;
+        kTurretConstants.kMaxUnitsLimit = 360.0;
 
         kTurretConstants.kCruiseVelocity = 20000; // Ticks / 100ms
         kTurretConstants.kAcceleration = 30000; // Ticks / 100ms / s

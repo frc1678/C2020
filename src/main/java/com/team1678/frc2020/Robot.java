@@ -252,6 +252,7 @@ public class Robot extends TimedRobot {
                     climb_mode = false;
                 } else {
                     mWrangler.setState(Wrangler.WantedAction.NONE);
+                    mClimber.setState(Climber.WantedAction.NONE);
                 }
             }
         } catch (Throwable t) {
