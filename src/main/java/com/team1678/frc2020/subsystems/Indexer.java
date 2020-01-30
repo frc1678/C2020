@@ -42,11 +42,11 @@ public class Indexer extends Subsystem {
     }
 
     public enum WantedAction {
-        NONE, INDEX, PASSIVE_INDEX, PREP, REVOLVE, ZOOM,
+        NONE, INDEX, PASSIVE_INDEX, OSCILLATE, PREP, REVOLVE, ZOOM,
     }
 
     public enum State {
-        IDLE, INDEXING, PASSIVE_INDEXING, PREPPING, REVOLVING, ZOOMING, FEEDING,
+        IDLE, INDEXING, PASSIVE_INDEXING, OSCILLATING, PREPPING, REVOLVING, ZOOMING, FEEDING,
     }
 
     private boolean mGeneratedGoal = false;
@@ -198,6 +198,7 @@ public class Indexer extends Subsystem {
     public void runStateMachine() {
         final double turret_angle = mTurret.getAngle();
         final double indexer_angle = mPeriodicIO.indexer_angle;
+        final double now = Timer.getFPGATimestamp();
 
         switch (mState) {
         case IDLE:
@@ -226,6 +227,21 @@ public class Indexer extends Subsystem {
             mPeriodicIO.indexer_control_mode = ControlMode.Velocity;
             mPeriodicIO.indexer_demand = mBackwards ? -kPassiveIndexingVelocity : kPassiveIndexingVelocity;
             break;
+        case OSCILLATING:
+            boolean backwards = false;
+            mPeriodicIO.indexer_control_mode = ControlMode.Velocity;
+
+            if (!mStartCounting) {
+                mInitialTime = now;
+                mStartCounting = true;
+            }
+            if (mStartCounting && now - mInitialTime > Constants.kIndexerOscillationInterval) {
+                mStartCounting = false;
+                backwards = !backwards;
+            }
+
+            mPeriodicIO.indexer_demand = backwards ? -kPassiveIndexingVelocity : kPassiveIndexingVelocity;
+            break;
         case PREPPING:
             mPeriodicIO.indexer_control_mode = ControlMode.MotionMagic;
             mPeriodicIO.indexer_demand = mMotionPlanner.findAngleGoal(mSlotGoal, indexer_angle, turret_angle) + 36.0;
@@ -252,7 +268,6 @@ public class Indexer extends Subsystem {
         case FEEDING:
             mPeriodicIO.indexer_control_mode = ControlMode.MotionMagic;
             if (mMotionPlanner.isAtGoal(mSlotGoal, indexer_angle, turret_angle)) {
-                final double now = Timer.getFPGATimestamp();
                 if (!mStartCounting) {
                     mInitialTime = now;
                     mStartCounting = true;
@@ -289,6 +304,9 @@ public class Indexer extends Subsystem {
             break;
         case PASSIVE_INDEX:
             mState = State.PASSIVE_INDEXING;
+            break;
+        case OSCILLATE:
+            mState = State.OSCILLATING;
             break;
         case PREP:
             mState = State.PREPPING;
