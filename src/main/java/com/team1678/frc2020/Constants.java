@@ -32,12 +32,12 @@ public class Constants {
     public static final double kDriveWheelRadiusInches = kDriveWheelDiameterInches / 2.0;
     public static final double kTrackScrubFactor = 1.0; // Tune me!
     // Tuned dynamics
-    public static final double kRobotLinearInertia = 60.0; // kg TODO tune
-    public static final double kRobotAngularInertia = 2.0; // kg m^2 TODO tune
-    public static final double kRobotAngularDrag = 0.0; // N*m / (rad/sec) TODO tune
-    public static final double kDriveVIntercept = 0.44; // V
-    public static final double kDriveKv = 0.167; // V per rad/s
-    public static final double kDriveKa = 0.006; // V per rad/s^2
+    public static final double kRobotLinearInertia = 20.0; // kg TODO tune
+    public static final double kRobotAngularInertia = 5.0; // kg m^2 TODO tune
+    public static final double kRobotAngularDrag = 18.0; // N*m / (rad/sec) TODO tune
+    public static final double kDriveVIntercept = 0.41; // V
+    public static final double kDriveKv = 0.18; // V per rad/s
+    public static final double kDriveKa = 0.0152; // V per rad/s^2
     public static final double kPathKX = 4.0; // units/s per unit of error
     public static final double kPathLookaheadTime = 0.4; // seconds to look ahead along the path for steering
     public static final double kPathMinLookaheadDistance = 24.0; // inches

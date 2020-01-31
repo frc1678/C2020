@@ -71,7 +71,7 @@ public class TrajectoryGenerator {
     // ALL POSES DEFINED FOR THE CASE THAT ROBOT STARTS ON RIGHT! (mirrored about +x
     // axis for LEFT)
     public static final Pose2d kTestStartPose = new Pose2d(0.0, 0.0, Rotation2d.fromDegrees(0.0));
-    public static final Pose2d kTestFarPose = new Pose2d(120.0, -40.0, Rotation2d.fromDegrees(-90.0));
+    public static final Pose2d kTestFarPose = new Pose2d(100.0, -50.0, Rotation2d.fromDegrees(0.0));
 
     public static final Pose2d kStartingPose = new Pose2d(110.0, -140.0, Rotation2d.fromDegrees(0.0));
     public static final Pose2d kStealCellPose = new Pose2d(230.0, -140.0, Rotation2d.fromDegrees(0.0));
