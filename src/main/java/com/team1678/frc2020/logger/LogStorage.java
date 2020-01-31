@@ -6,10 +6,8 @@ import java.util.ArrayList;
 public class LogStorage<T> implements ILoggable {
     ArrayList<String> mColumns = new ArrayList<String>();
     ArrayList<ArrayList<Double>> mItems = new ArrayList<ArrayList<Double>>();
-    
-    /*  Add functionality to contents of ILoggable.
 
-        Get Item:
+    /*  Get Item:
             Creates an Array List of Array Lists of doubles for the logged data.
             Do a variable swap between a new array list and the old one to continue 
             logging and store old data.
@@ -42,7 +40,15 @@ public class LogStorage<T> implements ILoggable {
         ArrayList<String> getItemNames = new ArrayList<String>();
             //  For the member variables, get the variable  and add it to the array list
             for (Field variableName : mVars) {
-                getItemNames.add(variableName.getName());
+                if (variableName.getType() == boolean[].class || variableName.getType() == double[].class || variableName.getType() == int[].class) {
+                    try {
+                        for (int i = 1; i < variableName.getLong(variableName); i++) {
+                            getItemNames.add(variableName.getName() + Integer.toString(i));
+                        }
+                    } catch (Exception e) {}
+                } else {
+                    getItemNames.add(variableName.getName());
+                }
             }
         //  Log item names from array list
         return getItemNames;
