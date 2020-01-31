@@ -151,7 +151,7 @@ public class TrajectoryGenerator {
         private Trajectory<TimedState<Pose2dWithCurvature>> getIntakeToSecondShot() {
             List<Pose2d> waypoints = new ArrayList<>();
             waypoints.add(kIntakePose2);
-            waypoints.add(kIntakePose.transformBy(Pose2d.fromTranslation(new Translation2d(-65.0, 0.0))));
+            waypoints.add(kIntakePose2.transformBy(Pose2d.fromTranslation(new Translation2d(-65.0, 0.0))));
             waypoints.add(kShotPose);
             return generateTrajectory(true, waypoints,
                     Arrays.asList(new CentripetalAccelerationConstraint(kMaxCentripetalAccel)), kMaxVelocity, kMaxAccel,
