@@ -46,7 +46,7 @@ public class LogStorage<T> implements ILoggable {
             for (Field variableName : mVars) {
                 if (variableName.getType() == boolean[].class || variableName.getType() == double[].class || variableName.getType() == int[].class) {
                     try {
-                        T x = supplier.get(); 
+                        T x = supplier.get(); //  there is no good name for this variable :(
                         Object obj = variableName.get(x);
                         int length = Array.getLength(obj);
                         for (int i = 1; i < length; i++) {
