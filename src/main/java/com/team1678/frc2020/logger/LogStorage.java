@@ -1,11 +1,15 @@
 package com.team1678.frc2020.logger;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.function.Supplier;
 
 public class LogStorage<T> implements ILoggable {
     ArrayList<String> mColumns = new ArrayList<String>();
     ArrayList<ArrayList<Double>> mItems = new ArrayList<ArrayList<Double>>();
+
+    private Supplier<T> supplier; 
 
     /*  Get Item:
             Creates an Array List of Array Lists of doubles for the logged data.
@@ -42,7 +46,10 @@ public class LogStorage<T> implements ILoggable {
             for (Field variableName : mVars) {
                 if (variableName.getType() == boolean[].class || variableName.getType() == double[].class || variableName.getType() == int[].class) {
                     try {
-                        for (int i = 1; i < variableName.getLong(variableName); i++) {
+                        T x = supplier.get(); 
+                        Object obj = variableName.get(x);
+                        int length = Array.getLength(obj);
+                        for (int i = 1; i < length; i++) {
                             getItemNames.add(variableName.getName() + Integer.toString(i));
                         }
                     } catch (Exception e) {}
