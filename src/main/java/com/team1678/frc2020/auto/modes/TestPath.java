@@ -9,8 +9,8 @@ public class TestPath extends AutoModeBase {
 
     private DriveTrajectoryAction mFirstPath;
 
-    public TestPath(boolean left) {
-        mFirstPath = new DriveTrajectoryAction(mTrajectoryGenerator.getTrajectorySet().FirstPath.get(left), true);
+    public TestPath() {
+        mFirstPath = new DriveTrajectoryAction(mTrajectoryGenerator.getTrajectorySet().firstPath, true);
     }
 
     @Override
