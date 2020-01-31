@@ -73,21 +73,21 @@ public class TrajectoryGenerator {
     // +x is towards the center of the field.
     // +y is to the left.
     // ALL POSES DEFINED FOR THE CASE THAT ROBOT STARTS ON RIGHT! (mirrored about +x axis for LEFT)
-    public static final Pose2d kHab1StartPose = new Pose2d(0.0, 0.0, Rotation2d.fromDegrees(0.0));
-    public static final Pose2d kFarRocketPose = new Pose2d(70, 0.0, Rotation2d.fromDegrees(0.0));
+    public static final Pose2d kTestStartPose = new Pose2d(0.0, 0.0, Rotation2d.fromDegrees(0.0));
+    public static final Pose2d kTestFarPose = new Pose2d(120.0, -40.0, Rotation2d.fromDegrees(-90.0));
 
     public class TrajectorySet {
         
-        public final Trajectory<TimedState<Pose2dWithCurvature>> firstPath;
+        public final Trajectory<TimedState<Pose2dWithCurvature>> testPath;
 
         private TrajectorySet() {
-            firstPath = getFirstPath();
+            testPath = getTestPath();
         }
 
-        private Trajectory<TimedState<Pose2dWithCurvature>> getFirstPath() {
+        private Trajectory<TimedState<Pose2dWithCurvature>> getTestPath() {
             List<Pose2d> waypoints = new ArrayList<>();
-            waypoints.add(kHab1StartPose);
-            waypoints.add(kFarRocketPose);
+            waypoints.add(kTestStartPose);
+            waypoints.add(kTestFarPose);
             return generateTrajectory(false, waypoints, Arrays.asList(new CentripetalAccelerationConstraint(kMaxCentripetalAccel)),
                     kMaxVelocity, kMaxAccel, kMaxVoltage);
         }

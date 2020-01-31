@@ -7,15 +7,15 @@ import com.team1678.frc2020.auto.actions.*;
 public class TestPath extends AutoModeBase {
     private static final TrajectoryGenerator mTrajectoryGenerator = TrajectoryGenerator.getInstance();
 
-    private DriveTrajectoryAction mFirstPath;
+    private DriveTrajectoryAction mTestPath;
 
     public TestPath() {
-        mFirstPath = new DriveTrajectoryAction(mTrajectoryGenerator.getTrajectorySet().firstPath, true);
+        mTestPath = new DriveTrajectoryAction(mTrajectoryGenerator.getTrajectorySet().testPath, true);
     }
 
     @Override
     protected void routine() throws AutoModeEndedException {
         System.out.println("Running Cross auto line");
-        runAction(mFirstPath);
+        runAction(mTestPath);
     }
 }
