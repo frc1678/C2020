@@ -47,6 +47,7 @@ public class Limelight extends Subsystem {
         mNetworkTable = NetworkTableInstance.getDefault().getTable(mConstants.kTableName);
     }
 
+    @Override
     public void registerLogger(LoggingSystem LS) {
         LogSetup();
         LS.register(mStorage, "limelight.csv");

@@ -219,7 +219,8 @@ public abstract class ServoMotorSubsystem extends Subsystem {
         // Send a neutral command.
         stop();
     }
-
+    
+    @Override
     public void registerLogger(LoggingSystem LS) {
         LogSetup();
         LS.register(mStorage, mConstants.kName.replaceAll("[^A-Za-z0-9]+", "").toUpperCase() + "-LOGS.csv");

@@ -53,6 +53,8 @@ public class Intake extends Subsystem {
         mMaster = SparkMaxFactory.createDefaultSparkMax(Constants.kIntakeRollerId);
         mDeploySolenoid = Constants.makeSolenoidForId(Constants.kDeploySolenoidId);
     }
+
+    @Override
     public void registerLogger(LoggingSystem LS) {
         LogSetup();
         LS.register(mStorage, "intake.csv");

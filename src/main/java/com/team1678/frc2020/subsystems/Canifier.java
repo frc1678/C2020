@@ -23,6 +23,7 @@ public class Canifier extends Subsystem {
         mPeriodicInputs = new PeriodicInputs();
     }
 
+    @Override
     public void registerLogger(LoggingSystem LS) {
         LogSetup();
         LS.register(mStorage, "canifier.csv");

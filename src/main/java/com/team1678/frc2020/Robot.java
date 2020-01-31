@@ -76,6 +76,7 @@ public class Robot extends TimedRobot {
     private final Shooter mShooter = Shooter.getInstance();
     private final Climber mClimber = Climber.getInstance();
     private final Wrangler mWrangler = Wrangler.getInstance();
+    private final Canifier mCanifier = Canifier.getInstance();
 
     private final RobotState mRobotState = RobotState.getInstance();
     private final RobotStateEstimator mRobotStateEstimator = RobotStateEstimator.getInstance();
@@ -113,7 +114,8 @@ public class Robot extends TimedRobot {
                 mShooter,
                 mSuperstructure,
                 mTurret,
-                mInfrastructure
+                mInfrastructure,
+                mCanifier
             );
 
             mSubsystemManager.registerEnabledLoops(mEnabledLooper);
@@ -124,7 +126,8 @@ public class Robot extends TimedRobot {
             mDrive.setHeading(Rotation2d.identity());
 
             mLimelight.setLed(Limelight.LedMode.OFF);
-            mIntake.registerLogger(mLogger);
+
+            mSubsystemManager.registerLoggingSystems(mLogger);
             mLogger.registerLoops(mLoggingLooper);
 
             mTrajectoryGenerator.generateTrajectories();

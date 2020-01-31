@@ -56,7 +56,8 @@ public class Climber extends Subsystem  {
         mSlave.setInverted(false);
         mSlave.follow(mMaster);
     }
-
+    
+    @Override
     public void registerLogger(LoggingSystem LS) {
         LogSetup();
         LS.register(mStorage, "climber.csv");

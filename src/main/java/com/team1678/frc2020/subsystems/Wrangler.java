@@ -57,6 +57,7 @@ public class Wrangler extends Subsystem {
         mMaster.enableVoltageCompensation(true);
     }
 
+    @Override
     public void registerLogger(LoggingSystem LS) {
         LogSetup();
         LS.register(mStorage, "wrangler.csv");

@@ -102,6 +102,7 @@ public class Indexer extends Subsystem {
         mMotionPlanner = new IndexerMotionPlanner();
     }
 
+    @Override
     public void registerLogger(LoggingSystem LS) {
         LogSetup();
         LS.register(mStorage, "indexer.csv");
@@ -366,7 +367,7 @@ public class Indexer extends Subsystem {
     public void LogSend() {
         ArrayList<Double> items = new ArrayList<Double>();
         items.add(Timer.getFPGATimestamp());
-        
+
         items.add(mPeriodicIO.limit_switch? 0.0 : 1.0);
         items.add(mPeriodicIO.indexer_velocity);
         items.add(mPeriodicIO.indexer_angle);

@@ -60,6 +60,7 @@ public class Drive extends Subsystem {
 
     LogStorage<PeriodicIO> mStorage = null;
 
+    @Override
     public void registerLogger(LoggingSystem LS) {
         logSetup();
         LS.register(mStorage, "drive.csv");

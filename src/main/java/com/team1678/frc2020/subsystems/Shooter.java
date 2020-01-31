@@ -69,6 +69,7 @@ public class Shooter extends Subsystem {
         mTrigger.enableVoltageCompensation(true);
     }
 
+    @Override
     public void registerLogger(LoggingSystem LS) {
         LogSetup();
         LS.register(mStorage, "shooter.csv");
