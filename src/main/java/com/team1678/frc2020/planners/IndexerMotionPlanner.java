@@ -1,11 +1,9 @@
 package com.team1678.frc2020.planners;
 
 import com.team1678.frc2020.Constants;
-import com.team1678.frc2020.subsystems.Indexer.ProxyStatus;
-import com.team1678.frc2020.subsystems.Indexer.SlotStatus;
-
 
 public class IndexerMotionPlanner {
+    private boolean[] slots = {false, false, false, false, false};
     public IndexerMotionPlanner() {}
 
     protected double WrapDegrees(double degrees) {
@@ -59,44 +57,19 @@ public class IndexerMotionPlanner {
         return slotNumber;
     }
 
-    public SlotStatus updateSlotStatus(double indexer_angle, ProxyStatus proxy_status) {
+    public boolean[] updateSlotStatus(double indexer_angle, boolean[] raw_slots) {
+        int frontSlot = findNearestSlot(indexer_angle, 0);
 
-        SlotStatus slotStatus = new SlotStatus();
-        int frontSlot = findNearestSlotToIntake(indexer_angle);
-
-        if (frontSlot == 0) {
-            slotStatus.slot_zero = proxy_status.front_proxy;
-            slotStatus.slot_one = proxy_status.right_proxy;
-            slotStatus.slot_two = proxy_status.back_right_proxy;
-            slotStatus.slot_three = proxy_status.back_left_proxy;
-            slotStatus.slot_four = proxy_status.left_proxy;
-        } else if (frontSlot == 1) {
-            slotStatus.slot_one = proxy_status.front_proxy;
-            slotStatus.slot_two = proxy_status.right_proxy;
-            slotStatus.slot_three = proxy_status.back_right_proxy;
-            slotStatus.slot_four = proxy_status.back_left_proxy;
-            slotStatus.slot_zero = proxy_status.left_proxy;
-        } else if (frontSlot == 2) {
-            slotStatus.slot_two = proxy_status.front_proxy;
-            slotStatus.slot_three = proxy_status.right_proxy;
-            slotStatus.slot_four = proxy_status.back_right_proxy;
-            slotStatus.slot_zero = proxy_status.back_left_proxy;
-            slotStatus.slot_one = proxy_status.left_proxy;
-        } else if (frontSlot == 3) {
-            slotStatus.slot_three = proxy_status.front_proxy;
-            slotStatus.slot_four = proxy_status.right_proxy;
-            slotStatus.slot_zero = proxy_status.back_right_proxy;
-            slotStatus.slot_one = proxy_status.back_left_proxy;
-            slotStatus.slot_two = proxy_status.left_proxy;
-        } else if (frontSlot == 4) {
-            slotStatus.slot_four = proxy_status.front_proxy;
-            slotStatus.slot_zero = proxy_status.right_proxy;
-            slotStatus.slot_one = proxy_status.back_right_proxy;
-            slotStatus.slot_two = proxy_status.back_left_proxy;
-            slotStatus.slot_three = proxy_status.left_proxy;
+        int idx = frontSlot;
+        for (int i = 0; i < 5; i++) {
+            slots[idx] = raw_slots[i];
+            idx++;
+            if (idx > 4) {
+                idx = 0;
+            }
         }
 
-        return slotStatus;
+        return slots;
     }
 
     public double findAngleToIntake(int slotNumber, double indexer_angle) {
@@ -110,7 +83,7 @@ public class IndexerMotionPlanner {
     }
 
     public double findAngleGoalToIntake(int slotNumber, double indexer_angle) {
-        return findAngleToIntake(slotNumber, indexer_angle);
+        return findAngleToIntake(slotNumber, indexer_angle) + indexer_angle;
     }
 
     public double findSnappedAngleToGoal(double indexer_angle) {
@@ -191,38 +164,19 @@ public class IndexerMotionPlanner {
         return Math.abs(findNearestDeadSpot(indexer_angle, turret_angle)) < Constants.kIndexerDeadband;
     }
 
-    public int findNearestOpenSlot(double indexer_angle, ProxyStatus proxy_status) {
-        int currentSlot = findNearestSlotToIntake(indexer_angle);
-        int slotGoal;
-
-        boolean frontProxy = proxy_status.front_proxy;
-        boolean rightProxy = proxy_status.right_proxy;
-        boolean leftProxy = proxy_status.left_proxy;
-        boolean backRightProxy = proxy_status.back_right_proxy;
-        boolean backLeftProxy = proxy_status.back_left_proxy;
-        
-        if (!frontProxy) {
-            slotGoal = currentSlot;
-        } else {
-            if (!rightProxy) {
-                slotGoal = currentSlot + 1;
-            } else {
-                if (!leftProxy) {
-                    slotGoal = currentSlot - 1;
-                } else {
-                    if (!backRightProxy) {
-                        slotGoal = currentSlot + 2;
-                    } else {
-                        if (!backLeftProxy) {
-                            slotGoal = currentSlot - 2;
-                        } else {
-                            slotGoal = currentSlot; // all slots filled
-                        }
-                    }
-                }
+    public int findNearestOpenSlot(double indexer_angle) {
+        int currentSlot = findNearestSlot(indexer_angle, 0);
+        int idx = currentSlot;
+        for (int i = 0; i < 5; i++) {
+            if (!slots[idx]) {
+                return idx;
+            }
+            idx++;
+            if (idx > 4) {
+                idx = 0;
             }
         }
 
-        return wrapSlotNumber(slotGoal);
+        return currentSlot;
     }
 }

@@ -1,8 +1,8 @@
 /*----------------------------------------------------------------------------*/
-/* Copyright (c) 2018 FIRST. All Rights Reserved.                                                         */
-/* Open Source Software - may be modified and shared by FRC teams. The code     */
+/* Copyright (c) 2018 FIRST. All Rights Reserved.                             */
+/* Open Source Software - may be modified and shared by FRC teams. The code   */
 /* must be accompanied by the FIRST BSD license file in the root directory of */
-/* the project.                                                                                                                             */
+/* the project.                                                               */
 /*----------------------------------------------------------------------------*/
 
 package com.team1678.frc2020;
@@ -14,7 +14,7 @@ import com.team1678.frc2020.auto.modes.AutoModeBase;
 import com.team1678.frc2020.controlboard.ControlBoard;
 import com.team1678.frc2020.loops.Looper;
 import com.team1678.frc2020.paths.TrajectoryGenerator;
-// import com.team1678.frc2020.subsystems.Climber;
+import com.team1678.frc2020.subsystems.Climber;
 import com.team1678.frc2020.subsystems.Drive;
 import com.team1678.frc2020.subsystems.Indexer;
 import com.team1678.frc2020.subsystems.Infrastructure;
@@ -23,8 +23,14 @@ import com.team1678.frc2020.subsystems.LEDs;
 import com.team1678.frc2020.subsystems.Limelight;
 import com.team1678.frc2020.subsystems.Shooter;
 import com.team1678.frc2020.subsystems.Superstructure.TurretControlModes;
-// import com.team1678.frc2020.subsystems.Wrangler;
+import com.team1678.frc2020.subsystems.Wrangler;
 import com.team1678.frc2020.controlboard.ControlBoard;
+import com.team1678.frc2020.controlboard.GamepadButtonControlBoard;
+import com.team1678.frc2020.logger.LoggingSystem;
+import com.team254.lib.wpilib.TimedRobot;
+import com.team1678.frc2020.SubsystemManager;
+import com.team1678.frc2020.subsystems.*;
+import com.team254.lib.util.*;
 import com.team254.lib.wpilib.TimedRobot;
 
 import java.util.Optional;
@@ -35,6 +41,7 @@ import com.team254.lib.util.*;
 import com.team254.lib.vision.AimingParameters;
 import com.team254.lib.geometry.Rotation2d;
 import com.team1678.frc2020.subsystems.RobotStateEstimator;
+import com.team1678.frc2020.subsystems.Indexer.WantedAction;
 import com.team254.lib.geometry.Pose2d;
 import com.team254.lib.geometry.Rotation2d;
 import com.team254.lib.util.CrashTracker;
@@ -58,28 +65,32 @@ public class Robot extends TimedRobot {
 
     private final Looper mEnabledLooper = new Looper();
     private final Looper mDisabledLooper = new Looper();
+    private final Looper mLoggingLooper = new Looper();
+
 
     private final ControlBoard mControlBoard = ControlBoard.getInstance();
     private TrajectoryGenerator mTrajectoryGenerator = TrajectoryGenerator.getInstance();
 
     private final SubsystemManager mSubsystemManager = SubsystemManager.getInstance();
-    // private final Climber mClimber = Climber.getInstance();
+    private final Climber mClimber = Climber.getInstance();
     private final Drive mDrive = Drive.getInstance();
-    private final Infrastructure mInfrastructure = Infrastructure.getInstance();
-    private final Limelight mLimelight = Limelight.getInstance();
     private final Indexer mIndexer = Indexer.getInstance();
+    private final Infrastructure mInfrastructure = Infrastructure.getInstance();
+    private final LEDs mLEDs = LEDs.getInstance();
+    private final Limelight mLimelight = Limelight.getInstance();
     private final Intake mIntake = Intake.getInstance();
     private final Superstructure mSuperstructure = Superstructure.getInstance();
     private final Turret mTurret = Turret.getInstance();
-    private final LEDs mLEDs = LEDs.getInstance();
     private final Shooter mShooter = Shooter.getInstance();
-    // private final Wrangler mWrangler = Wrangler.getInstance();
+    private final Wrangler mWrangler = Wrangler.getInstance();
 
     private final RobotState mRobotState = RobotState.getInstance();
     private final RobotStateEstimator mRobotStateEstimator = RobotStateEstimator.getInstance();
-
+    private boolean climb_mode = false;
     private AutoModeExecutor mAutoModeExecutor;
     private AutoModeSelector mAutoModeSelector = new AutoModeSelector();
+
+    private LoggingSystem mLogger = LoggingSystem.getInstance();
 
     public Robot() {
         CrashTracker.logRobotConstruction();
@@ -149,8 +160,18 @@ public class Robot extends TimedRobot {
         try {
             CrashTracker.logRobotInit();
 
-            mSubsystemManager.setSubsystems(mRobotStateEstimator, mDrive, mLimelight, mIntake, mSuperstructure,
-                    mTurret);
+            mSubsystemManager.setSubsystems(
+                mRobotStateEstimator, 
+                mDrive, 
+                mLimelight, 
+                mIntake, 
+                mIndexer, 
+                mWrangler, 
+                mShooter,
+                mSuperstructure,
+                mTurret,
+                mInfrastructure
+            );
 
             mSubsystemManager.registerEnabledLoops(mEnabledLooper);
             mSubsystemManager.registerDisabledLoops(mDisabledLooper);
@@ -160,17 +181,14 @@ public class Robot extends TimedRobot {
             mDrive.setHeading(Rotation2d.identity());
 
             mLimelight.setLed(Limelight.LedMode.OFF);
+            mIntake.registerLogger(mLogger);
+            mLogger.registerLoops(mLoggingLooper);
 
             mTrajectoryGenerator.generateTrajectories();
         } catch (Throwable t) {
             CrashTracker.logThrowableCrash(t);
             throw t;
         }
-    }
-
-    public void outputToSmartDashboard() {
-        RobotState.getInstance().outputToSmartDashboard();
-        mSubsystemManager.outputToSmartDashboard();
     }
 
     @Override
@@ -206,7 +224,7 @@ public class Robot extends TimedRobot {
             throw t;
         }
     }
-
+    
     @Override
     public void teleopInit() {
         try {
@@ -237,18 +255,63 @@ public class Robot extends TimedRobot {
             double throttle = mControlBoard.getThrottle();
             double turn = mControlBoard.getTurn();
 
-            mDrive.setCheesyishDrive(throttle, -turn, mControlBoard.getQuickTurn());
-
-            if (mControlBoard.getRunIntake()) {
-                mIntake.setState(Intake.WantedAction.INTAKE);
-            } else if (mControlBoard.getRunOuttake()) {
-                mIntake.setState(Intake.WantedAction.OUTTAKE);
-            } else {
-                mIntake.setState(Intake.WantedAction.NONE);
-            }
+            mDrive.setCheesyishDrive(throttle, turn, mControlBoard.getQuickTurn());
 
             mSuperstructure.setWantFieldRelativeTurret(mControlBoard.getTurretCardinal().rotation);
 
+            if (mControlBoard.climbMode()) {
+                climb_mode = true;
+                System.out.println("climb mode");
+            }
+
+            if (!climb_mode){ //TODO: turret preset stuff and jog turret and rumbles
+                if (mIndexer.slotsFilled()) {
+                    mControlBoard.setRumble(false);
+                } else {
+                    mControlBoard.setRumble(false);
+                }
+                
+                if (mControlBoard.getShoot()){
+                    mSuperstructure.setWantShoot();    
+                } else if (mControlBoard.getSpinUp()) {
+                    mSuperstructure.setWantSpinUp();
+                } else if (mControlBoard.getRunIntake()) {
+                    mIntake.setState(Intake.WantedAction.INTAKE);
+                    mSuperstructure.setAutoIndex(true);
+                } else if (mControlBoard.getRetractIntake()) {
+                    mIntake.setState(Intake.WantedAction.RETRACT);
+                } else if (mControlBoard.getControlPanelRotation()) {
+                    mIntake.setState(Intake.WantedAction.INTAKE);
+                    mSuperstructure.setAutoIndex(false);
+                    mIndexer.setBackwardsMode(false);
+                } else if (mControlBoard.getControlPanelPosition()) {
+                    // mRoller.setState(Roller.WantedAction.ACHIEVE_POSITION_CONTROL);
+                    mIntake.setState(Intake.WantedAction.INTAKE);
+                    mSuperstructure.setAutoIndex(false);
+                    mIndexer.setBackwardsMode(true);
+                } else {
+                    mIntake.setState(Intake.WantedAction.NONE);
+                } 
+            } else {
+                mIndexer.setState(WantedAction.PREP);
+                mIntake.setState(Intake.WantedAction.NONE);
+                if (mControlBoard.getArmDeploy()) {
+                    mClimber.setState(Climber.WantedAction.EXTEND);
+                } else if (mControlBoard.getBuddyDeploy()) {
+                    mWrangler.setState(Wrangler.WantedAction.DEPLOY);
+                } else if (mControlBoard.getWrangle()) {
+                    mWrangler.setState(Wrangler.WantedAction.WRANGLE);
+                } else if (mControlBoard.getClimb()) {
+                    mClimber.setState(Climber.WantedAction.CLIMB);
+                } else if (mControlBoard.getSlowClimb()) {
+                    mClimber.setState(Climber.WantedAction.SLOW_CLIMB);
+                } else if (mControlBoard.getLeaveClimbMode()) {
+                    climb_mode = false;
+                } else {
+                    mWrangler.setState(Wrangler.WantedAction.NONE);
+                    mClimber.setState(Climber.WantedAction.NONE);
+                }
+            }
         } catch (Throwable t) {
             CrashTracker.logThrowableCrash(t);
             throw t;

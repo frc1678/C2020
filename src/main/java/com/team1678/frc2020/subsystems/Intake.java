@@ -1,29 +1,34 @@
 package com.team1678.frc2020.subsystems;
 
+import com.team1678.frc2020.logger.*;
+import com.team1678.frc2020.logger.LogStorage;
 import com.team1678.frc2020.Constants;
 import com.team1678.frc2020.loops.ILooper;
 import com.team1678.frc2020.loops.Loop;
 
 import com.team254.lib.drivers.SparkMaxFactory;
-
 import com.team254.lib.drivers.LazySparkMax;
-import com.team254.lib.util.ReflectingCSVWriter;
 
+import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-public class Intake extends Subsystem {
-    public static double kIntakingVoltage = 12.0;
-    public static double kOuttakingVoltage = -12.0;
-    public static double kIdleVoltage = 0;
+import java.util.ArrayList;
 
-    public static Intake mInstanceIntake;
+public class Intake extends Subsystem {
+    private static double kIntakingVoltage = -12.0;
+    private static double kIdleVoltage = 0;
+
+    private static Intake mInstance;
+
+    private Solenoid mDeploySolenoid;
 
     public enum WantedAction {
-        NONE, INTAKE, OUTTAKE,
+        NONE, INTAKE, RETRACT,
     }
 
     public enum State {
-        IDLE, INTAKING, OUTTAKING,
+        IDLE, INTAKING, RETRACTING,
     }
 
     private State mState = State.IDLE;
@@ -32,8 +37,6 @@ public class Intake extends Subsystem {
 
     private final LazySparkMax mMaster;
 
-    private ReflectingCSVWriter<PeriodicIO> mCSVWriter = null;
-
     public static class PeriodicIO {
         // INPUTS
         public double timestamp;
@@ -41,26 +44,30 @@ public class Intake extends Subsystem {
 
         // OUTPUTS
         public double demand;
+        public boolean deploy;
     }
+    LogStorage<PeriodicIO> mStorage = null;
+
 
     private Intake() {
-        mMaster = SparkMaxFactory.createDefaultSparkMax(Constants.kIntakeRollerID);
+        mMaster = SparkMaxFactory.createDefaultSparkMax(Constants.kIntakeRollerId);
+        mDeploySolenoid = Constants.makeSolenoidForId(Constants.kDeploySolenoidId);
+    }
+    public void registerLogger(LoggingSystem LS) {
+        LogSetup();
+        LS.register(mStorage, "intake.csv");
     }
 
     public synchronized static Intake getInstance() {
-        if (mInstanceIntake == null) {
-            mInstanceIntake = new Intake();
+        if (mInstance == null) {
+            mInstance = new Intake();
         }
-        return mInstanceIntake;
+        return mInstance;
     }
 
     @Override
     public synchronized void outputTelemetry() {
         SmartDashboard.putNumber("Intake Current", mPeriodicIO.current);
-
-        if (mCSVWriter != null) {
-            mCSVWriter.write();
-        }
     }
 
     @Override
@@ -93,7 +100,6 @@ public class Intake extends Subsystem {
             public void onStop(double timestamp) {
                 mState = State.IDLE;
                 stop();
-                stopLogging();
             }
         });
     }
@@ -106,9 +112,11 @@ public class Intake extends Subsystem {
         switch (mState) {
         case INTAKING:
                 mPeriodicIO.demand = kIntakingVoltage;
+                mPeriodicIO.deploy = true;
             break;
-        case OUTTAKING:
-                mPeriodicIO.demand = kOuttakingVoltage;
+        case RETRACTING:
+                mPeriodicIO.demand = 12;
+                mPeriodicIO.deploy = false;
             break;
         case IDLE:
                 mPeriodicIO.demand = kIdleVoltage;
@@ -131,8 +139,8 @@ public class Intake extends Subsystem {
         case INTAKE:
             mState = State.INTAKING;
             break;
-        case OUTTAKE:
-            mState = State.OUTTAKING;
+        case RETRACT:
+            mState = State.RETRACTING;
             break;
         }
 
@@ -140,14 +148,13 @@ public class Intake extends Subsystem {
 
     @Override
     public synchronized void readPeriodicInputs() {
-        if (mCSVWriter != null) {
-            mCSVWriter.add(mPeriodicIO);
-        }
+        LogSend();
     }
 
     @Override
     public void writePeriodicOutputs() {
         mMaster.set(mPeriodicIO.demand / 12.0);
+        mDeploySolenoid.set(mPeriodicIO.deploy);
     }
 
     @Override
@@ -155,16 +162,15 @@ public class Intake extends Subsystem {
         return true;
     }
 
-    public synchronized void startLogging() {
-        if (mCSVWriter == null) {
-            mCSVWriter = new ReflectingCSVWriter<>("/home/lvuser/INTAKE-LOGS.csv", PeriodicIO.class);
-        }
+    public void LogSetup() {
+        mStorage = new LogStorage<PeriodicIO>();
+        mStorage.setHeadersFromClass(PeriodicIO.class);
     }
-
-    public synchronized void stopLogging() {
-        if (mCSVWriter != null) {
-            mCSVWriter.flush();
-            mCSVWriter = null;
-        }
+    public void LogSend() {
+        ArrayList<Double> items = new ArrayList<Double>();
+        items.add(Timer.getFPGATimestamp());
+        items.add(mPeriodicIO.current);
+        items.add(mPeriodicIO.demand);  
+        mStorage.addData(items);
     }
 }

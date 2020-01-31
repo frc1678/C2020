@@ -26,6 +26,7 @@ public class Superstructure extends Subsystem {
     private final Hood mHood = Hood.getInstance();
     private final Indexer mIndexer = Indexer.getInstance();
     private final RobotState mRobotState = RobotState.getInstance();
+    private boolean mAutoIndex = false;
 
     private Rotation2d mFieldRelativeTurretGoal = null;
 
@@ -53,6 +54,7 @@ public class Superstructure extends Subsystem {
     private double mTurretSetpoint = 0.0;
     private double mHoodSetpoint = 0.0;
     private double mShooterSetpoint = 0.0;
+    private boolean mGotSpunUp = false;
 
     private TurretControlModes mTurretMode = TurretControlModes.FIELD_RELATIVE;
 
@@ -281,34 +283,44 @@ public class Superstructure extends Subsystem {
     }
 
     public synchronized void followSetpoint() {
+        mHood.setSetpointPositionPID(mHoodSetpoint, mHoodFeedforwardV);
+
+        Indexer.WantedAction indexerAction = Indexer.WantedAction.PREP;
+
+        if (Intake.getInstance().getState() == Intake.State.INTAKING) {
+            if (mAutoIndex) {
+                indexerAction = Indexer.WantedAction.INDEX;
+            } else {
+                indexerAction = Indexer.WantedAction.PASSIVE_INDEX;
+            }
+            mTurretSetpoint = 180.0;
+            mShooter.setOpenLoop(0, 0);
+        }
+
+        if (mWantsSpinUp && mIndexer.isAtDeadSpot()) {
+            mShooter.setVelocity(1000);
+            indexerAction = Indexer.WantedAction.PREP;
+        } else if (mWantsShoot) {
+            mShooter.setVelocity(1000);
+            if (mShooter.spunUp() || mGotSpunUp) {
+                indexerAction = Indexer.WantedAction.ZOOM;
+            } else {
+                indexerAction = Indexer.WantedAction.PREP;
+            }
+            if (mShooter.spunUp()) {
+                mGotSpunUp = true;
+            }
+        } else {
+            mShooter.setOpenLoop(0, 0);
+        }
+
+        mIndexer.setState(indexerAction);
+
         if (mTurretMode == TurretControlModes.OPEN_LOOP) {
             mTurret.setOpenLoop(mTurretThrottle);
         } else {
             mTurret.setSetpointMotionMagic(mTurretSetpoint);
         }
-
-        mHood.setSetpointPositionPID(mHoodSetpoint, mHoodFeedforwardV);
-
-        Indexer.WantedAction indexerAction = Indexer.WantedAction.NONE;
-
-        if (Intake.getInstance().getState() != Intake.State.IDLE) {
-            indexerAction = Indexer.WantedAction.INDEX;
-        }
-
-        if ((mWantsSpinUp && mIndexer.isAtDeadSpot())) {
-            mShooter.setVelocity(mShooterSetpoint);
-            indexerAction = Indexer.WantedAction.PREP;
-        } else if (mWantsShoot) {
-            mShooter.setVelocity(mShooterSetpoint);
-            if (mShooter.spunUp()) {
-                indexerAction = Indexer.WantedAction.ZOOM;
-            } else {
-                indexerAction = Indexer.WantedAction.PREP;
-            }
-        } else {
-            mShooter.setOpenLoop(0);
-        }
-        mIndexer.setState(indexerAction);
     }
 
     public synchronized void setWantAutoAim(Rotation2d field_to_turret_hint, boolean enforce_min_distance,
@@ -323,16 +335,23 @@ public class Superstructure extends Subsystem {
         setWantAutoAim(field_to_turret_hint, false, 500);
     }
 
-    public synchronized void setWantShoot(boolean shoot) {
-        mWantsShoot = shoot;
+    public synchronized void setWantShoot() {
+        mWantsSpinUp = false;
+        mWantsShoot = !mWantsShoot;
+        mGotSpunUp = false;
     }
 
     public synchronized void setWantInnerTarget(boolean inner) {
         mUseInnerTarget = inner;
     }
 
-    public synchronized void setWantSpinUp(boolean spin_up) {
-        mWantsSpinUp = spin_up;
+    public synchronized void setWantSpinUp() {
+        mWantsSpinUp = !mWantsSpinUp;
+        mWantsShoot = false;
+    }
+
+    public synchronized void setAutoIndex(boolean auto_index) {
+        mAutoIndex = auto_index;
     }
 
     public synchronized void setWantFieldRelativeTurret(Rotation2d field_to_turret) {

@@ -16,7 +16,7 @@ import java.util.Enumeration;
  * constants as well as constants determined through calibration.
  */
 public class Constants {
-    public static final double kLooperDt = 0.02;
+    public static final double kLooperDt = 0.01;
     public static final boolean kDebuggingOutput = false;
 
     /* I/O */
@@ -36,7 +36,7 @@ public class Constants {
     public static final double kRobotAngularInertia = 12.0; // kg m^2 TODO tune
     public static final double kRobotAngularDrag = 0.0; // N*m / (rad/sec) TODO tune
     public static final double kDriveVIntercept = 0.44; // V
-    public static final double kDriveKv = 0.129; // V per rad/s
+    public static final double kDriveKv = 0.167; // V per rad/s
     public static final double kDriveKa = 0.012; // V per rad/s^2
     public static final double kPathKX = 4.0; // units/s per unit of error
     public static final double kPathLookaheadTime = 0.4; // seconds to look ahead along the path for steering
@@ -51,8 +51,17 @@ public class Constants {
     public static final int kDriveVelocityIZone = 0;
     public static final double kDriveVoltageRampRate = 0.0;
 
-    // drive
+    // climber
+    public static final int kWinchMasterId = 11;
+    public static final int kWinchSlaveId = 12;
+    public static final int kArmSolenoidId = 1;
+    public static final int kBrakeSolenoidId = 4;
 
+    // wrangler
+    public static final int kWranglerId = 13;
+    public static final int kWranglerSolenoidId = 3;
+
+    // drive
     public static final int kRightDriveMasterId = 4;
     public static final int kRightDriveSlaveId = 3;
 
@@ -60,19 +69,38 @@ public class Constants {
     public static final int kLeftDriveSlaveId = 2;
 
     public static final int kIndexerId = 5;
-    public static final int kFeederId = 6;
 
     // Intake
-    public static final int kIntakeRollerID = 15;
+    public static final int kIntakeRollerId = 15;
+    public static final int kDeploySolenoidId = 0;
 
     // Color Panel
     public static final int kColorPanelID = 14;
 
     public static final double kVelocityConversion = 600.0 / 2048.0;
+
     // Indexer
+    public static final int kSlot0Proxy = 1;
+    public static final int kSlot1Proxy = 2;
+    public static final int kSlot2Proxy = 3;
+    public static final int kSlot3Proxy = 4;
+    public static final int kSlot4Proxy = 5;
+    public static final int kIndexerLimitSwitch = 6;
+
+    public static final double kIndexerKp = 0.2;
+    public static final double kIndexerKi = 0.;
+    public static final double kIndexerKd = 0.;
+    public static final double kIndexerKf = .05;
+    public static final double kIndexerVelocityKp = 0.05;
+    public static final double kIndexerVelocityKi = 0.;
+    public static final double kIndexerVelocityKd = 0.;
+    public static final double kIndexerVelocityKf = .05;
+    public static final int kIndexerMaxVelocity = 20000; // ticks / 100ms
+    public static final int kIndexerMaxAcceleration = 40000; // ticks / 100ms / sec
+
     public static final int kIndexerSlots = 5;
     public static final int kAnglePerSlot = 360 / kIndexerSlots;
-    public static final double kIndexerDeadband = 0.5; // degrees
+    public static final double kIndexerDeadband = 5.0; // degrees
 
     public static final double kTestEpsilon = 1e-6;
 
@@ -105,8 +133,8 @@ public class Constants {
         kTurretConstants.kPositionIZone = 0; // Ticks
         kTurretConstants.kPositionDeadband = 0; // Ticks
 
-        kTurretConstants.kMinUnitsLimit = -135.0;
-        kTurretConstants.kMaxUnitsLimit = 315.0;
+        kTurretConstants.kMinUnitsLimit = -360.0;
+        kTurretConstants.kMaxUnitsLimit = 360.0;
 
         kTurretConstants.kCruiseVelocity = 20000; // Ticks / 100ms
         kTurretConstants.kAcceleration = 30000; // Ticks / 100ms / s
@@ -170,9 +198,7 @@ public class Constants {
     public static final int kMainTurnJoystickPort = 0;
     public static final double kJoystickThreshold = 0.2;
 
-    // solenoids
     public static final int kPCMId = 20;
-    public static final int kDiskBrakeSolenoidId = 0;
     public static final int kPDPId = 21;
 
     // limelight
@@ -210,12 +236,14 @@ public class Constants {
     // shooter
     public static final int kMasterFlywheelID = 9;
     public static final int kSlaveFlywheelID = 10;
-    public static final int kTriggerWheelID = 11;
-    public static final double kShooterP = 0.1;
+    public static final int kTriggerWheelID = 6;
+    public static final double kShooterP = 0.15;
     public static final double kShooterI = 0.0;
     public static final double kShooterD = 0.0;
+    public static final double kShooterF = 0.05;
 
-    public static final double kTriggerRPM = 1000.0;
+
+    public static final double kTriggerRPM = 6000.0;
 
     public static final double kMaxTopLimelightHeight = 16.0;
 
@@ -232,7 +260,7 @@ public class Constants {
 
     public static Solenoid makeSolenoidForId(int solenoidId) {
         if (solenoidId < 8) {
-            return new Solenoid(solenoidId);
+            return new Solenoid(kPCMId, solenoidId);
         }
         throw new IllegalArgumentException("Solenoid ID not valid: " + solenoidId);
     }
