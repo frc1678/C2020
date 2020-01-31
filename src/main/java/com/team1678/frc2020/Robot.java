@@ -109,8 +109,8 @@ public class Robot extends TimedRobot {
         boolean spunUp = mShooter.spunUp();
         boolean slotsFilled = mIndexer.slotsFilled();
         Indexer.State indexerState = mIndexer.getState();
-        // Climber.State climberState = mClimber.getState();
-        // boolean buddyClimb = mWrangler.isBuddyClimbing();
+        Climber.State climberState = mClimber.getState();
+        boolean buddyClimb = mWrangler.isBuddyClimbing();
 
         LEDs.State ledState = LEDs.State.OFF;
 
@@ -144,13 +144,13 @@ public class Robot extends TimedRobot {
             }
         }
 
-        /*if (climberState == Climber.State.WINCHING) {
+        if (climberState == Climber.State.CLIMBING) {
             if (buddyClimb) {
                 ledState = LEDs.State.BUDDY_CLIMBING;
             } else {
                 ledState = LEDs.State.CLIMBING;
             }
-        }*/
+        }
 
         mLEDs.conformToState(ledState);
     }
@@ -329,10 +329,6 @@ public class Robot extends TimedRobot {
             mEnabledLooper.stop();
 
             mDrive.checkSystem();
-            // mCargoIntake.checkSystem();
-            // mWrist.checkSystem();
-            // mElevator.checkSystem();
-
         } catch (Throwable t) {
             CrashTracker.logThrowableCrash(t);
             throw t;

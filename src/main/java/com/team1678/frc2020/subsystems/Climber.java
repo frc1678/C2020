@@ -22,7 +22,7 @@ public class Climber extends Subsystem  {
         NONE, EXTEND, CLIMB, SLOW_CLIMB, BRAKE,
     }
 
-    private enum State {
+    public enum State {
         IDLE, EXTENDING, CLIMBING, SLOW_CLIMBING, BRAKING,
     }
 
