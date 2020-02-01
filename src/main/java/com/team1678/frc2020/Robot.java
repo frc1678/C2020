@@ -14,30 +14,14 @@ import com.team1678.frc2020.auto.modes.AutoModeBase;
 import com.team1678.frc2020.controlboard.ControlBoard;
 import com.team1678.frc2020.loops.Looper;
 import com.team1678.frc2020.paths.TrajectoryGenerator;
-import com.team1678.frc2020.subsystems.Drive;
-import com.team1678.frc2020.subsystems.Infrastructure;
-import com.team1678.frc2020.subsystems.Intake;
-import com.team1678.frc2020.subsystems.Limelight;
-import com.team1678.frc2020.controlboard.ControlBoard;
-import com.team1678.frc2020.controlboard.GamepadButtonControlBoard;
 import com.team1678.frc2020.logger.LoggingSystem;
-import com.team254.lib.wpilib.TimedRobot;
 import com.team1678.frc2020.SubsystemManager;
 import com.team1678.frc2020.subsystems.*;
-import com.team254.lib.util.*;
-import com.team254.lib.wpilib.TimedRobot;
-
-import java.util.Optional;
-
-import com.team1678.frc2020.SubsystemManager;
-import com.team1678.frc2020.subsystems.*;
-import com.team254.lib.util.*;
-import com.team254.lib.vision.AimingParameters;
-import com.team254.lib.geometry.Rotation2d;
 import com.team1678.frc2020.subsystems.RobotStateEstimator;
 import com.team1678.frc2020.subsystems.Indexer.WantedAction;
-import com.team254.lib.geometry.Pose2d;
+
 import com.team254.lib.geometry.Rotation2d;
+import com.team254.lib.geometry.Pose2d;
 import com.team254.lib.util.CrashTracker;
 import com.team254.lib.wpilib.TimedRobot;
 

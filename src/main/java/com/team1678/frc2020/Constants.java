@@ -1,11 +1,9 @@
 package com.team1678.frc2020;
 
 import com.team1678.frc2020.subsystems.ServoMotorSubsystem.ServoMotorSubsystemConstants;
-import com.team1678.frc2020.subsystems.ServoMotorSubsystem.TalonFXConstants;
 import com.team1678.frc2020.subsystems.Limelight.LimelightConstants;
 import com.team254.lib.geometry.Pose2d;
 import com.team254.lib.geometry.Rotation2d;
-import com.team254.lib.geometry.Translation2d;
 import edu.wpi.first.wpilibj.Solenoid;
 import java.net.NetworkInterface;
 import java.net.SocketException;

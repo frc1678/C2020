@@ -5,10 +5,8 @@ import java.util.ArrayList;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.DemandType;
 import com.ctre.phoenix.motorcontrol.can.BaseTalon;
-import com.ctre.phoenix.motorcontrol.can.TalonFX;
 
 import com.team1678.frc2020.Constants;
-import com.team254.lib.drivers.TalonUtil;
 import com.team254.lib.util.LatchedBoolean;
 
 import edu.wpi.first.wpilibj.DigitalInput;
@@ -25,8 +23,6 @@ public class Turret extends ServoMotorSubsystem {
     private HallCalibration calibration = new HallCalibration(0);
     private double mOffset = 0;
     private DigitalInput mLimitSwitch = new DigitalInput(0);
-
-    private static Canifier mCanifier = Canifier.getInstance();
 
     public synchronized static Turret getInstance() {
         if (mInstance == null) {

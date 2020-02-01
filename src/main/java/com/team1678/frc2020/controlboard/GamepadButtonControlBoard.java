@@ -1,15 +1,12 @@
 package com.team1678.frc2020.controlboard;
 
-import com.team1678.frc2020.Robot;
 import com.team1678.frc2020.Constants;
-import com.team1678.frc2020.controlboard.CustomXboxController.Button;
 import com.team1678.frc2020.controlboard.CustomXboxController.Side;
 import com.team254.lib.geometry.Rotation2d;
 import com.team254.lib.util.Deadband;
 import com.team254.lib.util.DelayedBoolean;
 
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.GenericHID.Hand;
 
 public class GamepadButtonControlBoard {
     private final double kDeadband = 0.15;

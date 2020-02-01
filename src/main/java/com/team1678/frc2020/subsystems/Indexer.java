@@ -10,7 +10,6 @@ import com.team1678.frc2020.loops.ILooper;
 import com.team1678.frc2020.loops.Loop;
 import com.team1678.frc2020.subsystems.Turret;
 import com.team254.lib.drivers.TalonFXFactory;
-import com.team254.lib.util.Util;
 import com.team1678.frc2020.planners.IndexerMotionPlanner;
 import com.team1678.lib.util.HallCalibration;
 
@@ -68,7 +67,6 @@ public class Indexer extends Subsystem {
     private DigitalInput mLimitSwitch = new DigitalInput(Constants.kIndexerLimitSwitch);
     private HallCalibration calibration = new HallCalibration(0);
     private double mOffset = 0;
-    private double mAngleGoal = 0;
 
     private Indexer() {
         mMaster = TalonFXFactory.createDefaultTalon(Constants.kIndexerId);

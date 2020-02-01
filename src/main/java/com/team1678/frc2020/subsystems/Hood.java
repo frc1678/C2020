@@ -2,16 +2,12 @@ package com.team1678.frc2020.subsystems;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.DemandType;
-import com.ctre.phoenix.motorcontrol.TalonFXFeedbackDevice;
-import com.ctre.phoenix.motorcontrol.can.TalonFX;
 
 import com.team1678.frc2020.Constants;
 import com.team1678.frc2020.subsystems.Canifier;
 import com.team254.lib.drivers.MotorChecker;
 import com.ctre.phoenix.motorcontrol.can.BaseTalon;
 import com.team254.lib.drivers.BaseTalonChecker;
-
-import com.team254.lib.drivers.TalonUtil;
 
 import java.util.ArrayList;
 

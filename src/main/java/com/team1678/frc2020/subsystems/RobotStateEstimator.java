@@ -7,7 +7,6 @@ import com.team1678.frc2020.loops.Loop;
 import com.team254.lib.geometry.Pose2d;
 import com.team254.lib.geometry.Rotation2d;
 import com.team254.lib.geometry.Twist2d;
-import com.team254.lib.util.InterpolatingDouble;
 
 public class RobotStateEstimator extends Subsystem {
     static RobotStateEstimator mInstance = new RobotStateEstimator();
