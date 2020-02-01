@@ -306,7 +306,7 @@ public class Superstructure extends Subsystem {
             } else {
                 indexerAction = Indexer.WantedAction.PASSIVE_INDEX;
             }
-            mTurretSetpoint = 180.0;
+            //mTurretSetpoint = 180.0;
             mShooter.setOpenLoop(0, 0);
         }
 
