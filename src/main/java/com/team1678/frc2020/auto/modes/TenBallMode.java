@@ -9,14 +9,11 @@ public class TenBallMode extends AutoModeBase {
 
     private DriveTrajectoryAction mStartToSteal;
     private DriveTrajectoryAction mStealToFirstShot;
-    private DriveTrajectoryAction mFirstShotToIntake;
     private DriveTrajectoryAction mIntakeAndShoot;
-    private DriveTrajectoryAction mIntakeToSecondShot;
 
     public TenBallMode() {
         mStartToSteal = new DriveTrajectoryAction(mTrajectoryGenerator.getTrajectorySet().startToSteal, true);
         mStealToFirstShot = new DriveTrajectoryAction(mTrajectoryGenerator.getTrajectorySet().stealToFirstShot, true);
-        mFirstShotToIntake = new DriveTrajectoryAction(mTrajectoryGenerator.getTrajectorySet().firstShotToIntake, true);
         mIntakeAndShoot = new DriveTrajectoryAction(mTrajectoryGenerator.getTrajectorySet().intakeAndShoot, true);
     }
 
@@ -26,8 +23,7 @@ public class TenBallMode extends AutoModeBase {
 
         runAction(mStartToSteal);
         runAction(mStealToFirstShot);
-        runAction(mFirstShotToIntake);
-        //runAction(mIntakeAndShoot);
+        runAction(mIntakeAndShoot);
         System.out.println("Auto Complete");
 
     }

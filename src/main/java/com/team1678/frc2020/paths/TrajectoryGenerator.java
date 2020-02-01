@@ -87,7 +87,6 @@ public class TrajectoryGenerator {
 
         public final Trajectory<TimedState<Pose2dWithCurvature>> startToSteal;
         public final Trajectory<TimedState<Pose2dWithCurvature>> stealToFirstShot;
-        public final Trajectory<TimedState<Pose2dWithCurvature>> firstShotToIntake;
         public final Trajectory<TimedState<Pose2dWithCurvature>> intakeAndShoot;
 
         private TrajectorySet() {
@@ -95,7 +94,6 @@ public class TrajectoryGenerator {
 
             startToSteal = getStartToSteal();
             stealToFirstShot = getStealToFirstShot();
-            firstShotToIntake = getFirstShotToIntake();
             intakeAndShoot = getIntakeAndShoot();
         }
 
@@ -127,23 +125,14 @@ public class TrajectoryGenerator {
                     kMaxVoltage);
         }
 
-        private Trajectory<TimedState<Pose2dWithCurvature>> getFirstShotToIntake() {
-            List<Pose2d> waypoints = new ArrayList<>();
-            waypoints.add(kShotPose);
-            waypoints.add(kShotPose.transformBy(Pose2d.fromTranslation(new Translation2d(40.0, 23.0))));
-            waypoints.add(kIntakePose);
-            waypoints.add(kUnderbarPose);
-            waypoints.add(kIntakePose2);
-            return generateTrajectory(false, waypoints,
-                    Arrays.asList(new CentripetalAccelerationConstraint(kMaxCentripetalAccel)), kMaxVelocity, kMaxAccel,
-                    kMaxVoltage);
-        }
-
         private Trajectory<TimedState<Pose2dWithCurvature>> getIntakeAndShoot() {
             List<Pose2d> waypoints = new ArrayList<>();
+            waypoints.add(kShotPose);
+            waypoints.add(kShotPose.transformBy(Pose2d.fromTranslation(new Translation2d(40.0, 15.0))));
             waypoints.add(kIntakePose);
             waypoints.add(kUnderbarPose);
             waypoints.add(kIntakePose2);
+            waypoints.add(kShotPose);
             return generateTrajectory(false, waypoints,
                     Arrays.asList(new CentripetalAccelerationConstraint(kMaxCentripetalAccel)), kMaxVelocity, kMaxAccel,
                     kMaxVoltage);
