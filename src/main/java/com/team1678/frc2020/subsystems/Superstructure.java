@@ -304,14 +304,17 @@ public class Superstructure extends Subsystem {
             mShooter.setVelocity(1000);
             if (mShooter.spunUp() || mGotSpunUp) {
                 indexerAction = Indexer.WantedAction.ZOOM;
+                mShooter.setPopoutSolenoid(true);
             } else {
                 indexerAction = Indexer.WantedAction.PREP;
+                mShooter.setPopoutSolenoid(false);
             }
             if (mShooter.spunUp()) {
                 mGotSpunUp = true;
             }
         } else {
             mShooter.setOpenLoop(0, 0);
+            mShooter.setPopoutSolenoid(false);
         }
 
         mIndexer.setState(indexerAction);
