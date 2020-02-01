@@ -71,7 +71,7 @@ public class TrajectoryGenerator {
     // ALL POSES DEFINED FOR THE CASE THAT ROBOT STARTS ON RIGHT! (mirrored about +x
     // axis for LEFT)
     public static final Pose2d kTestStartPose = new Pose2d(0.0, 0.0, Rotation2d.fromDegrees(0.0));
-    public static final Pose2d kTestFarPose = new Pose2d(100.0, -50.0, Rotation2d.fromDegrees(0.0));
+    public static final Pose2d kTestFarPose = new Pose2d(50.0, 0.0, Rotation2d.fromDegrees(0.0));
 
     public static final Pose2d kStartingPose = new Pose2d(140.0, -140.0, Rotation2d.fromDegrees(0.0));
     public static final Pose2d kStealCellPose = new Pose2d(230.0, -140.0, Rotation2d.fromDegrees(0.0));
@@ -89,6 +89,7 @@ public class TrajectoryGenerator {
     public class TrajectorySet {
 
         public final Trajectory<TimedState<Pose2dWithCurvature>> testPath;
+        public final Trajectory<TimedState<Pose2dWithCurvature>> testPathReversed;
 
         public final Trajectory<TimedState<Pose2dWithCurvature>> startToSteal;
         public final Trajectory<TimedState<Pose2dWithCurvature>> stealToFirstShot;
@@ -97,6 +98,7 @@ public class TrajectoryGenerator {
 
         private TrajectorySet() {
             testPath = getTestPath();
+            testPathReversed = getTestPathReversed();
 
             startToSteal = getStartToSteal();
             stealToFirstShot = getStealToFirstShot();
@@ -109,6 +111,15 @@ public class TrajectoryGenerator {
             waypoints.add(kTestStartPose);
             waypoints.add(kTestFarPose);
             return generateTrajectory(false, waypoints,
+                    Arrays.asList(new CentripetalAccelerationConstraint(kMaxCentripetalAccel)), kMaxVelocity, kMaxAccel,
+                    kMaxVoltage);
+        }
+        
+        private Trajectory<TimedState<Pose2dWithCurvature>> getTestPathReversed() {
+            List<Pose2d> waypoints = new ArrayList<>();
+            waypoints.add(kTestFarPose);
+            waypoints.add(kTestStartPose);
+            return generateTrajectory(true, waypoints,
                     Arrays.asList(new CentripetalAccelerationConstraint(kMaxCentripetalAccel)), kMaxVelocity, kMaxAccel,
                     kMaxVoltage);
         }

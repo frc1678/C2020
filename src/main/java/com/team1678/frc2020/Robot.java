@@ -105,15 +105,15 @@ public class Robot extends TimedRobot {
 
             mSubsystemManager.setSubsystems(
                 mRobotStateEstimator, 
-                mDrive, 
+                mDrive//, 
                 //mLimelight, 
-                mIntake, 
+               /* mIntake, 
                 mIndexer, 
                 mWrangler, 
                 mShooter,
                 mSuperstructure,
                 mTurret,
-                mInfrastructure
+                mInfrastructure*/
             );
 
             mSubsystemManager.registerEnabledLoops(mEnabledLooper);
