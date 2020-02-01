@@ -7,13 +7,13 @@ import com.ctre.phoenix.motorcontrol.DemandType;
 import com.ctre.phoenix.motorcontrol.can.BaseTalon;
 
 import com.team1678.frc2020.Constants;
-import com.team254.lib.util.LatchedBoolean;
-
-import edu.wpi.first.wpilibj.DigitalInput;
+import com.team1678.lib.util.HallCalibration;
 
 import com.team254.lib.drivers.MotorChecker;
 import com.team254.lib.drivers.BaseTalonChecker;
-import com.team1678.lib.util.HallCalibration;
+import com.team254.lib.util.LatchedBoolean;
+
+import edu.wpi.first.wpilibj.DigitalInput;
 
 public class Turret extends ServoMotorSubsystem {
     private static Turret mInstance;

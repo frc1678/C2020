@@ -88,15 +88,16 @@ public class Robot extends TimedRobot {
             CrashTracker.logRobotInit();
 
             mSubsystemManager.setSubsystems(
-                mRobotStateEstimator, 
-                mDrive, 
-                mLimelight, 
+                mRobotStateEstimator,
+                mClimber,
+                mDrive,
                 mIntake, 
-                mIndexer, 
-                mWrangler, 
+                mIndexer,
+                mLimelight, 
                 mShooter,
                 mSuperstructure,
                 mTurret,
+                mWrangler,
                 mInfrastructure
             );
 
@@ -256,10 +257,15 @@ public class Robot extends TimedRobot {
             mEnabledLooper.stop();
 
             mDrive.checkSystem();
-            // mCargoIntake.checkSystem();
-            // mWrist.checkSystem();
-            // mElevator.checkSystem();
-
+            mClimber.checkSystem();
+            mIndexer.checkSystem();
+            mInfrastructure.checkSystem();
+            mIntake.checkSystem();
+            mLimelight.checkSystem();
+            mShooter.checkSystem();
+            mSuperstructure.checkSystem();
+            mTurret.checkSystem();
+            mWrangler.checkSystem();
         } catch (Throwable t) {
             CrashTracker.logThrowableCrash(t);
             throw t;

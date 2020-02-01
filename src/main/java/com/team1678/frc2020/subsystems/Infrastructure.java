@@ -3,6 +3,7 @@ package com.team1678.frc2020.subsystems;
 import com.team1678.frc2020.Constants;
 import com.team1678.frc2020.loops.ILooper;
 import com.team1678.frc2020.loops.Loop;
+
 import edu.wpi.first.wpilibj.Compressor;
 
 public class Infrastructure extends Subsystem {

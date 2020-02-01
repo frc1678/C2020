@@ -1,19 +1,20 @@
 package com.team1678.frc2020.subsystems;
 
-import com.team1678.frc2020.Constants;
-import com.team1678.frc2020.loops.ILooper;
-import com.team1678.frc2020.loops.Loop;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.TalonFXFeedbackDevice;
 
-import edu.wpi.first.wpilibj.Solenoid;
-import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import com.team1678.frc2020.Constants;
+import com.team1678.frc2020.loops.ILooper;
+import com.team1678.frc2020.loops.Loop;
 
 import com.team254.lib.drivers.TalonFXFactory;
 import com.team254.lib.util.ReflectingCSVWriter;
 import com.team254.lib.util.Util;
+
+import edu.wpi.first.wpilibj.Solenoid;
+import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Shooter extends Subsystem {
     private static Shooter mInstance;

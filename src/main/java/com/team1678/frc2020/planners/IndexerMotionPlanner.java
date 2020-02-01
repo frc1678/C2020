@@ -72,39 +72,8 @@ public class IndexerMotionPlanner {
         return slots;
     }
 
-    public double findAngleToIntake(int slotNumber, double indexer_angle) {
-        double wrappedIndexerAngle = WrapDegrees(indexer_angle);
-
-        double slotAngle = WrapDegrees(slotNumber * Constants.kAnglePerSlot) - wrappedIndexerAngle;
-
-        double angleGoal = WrapDegrees(slotAngle);
-
-        return angleGoal;
-    }
-
     public double findAngleGoalToIntake(int slotNumber, double indexer_angle) {
-        return findAngleToIntake(slotNumber, indexer_angle) + indexer_angle;
-    }
-
-    public double findSnappedAngleToGoal(double indexer_angle) {
-        double wrappedIndexerAngle = WrapDegrees(indexer_angle);
-        double angleGoal;
-
-        if (wrappedIndexerAngle >= 0) {
-            angleGoal = 72 - wrappedIndexerAngle % 72;
-        } else {
-            angleGoal = -72 - wrappedIndexerAngle % 72;
-        }
-
-        if (Math.abs(angleGoal) > 36) {
-            angleGoal -= 72 * Math.signum(angleGoal);
-        }
-
-        return angleGoal;
-    }
-
-    public double findSnappedAngleGoal(double indexer_angle) {
-        return findSnappedAngleToGoal(indexer_angle) + indexer_angle;
+        return findAngleGoal(slotNumber, indexer_angle, 0);
     }
 
     public boolean isSnapped(double indexer_angle) {
@@ -138,30 +107,20 @@ public class IndexerMotionPlanner {
         return angleGoal;
     }
 
-    public double findNearestDeadSpot(double indexer_angle, double turret_angle) {
-        double wrappedIndexerAngle = WrapDegrees(indexer_angle);
-        double wrappedTurretAngle = WrapDegrees(turret_angle);
-
-        int slotNumber = findNearestSlot(indexer_angle, turret_angle);
-        double slotAngle = WrapDegrees(slotNumber * Constants.kAnglePerSlot) + wrappedIndexerAngle;
-
-        double angleGoal = WrapDegrees(wrappedTurretAngle - slotAngle);
-
-        if (angleGoal >= 0) {
-            angleGoal -= 36;
-        } else {
-            angleGoal += 36;
-        }
-
-        return angleGoal;
+    public double findNearestDeadSpot(int slotNumber, double indexer_angle, double turret_angle) {
+        return findAngleGoal(slotNumber, indexer_angle, turret_angle) + 36.0;
     }
 
     public boolean isAtGoal(int slotNumber, double indexer_angle, double turret_angle) {
         return Math.abs(findAngleToGoal(slotNumber, indexer_angle, turret_angle)) < Constants.kIndexerDeadband;
     }
 
-    public boolean isAtDeadSpot(double indexer_angle, double turret_angle) {
-        return Math.abs(findNearestDeadSpot(indexer_angle, turret_angle)) < Constants.kIndexerDeadband;
+    public boolean isAtDeadSpot(int slotNumber, double indexer_angle, double turret_angle) {
+        return Math.abs(findNearestDeadSpot(slotNumber, indexer_angle, turret_angle) - 36.0) < Constants.kIndexerDeadband;
+    }
+
+    public boolean isAtIntake(int slotNumber, double indexer_angle) {
+        return Math.abs(findAngleToGoal(slotNumber, indexer_angle, 0)) < Constants.kIndexerDeadband;
     }
 
     public int findNearestOpenSlot(double indexer_angle) {

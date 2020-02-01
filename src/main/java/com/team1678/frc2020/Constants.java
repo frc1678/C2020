@@ -1,10 +1,13 @@
 package com.team1678.frc2020;
 
-import com.team1678.frc2020.subsystems.ServoMotorSubsystem.ServoMotorSubsystemConstants;
 import com.team1678.frc2020.subsystems.Limelight.LimelightConstants;
+import com.team1678.frc2020.subsystems.ServoMotorSubsystem.ServoMotorSubsystemConstants;
+
 import com.team254.lib.geometry.Pose2d;
 import com.team254.lib.geometry.Rotation2d;
+
 import edu.wpi.first.wpilibj.Solenoid;
+
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.util.Enumeration;
@@ -25,7 +28,7 @@ public class Constants {
 
     /* ROBOT PHYSICAL CONSTANTS */
     // Wheels
-    public static final double kDriveWheelTrackWidthInches = 29.00;
+    public static final double kDriveWheelTrackWidthInches = 29.0;
     public static final double kDriveWheelDiameterInches = 6.0;
     public static final double kDriveWheelRadiusInches = kDriveWheelDiameterInches / 2.0;
     public static final double kTrackScrubFactor = 1.0; // Tune me!
@@ -86,12 +89,12 @@ public class Constants {
     public static final int kIndexerLimitSwitch = 6;
 
     public static final double kIndexerKp = 0.2;
-    public static final double kIndexerKi = 0.;
-    public static final double kIndexerKd = 0.;
+    public static final double kIndexerKi = 0.0;
+    public static final double kIndexerKd = 0.0;
     public static final double kIndexerKf = .05;
     public static final double kIndexerVelocityKp = 0.05;
-    public static final double kIndexerVelocityKi = 0.;
-    public static final double kIndexerVelocityKd = 0.;
+    public static final double kIndexerVelocityKi = 0.0;
+    public static final double kIndexerVelocityKd = 0.0;
     public static final double kIndexerVelocityKf = .05;
     public static final int kIndexerMaxVelocity = 20000; // ticks / 100ms
     public static final int kIndexerMaxAcceleration = 40000; // ticks / 100ms / sec
@@ -115,7 +118,7 @@ public class Constants {
         kTurretConstants.kHomePosition = 0.0; // CCW degrees from forward
         kTurretConstants.kTicksPerUnitDistance = (2048.0 * 36.0) / 360.0;
         kTurretConstants.kKp = 0.5;
-        kTurretConstants.kKi = 0;
+        kTurretConstants.kKi = 0.0;
         kTurretConstants.kKd = 0.0;
         kTurretConstants.kKf = 0.05;
         kTurretConstants.kKa = 0.0;
@@ -159,16 +162,16 @@ public class Constants {
         kHoodConstants.kHomePosition = 0.0; // Degrees
         kHoodConstants.kTicksPerUnitDistance = (4096.0 * 3.0) / 360.0;
         kHoodConstants.kKp = 0.2;
-        kHoodConstants.kKi = 0;
-        kHoodConstants.kKd = 1;
+        kHoodConstants.kKi = 0.0;
+        kHoodConstants.kKd = 1.0;
         kHoodConstants.kKf = 0.6;
         kHoodConstants.kMaxIntegralAccumulator = 0;
         kHoodConstants.kIZone = 0; // Ticks
         kHoodConstants.kDeadband = 0; // Ticks
 
         kHoodConstants.kPositionKp = 0.2;
-        kHoodConstants.kPositionKi = 0;
-        kHoodConstants.kPositionKd = 1;
+        kHoodConstants.kPositionKi = 0.0;
+        kHoodConstants.kPositionKd = 1.0;
         kHoodConstants.kPositionKf = 0.0;
         kHoodConstants.kPositionMaxIntegralAccumulator = 0;
         kHoodConstants.kPositionIZone = 0; // Ticks
@@ -254,8 +257,8 @@ public class Constants {
     // Drive control
     public static final double kStingerForwardPower = 0.8;
     public static final double kClimbingElevatorHeightForLowShift = 10.0; // in
-    public static final double kJogTurretScalar = -22;
-    public static final double kInnerGoalDepth = 0;
+    public static final double kJogTurretScalar = -22.0;
+    public static final double kInnerGoalDepth = 0.0;
 
     public static Solenoid makeSolenoidForId(int solenoidId) {
         if (solenoidId < 8) {

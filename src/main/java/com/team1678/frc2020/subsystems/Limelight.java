@@ -2,17 +2,18 @@ package com.team1678.frc2020.subsystems;
 
 import com.team1678.frc2020.Constants;
 import com.team1678.frc2020.RobotState;
+import com.team1678.frc2020.loops.Loop;
+import com.team1678.frc2020.loops.ILooper;
+
 import com.team254.lib.geometry.Pose2d;
 import com.team254.lib.geometry.Rotation2d;
 import com.team254.lib.geometry.Translation2d;
 import com.team254.lib.util.Util;
 import com.team254.lib.vision.TargetInfo;
+
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import com.team1678.frc2020.loops.Loop;
-import com.team1678.frc2020.loops.ILooper;
-import com.team1678.frc2020.RobotState;
 
 import java.util.ArrayList;
 import java.util.Arrays;

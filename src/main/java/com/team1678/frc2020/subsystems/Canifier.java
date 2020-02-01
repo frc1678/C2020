@@ -2,6 +2,7 @@ package com.team1678.frc2020.subsystems;
 
 import com.ctre.phoenix.CANifier;
 import com.ctre.phoenix.CANifierStatusFrame;
+
 import com.team1678.frc2020.Constants;
 
 public class Canifier extends Subsystem {

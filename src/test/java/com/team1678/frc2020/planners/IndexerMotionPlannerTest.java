@@ -131,10 +131,10 @@ public class IndexerMotionPlannerTest {
     @Test
     public void testPrepShoot() {
         IndexerMotionPlanner motion_planner = new IndexerMotionPlanner();
-        int slotGoal = motion_planner.findNearestSlot(-90, 90);
-        double angleGoal = motion_planner.findNearestDeadSpot(-90, 90);
-        Assert.assertEquals(3, slotGoal);
-        Assert.assertEquals(0, angleGoal, Constants.kTestEpsilon);
+        int slotGoal = motion_planner.findNearestSlot(0, 0);
+        double angleGoal = motion_planner.findNearestDeadSpot(slotGoal, 0, 0);
+        Assert.assertEquals(0, slotGoal);
+        Assert.assertEquals(36, angleGoal, Constants.kTestEpsilon);
     }
 
     @Test
@@ -202,7 +202,6 @@ public class IndexerMotionPlannerTest {
         }
         final double indexer_angle = motion_planner.WrapDegrees(indexerSim.update(0));
         final double turret_angle = motion_planner.WrapDegrees(turretSim.update(0));
-        System.out.println(indexer_angle + " " + turret_angle + " " + angleGoal);
         Assert.assertEquals(1, motion_planner.findNearestSlot(indexer_angle, turret_angle));
         Assert.assertTrue(motion_planner.isAtGoal(slotGoal, indexer_angle, turret_angle));
     }
