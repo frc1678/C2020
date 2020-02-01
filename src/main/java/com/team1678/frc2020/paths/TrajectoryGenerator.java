@@ -73,13 +73,13 @@ public class TrajectoryGenerator {
     public static final Pose2d kTestStartPose = new Pose2d(0.0, 0.0, Rotation2d.fromDegrees(0.0));
     public static final Pose2d kTestFarPose = new Pose2d(100.0, -50.0, Rotation2d.fromDegrees(0.0));
 
-    public static final Pose2d kStartingPose = new Pose2d(110.0, -140.0, Rotation2d.fromDegrees(0.0));
+    public static final Pose2d kStartingPose = new Pose2d(140.0, -140.0, Rotation2d.fromDegrees(0.0));
     public static final Pose2d kStealCellPose = new Pose2d(230.0, -140.0, Rotation2d.fromDegrees(0.0));
     public static final Pose2d kPrepFirstShotPose = new Pose2d(180.0, 30.0, Rotation2d.fromDegrees(-90.0));
-    public static final Pose2d kShotPose = new Pose2d(180.0, 70.0, Rotation2d.fromDegrees(0.0));
-    public static final Pose2d kIntakePose = new Pose2d(245.0, 55.0, Rotation2d.fromDegrees(-60.0));
-    public static final Pose2d kUnderbarPose = new Pose2d(255.0, 15.0, Rotation2d.fromDegrees(210.0));
-    public static final Pose2d kIntakePose2 = new Pose2d(245.0, 0.0, Rotation2d.fromDegrees(-90.0));
+    public static final Pose2d kShotPose = new Pose2d(180.0, 75.0, Rotation2d.fromDegrees(0.0));
+    public static final Pose2d kIntakePose = new Pose2d(245.0, 55.0, Rotation2d.fromDegrees(-70.0));
+    public static final Pose2d kUnderbarPose = new Pose2d(255.0, 0.0, Rotation2d.fromDegrees(280.0));
+    public static final Pose2d kIntakePose2 = new Pose2d(180.0, 20.0, Rotation2d.fromDegrees(145.0));
 
     public class TrajectorySet {
 
@@ -88,8 +88,7 @@ public class TrajectoryGenerator {
         public final Trajectory<TimedState<Pose2dWithCurvature>> startToSteal;
         public final Trajectory<TimedState<Pose2dWithCurvature>> stealToFirstShot;
         public final Trajectory<TimedState<Pose2dWithCurvature>> firstShotToIntake;
-        public final Trajectory<TimedState<Pose2dWithCurvature>> intakeCells;
-        public final Trajectory<TimedState<Pose2dWithCurvature>> intakeToSecondShot;
+        public final Trajectory<TimedState<Pose2dWithCurvature>> intakeAndShoot;
 
         private TrajectorySet() {
             testPath = getTestPath();
@@ -97,8 +96,7 @@ public class TrajectoryGenerator {
             startToSteal = getStartToSteal();
             stealToFirstShot = getStealToFirstShot();
             firstShotToIntake = getFirstShotToIntake();
-            intakeCells = getIntakeCells();
-            intakeToSecondShot = getIntakeToSecondShot();
+            intakeAndShoot = getIntakeAndShoot();
         }
 
         private Trajectory<TimedState<Pose2dWithCurvature>> getTestPath() {
@@ -132,14 +130,7 @@ public class TrajectoryGenerator {
         private Trajectory<TimedState<Pose2dWithCurvature>> getFirstShotToIntake() {
             List<Pose2d> waypoints = new ArrayList<>();
             waypoints.add(kShotPose);
-            waypoints.add(kIntakePose);
-            return generateTrajectory(false, waypoints,
-                    Arrays.asList(new CentripetalAccelerationConstraint(kMaxCentripetalAccel)), kMaxVelocity, kMaxAccel,
-                    kMaxVoltage);
-        }
-
-        private Trajectory<TimedState<Pose2dWithCurvature>> getIntakeCells() {
-            List<Pose2d> waypoints = new ArrayList<>();
+            waypoints.add(kShotPose.transformBy(Pose2d.fromTranslation(new Translation2d(40.0, 23.0))));
             waypoints.add(kIntakePose);
             waypoints.add(kUnderbarPose);
             waypoints.add(kIntakePose2);
@@ -148,15 +139,14 @@ public class TrajectoryGenerator {
                     kMaxVoltage);
         }
 
-        private Trajectory<TimedState<Pose2dWithCurvature>> getIntakeToSecondShot() {
+        private Trajectory<TimedState<Pose2dWithCurvature>> getIntakeAndShoot() {
             List<Pose2d> waypoints = new ArrayList<>();
+            waypoints.add(kIntakePose);
+            waypoints.add(kUnderbarPose);
             waypoints.add(kIntakePose2);
-            waypoints.add(kIntakePose2.transformBy(Pose2d.fromTranslation(new Translation2d(-65.0, 0.0))));
-            waypoints.add(kShotPose);
-            return generateTrajectory(true, waypoints,
+            return generateTrajectory(false, waypoints,
                     Arrays.asList(new CentripetalAccelerationConstraint(kMaxCentripetalAccel)), kMaxVelocity, kMaxAccel,
                     kMaxVoltage);
         }
-
     }
 }
