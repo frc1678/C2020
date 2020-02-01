@@ -7,7 +7,7 @@ import edu.wpi.first.wpilibj.Timer;
  */
 public class WaitAction implements Action {
 
-    private double mTimeToWait;
+    private final double mTimeToWait;
     private double mStartTime;
 
     public WaitAction(double timeToWait) {

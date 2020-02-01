@@ -336,6 +336,14 @@ public class Superstructure extends Subsystem {
         }
     }
 
+    public synchronized Optional<AimingParameters> getLatestAimingParameters() {
+        return mLatestAimingParameters;
+    }
+
+    public synchronized boolean isOnTarget() {
+        return mOnTarget;
+    }
+    
     public synchronized void setWantAutoAim(Rotation2d field_to_turret_hint, boolean enforce_min_distance,
             double min_distance) {
         mTurretMode = TurretControlModes.VISION_AIMED;
