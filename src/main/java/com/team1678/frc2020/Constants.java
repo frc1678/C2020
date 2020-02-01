@@ -49,6 +49,11 @@ public class Constants {
     public static final double kDriveVelocityKd = 1.0;
     public static final double kDriveVelocityKf = 0.0;
     public static final int kDriveVelocityIZone = 0;
+    public static final double kDrivePositionKp = 0.05;
+    public static final double kDrivePositionKi = 0.0;
+    public static final double kDrivePositionKd = 0.2;
+    public static final double kDrivePositionKf = 0.0;
+    public static final int kDrivePositionIZone = 0;
     public static final double kDriveVoltageRampRate = 0.0;
 
     // climber

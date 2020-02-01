@@ -34,6 +34,7 @@ import java.util.ArrayList;
 public class Drive extends Subsystem {
 
     private static final int kVelocityControlSlot = 0;
+    private static final int kPositionControlSlot = 0;
     private static final double DRIVE_ENCODER_PPR = 2048. * 10.;
     private static Drive mInstance = new Drive();
     // Hardware
@@ -158,6 +159,10 @@ public class Drive extends Subsystem {
 
     private static double inchesToRotations(double inches) {
         return inches / (Constants.kDriveWheelDiameterInches * Math.PI);
+    }
+
+    private static double inchesToTicks(double inches) {
+        return inchesToRotations(inches) * DRIVE_ENCODER_PPR;
     }
 
     private static double inchesPerSecondToRpm(double inches_per_second) {
@@ -365,6 +370,7 @@ public class Drive extends Subsystem {
         SmartDashboard.putNumber("Left Drive Distance", mPeriodicIO.left_distance);
         SmartDashboard.putNumber("Right Linear Velocity", getRightLinearVelocity());
         SmartDashboard.putNumber("Left Linear Velocity", getLeftLinearVelocity());
+        SmartDashboard.putString("Control State", mDriveControlState.toString());
 
         if(getHeading() != null) {
             SmartDashboard.putNumber("Gyro Heading", getHeading().getDegrees());
@@ -444,9 +450,13 @@ public class Drive extends Subsystem {
 
     public synchronized void setWantTurnToHeading(Rotation2d heading) {
         if (mDriveControlState != DriveControlState.TURN_TO_HEADING) {
+            mLeftMaster.selectProfileSlot(kPositionControlSlot, 0);
+            mRightMaster.selectProfileSlot(kPositionControlSlot, 0);
+            mLeftMaster.configNeutralDeadband(0.0, 0);
+            mRightMaster.configNeutralDeadband(0.0, 0);
             mDriveControlState = DriveControlState.TURN_TO_HEADING;
-            mPeriodicIO.left_demand = getLeftEncoderDistance();
-            mPeriodicIO.right_demand = getRightEncoderDistance();
+            mPeriodicIO.left_demand = inchesToTicks(getLeftEncoderDistance());
+            mPeriodicIO.right_demand = inchesToTicks(getRightEncoderDistance());
         }
         if (Math.abs(heading.inverse().rotateBy(mTargetHeading).getDegrees()) > 1E-3) {
             mTargetHeading = heading;
@@ -468,15 +478,15 @@ public class Drive extends Subsystem {
                 && Math.abs(getLeftLinearVelocity()) < kGoalVelTolerance) {
             // Use the current setpoint and base lock.
             mIsOnTarget = true;
-            mPeriodicIO.left_demand = getLeftEncoderDistance();
-            mPeriodicIO.right_demand = getRightEncoderDistance();
+            mPeriodicIO.left_demand = inchesToTicks(getLeftEncoderDistance());
+            mPeriodicIO.right_demand = inchesToTicks(getRightEncoderDistance());
             return;
         }
 
         DriveSignal wheel_delta = Kinematics
                 .inverseKinematics(new Twist2d(0, 0, robot_to_target.getRadians()));
-        mPeriodicIO.left_demand = wheel_delta.getLeft() + getLeftEncoderDistance();
-        mPeriodicIO.right_demand = wheel_delta.getRight() + getRightEncoderDistance();
+        mPeriodicIO.left_demand =  inchesToTicks(wheel_delta.getLeft() + getLeftEncoderDistance());
+        mPeriodicIO.right_demand = inchesToTicks(wheel_delta.getRight() + getRightEncoderDistance());
     }
 
     private void updatePathFollower() {
@@ -517,6 +527,18 @@ public class Drive extends Subsystem {
         mRightMaster.config_kD(kVelocityControlSlot, Constants.kDriveVelocityKd, Constants.kLongCANTimeoutMs);
         mRightMaster.config_kF(kVelocityControlSlot, Constants.kDriveVelocityKf, Constants.kLongCANTimeoutMs);
         mRightMaster.config_IntegralZone(kVelocityControlSlot, Constants.kDriveVelocityIZone, Constants.kLongCANTimeoutMs);
+
+        mLeftMaster.config_kP(kPositionControlSlot, Constants.kDrivePositionKp, Constants.kLongCANTimeoutMs);
+        mLeftMaster.config_kI(kPositionControlSlot, Constants.kDrivePositionKi, Constants.kLongCANTimeoutMs);
+        mLeftMaster.config_kD(kPositionControlSlot, Constants.kDrivePositionKd, Constants.kLongCANTimeoutMs);
+        mLeftMaster.config_kF(kPositionControlSlot, Constants.kDrivePositionKf, Constants.kLongCANTimeoutMs);
+        mLeftMaster.config_IntegralZone(kPositionControlSlot, Constants.kDrivePositionIZone, Constants.kLongCANTimeoutMs);
+
+        mRightMaster.config_kP(kPositionControlSlot, Constants.kDrivePositionKp, Constants.kLongCANTimeoutMs);
+        mRightMaster.config_kI(kPositionControlSlot, Constants.kDrivePositionKi, Constants.kLongCANTimeoutMs);
+        mRightMaster.config_kD(kPositionControlSlot, Constants.kDrivePositionKd, Constants.kLongCANTimeoutMs);
+        mRightMaster.config_kF(kPositionControlSlot, Constants.kDrivePositionKf, Constants.kLongCANTimeoutMs);
+        mRightMaster.config_IntegralZone(kPositionControlSlot, Constants.kDrivePositionIZone, Constants.kLongCANTimeoutMs);
     }
 
     @Override
