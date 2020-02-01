@@ -10,6 +10,7 @@ import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.TalonFXControlMode;
 import com.ctre.phoenix.motorcontrol.TalonFXFeedbackDevice;
 
+import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -26,6 +27,7 @@ public class Shooter extends Subsystem {
     private final TalonFX mMaster;
     private final TalonFX mSlave;
     private final TalonFX mTrigger;
+    private final Solenoid mPopoutSolenoid;
 
     private boolean mRunningManual = false;
 
@@ -67,6 +69,8 @@ public class Shooter extends Subsystem {
         mTrigger.setInverted(false); //TODO: check value
         mTrigger.configVoltageCompSaturation(12.0, Constants.kLongCANTimeoutMs);
         mTrigger.enableVoltageCompensation(true);
+
+        mPopoutSolenoid = Constants.makeSolenoidForId(Constants.kTriggerPopoutSolenoidID);
     }
 
     @Override
@@ -94,6 +98,8 @@ public class Shooter extends Subsystem {
         SmartDashboard.putNumber("Trigger Current", mPeriodicIO.trigger_current);
         SmartDashboard.putNumber("Trigger Goal", mPeriodicIO.trigger_demand);
         SmartDashboard.putNumber("Trigger Temperature", mPeriodicIO.trigger_temperature);
+
+        SmartDashboard.putBoolean("Popout Solenoid", mPeriodicIO.popout_solenoid);
     }
 
     @Override
@@ -142,6 +148,10 @@ public class Shooter extends Subsystem {
         return mPeriodicIO.flywheel_velocity;
     }
 
+    public synchronized boolean getPopoutSolenoid() {
+        return mPeriodicIO.popout_solenoid;
+    }
+
     public synchronized boolean spunUp() {
         return (//Util.epsilonEquals(mPeriodicIO.flywheel_demand, mPeriodicIO.flywheel_velocity, kShooterTolerance) &&
                 (Util.epsilonEquals(mPeriodicIO.trigger_demand, mPeriodicIO.trigger_velocity, kShooterTolerance)));
@@ -155,6 +165,10 @@ public class Shooter extends Subsystem {
             mPeriodicIO.trigger_demand = 0;
         }
         mRunningManual = false;
+    }
+
+    public synchronized void setPopoutSolenoid(boolean popout) {
+        mPeriodicIO.popout_solenoid = popout;
     }
 
     @Override
@@ -178,9 +192,11 @@ public class Shooter extends Subsystem {
         if (!mRunningManual) {
             mMaster.set(ControlMode.Velocity, mPeriodicIO.flywheel_demand / kFlywheelVelocityConversion);
             mTrigger.set(ControlMode.Velocity, mPeriodicIO.trigger_demand / kTriggerVelocityConversion);
+            mPopoutSolenoid.set(mPeriodicIO.popout_solenoid);
         } else {
             mMaster.set(ControlMode.PercentOutput, 0);
             mTrigger.set(ControlMode.PercentOutput, mPeriodicIO.trigger_demand);
+            mPopoutSolenoid.set(mPeriodicIO.popout_solenoid);
         }
     }
 
@@ -213,6 +229,7 @@ public class Shooter extends Subsystem {
         //OUTPUTS
         public double flywheel_demand;
         public double trigger_demand;
+        public boolean popout_solenoid;
     }
 
     public void LogSetup() {
