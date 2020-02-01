@@ -53,6 +53,8 @@ public class Drive extends Subsystem {
     
     private boolean mHasResetSteering = false;
     private boolean mStartedResetTimer = false;
+    private Rotation2d mTargetHeading = new Rotation2d();
+    private boolean mIsOnTarget = false;
 
     private final Loop mLoop = new Loop() {
         @Override
@@ -75,6 +77,9 @@ public class Drive extends Subsystem {
                         updatePathFollower();
                         break;
                     case CLOSED_LOOP:
+                        break;
+                    case TURN_TO_HEADING:
+                        updateTurnToHeading(timestamp);
                         break;
                     default:
                         System.out.println("Unexpected drive control state: " + mDriveControlState);
@@ -437,6 +442,43 @@ public class Drive extends Subsystem {
         mOverrideTrajectory = value;
     }
 
+    public synchronized void setWantTurnToHeading(Rotation2d heading) {
+        if (mDriveControlState != DriveControlState.TURN_TO_HEADING) {
+            mDriveControlState = DriveControlState.TURN_TO_HEADING;
+            mPeriodicIO.left_demand = getLeftEncoderDistance();
+            mPeriodicIO.right_demand = getRightEncoderDistance();
+        }
+        if (Math.abs(heading.inverse().rotateBy(mTargetHeading).getDegrees()) > 1E-3) {
+            mTargetHeading = heading;
+            mIsOnTarget = false;
+        }
+    }
+
+    private void updateTurnToHeading(double timestamp) {
+        final Rotation2d field_to_robot = RobotState.getInstance().getLatestFieldToVehicle().getValue().getRotation();
+
+        // Figure out the rotation necessary to turn to face the goal.
+        final Rotation2d robot_to_target = field_to_robot.inverse().rotateBy(mTargetHeading);
+
+        // Check if we are on target
+        final double kGoalPosTolerance = 0.75; // degrees
+        final double kGoalVelTolerance = 5.0; // inches per second
+        if (Math.abs(robot_to_target.getDegrees()) < kGoalPosTolerance
+                && Math.abs(getLeftLinearVelocity()) < kGoalVelTolerance
+                && Math.abs(getLeftLinearVelocity()) < kGoalVelTolerance) {
+            // Use the current setpoint and base lock.
+            mIsOnTarget = true;
+            mPeriodicIO.left_demand = getLeftEncoderDistance();
+            mPeriodicIO.right_demand = getRightEncoderDistance();
+            return;
+        }
+
+        DriveSignal wheel_delta = Kinematics
+                .inverseKinematics(new Twist2d(0, 0, robot_to_target.getRadians()));
+        mPeriodicIO.left_demand = wheel_delta.getLeft() + getLeftEncoderDistance();
+        mPeriodicIO.right_demand = wheel_delta.getRight() + getRightEncoderDistance();
+    }
+
     private void updatePathFollower() {
         if(mDriveControlState == DriveControlState.PATH_FOLLOWING) {
             final double now = Timer.getFPGATimestamp();
@@ -516,6 +558,15 @@ public class Drive extends Subsystem {
         // System.out.println("control state: " + mDriveControlState + ", left: " + mPeriodicIO.left_demand + ", right: " + mPeriodicIO.right_demand);
     }
 
+    public synchronized boolean isDoneWithTurn() {
+        if (mDriveControlState == DriveControlState.TURN_TO_HEADING) {
+            return mIsOnTarget;
+        } else {
+            System.out.println("Robot is not in turn to heading mode");
+            return false;
+        }
+    }
+
     @Override
     public synchronized void writePeriodicOutputs() {
         if (mDriveControlState == DriveControlState.OPEN_LOOP) {
@@ -531,6 +582,9 @@ public class Drive extends Subsystem {
                     mPeriodicIO.left_feedforward);
             mRightMaster.set(ControlMode.Velocity, mPeriodicIO.right_demand, DemandType.ArbitraryFeedForward,
                     mPeriodicIO.right_feedforward);
+        } else if (mDriveControlState == DriveControlState.TURN_TO_HEADING) {
+            mLeftMaster.set(ControlMode.Position, mPeriodicIO.left_demand);
+            mRightMaster.set(ControlMode.Position, mPeriodicIO.right_demand);
         }
     }
 
@@ -589,6 +643,7 @@ public class Drive extends Subsystem {
         OPEN_LOOP, // open loop voltage control
         PATH_FOLLOWING, // velocity PID control
         CLOSED_LOOP, // teleop velocity control
+        TURN_TO_HEADING,
     }
 
     public static class PeriodicIO {
