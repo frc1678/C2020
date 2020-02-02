@@ -49,7 +49,7 @@ public class LogStorage<T> implements ILoggable {
                         T x = supplier.get(); //  there is no good name for this variable :(
                         Object obj = variableName.get(x);
                         int length = Array.getLength(obj);
-                        for (int i = 1; i < length; i++) {
+                        for (int i = 0; i < length; i++) {
                             getItemNames.add(variableName.getName() + Integer.toString(i));
                         }
                     } catch (Exception e) {}

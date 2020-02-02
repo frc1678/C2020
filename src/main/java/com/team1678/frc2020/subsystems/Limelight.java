@@ -333,18 +333,18 @@ public class Limelight extends Subsystem {
         items.add(Timer.getFPGATimestamp());
         // INPUTS
         items.add(mPeriodicIO.latency);
-        items.add(Double.valueOf(mPeriodicIO.givenLedMode));
-        items.add(Double.valueOf(mPeriodicIO.givenPipeline));
+        items.add((double) mPeriodicIO.givenLedMode);
+        items.add((double) mPeriodicIO.givenPipeline);
         items.add(mPeriodicIO.xOffset);
         items.add(mPeriodicIO.yOffset);
         items.add(mPeriodicIO.area);
 
         // OUTPUTS
-        items.add(Double.valueOf(mPeriodicIO.ledMode));
-        items.add(Double.valueOf(mPeriodicIO.camMode));
-        items.add(Double.valueOf(mPeriodicIO.pipeline));
-        items.add(Double.valueOf(mPeriodicIO.stream));
-        items.add(Double.valueOf(mPeriodicIO.snapshot));
+        items.add((double) mPeriodicIO.ledMode);
+        items.add((double) mPeriodicIO.camMode);
+        items.add((double) mPeriodicIO.pipeline);
+        items.add((double) mPeriodicIO.stream);
+        items.add((double) mPeriodicIO.snapshot);
 
         mStorage.addData(items);
 

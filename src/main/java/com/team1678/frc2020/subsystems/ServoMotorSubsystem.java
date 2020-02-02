@@ -251,37 +251,6 @@ public abstract class ServoMotorSubsystem extends Subsystem {
         public double feedforward;
     }
 
-    public void LogSetup() {
-        mStorage = new LogStorage();
-        mStorage.setHeadersFromClass(PeriodicIO.class);
-    }
-
-    public void LogSend() {
-        ArrayList<Double> items = new ArrayList<Double>();
-
-        items.add(Timer.getFPGATimestamp());
-        items.add(mPeriodicIO.position_units);
-        items.add(Double.valueOf(mPeriodicIO.position_ticks));
-        items.add(Double.valueOf(mPeriodicIO.velocity_ticks_per_100ms));
-        items.add(Double.valueOf(mPeriodicIO.active_trajectory_position)); // ticks
-        items.add(Double.valueOf(mPeriodicIO.active_trajectory_velocity)); // ticks/100ms
-        items.add(mPeriodicIO.active_trajectory_acceleration); // ticks/100ms/s
-        items.add(mPeriodicIO.output_percent);
-        items.add(mPeriodicIO.output_voltage);
-        items.add(mPeriodicIO.master_supply_current);
-        items.add(mPeriodicIO.master_stator_current);
-        items.add(mPeriodicIO.error_ticks);
-        items.add(Double.valueOf(mPeriodicIO.encoder_wraps));
-        items.add(mPeriodicIO.absolute_pulse_offset);
-        items.add(mPeriodicIO.absolute_pulse_position);
-        items.add(mPeriodicIO.absolute_pulse_position_modded);
-        items.add(mPeriodicIO.reset_occured? 0.0 : 1.0);
-        items.add(mPeriodicIO.demand);
-        items.add(mPeriodicIO.feedforward);
-
-        mStorage.addData(items);
-    }
-
     protected enum ControlState {
         OPEN_LOOP, MOTION_MAGIC, POSITION_PID, MOTION_PROFILING
     }
@@ -579,5 +548,36 @@ public abstract class ServoMotorSubsystem extends Subsystem {
     public void outputTelemetry() {
         SmartDashboard.putNumber(mConstants.kName + ": Position (units)", mPeriodicIO.position_units);
         SmartDashboard.putBoolean(mConstants.kName + ": Homing Location", atHomingLocation());
+    }
+
+    public void LogSetup() {
+        mStorage = new LogStorage();
+        mStorage.setHeadersFromClass(PeriodicIO.class);
+    }
+
+    public void LogSend() {
+        ArrayList<Double> items = new ArrayList<Double>();
+
+        items.add(Timer.getFPGATimestamp());
+        items.add(mPeriodicIO.position_units);
+        items.add((double) mPeriodicIO.position_ticks);
+        items.add((double) mPeriodicIO.velocity_ticks_per_100ms);
+        items.add((double) mPeriodicIO.active_trajectory_position); // ticks
+        items.add((double) mPeriodicIO.active_trajectory_velocity); // ticks/100ms
+        items.add(mPeriodicIO.active_trajectory_acceleration); // ticks/100ms/s
+        items.add(mPeriodicIO.output_percent);
+        items.add(mPeriodicIO.output_voltage);
+        items.add(mPeriodicIO.master_supply_current);
+        items.add(mPeriodicIO.master_stator_current);
+        items.add(mPeriodicIO.error_ticks);
+        items.add((double) mPeriodicIO.encoder_wraps);
+        items.add(mPeriodicIO.absolute_pulse_offset);
+        items.add(mPeriodicIO.absolute_pulse_position);
+        items.add(mPeriodicIO.absolute_pulse_position_modded);
+        items.add(mPeriodicIO.reset_occured? 0.0 : 1.0);
+        items.add(mPeriodicIO.demand);
+        items.add(mPeriodicIO.feedforward);
+
+        mStorage.addData(items);
     }
 }

@@ -620,14 +620,14 @@ public class Drive extends Subsystem {
         items.add(Timer.getFPGATimestamp());
 
         // INPUTS
-        items.add(Double.valueOf(mPeriodicIO.left_position_ticks));
-        items.add(Double.valueOf(mPeriodicIO.right_position_ticks));
+        items.add((double) mPeriodicIO.left_position_ticks);
+        items.add((double) mPeriodicIO.right_position_ticks);
         items.add(mPeriodicIO.left_distance);
         items.add(mPeriodicIO.right_distance);
         items.add(mPeriodicIO.left_current);
         items.add(mPeriodicIO.right_current);
-        items.add(Double.valueOf(mPeriodicIO.left_velocity_ticks_per_100ms));
-        items.add(Double.valueOf(mPeriodicIO.right_velocity_ticks_per_100ms));
+        items.add((double) mPeriodicIO.left_velocity_ticks_per_100ms);
+        items.add((double) mPeriodicIO.right_velocity_ticks_per_100ms);
         items.add(Double.valueOf(mPeriodicIO.gyro_heading.getDegrees()));
         items.add(Double.valueOf(mPeriodicIO.error.toString()));
 

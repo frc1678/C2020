@@ -10,8 +10,8 @@ import java.io.FileWriter;
 
 public class LoggingSystem {
     private static LoggingSystem mInstance; 
-    //  set original directory path. Will be added to in LoggingSystem() when new directories are created inside /home/lvuser/
-    public static String mDirectory = "/home/lvuser/";
+    //  set original directory path. Will be added to in LoggingSystem() when new directories are created inside /home/lvuser/logs
+    public static String mDirectory = "/home/lvuser/logs";
     ArrayList<ILoggable> loggableItems = new ArrayList<ILoggable>();
 
     ArrayList<FileWriter> loggableFiles = new ArrayList<FileWriter>();

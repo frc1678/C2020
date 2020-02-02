@@ -320,6 +320,7 @@ public class Indexer extends Subsystem {
 
     @Override
     public synchronized void readPeriodicInputs() {
+        LogSend();
         mPeriodicIO.raw_slots[0] = mSlot0Proxy.get();
         mPeriodicIO.raw_slots[1] = mSlot1Proxy.get();
         mPeriodicIO.raw_slots[2] = mSlot2Proxy.get();
@@ -376,7 +377,7 @@ public class Indexer extends Subsystem {
         items.add(Double.valueOf(mPeriodicIO.indexer_control_mode.toString()));
         items.add(mPeriodicIO.indexer_demand);
 
-        for (int i = 1; i <= mPeriodicIO.raw_slots.length; i++) {
+        for (int i = 0; i < mPeriodicIO.raw_slots.length; i++) {
             items.add(mPeriodicIO.raw_slots[i]? 0.0 : 1.0);
         }
 

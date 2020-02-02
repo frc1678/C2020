@@ -117,7 +117,7 @@ public class Canifier extends Subsystem {
         mPeriodicInputs = new PeriodicInputs();
     }
 
-    private static class PeriodicInputs { 
+    private static class PeriodicInputs {
         public boolean indexer_limit_;
         public boolean turret_limit_;
         public boolean hood_limit_;
