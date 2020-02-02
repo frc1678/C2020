@@ -25,6 +25,10 @@ public class LoggingSystem {
     private LoggingSystem() {
         File Directory = new File(mDirectory);
         Integer maxNum = 0;
+        if  (! Directory.isDirectory()) {
+            Directory.mkdir();
+        }
+        
         for (final File directoryEntry : Directory.listFiles()) {
             try {
                 if (directoryEntry.isDirectory()) {
