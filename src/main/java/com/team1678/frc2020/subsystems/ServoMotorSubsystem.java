@@ -223,7 +223,7 @@ public abstract class ServoMotorSubsystem extends Subsystem {
     @Override
     public void registerLogger(LoggingSystem LS) {
         LogSetup();
-        LS.register(mStorage, mConstants.kName.replaceAll("[^A-Za-z0-9]+", "").toUpperCase() + "-LOGS.csv");
+        LS.register(mStorage, mConstants.kName.replaceAll("[^A-Za-z0-9]+", "").toUpperCase() + ".csv");
     }
 
     public static class PeriodicIO {
