@@ -71,16 +71,16 @@ public class MotionTestUtil {
             final double t = state.t() + dt;
             final double command_vel = follower.update(state, t);
             dynamics.update(command_vel, dt);
-            System.out.println("State: " + state + ", Pos error: " + follower.getPosError() + ", Vel error: "
-                    + follower.getVelError() + ", Command: " + command_vel);
+            // System.out.println("State: " + state + ", Pos error: " + follower.getPosError() + ", Vel error: "
+                    // + follower.getVelError() + ", Command: " + command_vel);
             if (follower.isFinishedProfile()) {
-                System.out.println("Follower has finished profile");
+                // System.out.println("Follower has finished profile");
             }
         }
         if (i == max_iterations) {
-            System.out.println("Iteration limit reached");
+        // System.out.println("Iteration limit reached");
         }
-        System.out.println("Final state: " + dynamics.getState());
+        // System.out.println("Final state: " + dynamics.getState());
         return dynamics.getState();
     }
 }

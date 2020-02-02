@@ -91,7 +91,7 @@ public abstract class ServoMotorSubsystem extends Subsystem {
         mMaster.configStatorCurrentLimit(STATOR_CURRENT_LIMIT);
         mMaster.configSupplyCurrentLimit(SUPPLY_CURRENT_LIMIT);
 
-        TalonUtil.checkError(mMaster.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, 0,
+        TalonUtil.checkError(mMaster.configSelectedFeedbackSensor(TalonFXFeedbackDevice.IntegratedSensor, 0,
                 Constants.kLongCANTimeoutMs), mConstants.kName + ": Could not detect encoder: ");
 
         mForwardSoftLimitTicks = (int) ((mConstants.kMaxUnitsLimit - mConstants.kHomePosition) * mConstants.kTicksPerUnitDistance);
@@ -192,7 +192,7 @@ public abstract class ServoMotorSubsystem extends Subsystem {
 
         mMaster.setInverted(mConstants.kMasterConstants.invert_motor);
         mMaster.setSensorPhase(mConstants.kMasterConstants.invert_sensor_phase);
-        mMaster.setNeutralMode(NeutralMode.Brake);
+        mMaster.setNeutralMode(NeutralMode.Coast);
         mMaster.setStatusFramePeriod(StatusFrameEnhanced.Status_2_Feedback0, 10, 20);
         mMaster.setStatusFramePeriod(StatusFrameEnhanced.Status_10_MotionMagic, 10, 20);
         mMaster.setStatusFramePeriod(StatusFrameEnhanced.Status_8_PulseWidth, mConstants.kStastusFrame8UpdateRate, 20);
@@ -204,7 +204,7 @@ public abstract class ServoMotorSubsystem extends Subsystem {
             mSlaves[i] = TalonFXFactory.createPermanentSlaveTalon(mConstants.kSlaveConstants[i].id,
                     mConstants.kMasterConstants.id);
             mSlaves[i].setInverted(mConstants.kSlaveConstants[i].invert_motor);
-            mSlaves[i].setNeutralMode(NeutralMode.Brake);
+            mSlaves[i].setNeutralMode(NeutralMode.Coast);
             mSlaves[i].follow(mMaster);
         }
 
