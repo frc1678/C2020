@@ -5,9 +5,12 @@ import com.team1678.frc2020.loops.ILooper;
 import com.team1678.frc2020.loops.Loop;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.StatorCurrentLimitConfiguration;
+import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.TalonFXControlMode;
 import com.ctre.phoenix.motorcontrol.TalonFXFeedbackDevice;
 
+import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -30,25 +33,31 @@ public class Shooter extends Subsystem {
     private static double kTriggerVelocityConversion = 600.0 / 2048.0;
 
     private static double kShooterTolerance = 600.0;
+    private Solenoid popoutSolenoid;
 
     private Shooter() {
         mMaster = TalonFXFactory.createDefaultTalon(Constants.kMasterFlywheelID);
         mSlave = TalonFXFactory.createDefaultTalon(Constants.kSlaveFlywheelID);
         mTrigger = TalonFXFactory.createDefaultTalon(Constants.kTriggerWheelID);
+        popoutSolenoid = Constants.makeSolenoidForId(Constants.kPopoutSolenoidId);
 
         mMaster.set(ControlMode.PercentOutput, 0);
         mMaster.setInverted(false); //TODO: check value
         mMaster.configVoltageCompSaturation(12.0, Constants.kLongCANTimeoutMs);
         mMaster.enableVoltageCompensation(true);
         
-        mMaster.config_kP(0, Constants.kShooterP, Constants.kLongCANTimeoutMs);
-        mMaster.config_kI(0, Constants.kShooterI, Constants.kLongCANTimeoutMs);
-        mMaster.config_kD(0, Constants.kShooterD, Constants.kLongCANTimeoutMs);
+        mMaster.config_kP(0, 1.0, Constants.kLongCANTimeoutMs);
+        mMaster.config_kI(0, 0, Constants.kLongCANTimeoutMs);
+        mMaster.config_kD(0, 0, Constants.kLongCANTimeoutMs);
         mMaster.config_kF(0, Constants.kShooterF, Constants.kLongCANTimeoutMs);
+        mMaster.selectProfileSlot(0, 0);
+        mMaster.config_IntegralZone(0, (int) (200.0 / kFlywheelVelocityConversion));
 
-
+        mMaster.configClosedloopRamp(0.5);
+        SupplyCurrentLimitConfiguration curr_limit = new SupplyCurrentLimitConfiguration(true, 40, 100, 0.5);
+        mMaster.configSupplyCurrentLimit(curr_limit);
         mSlave.follow(mMaster);
-        mSlave.setInverted(false); //TODO: check value
+        mSlave.setInverted(true); //TODO: check value
         
         mMaster.set(ControlMode.PercentOutput, 0);
 
@@ -80,7 +89,8 @@ public class Shooter extends Subsystem {
         SmartDashboard.putNumber("Flywheel Goal", mPeriodicIO.flywheel_demand);
         SmartDashboard.putNumber("Flywheel Temperature", mPeriodicIO.flywheel_temperature);
 
-        
+        SmartDashboard.putBoolean("Popout", mPeriodicIO.popout);
+        SmartDashboard.putBoolean("Real Popout", popoutSolenoid.get());
         SmartDashboard.putNumber("Trigger Velocity", mPeriodicIO.trigger_velocity);
         SmartDashboard.putNumber("Trigger Current", mPeriodicIO.trigger_current);
         SmartDashboard.putNumber("Trigger Goal", mPeriodicIO.trigger_demand);
@@ -93,7 +103,7 @@ public class Shooter extends Subsystem {
 
     @Override
     public void stop() {
-        setOpenLoop(0, 0);
+        setOpenLoop(0, 0, false);
     }
 
     @Override
@@ -115,10 +125,11 @@ public class Shooter extends Subsystem {
         });
     }
 
-    public synchronized void setOpenLoop(double flywheel, double trigger) {
+    public synchronized void setOpenLoop(double flywheel, double trigger, boolean popout) {
         mPeriodicIO.flywheel_demand = flywheel;
         mPeriodicIO.trigger_demand = trigger;
         mRunningManual = true;
+        mPeriodicIO.popout = popout;
     }
 
     public synchronized double getVoltage() {
@@ -138,15 +149,17 @@ public class Shooter extends Subsystem {
     }
 
     public synchronized boolean spunUp() {
-        return (//Util.epsilonEquals(mPeriodicIO.flywheel_demand, mPeriodicIO.flywheel_velocity, kShooterTolerance) &&
+        return (Util.epsilonEquals(mPeriodicIO.flywheel_demand, mPeriodicIO.flywheel_velocity, kShooterTolerance) &&
                 (Util.epsilonEquals(mPeriodicIO.trigger_demand, mPeriodicIO.trigger_velocity, kShooterTolerance)));
     }
 
     public synchronized void setVelocity(double velocity) {
         mPeriodicIO.flywheel_demand = velocity;
         if (velocity > 0) {
+            mPeriodicIO.popout = true;
             mPeriodicIO.trigger_demand = Constants.kTriggerRPM;
         } else {
+            mPeriodicIO.popout = false;
             mPeriodicIO.trigger_demand = 0;
         }
         mRunningManual = false;
@@ -176,6 +189,7 @@ public class Shooter extends Subsystem {
             mMaster.set(ControlMode.PercentOutput, 0);
             mTrigger.set(ControlMode.PercentOutput, mPeriodicIO.trigger_demand);
         }
+        popoutSolenoid.set(mPeriodicIO.popout);
     }
 
     @Override
@@ -207,5 +221,6 @@ public class Shooter extends Subsystem {
         //OUTPUTS
         public double flywheel_demand;
         public double trigger_demand;
+        public boolean popout;
     }
 }

@@ -201,6 +201,7 @@ public class RobotState {
         // Compensate for camera pitch
         Translation2d xz_plane_translation = new Translation2d(target.getX(), target.getZ())
                 .rotateBy(source.getHorizontalPlaneToLens().rotateBy(getVehicleToHood(timestamp)));
+        System.out.println(source.getHorizontalPlaneToLens().rotateBy(getVehicleToHood(timestamp)).getDegrees());
         double x = xz_plane_translation.x();
         double y = target.getY();
         double z = xz_plane_translation.y();
@@ -332,5 +333,11 @@ public class RobotState {
     public synchronized void outputToSmartDashboard() {
         SmartDashboard.putString("Robot Velocity", getMeasuredVelocity().toString());
         SmartDashboard.putString("Robot Field to Vehicle", getLatestFieldToVehicle().getValue().toString());
+        SmartDashboard.putNumber("Robot X", getLatestFieldToVehicle().getValue().getTranslation().x());
+        SmartDashboard.putNumber("Robot Y", getLatestFieldToVehicle().getValue().getTranslation().y());
+        SmartDashboard.putNumber("Robot Theta", getLatestFieldToVehicle().getValue().getRotation().getDegrees());
+        if (getAimingParameters(false, -1, Constants.kMaxGoalTrackAge).isPresent()) {    
+            SmartDashboard.putNumber("Vehicle to Target", getAimingParameters(false, -1, Constants.kMaxGoalTrackAge).get().getRange());
+        }
     }
 }

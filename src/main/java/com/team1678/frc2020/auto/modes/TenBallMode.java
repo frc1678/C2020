@@ -1,6 +1,7 @@
 package com.team1678.frc2020.auto.modes;
 
 import com.team1678.frc2020.paths.TrajectoryGenerator;
+import com.team1678.frc2020.states.SuperstructureConstants;
 import com.team1678.frc2020.subsystems.*;
 import com.team1678.frc2020.subsystems.Superstructure;
 import com.team254.lib.geometry.Rotation2d;
@@ -17,10 +18,6 @@ public class TenBallMode extends AutoModeBase {
     private DriveTrajectoryAction mStealToFirstShot;
     private DriveTrajectoryAction mIntakeCells;
     private DriveTrajectoryAction mIntakeToSecondShot;
-
-
-    private double kHoodAngle = 0.0;
-    private double kShooterRPM = 0.0;
 
 
     public TenBallMode() {
@@ -66,15 +63,41 @@ public class TenBallMode extends AutoModeBase {
                 new LambdaAction(() -> Intake.getInstance().setState(Intake.WantedAction.RETRACT)))));
 
         runAction(new WaitAction(1.0));
-        */          
+        */
+        runAction(new LambdaAction(() -> Superstructure.getInstance().setWantShoot(false)));        
+        runAction(new LambdaAction(() -> Intake.getInstance().setState(Intake.WantedAction.INTAKE)));
+        runAction(new LambdaAction(() -> Superstructure.getInstance().setWantFieldRelativeTurret(Rotation2d.fromDegrees(180.))));
 
         runAction(mStartToSteal);
-        runAction(mStealToFirstShot);
-        runAction(new TurnToHeadingAction(Rotation2d.fromDegrees(90)));
-        runAction(new WaitAction(2.0));
-        /*
+        runAction(new ParallelAction(Arrays.asList(
+            mStealToFirstShot,
+            new SeriesAction(
+                Arrays.asList(
+                    new WaitAction(1.0),
+                    new LambdaAction(() -> Intake.getInstance().setState(Intake.WantedAction.NONE)),
+                    new LambdaAction(() -> Superstructure.getInstance().setWantSpinUp(true))
+                )
+            )
+        )));
+
+        runAction(new LambdaAction(() -> Superstructure.getInstance().setWantAutoAim(Rotation2d.fromDegrees(180.))));
+        runAction(new TurnToHeadingAction(Rotation2d.fromDegrees(0)));
+        System.out.println("Turn Complete");
+
+        runAction(new ParallelAction(Arrays.asList(
+            new LambdaAction(() -> Superstructure.getInstance().setWantShoot(true)),
+            new WaitAction(2.0)
+
+        )));
+        
+       // runAction(new LambdaAction(() -> Superstructure.getInstance().setWantAutoAim(Rotation2d.fromDegrees(180.))));
+        // runAction(new WaitAction(2.0));
+        System.out.println("Wait Complete");
         runAction(mIntakeCells);
+        runAction(new TurnToHeadingAction(Rotation2d.fromDegrees(0)));
         runAction(mIntakeToSecondShot);
+       /* runAction(mStealToFirstShot);
+        
         */
         System.out.println("Auto Complete");
 

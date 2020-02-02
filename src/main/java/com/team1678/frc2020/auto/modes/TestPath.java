@@ -19,6 +19,8 @@ public class TestPath extends AutoModeBase {
     protected void routine() throws AutoModeEndedException {
         System.out.println("Running Cross auto line");
         runAction(mTestPath);
-        runAction(mTestPathReversed);
+
+        //runAction(new TurnToHeadingAction(Rotation2d.fromDegrees(90.0)));
+       // runAction(new DriveOpenLoopAction(0, 0, 0.1));
     }
 }

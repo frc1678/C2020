@@ -75,6 +75,7 @@ public class Robot extends TimedRobot {
     private final Turret mTurret = Turret.getInstance();
     private final Shooter mShooter = Shooter.getInstance();
     private final Climber mClimber = Climber.getInstance();
+    private final Hood mHood = Hood.getInstance();
     private final Wrangler mWrangler = Wrangler.getInstance();
 
     private final RobotState mRobotState = RobotState.getInstance();
@@ -105,15 +106,16 @@ public class Robot extends TimedRobot {
 
             mSubsystemManager.setSubsystems(
                 mRobotStateEstimator, 
-                mDrive//, 
+                mDrive,//, 
                 //mLimelight, 
-               /* mIntake, 
+                mIntake, 
                 mIndexer, 
-                mWrangler, 
-                mShooter,
+                //mWrangler, 
+                //mShooter,
                 mSuperstructure,
-                mTurret,
-                mInfrastructure*/
+                //mHood,
+                //mTurret,
+                mInfrastructure
             );
 
             mSubsystemManager.registerEnabledLoops(mEnabledLooper);
@@ -123,7 +125,7 @@ public class Robot extends TimedRobot {
             mRobotState.reset(Timer.getFPGATimestamp(), Pose2d.identity(), Rotation2d.identity(), Rotation2d.identity());
             mDrive.setHeading(Rotation2d.identity());
 
-            mLimelight.setLed(Limelight.LedMode.OFF);
+            mLimelight.setLed(Limelight.LedMode.ON);
             mIntake.registerLogger(mLogger);
             mLogger.registerLoops(mLoggingLooper);
 
@@ -200,7 +202,7 @@ public class Robot extends TimedRobot {
 
             mDrive.setCheesyishDrive(throttle, turn, mControlBoard.getQuickTurn());
 
-            mSuperstructure.setWantFieldRelativeTurret(mControlBoard.getTurretCardinal().rotation);
+            mSuperstructure.setWantAutoAim(null);  //setWantFieldRelativeTurret(mControlBoard.getTurretCardinal().rotation);
 
             if (mControlBoard.climbMode()) {
                 climb_mode = true;
@@ -307,7 +309,7 @@ public class Robot extends TimedRobot {
 
             mDisabledLooper.start();
 
-            mLimelight.setLed(Limelight.LedMode.OFF);
+            mLimelight.setLed(Limelight.LedMode.ON);
             mLimelight.triggerOutputs();
 
             mDrive.setBrakeMode(false);
@@ -325,7 +327,7 @@ public class Robot extends TimedRobot {
         // mLimelight.setStream(2);
 
         try {
-            mLimelight.setLed(Limelight.LedMode.OFF);
+            mLimelight.setLed(Limelight.LedMode.ON);
 
             mAutoModeSelector.updateModeCreator();
 

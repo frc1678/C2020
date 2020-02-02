@@ -17,7 +17,7 @@ import java.util.ArrayList;
 
 public class Hood extends ServoMotorSubsystem {
     private static Hood mInstance;
-    private boolean mHoming = true;
+    private boolean mHoming = false;
 
     public synchronized static Hood getInstance() {
         if (mInstance == null) {
@@ -29,6 +29,7 @@ public class Hood extends ServoMotorSubsystem {
 
     private Hood(final ServoMotorSubsystemConstants constants) {
         super(constants);
+        mMaster.setSelectedSensorPosition((int) Math.floor(unitsToTicks(12.875)), 0, Constants.kLongCANTimeoutMs);
     }
 
     @Override
