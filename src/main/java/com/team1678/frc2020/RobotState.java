@@ -201,7 +201,6 @@ public class RobotState {
         // Compensate for camera pitch
         Translation2d xz_plane_translation = new Translation2d(target.getX(), target.getZ())
                 .rotateBy(source.getHorizontalPlaneToLens().rotateBy(getVehicleToHood(timestamp)));
-        System.out.println(source.getHorizontalPlaneToLens().rotateBy(getVehicleToHood(timestamp)).getDegrees());
         double x = xz_plane_translation.x();
         double y = target.getY();
         double z = xz_plane_translation.y();
@@ -221,11 +220,11 @@ public class RobotState {
 
     private void updateGoalTracker(double timestamp, List<Translation2d> cameraToVisionTargetPoses, GoalTracker tracker,
             Limelight source) {
-        if (cameraToVisionTargetPoses.size() != 2 || cameraToVisionTargetPoses.get(0) == null
-                || cameraToVisionTargetPoses.get(1) == null)
+        if (cameraToVisionTargetPoses.size() != 1 || cameraToVisionTargetPoses.get(0) == null
+                || cameraToVisionTargetPoses.get(0) == null)
             return;
         Pose2d cameraToVisionTarget = Pose2d
-                .fromTranslation(cameraToVisionTargetPoses.get(0).interpolate(cameraToVisionTargetPoses.get(1), 0.5));
+                .fromTranslation(cameraToVisionTargetPoses.get(0));
 
         Pose2d fieldToVisionTarget = getFieldToTurret(timestamp).transformBy(source.getTurretToLens())
                 .transformBy(cameraToVisionTarget);

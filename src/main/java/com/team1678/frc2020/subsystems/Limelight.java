@@ -77,6 +77,10 @@ public class Limelight extends Subsystem {
         mEnabledLooper.register(mLoop);
     }
 
+    public double getTx() {
+        return -mPeriodicIO.xOffset;
+    }
+
     public static class PeriodicIO {
         // INPUTS
         public double latency;
@@ -195,8 +199,12 @@ public class Limelight extends Subsystem {
      *         targets are found
      */
     public synchronized List<TargetInfo> getTarget() {
-        List<TargetInfo> targets = getRawTargetInfos();
-        if (seesTarget() && targets != null) {
+        List<TargetInfo> targets = new ArrayList<TargetInfo>();
+        TargetInfo target = new TargetInfo(Math.tan(Math.toRadians(-mPeriodicIO.xOffset)),
+                Math.tan(Math.toRadians(mPeriodicIO.yOffset)));
+
+        targets.add(target);
+        if (seesTarget() && target != null) {
             return targets;
         }
 

@@ -81,21 +81,23 @@ public class TenBallMode extends AutoModeBase {
         )));
 
         runAction(new LambdaAction(() -> Superstructure.getInstance().setWantAutoAim(Rotation2d.fromDegrees(180.))));
-        runAction(new TurnToHeadingAction(Rotation2d.fromDegrees(0)));
-        System.out.println("Turn Complete");
-
+    
         runAction(new ParallelAction(Arrays.asList(
             new LambdaAction(() -> Superstructure.getInstance().setWantShoot(true)),
-            new WaitAction(2.0)
+            new WaitAction(2.5)
 
         )));
-        
+        System.out.println("Shot Complete");
+        runAction(new LambdaAction(() -> Superstructure.getInstance().setWantShoot(false)));
+        runAction(new TurnToHeadingAction(Rotation2d.fromDegrees(0)));
+        System.out.println("Turn Complete");
+        runAction(new WaitAction(.5));
        // runAction(new LambdaAction(() -> Superstructure.getInstance().setWantAutoAim(Rotation2d.fromDegrees(180.))));
         // runAction(new WaitAction(2.0));
-        System.out.println("Wait Complete");
+        runAction(new LambdaAction(() -> Intake.getInstance().setState(Intake.WantedAction.INTAKE)));
         runAction(mIntakeCells);
-        runAction(new TurnToHeadingAction(Rotation2d.fromDegrees(0)));
-        runAction(mIntakeToSecondShot);
+        //runAction(new TurnToHeadingAction(Rotation2d.fromDegrees(0)));
+        //runAction(mIntakeToSecondShot);
        /* runAction(mStealToFirstShot);
         
         */

@@ -46,9 +46,9 @@ public class Shooter extends Subsystem {
         mMaster.configVoltageCompSaturation(12.0, Constants.kLongCANTimeoutMs);
         mMaster.enableVoltageCompensation(true);
         
-        mMaster.config_kP(0, 1.0, Constants.kLongCANTimeoutMs);
+        mMaster.config_kP(0, 0.1, Constants.kLongCANTimeoutMs);
         mMaster.config_kI(0, 0, Constants.kLongCANTimeoutMs);
-        mMaster.config_kD(0, 0, Constants.kLongCANTimeoutMs);
+        mMaster.config_kD(0, 0.0, Constants.kLongCANTimeoutMs);
         mMaster.config_kF(0, Constants.kShooterF, Constants.kLongCANTimeoutMs);
         mMaster.selectProfileSlot(0, 0);
         mMaster.config_IntegralZone(0, (int) (200.0 / kFlywheelVelocityConversion));
@@ -156,13 +156,16 @@ public class Shooter extends Subsystem {
     public synchronized void setVelocity(double velocity) {
         mPeriodicIO.flywheel_demand = velocity;
         if (velocity > 0) {
-            mPeriodicIO.popout = true;
+            //mPeriodicIO.popout = true;
             mPeriodicIO.trigger_demand = Constants.kTriggerRPM;
         } else {
-            mPeriodicIO.popout = false;
+            //mPeriodicIO.popout = false;
             mPeriodicIO.trigger_demand = 0;
         }
         mRunningManual = false;
+    }
+    public synchronized void setPopout(boolean popout) {
+        mPeriodicIO.popout = popout;
     }
 
     @Override

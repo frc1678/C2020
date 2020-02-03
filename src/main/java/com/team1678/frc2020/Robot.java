@@ -77,6 +77,7 @@ public class Robot extends TimedRobot {
     private final Climber mClimber = Climber.getInstance();
     private final Hood mHood = Hood.getInstance();
     private final Wrangler mWrangler = Wrangler.getInstance();
+    private final Canifier mCanifier = Canifier.getInstance();
 
     private final RobotState mRobotState = RobotState.getInstance();
     private final RobotStateEstimator mRobotStateEstimator = RobotStateEstimator.getInstance();
@@ -106,15 +107,16 @@ public class Robot extends TimedRobot {
 
             mSubsystemManager.setSubsystems(
                 mRobotStateEstimator, 
-                mDrive,//, 
-                //mLimelight, 
+                mDrive, 
+                mLimelight, 
                 mIntake, 
                 mIndexer, 
                 //mWrangler, 
-                //mShooter,
+                mCanifier,
+                mShooter,
                 mSuperstructure,
-                //mHood,
-                //mTurret,
+                mHood,
+                mTurret,
                 mInfrastructure
             );
 

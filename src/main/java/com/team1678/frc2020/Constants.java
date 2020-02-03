@@ -124,7 +124,7 @@ public class Constants {
         kTurretConstants.kKp = 0.5;
         kTurretConstants.kKi = 0;
         kTurretConstants.kKd = 0.0;
-        kTurretConstants.kKf = 0.07;
+        kTurretConstants.kKf = 0.05;
         kTurretConstants.kKa = 0.0;
         kTurretConstants.kMaxIntegralAccumulator = 0;
         kTurretConstants.kIZone = 0; // Ticks
@@ -142,7 +142,7 @@ public class Constants {
         kTurretConstants.kMaxUnitsLimit = 360.0;
 
         kTurretConstants.kCruiseVelocity = 20000; // Ticks / 100ms
-        kTurretConstants.kAcceleration = 15000; // Ticks / 100ms / s
+        kTurretConstants.kAcceleration = 20000; // Ticks / 100ms / s
         kTurretConstants.kRampRate = 0.0; // s
         kTurretConstants.kContinuousCurrentLimit = 20; // amps
         kTurretConstants.kPeakCurrentLimit = 40; // amps
@@ -215,7 +215,7 @@ public class Constants {
         kLimelightConstants.kTableName = "limelight";
         kLimelightConstants.kHeight = 24.; // inches
         kLimelightConstants.kTurretToLens = Pose2d.identity();
-        kLimelightConstants.kHorizontalPlaneToLens = Rotation2d.fromDegrees(10.0);
+        kLimelightConstants.kHorizontalPlaneToLens = Rotation2d.fromDegrees(-10.0);
     }
 
     public static final double kHorizontalFOV = 59.6; // degrees

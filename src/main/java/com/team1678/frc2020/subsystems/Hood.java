@@ -17,7 +17,7 @@ import java.util.ArrayList;
 
 public class Hood extends ServoMotorSubsystem {
     private static Hood mInstance;
-    private boolean mHoming = false;
+    private boolean mHoming = true;
 
     public synchronized static Hood getInstance() {
         if (mInstance == null) {
@@ -45,7 +45,7 @@ public class Hood extends ServoMotorSubsystem {
     public synchronized void writePeriodicOutputs() {
         if (mHoming) {
             if (atHomingLocation()) {
-                mMaster.setSelectedSensorPosition((int) unitsToTicks(0));
+                mMaster.setSelectedSensorPosition((int) unitsToTicks(12.875));
                 mMaster.overrideSoftLimitsEnable(true);
                 System.out.println("Homed!!!");
                 mHoming = false;

@@ -78,8 +78,8 @@ public class TrajectoryGenerator {
     public static final Pose2d kStealCellWaypoint = new Pose2d(200.0, -110.0, Rotation2d.fromDegrees(-80.0));
     public static final Pose2d kShotPose = new Pose2d(180.0, 75.0, Rotation2d.fromDegrees(-90.0));
     public static final Pose2d kShotPoseCorrected = new Pose2d(180.0, 75.0, Rotation2d.fromDegrees(0.0));
-    public static final Pose2d kIntakePoseWaypoint1 = new Pose2d(220.0, 75.0, Rotation2d.fromDegrees(0.0));
-    public static final Pose2d kIntakePose = new Pose2d(245.0, 55.0, Rotation2d.fromDegrees(-70.0));
+    public static final Pose2d kIntakePoseWaypoint1 = new Pose2d(210.0, 85.0, Rotation2d.fromDegrees(0.0));
+    public static final Pose2d kIntakePose = new Pose2d(240.0, 55.0, Rotation2d.fromDegrees(-65.0));
     public static final Pose2d kPillarWaypoint = new Pose2d(240.0, 20.0, Rotation2d.fromDegrees(200.0));
     public static final Pose2d kIntakePose2 = new Pose2d(240.0, -20.0, Rotation2d.fromDegrees(-55.0));
     //public static final Pose2d kIntakePose2Turned = new Pose2d(240.0, -20.0, Rotation2d.fromDegrees(0.0));
@@ -151,11 +151,11 @@ public class TrajectoryGenerator {
             waypoints.add(kShotPoseCorrected);
             waypoints.add(kIntakePoseWaypoint1);
             waypoints.add(kIntakePose);
-            waypoints.add(kPillarWaypoint);
-            waypoints.add(kIntakePose2);
-            waypoints.add(kShotPoseWaypoint);
+            // waypoints.add(kPillarWaypoint);
+            // waypoints.add(kIntakePose2);
+            // waypoints.add(kShotPoseWaypoint);
             return generateTrajectory(false, waypoints,
-                    Arrays.asList(new CentripetalAccelerationConstraint(kMaxCentripetalAccel)), kMaxVelocity, kMaxAccel,
+                    Arrays.asList(new CentripetalAccelerationConstraint(kMaxCentripetalAccel)), kMaxVelocity / 2, kMaxAccel,
                     kMaxVoltage);
         }
 
