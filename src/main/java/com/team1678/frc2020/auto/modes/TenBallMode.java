@@ -30,34 +30,70 @@ public class TenBallMode extends AutoModeBase {
     @Override
     protected void routine() throws AutoModeEndedException {
         System.out.println("Running 10 ball auto");
+/*
+        runAction(
+            new ParallelAction(Arrays.asList(
+                    mStartToSteal,
+                    new LambdaAction(() -> Intake.getInstance().setState(Intake.WantedAction.INTAKE)))));
 
-        // Prep for intake
-        runAction(new ParallelAction(Arrays.asList(
-            new LambdaAction(() -> Superstructure.getInstance().setWantShoot(false)),       
-            new LambdaAction(() -> Intake.getInstance().setState(Intake.WantedAction.INTAKE)),
-            new LambdaAction(() -> Superstructure.getInstance().setWantFieldRelativeTurret(Rotation2d.fromDegrees(180.))))));
 
-        // Drive to intake balls
+        runAction(
+            new ParallelAction(Arrays.asList(
+                    mStealToFirstShot,
+                    new SeriesAction(Arrays.asList(
+                        new LambdaAction(() -> Intake.getInstance().setState(Intake.WantedAction.RETRACT)),
+                        new LambdaAction(() -> Superstructure.getInstance().setWantSpinUp()),                        
+                        new LambdaAction(() -> Superstructure.getInstance().setWantAutoAim(Rotation2d.fromDegrees(0.0))))))));
+
+        runAction(new LambdaAction(() -> Superstructure.getInstance().setGoal(kShooterRPM, kHoodAngle, 0.0)));   
+        runAction(new WaitAction(1.0));
+
+        runAction(
+            new ParallelAction(Arrays.asList(
+                    mIntakeCells,
+                    new SeriesAction(Arrays.asList(
+                        new ParallelAction(Arrays.asList(
+                            new LambdaAction(() -> Intake.getInstance().setState(Intake.WantedAction.INTAKE)),
+                            new LambdaAction(() -> Superstructure.getInstance().setWantSpinUp()))),                     
+                        new LambdaAction(() -> Superstructure.getInstance().setWantAutoAim(Rotation2d.fromDegrees(0.0))))))));
+
+        runAction(
+            new ParallelAction(Arrays.asList(
+                new LambdaAction(() -> Superstructure.getInstance().setGoal(kShooterRPM, kHoodAngle, 0.0)),
+                new LambdaAction(() -> Intake.getInstance().setState(Intake.WantedAction.RETRACT)))));
+
+        runAction(new WaitAction(1.0));
+        */
+        runAction(new LambdaAction(() -> Superstructure.getInstance().setWantShoot(false)));        
+        runAction(new LambdaAction(() -> Intake.getInstance().setState(Intake.WantedAction.INTAKE)));
+        runAction(new LambdaAction(() -> Superstructure.getInstance().setWantFieldRelativeTurret(Rotation2d.fromDegrees(180.))));
+
         runAction(mStartToSteal);
-
         runAction(new ParallelAction(Arrays.asList(
             mStealToFirstShot,
-            new LambdaAction(() -> Superstructure.getInstance().setWantSpinUp(true))           
+            new SeriesAction(
+                Arrays.asList(
+                    new LambdaAction(() -> Superstructure.getInstance().setWantSpinUp(true)),
+                    new WaitAction(2.0),
+                    new LambdaAction(() -> Intake.getInstance().setState(Intake.WantedAction.NONE))
+                )
+            )
         )));
 
         runAction(new LambdaAction(() -> Superstructure.getInstance().setWantAutoAim(Rotation2d.fromDegrees(180.))));
         runAction(new TurnToHeadingAction(Rotation2d.fromDegrees(0)));
         System.out.println("Turn Complete");
 
-        runAction(new SeriesAction(Arrays.asList(
-            new LambdaAction(() -> Intake.getInstance().setState(Intake.WantedAction.NONE)),
+        runAction(new ParallelAction(Arrays.asList(
             new WaitAction(1.0),
             new LambdaAction(() -> Superstructure.getInstance().setWantShoot(true)),
             new WaitAction(2.0)
         )));
         
+       // runAction(new LambdaAction(() -> Superstructure.getInstance().setWantAutoAim(Rotation2d.fromDegrees(180.))));
+        // runAction(new WaitAction(2.0));
         System.out.println("Wait Complete");
-        //runAction(new LambdaAction(() -> Superstructure.getInstance().setWantShoot(false)));
+        runAction(new LambdaAction(() -> Superstructure.getInstance().setWantShoot(false)));
         runAction(new LambdaAction(() -> Intake.getInstance().setState(Intake.WantedAction.INTAKE)));
 
         runAction(mIntakeCells);
@@ -65,19 +101,27 @@ public class TenBallMode extends AutoModeBase {
 
         runAction(new ParallelAction(Arrays.asList(
             mIntakeToSecondShot,
-            new LambdaAction(() -> Intake.getInstance().setState(Intake.WantedAction.NONE)),
-            new LambdaAction(() -> Superstructure.getInstance().setWantSpinUp(true))
-
+            new SeriesAction(
+                Arrays.asList(
+                   // new WaitAction(2.0),
+                    new LambdaAction(() -> Intake.getInstance().setState(Intake.WantedAction.NONE)),
+                    new LambdaAction(() -> Superstructure.getInstance().setWantSpinUp(true))
+                )
+            )
         )));
 
         runAction(mIntakeToSecondShot);
-        runAction(new SeriesAction(Arrays.asList(
+        runAction(new ParallelAction(Arrays.asList(
             new LambdaAction(() -> Superstructure.getInstance().setWantShoot(true)),
             new WaitAction(2.0)
 
         )));
-
         runAction(new LambdaAction(() -> Superstructure.getInstance().setWantShoot(false)));
+
+        
+       /* runAction(mStealToFirstShot);
+        
+        */
         System.out.println("Auto Complete");
 
     }
