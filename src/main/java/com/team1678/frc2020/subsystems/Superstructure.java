@@ -318,7 +318,6 @@ public class Superstructure extends Subsystem {
             } else {
                 indexerAction = Indexer.WantedAction.PASSIVE_INDEX;
             }
-            //mTurretSetpoint = 180.0;
             mShooter.setOpenLoop(0, 0);
         }
 
@@ -328,16 +327,15 @@ public class Superstructure extends Subsystem {
 
         if (mWantsSpinUp && mIndexer.isAtDeadSpot()) {
             mShooter.setVelocity(mShooterSetpoint);
-            //mShooter.setPopout(false);
-            indexerAction = Indexer.WantedAction.PREP;
+            indexerAction = Indexer.WantedAction.PASSIVE_INDEX;
+            mTrigger.setPopoutSolenoid(false);
         } else if (mWantsShoot) {
             mShooter.setVelocity(mShooterSetpoint);
-            //mShooter.setPopout(true);
             if (mShooter.spunUp() || mGotSpunUp) {
                 indexerAction = Indexer.WantedAction.ZOOM;
                 mTrigger.setPopoutSolenoid(true);
             } else {
-                indexerAction = Indexer.WantedAction.PREP;
+                indexerAction = Indexer.WantedAction.PASSIVE_INDEX;
                 mTrigger.setPopoutSolenoid(false);
             }
             if (mShooter.spunUp()) {
