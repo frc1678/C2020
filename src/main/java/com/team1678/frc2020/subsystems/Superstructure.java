@@ -23,6 +23,7 @@ public class Superstructure extends Subsystem {
 
     private final Turret mTurret = Turret.getInstance();
     private final Shooter mShooter = Shooter.getInstance();
+    private final Trigger mTrigger = Trigger.getInstance();
     private final Hood mHood = Hood.getInstance();
     private final Indexer mIndexer = Indexer.getInstance();
     private final RobotState mRobotState = RobotState.getInstance();
@@ -318,7 +319,7 @@ public class Superstructure extends Subsystem {
                 indexerAction = Indexer.WantedAction.PASSIVE_INDEX;
             }
             //mTurretSetpoint = 180.0;
-            mShooter.setOpenLoop(0, 0, false);
+            mShooter.setOpenLoop(0, 0);
         }
 
         if (mWantsSpinUp) {
@@ -334,14 +335,17 @@ public class Superstructure extends Subsystem {
             //mShooter.setPopout(true);
             if (mShooter.spunUp() || mGotSpunUp) {
                 indexerAction = Indexer.WantedAction.ZOOM;
+                mTrigger.setPopoutSolenoid(true);
             } else {
                 indexerAction = Indexer.WantedAction.PREP;
+                mTrigger.setPopoutSolenoid(false);
             }
             if (mShooter.spunUp()) {
                 mGotSpunUp = true;
             }
         } else {
-            mShooter.setOpenLoop(0, 0, false);
+            mShooter.setOpenLoop(0, 0);
+            mTrigger.setPopoutSolenoid(false);
         }
 
         mIndexer.setState(indexerAction);
