@@ -55,7 +55,7 @@ public class Constants {
     public static final int kWinchMasterId = 11;
     public static final int kWinchSlaveId = 12;
     public static final int kArmSolenoidId = 1;
-    public static final int kBrakeSolenoidId = 4;
+    public static final int kBrakeSolenoidId = 5;
 
     // wrangler
     public static final int kWranglerId = 13;

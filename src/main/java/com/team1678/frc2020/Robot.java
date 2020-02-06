@@ -153,6 +153,7 @@ public class Robot extends TimedRobot {
             mAutoModeExecutor.start();
 
             mEnabledLooper.start();
+            mLoggingLooper.start();
         } catch (Throwable t) {
             CrashTracker.logThrowableCrash(t);
             throw t;
@@ -185,6 +186,7 @@ public class Robot extends TimedRobot {
 
             RobotState.getInstance().reset(Timer.getFPGATimestamp(), Pose2d.identity());
             mEnabledLooper.start();
+            mLoggingLooper.start();
             mLimelight.setPipeline(Constants.kPortPipeline);
 
             mControlBoard.reset();
@@ -273,6 +275,7 @@ public class Robot extends TimedRobot {
 
             mDisabledLooper.stop();
             mEnabledLooper.stop();
+            mLoggingLooper.stop();
 
             mDrive.checkSystem();
             // mCargoIntake.checkSystem();
@@ -294,6 +297,7 @@ public class Robot extends TimedRobot {
         try {
             CrashTracker.logDisabledInit();
             mEnabledLooper.stop();
+            mLoggingLooper.stop();
             if (mAutoModeExecutor != null) {
                 mAutoModeExecutor.stop();
             }
