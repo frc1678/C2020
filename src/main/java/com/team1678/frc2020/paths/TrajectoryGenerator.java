@@ -81,9 +81,9 @@ public class TrajectoryGenerator {
     public static final Pose2d kIntakePoseWaypoint1 = new Pose2d(210.0, 85.0, Rotation2d.fromDegrees(0.0));
     public static final Pose2d kIntakePose = new Pose2d(240.0, 55.0, Rotation2d.fromDegrees(-65.0));
     public static final Pose2d kPillarWaypoint = new Pose2d(240.0, 20.0, Rotation2d.fromDegrees(200.0));
-    public static final Pose2d kIntakePose2 = new Pose2d(240.0, -20.0, Rotation2d.fromDegrees(-55.0));
-    //public static final Pose2d kIntakePose2Turned = new Pose2d(240.0, -20.0, Rotation2d.fromDegrees(0.0));
-    public static final Pose2d kShotPoseWaypoint = new Pose2d(250.0, -40.0, Rotation2d.fromDegrees(-60.0));
+    public static final Pose2d kIntakePose2 = new Pose2d(235.0, -20.0, Rotation2d.fromDegrees(-55.0));
+    public static final Pose2d kIntakePose2Turned = new Pose2d(240.0, -40.0, Rotation2d.fromDegrees(0.0));
+    public static final Pose2d kShotPoseWaypoint = new Pose2d(240.0, -40.0, Rotation2d.fromDegrees(-60.0));
     public static final Pose2d kShotPoseWaypoint2 = new Pose2d(220.0, -20.0, Rotation2d.fromDegrees(-60.0));
     public static final Pose2d kShotPose2 = new Pose2d(180.0, 75.0, Rotation2d.fromDegrees(-65.0));
 
@@ -161,8 +161,8 @@ public class TrajectoryGenerator {
 
         private Trajectory<TimedState<Pose2dWithCurvature>> getIntakeToSecondShot() {
             List<Pose2d> waypoints = new ArrayList<>();
-            waypoints.add(kShotPoseWaypoint);
-            waypoints.add(kShotPoseWaypoint2);
+            waypoints.add(kIntakePose2Turned);
+     // waypoints.add(kShotPoseWaypoint2);
             waypoints.add(kShotPose2);
             return generateTrajectory(true, waypoints,
                     Arrays.asList(new CentripetalAccelerationConstraint(kMaxCentripetalAccel)), kMaxVelocity, kMaxAccel,

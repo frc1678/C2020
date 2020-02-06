@@ -53,7 +53,7 @@ public class Superstructure extends Subsystem {
     private double mCurrentHood = 0.0;
 
     private double mTurretSetpoint = 0.0;
-    private double mHoodSetpoint = 60.0;
+    private double mHoodSetpoint = 57.0;
     private double mShooterSetpoint = 4000.0;
     private boolean mGotSpunUp = false;
 
@@ -327,10 +327,11 @@ public class Superstructure extends Subsystem {
 
         if (mWantsSpinUp && mIndexer.isAtDeadSpot()) {
             mShooter.setVelocity(mShooterSetpoint);
-            mShooter.setPopout(false);
+            //mShooter.setPopout(false);
+            indexerAction = Indexer.WantedAction.PREP;
         } else if (mWantsShoot) {
             mShooter.setVelocity(mShooterSetpoint);
-            mShooter.setPopout(true);
+            //mShooter.setPopout(true);
             if (mShooter.spunUp() || mGotSpunUp) {
                 indexerAction = Indexer.WantedAction.ZOOM;
             } else {

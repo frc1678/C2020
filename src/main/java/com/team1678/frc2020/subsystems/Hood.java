@@ -12,6 +12,7 @@ import com.ctre.phoenix.motorcontrol.can.BaseTalon;
 import com.team254.lib.drivers.BaseTalonChecker;
 
 import com.team254.lib.drivers.TalonUtil;
+import com.team254.lib.util.Util;
 
 import java.util.ArrayList;
 
@@ -57,6 +58,12 @@ public class Hood extends ServoMotorSubsystem {
                 mMaster.set(ControlMode.PercentOutput, 0.0, DemandType.ArbitraryFeedForward, 0.0);
             }
         } else {
+            if (atHomingLocation() && !Util.epsilonEquals(getAngle(), 12.875, 1)) {
+                mMaster.setSelectedSensorPosition((int) unitsToTicks(12.875));
+                mMaster.overrideSoftLimitsEnable(true);
+                System.out.println("Homed!!!");
+                mHoming = false;
+            }
             super.writePeriodicOutputs();
         }
     }

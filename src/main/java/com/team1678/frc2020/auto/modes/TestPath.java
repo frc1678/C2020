@@ -4,6 +4,8 @@ import com.team1678.frc2020.paths.TrajectoryGenerator;
 import com.team254.lib.geometry.Rotation2d;
 import com.team1678.frc2020.auto.AutoModeEndedException;
 import com.team1678.frc2020.auto.actions.*;
+import com.team1678.frc2020.subsystems.Intake;
+
 
 public class TestPath extends AutoModeBase {
     private static final TrajectoryGenerator mTrajectoryGenerator = TrajectoryGenerator.getInstance();

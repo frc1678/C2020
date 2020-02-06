@@ -335,8 +335,10 @@ public class RobotState {
         SmartDashboard.putNumber("Robot X", getLatestFieldToVehicle().getValue().getTranslation().x());
         SmartDashboard.putNumber("Robot Y", getLatestFieldToVehicle().getValue().getTranslation().y());
         SmartDashboard.putNumber("Robot Theta", getLatestFieldToVehicle().getValue().getRotation().getDegrees());
-        if (getAimingParameters(false, -1, Constants.kMaxGoalTrackAge).isPresent()) {    
+        /*if (getAimingParameters(false, -1, Constants.kMaxGoalTrackAge).isPresent()) {    
             SmartDashboard.putNumber("Vehicle to Target", getAimingParameters(false, -1, Constants.kMaxGoalTrackAge).get().getRange());
-        }
+            SmartDashboard.putNumber("Vehicle to TargetAngle", getAimingParameters(false, -1, Constants.kMaxGoalTrackAge).get().getRobotToGoalRotation().getDegrees());
+
+        }*/
     }
 }
