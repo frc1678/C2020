@@ -325,12 +325,14 @@ public class Superstructure extends Subsystem {
             indexerAction = Indexer.WantedAction.PASSIVE_INDEX;
         }
 
-        if (mWantsSpinUp && mIndexer.isAtDeadSpot()) {
+        if (mWantsSpinUp) {
             mShooter.setVelocity(mShooterSetpoint);
+            mTrigger.setTriggerVelocity();
             indexerAction = Indexer.WantedAction.PASSIVE_INDEX;
             mTrigger.setPopoutSolenoid(false);
         } else if (mWantsShoot) {
             mShooter.setVelocity(mShooterSetpoint);
+            mTrigger.setTriggerVelocity();
             if (mShooter.spunUp() || mGotSpunUp) {
                 indexerAction = Indexer.WantedAction.ZOOM;
                 mTrigger.setPopoutSolenoid(true);
