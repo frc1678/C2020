@@ -26,10 +26,12 @@ public class Indexer extends Subsystem {
     private static final double kZoomingVelocity = 60.;
     private static final double kPassiveIndexingVelocity = 45.0;
     private static final double kGearRatio = (60. / 16.) * (160. / 16.);
+    private static final boolean[] kFullSlots = {true, true, true, true, true };
+    private static final boolean[] kEmptySlots = {false, false, false, false, false };
 
     public static class PeriodicIO {
         // INPUTS
-        private boolean[] raw_slots = {false, false, false, false, false};
+        private boolean[] raw_slots = { false, false, false, false, false };
         public boolean limit_switch;
 
         public double indexer_angle;
@@ -51,7 +53,8 @@ public class Indexer extends Subsystem {
 
     private boolean mGeneratedGoal = false;
     private PeriodicIO mPeriodicIO = new PeriodicIO();
-    private boolean[] mCleanSlots = {false, false, false, false, false};
+    private boolean[] mCleanSlots = { false, false, false, false, false };
+
     private final TalonFX mMaster;
     private State mState = State.IDLE;
     private double mInitialTime = 0;
@@ -189,7 +192,11 @@ public class Indexer extends Subsystem {
     }
 
     public synchronized boolean slotsFilled() {
-        return false;
+        return Arrays.equals(mCleanSlots, kFullSlots);
+    }
+
+    public synchronized boolean slotsEmpty() {
+        return Arrays.equals(mCleanSlots, kEmptySlots);
     }
 
     public synchronized boolean isAtDeadSpot() {
@@ -323,16 +330,16 @@ public class Indexer extends Subsystem {
         if (mMotionPlanner.isSnapped(indexer_angle)) {
             updateSlots(indexer_angle);
         }
-//        if (atHomingLocation() && !mHasBeenZeroed) {
-//            mMaster.setSelectedSensorPosition((int) Math.floor(mOffset));
-//            mMaster.overrideSoftLimitsEnable(true);
-//            System.out.println("Homed!!!");
-//            mHasBeenZeroed = true;
-//        }
+        // if (atHomingLocation() && !mHasBeenZeroed) {
+        // mMaster.setSelectedSensorPosition((int) Math.floor(mOffset));
+        // mMaster.overrideSoftLimitsEnable(true);
+        // System.out.println("Homed!!!");
+        // mHasBeenZeroed = true;
+        // }
     }
 
     @Override
-    public synchronized void writePeriodicOutputs() {        
+    public synchronized void writePeriodicOutputs() {
         if (mPeriodicIO.indexer_control_mode == ControlMode.Velocity) {
             mMaster.selectProfileSlot(1, 0);
             mMaster.set(mPeriodicIO.indexer_control_mode, (mPeriodicIO.indexer_demand / 600.0) * kGearRatio * 2048.0);
