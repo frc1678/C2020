@@ -327,11 +327,11 @@ public class Superstructure extends Subsystem {
 
         if (mWantsSpinUp && mIndexer.isAtDeadSpot()) {
             mShooter.setVelocity(mShooterSetpoint);
-            //mShooter.setPopout(false);
+            mShooter.setPopout(false);
             indexerAction = Indexer.WantedAction.PREP;
         } else if (mWantsShoot) {
             mShooter.setVelocity(mShooterSetpoint);
-            //mShooter.setPopout(true);
+            mShooter.setPopout(true);
             if (mShooter.spunUp() || mGotSpunUp) {
                 indexerAction = Indexer.WantedAction.ZOOM;
             } else {
