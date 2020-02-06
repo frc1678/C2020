@@ -53,8 +53,8 @@ public class Superstructure extends Subsystem {
     private double mCurrentHood = 0.0;
 
     private double mTurretSetpoint = 0.0;
-    private double mHoodSetpoint = 50.0;
-    private double mShooterSetpoint = 3500.0;
+    private double mHoodSetpoint = 57.0;
+    private double mShooterSetpoint = 4000.0;
     private boolean mGotSpunUp = false;
 
     private TurretControlModes mTurretMode = TurretControlModes.FIELD_RELATIVE;
@@ -239,8 +239,9 @@ public class Superstructure extends Subsystem {
             final double aiming_setpoint = getHoodSetpointAngle(mCorrectedRangeToTarget);
             mHoodSetpoint = aiming_setpoint;
 
-            final Rotation2d turret_error = mRobotState.getVehicleToTurret(timestamp).getRotation().inverse()
+            final Rotation2d turret_error = /*Rotation2d.fromDegrees(Limelight.getInstance().getTx());*/mRobotState.getVehicleToTurret(timestamp).getRotation().inverse()
                     .rotateBy(mLatestAimingParameters.get().getRobotToGoalRotation());
+            
             mTurretSetpoint = mCurrentTurret + turret_error.getDegrees();
             final Twist2d velocity = mRobotState.getMeasuredVelocity();
             // Angular velocity component from tangential robot motion about the goal.
@@ -321,13 +322,16 @@ public class Superstructure extends Subsystem {
         }
 
         if (mWantsSpinUp) {
-            indexerAction = Indexer.WantedAction.PREP;
+            indexerAction = Indexer.WantedAction.PASSIVE_INDEX;
         }
 
         if (mWantsSpinUp && mIndexer.isAtDeadSpot()) {
             mShooter.setVelocity(mShooterSetpoint);
+            //mShooter.setPopout(false);
+            indexerAction = Indexer.WantedAction.PREP;
         } else if (mWantsShoot) {
             mShooter.setVelocity(mShooterSetpoint);
+            //mShooter.setPopout(true);
             if (mShooter.spunUp() || mGotSpunUp) {
                 indexerAction = Indexer.WantedAction.ZOOM;
             } else {
@@ -345,7 +349,7 @@ public class Superstructure extends Subsystem {
         if (mTurretMode == TurretControlModes.OPEN_LOOP) {
             mTurret.setOpenLoop(mTurretThrottle);
         } else {
-            mTurret.setSetpointPositionPID(mTurretSetpoint, 0);
+            mTurret.setSetpointMotionMagic(mTurretSetpoint, 0);
         }
     }
 

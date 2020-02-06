@@ -27,7 +27,7 @@ public class Constants {
 
     /* ROBOT PHYSICAL CONSTANTS */
     // Wheels
-    public static final double kDriveWheelTrackWidthInches = 23.80;
+    public static final double kDriveWheelTrackWidthInches = 31.80;
     public static final double kDriveWheelDiameterInches = 6.0;
     public static final double kDriveWheelRadiusInches = kDriveWheelDiameterInches / 2.0;
     public static final double kTrackScrubFactor = 1.0; // Tune me!
@@ -121,10 +121,10 @@ public class Constants {
         // Unit == Degrees
         kTurretConstants.kHomePosition = 0.0; // CCW degrees from forward
         kTurretConstants.kTicksPerUnitDistance = (2048.0 * 36.0) / 360.0;
-        kTurretConstants.kKp = 0.5;
+        kTurretConstants.kKp = 0.1;
         kTurretConstants.kKi = 0;
         kTurretConstants.kKd = 0.0;
-        kTurretConstants.kKf = 0.07;
+        kTurretConstants.kKf = 0.05;
         kTurretConstants.kKa = 0.0;
         kTurretConstants.kMaxIntegralAccumulator = 0;
         kTurretConstants.kIZone = 0; // Ticks
@@ -142,12 +142,12 @@ public class Constants {
         kTurretConstants.kMaxUnitsLimit = 360.0;
 
         kTurretConstants.kCruiseVelocity = 20000; // Ticks / 100ms
-        kTurretConstants.kAcceleration = 15000; // Ticks / 100ms / s
+        kTurretConstants.kAcceleration = 40000; // Ticks / 100ms / s
         kTurretConstants.kRampRate = 0.0; // s
         kTurretConstants.kContinuousCurrentLimit = 20; // amps
         kTurretConstants.kPeakCurrentLimit = 40; // amps
         kTurretConstants.kPeakCurrentDuration = 10; // milliseconds
-        kTurretConstants.kMaxVoltage = 12.0;
+        kTurretConstants.kMaxVoltage = 6.0;
 
         // kTurretConstants.kStatusFrame8UpdateRate = 50;
         kTurretConstants.kRecoverPositionOnReset = true;
@@ -215,7 +215,7 @@ public class Constants {
         kLimelightConstants.kTableName = "limelight";
         kLimelightConstants.kHeight = 24.; // inches
         kLimelightConstants.kTurretToLens = Pose2d.identity();
-        kLimelightConstants.kHorizontalPlaneToLens = Rotation2d.fromDegrees(10.0);
+        kLimelightConstants.kHorizontalPlaneToLens = Rotation2d.fromDegrees(-10.0);
     }
 
     public static final double kHorizontalFOV = 59.6; // degrees
@@ -254,7 +254,7 @@ public class Constants {
     public static final double kTriggerF = 0.05;
     public static final int kPopoutSolenoidId = 4; // TODO 
 
-    public static final double kTriggerRPM = 6000.0;
+    public static final double kTriggerRPM = 5000.0;
 
     public static final double kMaxTopLimelightHeight = 16.0;
 

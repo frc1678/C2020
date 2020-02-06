@@ -92,6 +92,7 @@ public class Indexer extends Subsystem {
         mMaster.enableVoltageCompensation(true);
 
         mMaster.setSelectedSensorPosition(0, 0, Constants.kCANTimeoutMs);
+        mMaster.configClosedloopRamp(0.2);
 
         mMotionPlanner = new IndexerMotionPlanner();
     }

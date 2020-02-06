@@ -62,7 +62,7 @@ public class Limelight extends Subsystem {
             @Override
             public void onLoop(double timestamp) {
                 synchronized (this) {
-                    if (!Superstructure.getInstance().getWantShoot() || !Util.epsilonEquals(Hood.getInstance().getAngle(), Hood.getInstance().getSetpoint(), 3.0)) {
+                    if (!Superstructure.getInstance().getWantShoot()) {// || !Util.epsilonEquals(Hood.getInstance().getAngle(), Hood.getInstance().getSetpoint(), 3.0)) {
                         RobotState.getInstance().addVisionUpdate(timestamp - getLatency(), getTarget());
                     }
                 }
@@ -75,6 +75,10 @@ public class Limelight extends Subsystem {
             }
         };
         mEnabledLooper.register(mLoop);
+    }
+
+    public double getTx() {
+        return -mPeriodicIO.xOffset;
     }
 
     public static class PeriodicIO {
@@ -195,8 +199,12 @@ public class Limelight extends Subsystem {
      *         targets are found
      */
     public synchronized List<TargetInfo> getTarget() {
-        List<TargetInfo> targets = getRawTargetInfos();
-        if (seesTarget() && targets != null) {
+        List<TargetInfo> targets = new ArrayList<TargetInfo>();
+        TargetInfo target = new TargetInfo(Math.tan(Math.toRadians(-mPeriodicIO.xOffset)),
+                Math.tan(Math.toRadians(mPeriodicIO.yOffset)));
+
+        targets.add(target);
+        if (seesTarget() && target != null) {
             return targets;
         }
 
