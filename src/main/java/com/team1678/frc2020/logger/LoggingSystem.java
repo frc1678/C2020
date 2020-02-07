@@ -23,6 +23,9 @@ public class LoggingSystem {
         New subdirectory is created by adding one (1) to the max file number.
     */
     private LoggingSystem() {
+    }
+
+    public  void LogDirectory() {
         File Directory = new File(mDirectory);
         Integer maxNum = 0;
         if  (! Directory.isDirectory()) {
@@ -46,6 +49,7 @@ public class LoggingSystem {
         File newDirectory = new File(mDirectory);
         newDirectory.mkdir();
     }
+
     public synchronized static LoggingSystem getInstance() {
         if (mInstance == null) {
             mInstance = new LoggingSystem();
@@ -119,6 +123,7 @@ public class LoggingSystem {
         looper.register(new Loop() {
             @Override
             public void onStart(double timestamp) {
+                LogDirectory();
             }
             @Override 
             public void onLoop(double timestamp) {
