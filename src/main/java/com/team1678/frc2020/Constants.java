@@ -130,9 +130,9 @@ public class Constants {
         kTurretConstants.kIZone = 0; // Ticks
         kTurretConstants.kDeadband = 0; // Ticks
 
-        kTurretConstants.kPositionKp = 0.2;
+        kTurretConstants.kPositionKp = 0.1;
         kTurretConstants.kPositionKi = 0.0;
-        kTurretConstants.kPositionKd = 0.7;
+        kTurretConstants.kPositionKd = 0.0;
         kTurretConstants.kPositionKf = 0.0;
         kTurretConstants.kPositionMaxIntegralAccumulator = 0;
         kTurretConstants.kPositionIZone = 0; // Ticks
@@ -147,7 +147,7 @@ public class Constants {
         kTurretConstants.kContinuousCurrentLimit = 20; // amps
         kTurretConstants.kPeakCurrentLimit = 40; // amps
         kTurretConstants.kPeakCurrentDuration = 10; // milliseconds
-        kTurretConstants.kMaxVoltage = 6.0;
+        kTurretConstants.kMaxVoltage = 8.0;
 
         // kTurretConstants.kStatusFrame8UpdateRate = 50;
         kTurretConstants.kRecoverPositionOnReset = true;
@@ -249,7 +249,7 @@ public class Constants {
     public static final double kShooterI = 0.00004;
     public static final double kShooterD = 0.0;
     public static final double kShooterF = 0.05;
-    public static final double kTriggerP = 0.15;
+    public static final double kTriggerP = 0.05;
     public static final double kTriggerI = 0.0;
     public static final double kTriggerD = 0.0;
     public static final double kTriggerF = 0.05;

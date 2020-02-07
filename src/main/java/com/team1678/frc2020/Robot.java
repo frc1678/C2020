@@ -74,6 +74,7 @@ public class Robot extends TimedRobot {
     private final Superstructure mSuperstructure = Superstructure.getInstance();
     private final Turret mTurret = Turret.getInstance();
     private final Shooter mShooter = Shooter.getInstance();
+    private final Trigger mTrigger = Trigger.getInstance();
     private final Climber mClimber = Climber.getInstance();
     private final Hood mHood = Hood.getInstance();
     private final Wrangler mWrangler = Wrangler.getInstance();
@@ -106,13 +107,15 @@ public class Robot extends TimedRobot {
             CrashTracker.logRobotInit();
 
             mSubsystemManager.setSubsystems(
-                mRobotStateEstimator, 
+                mRobotStateEstimator,
+                mCanifier, 
                 mDrive, 
                 mLimelight, 
                 mIntake, 
                 mIndexer, 
                 mWrangler, 
                 mShooter,
+                mTrigger,
                 mSuperstructure,
                 mHood,
                 mTurret,
@@ -203,7 +206,8 @@ public class Robot extends TimedRobot {
 
             mDrive.setCheesyishDrive(throttle, turn, mControlBoard.getQuickTurn());
 
-            mSuperstructure.setWantAutoAim(null);  //setWantFieldRelativeTurret(mControlBoard.getTurretCardinal().rotation);
+            //mSuperstructure.setWantAutoAim(mControlBoard.getTurretCardinal().rotation);
+            mSuperstructure.setWantFieldRelativeTurret(mControlBoard.getTurretCardinal().rotation);
 
             if (mControlBoard.climbMode()) {
                 climb_mode = true;

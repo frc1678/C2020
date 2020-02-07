@@ -42,15 +42,20 @@ public class Shooter extends Subsystem {
         mMaster.configVoltageCompSaturation(12.0, Constants.kLongCANTimeoutMs);
         mMaster.enableVoltageCompensation(true);
         
-        mMaster.config_kP(0, 0.1, Constants.kLongCANTimeoutMs);
-        mMaster.config_kI(0, 0, Constants.kLongCANTimeoutMs);
-        mMaster.config_kD(0, 0.0, Constants.kLongCANTimeoutMs);
+        mMaster.config_kP(0, Constants.kShooterP, Constants.kLongCANTimeoutMs);
+        mMaster.config_kI(0, Constants.kShooterI, Constants.kLongCANTimeoutMs);
+        mMaster.config_kD(0, Constants.kShooterD, Constants.kLongCANTimeoutMs);
         mMaster.config_kF(0, Constants.kShooterF, Constants.kLongCANTimeoutMs);
+        mMaster.config_IntegralZone(0, (int) (200.0 / kFlywheelVelocityConversion));
         mMaster.selectProfileSlot(0, 0);
 
-        mSlave.setInverted(false); //TODO: check value
+        SupplyCurrentLimitConfiguration curr_lim = new SupplyCurrentLimitConfiguration(true, 40, 100, 0.5);
+        mMaster.configSupplyCurrentLimit(curr_lim);
+
+        mSlave.setInverted(true); //TODO: check value
         
         mMaster.set(ControlMode.PercentOutput, 0);
+        mMaster.configSelectedFeedbackSensor(TalonFXFeedbackDevice.IntegratedSensor, 0, Constants.kLongCANTimeoutMs);
     }
 
     public synchronized static Shooter mInstance() {
@@ -104,7 +109,10 @@ public class Shooter extends Subsystem {
     }
 
     public synchronized boolean spunUp() {
-        return Util.epsilonEquals(mPeriodicIO.flywheel_demand, mPeriodicIO.flywheel_velocity, kShooterTolerance);
+        if (mPeriodicIO.flywheel_demand > 0) {
+            return Util.epsilonEquals(mPeriodicIO.flywheel_demand, mPeriodicIO.flywheel_velocity, kShooterTolerance);
+        }
+        return false;
     }
 
     public synchronized void setVelocity(double velocity) {

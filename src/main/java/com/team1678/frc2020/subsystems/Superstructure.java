@@ -62,6 +62,10 @@ public class Superstructure extends Subsystem {
 
     private double mTurretThrottle = 0.0;
 
+    public synchronized boolean spunUp() {
+        return mGotSpunUp;
+    }
+    
     public synchronized static Superstructure getInstance() {
         if (mInstance == null) {
             mInstance = new Superstructure();
@@ -116,6 +120,7 @@ public class Superstructure extends Subsystem {
     public void outputTelemetry() {
         SmartDashboard.putString("Turret Control State", mTurretMode.toString());
         SmartDashboard.putNumber("Turret Goal", mTurretSetpoint);
+        SmartDashboard.putNumber("Hood Goal", mHoodSetpoint);
     }
 
     @Override
@@ -243,6 +248,7 @@ public class Superstructure extends Subsystem {
 
             final double aiming_setpoint = getHoodSetpointAngle(mCorrectedRangeToTarget);
             mHoodSetpoint = aiming_setpoint;
+            System.out.println(aiming_setpoint);
 
             final Rotation2d turret_error = /*Rotation2d.fromDegrees(Limelight.getInstance().getTx());*/mRobotState.getVehicleToTurret(timestamp).getRotation().inverse()
                     .rotateBy(mLatestAimingParameters.get().getRobotToGoalRotation());
@@ -339,6 +345,10 @@ public class Superstructure extends Subsystem {
                 mGotSpunUp = true;
             }
 
+            if (mIndexer.isAtDeadSpot()) {
+                real_popout = true;
+            }
+
             if (mGotSpunUp) {
                 real_popout = true;
                 indexerAction = Indexer.WantedAction.ZOOM;
@@ -348,15 +358,21 @@ public class Superstructure extends Subsystem {
         mIndexer.setState(indexerAction);
         mTrigger.setPopoutSolenoid(real_popout);
         mTrigger.setVelocity(real_trigger);
-        mShooter.setVelocity(real_shooter);
+        if (real_shooter < Util.kEpsilon) {
+            mShooter.setOpenLoop(0);
+        } else {
+            mShooter.setVelocity(real_shooter);
+        }
 
         if (mTurretMode == TurretControlModes.OPEN_LOOP) {
             mTurret.setOpenLoop(mTurretThrottle);
         } else  if (mTurretMode == TurretControlModes.VISION_AIMED) {
-            mTurret.setSetpointPositionPID(mTurretSetpoint, mTurretFeedforwardV);
+            mTurret.setSetpointPositionPID(mTurretSetpoint, 0);
         } else {
             mTurret.setSetpointMotionMagic(mTurretSetpoint, 0);
         }
+        //mTurret.setOpenLoop(0);
+        //mHood.setOpenLoop(0);
     }
 
     public synchronized Optional<AimingParameters> getLatestAimingParameters() {
@@ -388,6 +404,7 @@ public class Superstructure extends Subsystem {
     public synchronized void setWantSpinUp() {
         mWantsSpinUp = !mWantsSpinUp;
         mWantsShoot = false;
+        mGotSpunUp = false;
     }
 
     public synchronized void setWantShoot(boolean shoot) {

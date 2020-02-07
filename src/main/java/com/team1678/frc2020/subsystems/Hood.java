@@ -30,7 +30,6 @@ public class Hood extends ServoMotorSubsystem {
 
     private Hood(final ServoMotorSubsystemConstants constants) {
         super(constants);
-        mMaster.setSelectedSensorPosition((int) Math.floor(unitsToTicks(12.875)), 0, Constants.kLongCANTimeoutMs);
     }
 
     @Override
@@ -49,27 +48,25 @@ public class Hood extends ServoMotorSubsystem {
     @Override
     public synchronized void writePeriodicOutputs() {
         if (mHoming) {
-            if (atHomingLocation()) {
-                mMaster.setSelectedSensorPosition((int) unitsToTicks(12.875));
-                mMaster.overrideSoftLimitsEnable(true);
-                System.out.println("Homed!!!");
-                mHoming = false;
-            }
-
             if (mControlState == ControlState.OPEN_LOOP) {
                 mMaster.set(ControlMode.PercentOutput, mPeriodicIO.demand, DemandType.ArbitraryFeedForward, 0.0);
             } else {
                 mMaster.set(ControlMode.PercentOutput, 0.0, DemandType.ArbitraryFeedForward, 0.0);
             }
         } else {
-            if (atHomingLocation() && !Util.epsilonEquals(getAngle(), 12.875, 1)) {
-                mMaster.setSelectedSensorPosition((int) unitsToTicks(12.875));
-                mMaster.overrideSoftLimitsEnable(true);
-                System.out.println("Homed!!!");
-                mHoming = false;
-            }
             super.writePeriodicOutputs();
         }
+    }
+
+    @Override
+    public synchronized void readPeriodicInputs() {
+        if (mHoming && atHomingLocation()) {
+            mMaster.setSelectedSensorPosition((int) unitsToTicks(12.875));
+            mMaster.overrideSoftLimitsEnable(true);
+            System.out.println("Homed!!!");
+            mHoming = false;
+        }
+        super.readPeriodicInputs();
     }
 
     @Override

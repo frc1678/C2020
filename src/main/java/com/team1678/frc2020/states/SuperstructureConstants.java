@@ -29,8 +29,8 @@ public class SuperstructureConstants {
     public static PolynomialRegression kHoodAutoAimPolynomial;
 
     public static double[][] kHoodManualAngle = {
-        { 90.0, 60.0 }, // TODO: Fill in with values
-        { 140.0, 55.0},
+        { 100.0, 40.0 }, // TODO: Fill in with values
+        { 200.0, 60.0 },
         
     };
 
