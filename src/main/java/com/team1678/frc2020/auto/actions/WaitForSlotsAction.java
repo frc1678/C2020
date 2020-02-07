@@ -15,6 +15,12 @@ public class WaitForSlotsAction implements Action {
 
     private double mMaxSettleTime; // maximum time to wait
     private double mStartTime;
+    /**
+    * time is expired.
+    *
+    * @param bool empty or full slots: true -> all slots full | false -> all slots empty
+    * @param max_wait Length of time until slots do not matter and will move to next action
+    */
 
     public WaitForSlotsAction(boolean bool, double max_wait) {
         mOpenSlot = bool;

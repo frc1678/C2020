@@ -52,8 +52,8 @@ public class TenBallMode extends AutoModeBase {
 
         runAction(new LambdaAction(() -> Intake.getInstance().setState(Intake.WantedAction.NONE)));
         runAction(new WaitForSpinupAction());
-        runAction( new LambdaAction(() -> Superstructure.getInstance().setWantShoot(true)));
-        runAction(new WaitAction(6.0));
+        runAction(new LambdaAction(() -> Superstructure.getInstance().setWantShoot(true)));
+        runAction(new WaitForSlotsAction(false, 10.0));
     
         
         System.out.println("Wait Complete");
