@@ -42,6 +42,10 @@ public class Hood extends ServoMotorSubsystem {
         return getPosition();
     }
 
+    public synchronized boolean getAtGoal() {
+        return Util.epsilonEquals(getAngle(), getSetpoint(), 0.5);
+    }
+
     @Override
     public synchronized void writePeriodicOutputs() {
         if (mHoming) {

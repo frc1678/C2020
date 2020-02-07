@@ -108,6 +108,10 @@ public class Superstructure extends Subsystem {
         });
     }
 
+    public synchronized boolean getWantsShoot() {
+        return mWantsShoot;
+    }
+
     @Override
     public void outputTelemetry() {
         SmartDashboard.putString("Turret Control State", mTurretMode.toString());
@@ -311,6 +315,9 @@ public class Superstructure extends Subsystem {
         }
 
         Indexer.WantedAction indexerAction = Indexer.WantedAction.PREP;
+        double real_trigger = 0.0;
+        double real_shooter = 0.0;
+        boolean real_popout = false;
 
         if (Intake.getInstance().getState() == Intake.State.INTAKING) {
             if (mAutoIndex) {
@@ -318,40 +325,35 @@ public class Superstructure extends Subsystem {
             } else {
                 indexerAction = Indexer.WantedAction.PASSIVE_INDEX;
             }
-            mShooter.setOpenLoop(0, 0);
         }
 
         if (mWantsSpinUp) {
+            real_shooter = mShooterSetpoint;
             indexerAction = Indexer.WantedAction.PASSIVE_INDEX;
-        }
-
-        if (mWantsSpinUp) {
-            mShooter.setVelocity(mShooterSetpoint);
-            mTrigger.setTriggerVelocity();
-            indexerAction = Indexer.WantedAction.PASSIVE_INDEX;
-            mTrigger.setPopoutSolenoid(false);
         } else if (mWantsShoot) {
-            mShooter.setVelocity(mShooterSetpoint);
-            mTrigger.setTriggerVelocity();
-            if (mShooter.spunUp() || mGotSpunUp) {
-                indexerAction = Indexer.WantedAction.ZOOM;
-                mTrigger.setPopoutSolenoid(true);
-            } else {
-                indexerAction = Indexer.WantedAction.PASSIVE_INDEX;
-                mTrigger.setPopoutSolenoid(false);
-            }
-            if (mShooter.spunUp()) {
+            real_shooter = mShooterSetpoint;
+            real_trigger = Constants.kTriggerRPM;
+            indexerAction = Indexer.WantedAction.PREP;
+
+            if (mShooter.spunUp() && mTrigger.spunUp()) {
                 mGotSpunUp = true;
             }
-        } else {
-            mShooter.setOpenLoop(0, 0);
-            mTrigger.setPopoutSolenoid(false);
+
+            if (mGotSpunUp) {
+                real_popout = true;
+                indexerAction = Indexer.WantedAction.ZOOM;
+            }
         }
 
         mIndexer.setState(indexerAction);
+        mTrigger.setPopoutSolenoid(real_popout);
+        mTrigger.setVelocity(real_trigger);
+        mShooter.setVelocity(real_shooter);
 
         if (mTurretMode == TurretControlModes.OPEN_LOOP) {
             mTurret.setOpenLoop(mTurretThrottle);
+        } else  if (mTurretMode == TurretControlModes.VISION_AIMED) {
+            mTurret.setSetpointPositionPID(mTurretSetpoint, mTurretFeedforwardV);
         } else {
             mTurret.setSetpointMotionMagic(mTurretSetpoint, 0);
         }

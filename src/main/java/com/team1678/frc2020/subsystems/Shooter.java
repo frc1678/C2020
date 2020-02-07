@@ -35,7 +35,7 @@ public class Shooter extends Subsystem {
 
     private Shooter() {
         mMaster = TalonFXFactory.createDefaultTalon(Constants.kMasterFlywheelID);
-        mSlave = TalonFXFactory.createDefaultTalon(Constants.kSlaveFlywheelID);
+        mSlave = TalonFXFactory.createPermanentSlaveTalon(Constants.kSlaveFlywheelID, Constants.kMasterFlywheelID);
 
         mMaster.set(ControlMode.PercentOutput, 0);
         mMaster.setInverted(false); //TODO: check value
@@ -48,12 +48,8 @@ public class Shooter extends Subsystem {
         mMaster.config_kF(0, Constants.kShooterF, Constants.kLongCANTimeoutMs);
         mMaster.selectProfileSlot(0, 0);
 
-        mMaster.configClosedloopRamp(0.5);
-        SupplyCurrentLimitConfiguration curr_limit = new SupplyCurrentLimitConfiguration(true, 40, 100, 0.5);
-        mMaster.configSupplyCurrentLimit(curr_limit);
-        mSlave.follow(mMaster);
-        mSlave.setInverted(true); //TODO: check value
-
+        mSlave.setInverted(false); //TODO: check value
+        
         mMaster.set(ControlMode.PercentOutput, 0);
     }
 
@@ -68,7 +64,7 @@ public class Shooter extends Subsystem {
 
     @Override
     public void stop() {
-        setOpenLoop(0, 0);
+        setOpenLoop(0);
     }
 
     @Override
@@ -90,7 +86,7 @@ public class Shooter extends Subsystem {
         });
     }
 
-    public synchronized void setOpenLoop(double flywheel, double trigger) {
+    public synchronized void setOpenLoop(double flywheel) {
         mPeriodicIO.flywheel_demand = flywheel;
         mRunningManual = true;
     }

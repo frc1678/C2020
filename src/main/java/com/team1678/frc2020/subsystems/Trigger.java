@@ -58,7 +58,7 @@ public class Trigger extends Subsystem {
 
     @Override
     public void stop() {
-        setOpenLoop(0, 0);
+        setOpenLoop(0);
     }
 
     @Override
@@ -80,7 +80,7 @@ public class Trigger extends Subsystem {
         });
     }
 
-    public synchronized void setOpenLoop(double flywheel, double trigger) {
+    public synchronized void setOpenLoop(double trigger) {
         mPeriodicIO.trigger_demand = trigger;
         mRunningManual = true;
     }
@@ -102,13 +102,8 @@ public class Trigger extends Subsystem {
         mPeriodicIO.popout_solenoid = popout;
     }
 
-    public synchronized void setTriggerVelocity() {
-        double shooter_velocity = Shooter.getInstance().getVelocity();
-        if (shooter_velocity > 0) {
-            mPeriodicIO.trigger_demand = Constants.kTriggerRPM;
-        } else {
-            mPeriodicIO.trigger_demand = 0;
-        }
+    public synchronized void setVelocity(double setpoint) {
+        mPeriodicIO.trigger_demand = setpoint;
         mRunningManual = false;
     }
 
