@@ -44,8 +44,6 @@ public class Shooter extends Subsystem {
         mMaster.config_kD(0, Constants.kShooterD, Constants.kLongCANTimeoutMs);
         mMaster.config_kF(0, Constants.kShooterF, Constants.kLongCANTimeoutMs);
 
-
-        mSlave.follow(mMaster);
         mSlave.setInverted(false); //TODO: check value
         
         mMaster.set(ControlMode.PercentOutput, 0);
