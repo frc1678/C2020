@@ -328,6 +328,8 @@ public class Superstructure extends Subsystem {
 
         if (mTurretMode == TurretControlModes.OPEN_LOOP) {
             mTurret.setOpenLoop(mTurretThrottle);
+        } else  if (mTurretMode == TurretControlModes.VISION_AIMED) {
+            mTurret.setSetpointPositionPID(mTurretSetpoint, mTurretFeedforwardV);
         } else {
             mTurret.setSetpointMotionMagic(mTurretSetpoint);
         }

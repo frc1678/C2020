@@ -64,6 +64,8 @@ public class Limelight extends Subsystem {
                 synchronized (this) {
                     if (!Superstructure.getInstance().getWantsShoot() && Hood.getInstance().getAtGoal()) {
                         RobotState.getInstance().addVisionUpdate(timestamp - getLatency(), getTarget());
+                    } else {
+                        RobotState.getInstance().addVisionUpdate(timestamp - getLatency(), null);
                     }
                 }
 
