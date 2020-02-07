@@ -99,6 +99,10 @@ public class Superstructure extends Subsystem {
         });
     }
 
+    public synchronized boolean getWantsShoot() {
+        return mWantsShoot;
+    }
+
     @Override
     public void outputTelemetry() {
         SmartDashboard.putString("Turret Control State", mTurretMode.toString());
