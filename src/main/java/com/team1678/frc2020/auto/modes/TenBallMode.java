@@ -18,6 +18,7 @@ public class TenBallMode extends AutoModeBase {
     private DriveTrajectoryAction mStealToFirstShot;
     private DriveTrajectoryAction mIntakeCells;
     private DriveTrajectoryAction mIntakeToSecondShot;
+    private DriveTrajectoryAction mIntakeToStraight;
 
 
     public TenBallMode() {
@@ -25,6 +26,7 @@ public class TenBallMode extends AutoModeBase {
         mStealToFirstShot = new DriveTrajectoryAction(mTrajectoryGenerator.getTrajectorySet().stealToFirstShot, false);
         mIntakeCells = new DriveTrajectoryAction(mTrajectoryGenerator.getTrajectorySet().intakeCells, false);
         mIntakeToSecondShot = new DriveTrajectoryAction(mTrajectoryGenerator.getTrajectorySet().intakeToSecondShot, false);
+        mIntakeToStraight = new DriveTrajectoryAction(mTrajectoryGenerator.getTrajectorySet().intakeToStraight, false);
     }
 
     @Override
@@ -51,9 +53,9 @@ public class TenBallMode extends AutoModeBase {
         System.out.println("Turn Complete");
 
         runAction(new LambdaAction(() -> Intake.getInstance().setState(Intake.WantedAction.NONE)));
-        runAction(new WaitForSpinupAction());
+        //runAction(new WaitForSpinupAction());
         runAction(new LambdaAction(() -> Superstructure.getInstance().setWantShoot(true)));
-        runAction(new WaitForSlotsAction(false, 10.0));
+        runAction(new WaitForSlotsAction(false, 2.0));
     
         
         System.out.println("Wait Complete");
@@ -62,15 +64,16 @@ public class TenBallMode extends AutoModeBase {
 
         runAction(mIntakeCells);
         runAction(new TurnToHeadingAction(Rotation2d.fromDegrees(0)));
-
+        runAction(new WaitAction(0.5));
+        runAction(mIntakeToStraight);
         runAction(new ParallelAction(Arrays.asList(
-            mIntakeToSecondShot,
+      //      mIntakeToSecondShot,
             new LambdaAction(() -> Intake.getInstance().setState(Intake.WantedAction.NONE)),
             new LambdaAction(() -> Superstructure.getInstance().setWantSpinUp(true))
 
         )));
 
-        runAction(mIntakeToSecondShot);
+     //   runAction(mIntakeToSecondShot);
         runAction(new LambdaAction(() -> Superstructure.getInstance().setWantShoot(true)));
         runAction(new WaitAction(2.0));
 
