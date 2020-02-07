@@ -12,7 +12,7 @@ import java.util.List;
 
 public class CollectAccelerationDataAction implements Action {
     private static final double kStartPower = 0.1;
-    private static final double kPower = 0.3;
+    private static final double kPower = 0.8;
     private static final double kTotalTime = 2.0; // how long to run the test for
     private static final double kStartTime = 1.0;
     private static final Drive mDrive = Drive.getInstance();

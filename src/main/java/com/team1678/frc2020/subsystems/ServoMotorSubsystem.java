@@ -258,7 +258,7 @@ public abstract class ServoMotorSubsystem extends Subsystem {
 
         if (mMaster.hasResetOccurred()) {
             DriverStation.reportError(mConstants.kName + ": Talon Reset! ", false);
-            mPeriodicIO.reset_occured = false;
+            mPeriodicIO.reset_occured = true;
             return;
         } else {
             mPeriodicIO.reset_occured = false;

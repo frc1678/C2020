@@ -111,12 +111,12 @@ public class Robot extends TimedRobot {
                 mLimelight, 
                 mIntake, 
                 mIndexer, 
-                //mWrangler, 
+                mWrangler, 
                 mShooter,
                 mSuperstructure,
                 mHood,
                 mTurret,
-               mInfrastructure
+                mInfrastructure
             );
 
             mSubsystemManager.registerEnabledLoops(mEnabledLooper);
