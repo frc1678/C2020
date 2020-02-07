@@ -39,7 +39,7 @@ public class Limelight extends Subsystem {
     private NetworkTable mNetworkTable;
 
     private Limelight() {
-        mConstants = Constants.kTopLimelightConstants;
+        mConstants = Constants.kLimelightConstants;
         mNetworkTable = NetworkTableInstance.getDefault().getTable(mConstants.kTableName);
     }
 
@@ -62,7 +62,11 @@ public class Limelight extends Subsystem {
             @Override
             public void onLoop(double timestamp) {
                 synchronized (this) {
-                    RobotState.getInstance().addVisionUpdate(timestamp - getLatency(), getTarget());
+                    if (!Superstructure.getInstance().getWantsShoot() && Hood.getInstance().getAtGoal()) {
+                        RobotState.getInstance().addVisionUpdate(timestamp - getLatency(), getTarget());
+                    } else {
+                        RobotState.getInstance().addVisionUpdate(timestamp - getLatency(), null);
+                    }
                 }
 
             }
