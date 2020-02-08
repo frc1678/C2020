@@ -147,7 +147,7 @@ public class Constants {
         kTurretConstants.kContinuousCurrentLimit = 20; // amps
         kTurretConstants.kPeakCurrentLimit = 40; // amps
         kTurretConstants.kPeakCurrentDuration = 10; // milliseconds
-        kTurretConstants.kMaxVoltage = 8.0;
+        kTurretConstants.kMaxVoltage = 4.0;
 
         // kTurretConstants.kStatusFrame8UpdateRate = 50;
         kTurretConstants.kRecoverPositionOnReset = true;
@@ -182,7 +182,7 @@ public class Constants {
         kHoodConstants.kPositionDeadband = 0; // Ticks
 
         kHoodConstants.kMinUnitsLimit = 12.8;
-        kHoodConstants.kMaxUnitsLimit = 62.0;
+        kHoodConstants.kMaxUnitsLimit = 70.0;
 
         kHoodConstants.kCruiseVelocity = 20000; // Ticks / 100ms
         kHoodConstants.kAcceleration = 20000; // Ticks / 100ms / s

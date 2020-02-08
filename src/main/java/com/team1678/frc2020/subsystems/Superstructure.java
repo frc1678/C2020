@@ -54,7 +54,7 @@ public class Superstructure extends Subsystem {
     private double mCurrentHood = 0.0;
 
     private double mTurretSetpoint = 0.0;
-    private double mHoodSetpoint = 57.0;
+    private double mHoodSetpoint = 63;
     private double mShooterSetpoint = 4000.0;
     private boolean mGotSpunUp = false;
 
@@ -335,22 +335,22 @@ public class Superstructure extends Subsystem {
 
         if (mWantsSpinUp) {
             real_shooter = mShooterSetpoint;
-            indexerAction = Indexer.WantedAction.PASSIVE_INDEX;
+            indexerAction = Indexer.WantedAction.PREP;
         } else if (mWantsShoot) {
             real_shooter = mShooterSetpoint;
-            real_trigger = Constants.kTriggerRPM;
             indexerAction = Indexer.WantedAction.PREP;
 
-            if (mShooter.spunUp() && mTrigger.spunUp()) {
-                mGotSpunUp = true;
-            }
-
-            if (mIndexer.isAtDeadSpot()) {
+            if (mIndexer.isAtDeadSpot() && Math.abs(mIndexer.getIndexerVelocity()) < 5) {
                 real_popout = true;
+                real_trigger = Constants.kTriggerRPM;
+                if (mShooter.spunUp() && mTrigger.spunUp()) {
+                    mGotSpunUp = true;
+                }
             }
 
             if (mGotSpunUp) {
                 real_popout = true;
+                real_trigger = Constants.kTriggerRPM;
                 indexerAction = Indexer.WantedAction.ZOOM;
             }
         }

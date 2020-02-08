@@ -1,7 +1,6 @@
 package com.team1678.frc2020.auto.actions;
 
-import com.team1678.frc2020.subsystems.Shooter;
-import com.team1678.frc2020.subsystems.Trigger;
+import com.team1678.frc2020.subsystems.Superstructure;
 
 
 /**
@@ -10,18 +9,15 @@ import com.team1678.frc2020.subsystems.Trigger;
  * @see Action
  */
 public class WaitForSpinupAction implements Action {
-
-    private Shooter mShooter = Shooter.getInstance();
-    private Trigger mTrigger = Trigger.getInstance();
-
+    private Superstructure mSuperstrucure = Superstructure.getInstance();
+    
 
     public WaitForSpinupAction() {
     }
 
     @Override
     public boolean isFinished() {
-        return mShooter.spunUp() && mTrigger.spunUp();
-
+        return mSuperstrucure.spunUp();
     }
 
     @Override
