@@ -18,7 +18,7 @@ import java.util.List;
 public class TrajectoryGenerator {
     private static final double kMaxVelocity = 130.0;
     private static final double kMaxAccel = 100.0;
-    private static final double kMaxCentripetalAccel = 110.0;
+    private static final double kMaxCentripetalAccel = 70.0;
     private static final double kMaxVoltage = 9.0;
 
     private static TrajectoryGenerator mInstance = new TrajectoryGenerator();
@@ -85,10 +85,10 @@ public class TrajectoryGenerator {
     public static final Pose2d kShotPose = new Pose2d(180.0, 75.0, Rotation2d.fromDegrees(-90.0));
     public static final Pose2d kShotPoseTurned = new Pose2d(180.0, 75.0, Rotation2d.fromDegrees(0.0));
 
-    public static final Pose2d kRVEnterWaypoint = new Pose2d(220.0, 75.0, Rotation2d.fromDegrees(0.0));
-    public static final Pose2d kSecondIntakePose = new Pose2d(240.0, 55.0, Rotation2d.fromDegrees(-70.0));
-    public static final Pose2d kPillarWaypoint = new Pose2d(230.0, 20.0, Rotation2d.fromDegrees(200.0));
-    public static final Pose2d kThirdIntakePose = new Pose2d(230.0, -20.0, Rotation2d.fromDegrees(-55.0));
+    public static final Pose2d kRVEnterWaypoint = new Pose2d(210.0, 75.0, Rotation2d.fromDegrees(0.0));
+    public static final Pose2d kSecondIntakePose = new Pose2d(235.0, 55.0, Rotation2d.fromDegrees(-60.0));
+    public static final Pose2d kPillarWaypoint = new Pose2d(254.0, 20.0, Rotation2d.fromDegrees(200.0));
+    //public static final Pose2d kPreThirdIntakeWaypoint = new Pose2d(260.0, -10, Rotation2d.fromDegrees(200.0));
     // public static final Pose2d kShotPoseWaypoint = new Pose2d(240.0, -40.0, Rotation2d.fromDegrees(-60.0));
     public static final Pose2d kThirdIntakePoseTurned = new Pose2d(230.0, -20.0, Rotation2d.fromDegrees(0.0));
     public static final Pose2d kSecondShotWaypoint = new Pose2d(170.0, -20.0, Rotation2d.fromDegrees(0.0));
@@ -163,11 +163,11 @@ public class TrajectoryGenerator {
             waypoints.add(kShotPoseTurned);
             waypoints.add(kRVEnterWaypoint);
             waypoints.add(kSecondIntakePose);
+        //    waypoints.add(kPreThirdIntakeWaypoint);
             waypoints.add(kPillarWaypoint);
-            waypoints.add(kThirdIntakePose);
         //    waypoints.add(kShotPoseWaypoint);
             return generateTrajectory(false, waypoints,
-                    Arrays.asList(new CentripetalAccelerationConstraint(kMaxCentripetalAccel)), kMaxVelocity, kMaxAccel,
+                    Arrays.asList(new CentripetalAccelerationConstraint(50.0)), 100.0, kMaxAccel,
                     kMaxVoltage);
         }
 
