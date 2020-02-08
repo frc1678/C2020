@@ -9,7 +9,7 @@ import java.util.Optional;
 
 public class AutoModeSelector {
     enum DesiredMode {
-        DO_NOTHING, TEST_PATH, TEN_BALL_AUTO, CHARACTERIZE_DRIVE_TURN, CHARACTERIZE_DRIVE_STRAIGHT,
+        DO_NOTHING, TEST_PATH, TEN_BALL_AUTO, TEN_BALL_TRENCH_AUTO, CHARACTERIZE_DRIVE_TURN, CHARACTERIZE_DRIVE_STRAIGHT,
     }
 
     private DesiredMode mCachedDesiredMode = null;
@@ -23,6 +23,7 @@ public class AutoModeSelector {
         mModeChooser.setDefaultOption("Do Nothing", DesiredMode.DO_NOTHING);
         mModeChooser.addOption("TEST PATH", DesiredMode.TEST_PATH);
         mModeChooser.addOption("TEN BALL AUTO", DesiredMode.TEN_BALL_AUTO);
+        mModeChooser.addOption("TEN BALL TRENCH AUTO", DesiredMode.TEN_BALL_TRENCH_AUTO);
         mModeChooser.addOption("Characterize Drive Turn", DesiredMode.CHARACTERIZE_DRIVE_TURN);
         mModeChooser.addOption("Characterize Drive Straight", DesiredMode.CHARACTERIZE_DRIVE_STRAIGHT);
         SmartDashboard.putData("Auto mode", mModeChooser);
@@ -49,6 +50,8 @@ public class AutoModeSelector {
             return Optional.of(new TestPath());
         case TEN_BALL_AUTO:
             return Optional.of(new TenBallMode());
+        case TEN_BALL_TRENCH_AUTO:
+            return Optional.of(new TenBallTrenchMode());
         default:
             break;
         }

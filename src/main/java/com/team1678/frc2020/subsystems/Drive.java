@@ -34,7 +34,7 @@ import java.util.ArrayList;
 public class Drive extends Subsystem {
 
     private static final int kVelocityControlSlot = 0;
-    private static final int kPositionControlSlot = 0;
+    private static final int kPositionControlSlot = 1;
     private static final double DRIVE_ENCODER_PPR = 2048. * 10.;
     private static Drive mInstance = new Drive();
     // Hardware
@@ -111,6 +111,8 @@ public class Drive extends Subsystem {
         talon.configVelocityMeasurementWindow(1, Constants.kLongCANTimeoutMs);
         talon.configClosedloopRamp(Constants.kDriveVoltageRampRate, Constants.kLongCANTimeoutMs);
         talon.configNeutralDeadband(0.04, 0);
+        talon.configMotionCruiseVelocity(20000, Constants.kLongCANTimeoutMs);
+        talon.configMotionAcceleration(20000, Constants.kLongCANTimeoutMs);
     }
 
     private Drive() {
@@ -370,6 +372,8 @@ public class Drive extends Subsystem {
         SmartDashboard.putNumber("Left Drive Distance", mPeriodicIO.left_distance);
         SmartDashboard.putNumber("Right Linear Velocity", getRightLinearVelocity());
         SmartDashboard.putNumber("Left Linear Velocity", getLeftLinearVelocity());
+        SmartDashboard.putNumber("Right Drive Setpoint", mPeriodicIO.right_demand);
+        SmartDashboard.putNumber("Left Drive Setpoint", mPeriodicIO.left_demand);
         SmartDashboard.putString("Control State", mDriveControlState.toString());
 
         if(getHeading() != null) {
@@ -605,8 +609,8 @@ public class Drive extends Subsystem {
             mRightMaster.set(ControlMode.Velocity, mPeriodicIO.right_demand, DemandType.ArbitraryFeedForward,
                     mPeriodicIO.right_feedforward);
         } else if (mDriveControlState == DriveControlState.TURN_TO_HEADING) {
-            mLeftMaster.set(ControlMode.Position, mPeriodicIO.left_demand);
-            mRightMaster.set(ControlMode.Position, mPeriodicIO.right_demand);
+            mLeftMaster.set(ControlMode.MotionMagic, mPeriodicIO.left_demand);
+            mRightMaster.set(ControlMode.MotionMagic, mPeriodicIO.right_demand);
         }
     }
 

@@ -20,9 +20,9 @@ public class TestPath extends AutoModeBase {
     @Override
     protected void routine() throws AutoModeEndedException {
         System.out.println("Running Cross auto line");
-       // runAction(new TurnToHeadingAction(Rotation2d.fromDegrees(90)));
+        runAction(new TurnToHeadingAction(Rotation2d.fromDegrees(90)));
         //runAction(mTestPath);
-
+/*
         runAction(new LambdaAction(() -> Intake.getInstance().setState(Intake.WantedAction.INTAKE)));
         runAction(new WaitForIndexerSpinAction(720.0));
         runAction(new LambdaAction(() -> Intake.getInstance().setState(Intake.WantedAction.NONE)));

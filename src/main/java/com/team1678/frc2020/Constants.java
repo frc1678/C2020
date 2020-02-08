@@ -27,7 +27,7 @@ public class Constants {
 
     /* ROBOT PHYSICAL CONSTANTS */
     // Wheels
-    public static final double kDriveWheelTrackWidthInches = 31.80;
+    public static final double kDriveWheelTrackWidthInches = 33.660;
     public static final double kDriveWheelDiameterInches = 6.0;
     public static final double kDriveWheelRadiusInches = kDriveWheelDiameterInches / 2.0;
     public static final double kTrackScrubFactor = 1.0; // Tune me!
@@ -49,10 +49,10 @@ public class Constants {
     public static final double kDriveVelocityKd = 1.0;
     public static final double kDriveVelocityKf = 0.0;
     public static final int kDriveVelocityIZone = 0;
-    public static final double kDrivePositionKp = 0.06;
+    public static final double kDrivePositionKp = 0.011;
     public static final double kDrivePositionKi = 0.0;
-    public static final double kDrivePositionKd = 0.55;
-    public static final double kDrivePositionKf = 0.0;
+    public static final double kDrivePositionKd = 0.0;
+    public static final double kDrivePositionKf = 0.05;
     public static final int kDrivePositionIZone = 0;
     public static final double kDriveVoltageRampRate = 0.0;
 
