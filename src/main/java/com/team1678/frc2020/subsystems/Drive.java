@@ -323,6 +323,8 @@ public class Drive extends Subsystem {
             mMotionPlanner.setTrajectory(trajectory);
             mDriveControlState = DriveControlState.PATH_FOLLOWING;
         }
+        mLeftMaster.selectProfileSlot(kVelocityControlSlot, 0);
+        mRightMaster.selectProfileSlot(kVelocityControlSlot, 0);
     }
 
     public boolean isDoneWithTrajectory() {
