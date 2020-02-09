@@ -39,10 +39,10 @@ public class Trigger extends Subsystem {
         mTrigger.configVoltageCompSaturation(12.0, Constants.kLongCANTimeoutMs);
         mTrigger.enableVoltageCompensation(true);
 
-        mTrigger.config_kP(0, Constants.kShooterP, Constants.kLongCANTimeoutMs);
-        mTrigger.config_kI(0, Constants.kShooterI, Constants.kLongCANTimeoutMs);
-        mTrigger.config_kD(0, Constants.kShooterD, Constants.kLongCANTimeoutMs);
-        mTrigger.config_kF(0, Constants.kShooterF, Constants.kLongCANTimeoutMs);
+        mTrigger.config_kP(0, Constants.kTriggerP, Constants.kLongCANTimeoutMs);
+        mTrigger.config_kI(0, Constants.kTriggerI, Constants.kLongCANTimeoutMs);
+        mTrigger.config_kD(0, Constants.kTriggerD, Constants.kLongCANTimeoutMs);
+        mTrigger.config_kF(0, Constants.kTriggerF, Constants.kLongCANTimeoutMs);
 
         mPopoutSolenoid = Constants.makeSolenoidForId(Constants.kTriggerPopoutSolenoidID);
     }
@@ -95,7 +95,10 @@ public class Trigger extends Subsystem {
     }
 
     public synchronized boolean spunUp() {
-        return Util.epsilonEquals(mPeriodicIO.trigger_demand, mPeriodicIO.trigger_velocity, kTriggerTolerance);
+        if (mPeriodicIO.trigger_demand > 0) {
+            return Util.epsilonEquals(mPeriodicIO.trigger_demand, mPeriodicIO.trigger_velocity, kTriggerTolerance);
+        }
+        return false;
     }
 
     public synchronized void setPopoutSolenoid(boolean popout) {
