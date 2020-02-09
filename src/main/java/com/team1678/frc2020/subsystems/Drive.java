@@ -710,7 +710,6 @@ public class Drive extends Subsystem {
         items.add((double) mPeriodicIO.left_velocity_ticks_per_100ms);
         items.add((double) mPeriodicIO.right_velocity_ticks_per_100ms);
         items.add(Double.valueOf(mPeriodicIO.gyro_heading.getDegrees()));
-        items.add(Double.valueOf(mPeriodicIO.error.toString()));
 
         // OUTPUTS
         items.add(mPeriodicIO.left_demand);
@@ -719,7 +718,6 @@ public class Drive extends Subsystem {
         items.add(mPeriodicIO.right_accel);
         items.add(mPeriodicIO.left_feedforward);
         items.add(mPeriodicIO.right_feedforward);
-        items.add(Double.valueOf(mPeriodicIO.path_setpoint.toString()));
 
         mStorage.addData(items);
     }

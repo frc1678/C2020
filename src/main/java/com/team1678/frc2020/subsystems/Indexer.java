@@ -381,7 +381,7 @@ public class Indexer extends Subsystem {
         items.add(mPeriodicIO.indexer_angle);
         items.add(mPeriodicIO.turret_angle);
 
-        items.add(Double.valueOf(mPeriodicIO.indexer_control_mode.toString()));
+        //  items.add(Double.valueOf(mPeriodicIO.indexer_control_mode.toString()));
         items.add(mPeriodicIO.indexer_demand);
 
         for (int i = 0; i < mPeriodicIO.raw_slots.length; i++) {
