@@ -82,10 +82,9 @@ public class Shooter extends Subsystem {
         SmartDashboard.putNumber("Flywheel Current", mPeriodicIO.flywheel_current);
         SmartDashboard.putNumber("Flywheel Goal", mPeriodicIO.flywheel_demand);
         SmartDashboard.putNumber("Flywheel Temperature", mPeriodicIO.flywheel_temperature);
-   }
+    }
 
     @Override
-
     public void stop() {
         setOpenLoop(0);
     }
@@ -197,15 +196,8 @@ public class Shooter extends Subsystem {
         items.add(mPeriodicIO.flywheel_voltage);
         items.add(mPeriodicIO.flywheel_current);
         items.add(mPeriodicIO.flywheel_temperature);
-
-        items.add(mPeriodicIO.trigger_velocity);
-        items.add(mPeriodicIO.trigger_current);
-        items.add(mPeriodicIO.trigger_voltage);
-        items.add(mPeriodicIO.trigger_temperature);
-        
         //OUTPUTS
         items.add(mPeriodicIO.flywheel_demand);
-        items.add(mPeriodicIO.trigger_demand);
 
         mStorage.addData(items);
     }
