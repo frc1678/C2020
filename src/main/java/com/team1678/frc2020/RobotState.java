@@ -219,14 +219,13 @@ public class RobotState {
 
     private void updateGoalTracker(double timestamp, List<Translation2d> cameraToVisionTargetPoses, GoalTracker tracker,
             Limelight source) {
-        if (cameraToVisionTargetPoses.size() != 2 || cameraToVisionTargetPoses.get(0) == null
-                || cameraToVisionTargetPoses.get(1) == null)
-            return;
-        Pose2d cameraToVisionTarget = Pose2d
-                .fromTranslation(cameraToVisionTargetPoses.get(0).interpolate(cameraToVisionTargetPoses.get(1), 0.5));
+                if (cameraToVisionTargetPoses.size() != 2 ||
+                cameraToVisionTargetPoses.get(0) == null ||
+                cameraToVisionTargetPoses.get(1) == null) return;
+        Pose2d cameraToVisionTarget = Pose2d.fromTranslation(cameraToVisionTargetPoses.get(0).interpolate(
+                cameraToVisionTargetPoses.get(1), 0.5));
 
-        Pose2d fieldToVisionTarget = getFieldToTurret(timestamp).transformBy(source.getTurretToLens())
-                .transformBy(cameraToVisionTarget);
+        Pose2d fieldToVisionTarget = getFieldToTurret(timestamp).transformBy(source.getTurretToLens()).transformBy(cameraToVisionTarget);
         tracker.update(timestamp, List.of(new Pose2d(fieldToVisionTarget.getTranslation(), Rotation2d.identity())));
     }
 
@@ -331,5 +330,14 @@ public class RobotState {
     public synchronized void outputToSmartDashboard() {
         SmartDashboard.putString("Robot Velocity", getMeasuredVelocity().toString());
         SmartDashboard.putString("Robot Field to Vehicle", getLatestFieldToVehicle().getValue().toString());
+        SmartDashboard.putNumber("Robot X", getLatestFieldToVehicle().getValue().getTranslation().x());
+        SmartDashboard.putNumber("Robot Y", getLatestFieldToVehicle().getValue().getTranslation().y());
+        SmartDashboard.putNumber("Robot Theta", getLatestFieldToVehicle().getValue().getRotation().getDegrees());
+        Optional<AimingParameters> params = getAimingParameters(false, -1, Constants.kMaxGoalTrackAge);
+        if (params.isPresent()) {    
+            SmartDashboard.putNumber("Vehicle to Target", params.get().getRange());
+            SmartDashboard.putNumber("Vehicle to TargetAngle", params.get().getRobotToGoalRotation().getDegrees());
+
+        }
     }
 }

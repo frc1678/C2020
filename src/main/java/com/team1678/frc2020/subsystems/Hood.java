@@ -43,13 +43,6 @@ public class Hood extends ServoMotorSubsystem {
     @Override
     public synchronized void writePeriodicOutputs() {
         if (mHoming) {
-            if (atHomingLocation()) {
-                mMaster.setSelectedSensorPosition((int) unitsToTicks(0));
-                mMaster.overrideSoftLimitsEnable(true);
-                System.out.println("Homed!!!");
-                mHoming = false;
-            }
-
             if (mControlState == ControlState.OPEN_LOOP) {
                 mMaster.set(ControlMode.PercentOutput, mPeriodicIO.demand, DemandType.ArbitraryFeedForward, 0.0);
             } else {
@@ -58,6 +51,17 @@ public class Hood extends ServoMotorSubsystem {
         } else {
             super.writePeriodicOutputs();
         }
+    }
+
+    @Override
+    public synchronized void readPeriodicInputs() {
+        if (mHoming && atHomingLocation()) {
+            mMaster.setSelectedSensorPosition((int) unitsToTicks(12.875));
+            mMaster.overrideSoftLimitsEnable(true);
+            System.out.println("Homed!!!");
+            mHoming = false;
+        }
+        super.readPeriodicInputs();
     }
 
     @Override

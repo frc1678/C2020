@@ -7,6 +7,9 @@ import com.team1678.frc2020.logger.LogStorage;
 import com.team1678.frc2020.logger.LoggingSystem;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.StatorCurrentLimitConfiguration;
+import com.ctre.phoenix.motorcontrol.StatusFrameEnhanced;
+import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.TalonFXControlMode;
 import com.ctre.phoenix.motorcontrol.TalonFXFeedbackDevice;
 
@@ -52,31 +55,16 @@ public class Shooter extends Subsystem {
         mMaster.config_kI(0, Constants.kShooterI, Constants.kLongCANTimeoutMs);
         mMaster.config_kD(0, Constants.kShooterD, Constants.kLongCANTimeoutMs);
         mMaster.config_kF(0, Constants.kShooterF, Constants.kLongCANTimeoutMs);
+        mMaster.config_IntegralZone(0, (int) (200.0 / kFlywheelVelocityConversion));
+        mMaster.selectProfileSlot(0, 0);
 
+        SupplyCurrentLimitConfiguration curr_lim = new SupplyCurrentLimitConfiguration(true, 40, 100, 0.5);
+        mMaster.configSupplyCurrentLimit(curr_lim);
 
-        mSlave.follow(mMaster);
-        mSlave.setInverted(false); //TODO: check value
+        mSlave.setInverted(true); //TODO: check value
         
         mMaster.set(ControlMode.PercentOutput, 0);
-
-        mTrigger.config_kP(0, Constants.kShooterP, Constants.kLongCANTimeoutMs);
-        mTrigger.config_kI(0, Constants.kShooterI, Constants.kLongCANTimeoutMs);
-        mTrigger.config_kD(0, Constants.kShooterD, Constants.kLongCANTimeoutMs);
-        mTrigger.config_kF(0, Constants.kShooterF, Constants.kLongCANTimeoutMs);
-
-        mTrigger.configSelectedFeedbackSensor(TalonFXFeedbackDevice.IntegratedSensor, 0, Constants.kLongCANTimeoutMs);
-        mTrigger.set(ControlMode.PercentOutput, 0);
-        mTrigger.setInverted(false); //TODO: check value
-        mTrigger.configVoltageCompSaturation(12.0, Constants.kLongCANTimeoutMs);
-        mTrigger.enableVoltageCompensation(true);
-
-        mPopoutSolenoid = Constants.makeSolenoidForId(Constants.kTriggerPopoutSolenoidID);
-    }
-
-    @Override
-    public void registerLogger(LoggingSystem LS) {
-        LogSetup();
-        LS.register(mStorage, "shooter.csv");
+        mMaster.configSelectedFeedbackSensor(TalonFXFeedbackDevice.IntegratedSensor, 0, Constants.kLongCANTimeoutMs);
     }
 
     public synchronized static Shooter mInstance() {
@@ -153,8 +141,10 @@ public class Shooter extends Subsystem {
     }
 
     public synchronized boolean spunUp() {
-        return (//Util.epsilonEquals(mPeriodicIO.flywheel_demand, mPeriodicIO.flywheel_velocity, kShooterTolerance) &&
-                (Util.epsilonEquals(mPeriodicIO.trigger_demand, mPeriodicIO.trigger_velocity, kShooterTolerance)));
+        if (mPeriodicIO.flywheel_demand > 0) {
+            return Util.epsilonEquals(mPeriodicIO.flywheel_demand, mPeriodicIO.flywheel_velocity, kShooterTolerance);
+        }
+        return false;
     }
 
     public synchronized void setVelocity(double velocity) {

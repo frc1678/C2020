@@ -27,17 +27,17 @@ public class Constants {
 
     /* ROBOT PHYSICAL CONSTANTS */
     // Wheels
-    public static final double kDriveWheelTrackWidthInches = 29.00;
+    public static final double kDriveWheelTrackWidthInches = 33.660;
     public static final double kDriveWheelDiameterInches = 6.0;
     public static final double kDriveWheelRadiusInches = kDriveWheelDiameterInches / 2.0;
     public static final double kTrackScrubFactor = 1.0; // Tune me!
     // Tuned dynamics
     public static final double kRobotLinearInertia = 60.0; // kg TODO tune
-    public static final double kRobotAngularInertia = 12.0; // kg m^2 TODO tune
-    public static final double kRobotAngularDrag = 0.0; // N*m / (rad/sec) TODO tune
-    public static final double kDriveVIntercept = 0.44; // V
-    public static final double kDriveKv = 0.167; // V per rad/s
-    public static final double kDriveKa = 0.012; // V per rad/s^2
+    public static final double kRobotAngularInertia = 25.0; // kg m^2 TODO tune
+    public static final double kRobotAngularDrag = 30.0; // N*m / (rad/sec) TODO tune
+    public static final double kDriveVIntercept = 0.41; // V
+    public static final double kDriveKv = 0.18; // V per rad/s
+    public static final double kDriveKa = 0.01; // V per rad/s^2
     public static final double kPathKX = 4.0; // units/s per unit of error
     public static final double kPathLookaheadTime = 0.4; // seconds to look ahead along the path for steering
     public static final double kPathMinLookaheadDistance = 24.0; // inches
@@ -49,6 +49,11 @@ public class Constants {
     public static final double kDriveVelocityKd = 1.0;
     public static final double kDriveVelocityKf = 0.0;
     public static final int kDriveVelocityIZone = 0;
+    public static final double kDrivePositionKp = 0.011;
+    public static final double kDrivePositionKi = 0.0;
+    public static final double kDrivePositionKd = 0.0;
+    public static final double kDrivePositionKf = 0.05;
+    public static final int kDrivePositionIZone = 0;
     public static final double kDriveVoltageRampRate = 0.0;
 
     // climber
@@ -125,7 +130,7 @@ public class Constants {
         kTurretConstants.kIZone = 0; // Ticks
         kTurretConstants.kDeadband = 0; // Ticks
 
-        kTurretConstants.kPositionKp = 0.15;
+        kTurretConstants.kPositionKp = 0.1;
         kTurretConstants.kPositionKi = 0.0;
         kTurretConstants.kPositionKd = 0.0;
         kTurretConstants.kPositionKf = 0.0;
@@ -142,7 +147,7 @@ public class Constants {
         kTurretConstants.kContinuousCurrentLimit = 20; // amps
         kTurretConstants.kPeakCurrentLimit = 40; // amps
         kTurretConstants.kPeakCurrentDuration = 10; // milliseconds
-        kTurretConstants.kMaxVoltage = 12.0;
+        kTurretConstants.kMaxVoltage = 4.0;
 
         // kTurretConstants.kStatusFrame8UpdateRate = 50;
         kTurretConstants.kRecoverPositionOnReset = true;
@@ -176,8 +181,8 @@ public class Constants {
         kHoodConstants.kPositionIZone = 0; // Ticks
         kHoodConstants.kPositionDeadband = 0; // Ticks
 
-        kHoodConstants.kMinUnitsLimit = 0.0;
-        kHoodConstants.kMaxUnitsLimit = 90.0;
+        kHoodConstants.kMinUnitsLimit = 12.8;
+        kHoodConstants.kMaxUnitsLimit = 70.0;
 
         kHoodConstants.kCruiseVelocity = 5000; // Ticks / 100ms
         kHoodConstants.kAcceleration = 16000; // Ticks / 100ms / s
@@ -242,6 +247,11 @@ public class Constants {
     public static final double kShooterI = 0.0;
     public static final double kShooterD = 0.0;
     public static final double kShooterF = 0.05;
+    public static final double kTriggerP = 0.05;
+    public static final double kTriggerI = 0.0;
+    public static final double kTriggerD = 0.0;
+    public static final double kTriggerF = 0.05;
+    public static final int kPopoutSolenoidId = 4; // TODO 
 
 
     public static final double kTriggerRPM = 6000.0;
