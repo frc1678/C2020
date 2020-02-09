@@ -12,7 +12,6 @@ import com.ctre.phoenix.motorcontrol.can.BaseTalon;
 import com.team254.lib.drivers.BaseTalonChecker;
 
 import com.team254.lib.drivers.TalonUtil;
-import com.team254.lib.util.Util;
 
 import java.util.ArrayList;
 
@@ -39,10 +38,6 @@ public class Hood extends ServoMotorSubsystem {
 
     public synchronized double getAngle() {
         return getPosition();
-    }
-
-    public synchronized boolean getAtGoal() {
-        return Util.epsilonEquals(getAngle(), getSetpoint(), 0.5);
     }
 
     @Override

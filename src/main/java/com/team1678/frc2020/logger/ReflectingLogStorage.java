@@ -7,7 +7,7 @@ package com.team1678.frc2020.logger;
 import java.util.ArrayList;
 import java.lang.reflect.Field;
 
-public class ReflectingLogStorage<T> extends LogStorage<T> {
+public class ReflectingLogStorage<T> extends LogStorage {
     private Field[] mVars;
     ArrayList<Double> newRow = new ArrayList<Double>();
 
