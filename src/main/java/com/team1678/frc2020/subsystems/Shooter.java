@@ -68,6 +68,7 @@ public class Shooter extends Subsystem {
     }
 
     @Override
+
     public synchronized void outputTelemetry() {
         SmartDashboard.putNumber("Flywheel Velocity", mPeriodicIO.flywheel_velocity);
         SmartDashboard.putNumber("Flywheel Current", mPeriodicIO.flywheel_current);
