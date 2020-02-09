@@ -39,7 +39,7 @@ public class TenBallTrenchMode extends AutoModeBase {
         runAction(new ParallelAction(Arrays.asList(
             new LambdaAction(() -> Superstructure.getInstance().setWantSpinUp(true)),       
             new LambdaAction(() -> Intake.getInstance().setState(Intake.WantedAction.INTAKE)),
-            new LambdaAction(() -> Superstructure.getInstance().setWantFieldRelativeTurret(Rotation2d.fromDegrees(180.))))));
+            new LambdaAction(() -> Superstructure.getInstance().setWantFieldRelativeTurret(Rotation2d.fromDegrees(120.))))));
 
         // Drive to intake balls
         runAction(mStartToSteal);
@@ -67,11 +67,11 @@ public class TenBallTrenchMode extends AutoModeBase {
         runAction(mBarIntake);
 
         runAction(mBarToOutsideTrench);
-       /* runAction(new LambdaAction(() -> Superstructure.getInstance().setWantSpinUp(true)));    
-
         runAction(mTrenchIntake);
-
         runAction(mTrenchToShot);
+        /* runAction(new LambdaAction(() -> Superstructure.getInstance().setWantSpinUp(true)));    
+
+
         
         runAction(new LambdaAction(() -> Superstructure.getInstance().setWantAutoAim(Rotation2d.fromDegrees(180.))));
         runAction(new LambdaAction(() -> Intake.getInstance().setState(Intake.WantedAction.NONE)));

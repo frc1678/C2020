@@ -84,11 +84,13 @@ public class TrajectoryGenerator {
     public static final Pose2d kTrenchExitWaypoint = new Pose2d(200.0, -110.0, Rotation2d.fromDegrees(-80.0));
     public static final Pose2d kShotPose = new Pose2d(180.0, 75.0, Rotation2d.fromDegrees(-90.0));
     public static final Pose2d kShotPoseTurned = new Pose2d(180.0, 75.0, Rotation2d.fromDegrees(0.0));
-    public static final Pose2d kShotPoseTrench = new Pose2d(180.0, 75.0, Rotation2d.fromDegrees(60.0));
+    public static final Pose2d kShotPoseTrench = new Pose2d(180.0, 75.0, Rotation2d.fromDegrees(40.0));
 
+    public static final Pose2d kTrenchWaypoint = new Pose2d(180.0, 130.0, Rotation2d.fromDegrees(0));
+    public static final Pose2d kTrenchIntakePose = new Pose2d(280.0, 130.0, Rotation2d.fromDegrees(0));
 
     public static final Pose2d kRVEnterWaypoint = new Pose2d(210.0, 75.0, Rotation2d.fromDegrees(0.0));
-    public static final Pose2d kSecondIntakePose = new Pose2d(235.0, 55.0, Rotation2d.fromDegrees(-60.0));
+    public static final Pose2d kSecondIntakePose = new Pose2d(235.0, 55.0, Rotation2d.fromDegrees(-50.0));
     public static final Pose2d kPillarWaypoint = new Pose2d(254.0, 20.0, Rotation2d.fromDegrees(200.0));
     //public static final Pose2d kPreThirdIntakeWaypoint = new Pose2d(260.0, -10, Rotation2d.fromDegrees(200.0));
     // public static final Pose2d kShotPoseWaypoint = new Pose2d(240.0, -40.0, Rotation2d.fromDegrees(-60.0));
@@ -98,10 +100,11 @@ public class TrajectoryGenerator {
     public static final Pose2d kShotPoseWaypoint2 = new Pose2d(220.0, -20.0, Rotation2d.fromDegrees(-60.0));
     public static final Pose2d kSecondShotPose = new Pose2d(180.0, 75.0, Rotation2d.fromDegrees(-65.0));
 
-    public static final Pose2d kBarIntakePose = new Pose2d(225.0, 65.0, Rotation2d.fromDegrees(-30.0));
-    public static final Pose2d kPreTrenchPose = new Pose2d(200.0, 80.0, Rotation2d.fromDegrees(40.0));
-    public static final Pose2d kPreTrenchIntakeWaypoint = new Pose2d(280.0, 125.0, Rotation2d.fromDegrees(0.0));
-    public static final Pose2d kTrenchIntakePose = new Pose2d(295.0, 125.0, Rotation2d.fromDegrees(0.0));
+    public static final Pose2d kBarIntakePose = new Pose2d(230.0, 65.0, Rotation2d.fromDegrees(-47.0));
+    public static final Pose2d kPreTrenchPose = new Pose2d(210.0, 70.0, Rotation2d.fromDegrees(40.0));
+    public static final Pose2d kPreEnterTrenchPose = new Pose2d(235.0, 100.0, Rotation2d.fromDegrees(60.0));
+    public static final Pose2d kSecondTrenchIntakePose = new Pose2d(285.0, 128.0, Rotation2d.fromDegrees(0.0));
+
 
     public static final Pose2d kTestPoint1 = new Pose2d(265, 80, Rotation2d.fromDegrees(-110));
 
@@ -119,6 +122,7 @@ public class TrajectoryGenerator {
         public final Trajectory<TimedState<Pose2dWithCurvature>> barToOutsideTrench;
         public final Trajectory<TimedState<Pose2dWithCurvature>> trenchIntake;
         public final Trajectory<TimedState<Pose2dWithCurvature>> trenchToShot;
+        
         
         private TrajectorySet() {
             testPath = getTestPath();
@@ -180,7 +184,7 @@ public class TrajectoryGenerator {
             waypoints.add(kRVEnterWaypoint);
             waypoints.add(kSecondIntakePose);
         //    waypoints.add(kPreThirdIntakeWaypoint);
-            waypoints.add(kPillarWaypoint);
+          //  waypoints.add(kPillarWaypoint);
         //    waypoints.add(kShotPoseWaypoint);
             return generateTrajectory(false, waypoints,
                     Arrays.asList(new CentripetalAccelerationConstraint(50.0)), kMaxVelocity, kMaxAccel,
@@ -199,19 +203,18 @@ public class TrajectoryGenerator {
         private Trajectory<TimedState<Pose2dWithCurvature>> getBarToOutsideTrench() {
             List<Pose2d> waypoints = new ArrayList<>();
             waypoints.add(kBarIntakePose);
-            waypoints.add(kPreTrenchPose);
-                    return generateTrajectory(true, waypoints,
+            waypoints.add(kTrenchWaypoint);
+            return generateTrajectory(true, waypoints,
                     Arrays.asList(new CentripetalAccelerationConstraint(50.0)), kMaxVelocity, kMaxAccel,
                     kMaxVoltage);
         }
 
         private Trajectory<TimedState<Pose2dWithCurvature>> getTrenchIntake() {
             List<Pose2d> waypoints = new ArrayList<>();
-            waypoints.add(kPreTrenchPose);
-            waypoints.add(kPreTrenchIntakeWaypoint);
+            waypoints.add(kTrenchWaypoint);
             waypoints.add(kTrenchIntakePose);
             return generateTrajectory(false, waypoints,
-                    Arrays.asList(new CentripetalAccelerationConstraint(kMaxCentripetalAccel)), kMaxVelocity, kMaxAccel,
+                    Arrays.asList(new CentripetalAccelerationConstraint(50.0)), 100.0, kMaxAccel,
                     kMaxVoltage);
         }
 
