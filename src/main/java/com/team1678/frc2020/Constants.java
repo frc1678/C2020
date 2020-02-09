@@ -27,17 +27,17 @@ public class Constants {
 
     /* ROBOT PHYSICAL CONSTANTS */
     // Wheels
-    public static final double kDriveWheelTrackWidthInches = 29.00;
+    public static final double kDriveWheelTrackWidthInches = 33.660;
     public static final double kDriveWheelDiameterInches = 6.0;
     public static final double kDriveWheelRadiusInches = kDriveWheelDiameterInches / 2.0;
     public static final double kTrackScrubFactor = 1.0; // Tune me!
     // Tuned dynamics
     public static final double kRobotLinearInertia = 60.0; // kg TODO tune
-    public static final double kRobotAngularInertia = 12.0; // kg m^2 TODO tune
-    public static final double kRobotAngularDrag = 0.0; // N*m / (rad/sec) TODO tune
-    public static final double kDriveVIntercept = 0.44; // V
-    public static final double kDriveKv = 0.167; // V per rad/s
-    public static final double kDriveKa = 0.012; // V per rad/s^2
+    public static final double kRobotAngularInertia = 25.0; // kg m^2 TODO tune
+    public static final double kRobotAngularDrag = 30.0; // N*m / (rad/sec) TODO tune
+    public static final double kDriveVIntercept = 0.41; // V
+    public static final double kDriveKv = 0.18; // V per rad/s
+    public static final double kDriveKa = 0.01; // V per rad/s^2
     public static final double kPathKX = 4.0; // units/s per unit of error
     public static final double kPathLookaheadTime = 0.4; // seconds to look ahead along the path for steering
     public static final double kPathMinLookaheadDistance = 24.0; // inches
@@ -49,13 +49,18 @@ public class Constants {
     public static final double kDriveVelocityKd = 1.0;
     public static final double kDriveVelocityKf = 0.0;
     public static final int kDriveVelocityIZone = 0;
+    public static final double kDrivePositionKp = 0.011;
+    public static final double kDrivePositionKi = 0.0;
+    public static final double kDrivePositionKd = 0.0;
+    public static final double kDrivePositionKf = 0.05;
+    public static final int kDrivePositionIZone = 0;
     public static final double kDriveVoltageRampRate = 0.0;
 
     // climber
     public static final int kWinchMasterId = 11;
     public static final int kWinchSlaveId = 12;
     public static final int kArmSolenoidId = 1;
-    public static final int kBrakeSolenoidId = 4;
+    public static final int kBrakeSolenoidId = 5;
 
     // wrangler
     public static final int kWranglerId = 13;
@@ -116,7 +121,7 @@ public class Constants {
         // Unit == Degrees
         kTurretConstants.kHomePosition = 0.0; // CCW degrees from forward
         kTurretConstants.kTicksPerUnitDistance = (2048.0 * 36.0) / 360.0;
-        kTurretConstants.kKp = 0.5;
+        kTurretConstants.kKp = 0.1;
         kTurretConstants.kKi = 0;
         kTurretConstants.kKd = 0.0;
         kTurretConstants.kKf = 0.05;
@@ -125,7 +130,7 @@ public class Constants {
         kTurretConstants.kIZone = 0; // Ticks
         kTurretConstants.kDeadband = 0; // Ticks
 
-        kTurretConstants.kPositionKp = 0.15;
+        kTurretConstants.kPositionKp = 0.1;
         kTurretConstants.kPositionKi = 0.0;
         kTurretConstants.kPositionKd = 0.0;
         kTurretConstants.kPositionKf = 0.0;
@@ -137,12 +142,12 @@ public class Constants {
         kTurretConstants.kMaxUnitsLimit = 360.0;
 
         kTurretConstants.kCruiseVelocity = 20000; // Ticks / 100ms
-        kTurretConstants.kAcceleration = 30000; // Ticks / 100ms / s
+        kTurretConstants.kAcceleration = 40000; // Ticks / 100ms / s
         kTurretConstants.kRampRate = 0.0; // s
         kTurretConstants.kContinuousCurrentLimit = 20; // amps
         kTurretConstants.kPeakCurrentLimit = 40; // amps
         kTurretConstants.kPeakCurrentDuration = 10; // milliseconds
-        kTurretConstants.kMaxVoltage = 12.0;
+        kTurretConstants.kMaxVoltage = 4.0;
 
         // kTurretConstants.kStatusFrame8UpdateRate = 50;
         kTurretConstants.kRecoverPositionOnReset = true;
@@ -159,34 +164,36 @@ public class Constants {
 
         // Unit == Degrees
         kHoodConstants.kHomePosition = 0.0; // Degrees
-        kHoodConstants.kTicksPerUnitDistance = (4096.0 * 3.0) / 360.0;
-        kHoodConstants.kKp = 0.2;
+        kHoodConstants.kTicksPerUnitDistance = (2048 * 154.7) / 360.0;
+        kHoodConstants.kKp = 0.1;
         kHoodConstants.kKi = 0;
-        kHoodConstants.kKd = 1;
-        kHoodConstants.kKf = 0.6;
+        kHoodConstants.kKd = 0;
+        kHoodConstants.kKf = 0.05;
         kHoodConstants.kMaxIntegralAccumulator = 0;
         kHoodConstants.kIZone = 0; // Ticks
         kHoodConstants.kDeadband = 0; // Ticks
 
-        kHoodConstants.kPositionKp = 0.2;
+        kHoodConstants.kPositionKp = 0.1;
         kHoodConstants.kPositionKi = 0;
-        kHoodConstants.kPositionKd = 1;
+        kHoodConstants.kPositionKd = 0;
         kHoodConstants.kPositionKf = 0.0;
         kHoodConstants.kPositionMaxIntegralAccumulator = 0;
         kHoodConstants.kPositionIZone = 0; // Ticks
         kHoodConstants.kPositionDeadband = 0; // Ticks
 
-        kHoodConstants.kMinUnitsLimit = 0.0;
-        kHoodConstants.kMaxUnitsLimit = 90.0;
+        kHoodConstants.kMinUnitsLimit = 12.8;
+        kHoodConstants.kMaxUnitsLimit = 70.0;
 
-        kHoodConstants.kCruiseVelocity = 5000; // Ticks / 100ms
-        kHoodConstants.kAcceleration = 16000; // Ticks / 100ms / s
+        kHoodConstants.kCruiseVelocity = 20000; // Ticks / 100ms
+        kHoodConstants.kAcceleration = 20000; // Ticks / 100ms / s
         kHoodConstants.kRampRate = 0.0; // s
         kHoodConstants.kContinuousCurrentLimit = 35; // amps
         kHoodConstants.kPeakCurrentLimit = 40; // amps
         kHoodConstants.kPeakCurrentDuration = 10; // milliseconds
         kHoodConstants.kMaxVoltage = 12.0;
     }
+
+    public static final double kHoodRadius = 9.834; // radius of hood
 
     // pigeon
     public static final int kPigeonIMUId = 16;
@@ -207,13 +214,13 @@ public class Constants {
     public static final int kPDPId = 21;
 
     // limelight
-    public static final LimelightConstants kTopLimelightConstants = new LimelightConstants();
+    public static final LimelightConstants kLimelightConstants = new LimelightConstants();
     static {
-        kTopLimelightConstants.kName = "Top Limelight";
-        kTopLimelightConstants.kTableName = "limelight-top";
-        kTopLimelightConstants.kHeight = 44.047; // inches
-        kTopLimelightConstants.kTurretToLens = Pose2d.identity();
-        kTopLimelightConstants.kHorizontalPlaneToLens = Rotation2d.fromDegrees(0.0);
+        kLimelightConstants.kName = "Limelight";
+        kLimelightConstants.kTableName = "limelight";
+        kLimelightConstants.kHeight = 24.; // inches
+        kLimelightConstants.kTurretToLens = Pose2d.identity();
+        kLimelightConstants.kHorizontalPlaneToLens = Rotation2d.fromDegrees(-10.0);
     }
 
     public static final double kHorizontalFOV = 59.6; // degrees
@@ -234,7 +241,7 @@ public class Constants {
     public static final double kMinStability = 0.5;
     public static final int kPortPipeline = 0;
     public static final int kBallPipeline = 2;
-    public static final double kGoalHeight = 31.5;
+    public static final double kGoalHeight = 97.5;
 
     public static final int kCanifierId = 0;
 
@@ -242,13 +249,18 @@ public class Constants {
     public static final int kMasterFlywheelID = 9;
     public static final int kSlaveFlywheelID = 10;
     public static final int kTriggerWheelID = 6;
-    public static final double kShooterP = 0.15;
-    public static final double kShooterI = 0.0;
+    public static final int kTriggerPopoutSolenoidID = 4;
+    public static final double kShooterP = 0.1;
+    public static final double kShooterI = 0.00004;
     public static final double kShooterD = 0.0;
     public static final double kShooterF = 0.05;
+    public static final double kTriggerP = 0.05;
+    public static final double kTriggerI = 0.0;
+    public static final double kTriggerD = 0.0;
+    public static final double kTriggerF = 0.05;
+    public static final int kPopoutSolenoidId = 4; // TODO 
 
-
-    public static final double kTriggerRPM = 6000.0;
+    public static final double kTriggerRPM = 5000.0;
 
     public static final double kMaxTopLimelightHeight = 16.0;
 
