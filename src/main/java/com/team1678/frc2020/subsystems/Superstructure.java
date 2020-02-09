@@ -46,26 +46,20 @@ public class Superstructure extends Subsystem {
     private double mAutoAimMinDistance = 500;
     private boolean mWantsShoot = false;
     private boolean mWantsSpinUp = false;
-    private boolean mWantsTuck = false;
-    private boolean mSettled = false;
     private boolean mUseInnerTarget = false;
 
     private double mCurrentTurret = 0.0;
     private double mCurrentHood = 0.0;
 
     private double mTurretSetpoint = 0.0;
-    private double mHoodSetpoint = 63;
-    private double mShooterSetpoint = 4000.0;
+    private double mHoodSetpoint = 0.0;
+    private double mShooterSetpoint = 0.0;
     private boolean mGotSpunUp = false;
 
     private TurretControlModes mTurretMode = TurretControlModes.FIELD_RELATIVE;
 
     private double mTurretThrottle = 0.0;
 
-    public synchronized boolean spunUp() {
-        return mGotSpunUp;
-    }
-    
     public synchronized static Superstructure getInstance() {
         if (mInstance == null) {
             mInstance = new Superstructure();
@@ -77,10 +71,6 @@ public class Superstructure extends Subsystem {
     private Superstructure() {
     }
 
-    public boolean getWantShoot() {
-        return mWantsShoot;
-    }
-
     @Override
     public void registerEnabledLoops(ILooper mEnabledLooper) {
         mEnabledLooper.register(new Loop() {
@@ -88,10 +78,6 @@ public class Superstructure extends Subsystem {
             public void onStart(double timestamp) {
                 synchronized (Superstructure.this) {
                     mTurretMode = TurretControlModes.FIELD_RELATIVE;
-                    if (SuperstructureConstants.kUseSmartdashboard) {
-                        SmartDashboard.putNumber("Shooting RPM", mShooterSetpoint);
-                        SmartDashboard.putNumber("Hood Angle", mHoodSetpoint);
-                    }
                 }
             }
 
@@ -116,7 +102,6 @@ public class Superstructure extends Subsystem {
     public void outputTelemetry() {
         SmartDashboard.putString("Turret Control State", mTurretMode.toString());
         SmartDashboard.putNumber("Turret Goal", mTurretSetpoint);
-        SmartDashboard.putNumber("Hood Goal", mHoodSetpoint);
     }
 
     @Override
@@ -133,9 +118,7 @@ public class Superstructure extends Subsystem {
     }
 
     private double getShootingSetpointRpm(double range) {
-        if (SuperstructureConstants.kUseSmartdashboard) {
-            return SmartDashboard.getNumber("Shooting RPM", 0);
-        } else if (SuperstructureConstants.kUseFlywheelAutoAimPolynomial) {
+        if (SuperstructureConstants.kUseFlywheelAutoAimPolynomial) {
             return SuperstructureConstants.kFlywheelAutoAimPolynomial.predict(range);
         } else {
             return SuperstructureConstants.kFlywheelAutoAimMap.getInterpolated(new InterpolatingDouble(range)).value;
@@ -143,9 +126,7 @@ public class Superstructure extends Subsystem {
     }
 
     private double getHoodSetpointAngle(double range) {
-        if (SuperstructureConstants.kUseSmartdashboard) {
-            return SmartDashboard.getNumber("Hood Angle", 0);
-        } else if (SuperstructureConstants.kUseHoodAutoAimPolynomial) {
+        if (SuperstructureConstants.kUseHoodAutoAimPolynomial) {
             return SuperstructureConstants.kHoodAutoAimPolynomial.predict(range);
         } else {
             return SuperstructureConstants.kHoodAutoAimMap.getInterpolated(new InterpolatingDouble(range)).value;
@@ -244,11 +225,9 @@ public class Superstructure extends Subsystem {
 
             final double aiming_setpoint = getHoodSetpointAngle(mCorrectedRangeToTarget);
             mHoodSetpoint = aiming_setpoint;
-            System.out.println(aiming_setpoint);
 
-            final Rotation2d turret_error = /*Rotation2d.fromDegrees(Limelight.getInstance().getTx());*/mRobotState.getVehicleToTurret(timestamp).getRotation().inverse()
+            final Rotation2d turret_error = mRobotState.getVehicleToTurret(timestamp).getRotation().inverse()
                     .rotateBy(mLatestAimingParameters.get().getRobotToGoalRotation());
-            
             mTurretSetpoint = mCurrentTurret + turret_error.getDegrees();
             final Twist2d velocity = mRobotState.getMeasuredVelocity();
             // Angular velocity component from tangential robot motion about the goal.
@@ -304,17 +283,7 @@ public class Superstructure extends Subsystem {
     }
 
     public synchronized void followSetpoint() {
-  
-        if (SuperstructureConstants.kUseSmartdashboard) {
-            mShooterSetpoint = getShootingSetpointRpm(0);
-            mHoodSetpoint = getHoodSetpointAngle(0);
-        }
-
-        if (mWantsTuck) {
-            mHood.setSetpointMotionMagic(0.0);
-        } else {
-            mHood.setSetpointMotionMagic(mHoodSetpoint);
-        }
+        mHood.setSetpointPositionPID(mHoodSetpoint, mHoodFeedforwardV);
 
         Indexer.WantedAction indexerAction = Indexer.WantedAction.PREP;
 
@@ -328,28 +297,12 @@ public class Superstructure extends Subsystem {
             mShooter.setOpenLoop(0, 0);
         }
 
-        if (mWantsSpinUp) {
-            real_shooter = mShooterSetpoint;
-            indexerAction = Indexer.WantedAction.PASSIVE_INDEX;
-        } else if (mWantsShoot) {
-            real_shooter = mShooterSetpoint;
+        if (mWantsSpinUp && mIndexer.isAtDeadSpot()) {
+            mShooter.setVelocity(1000);
             indexerAction = Indexer.WantedAction.PREP;
-
-            if (mIndexer.isAtDeadSpot() && Math.abs(mIndexer.getIndexerVelocity()) < 5) {
-                mSettled = true;
-            }
-
-            if (mSettled) {
-                real_popout = true;
-                real_trigger = Constants.kTriggerRPM;
-                if (mShooter.spunUp() && mTrigger.spunUp()) {
-                    mGotSpunUp = true;
-                }
-            }
-
-            if (mGotSpunUp) {
-                real_popout = true;
-                real_trigger = Constants.kTriggerRPM;
+        } else if (mWantsShoot) {
+            mShooter.setVelocity(1000);
+            if (mShooter.spunUp() || mGotSpunUp) {
                 indexerAction = Indexer.WantedAction.ZOOM;
                 mShooter.setPopoutSolenoid(true);
             } else {
@@ -365,33 +318,14 @@ public class Superstructure extends Subsystem {
         }
 
         mIndexer.setState(indexerAction);
-        mTrigger.setPopoutSolenoid(real_popout);
-        mTrigger.setVelocity(real_trigger);
-        if (real_shooter < Util.kEpsilon) {
-            mShooter.setOpenLoop(0);
-        } else {
-            mShooter.setVelocity(real_shooter);
-        }
 
         if (mTurretMode == TurretControlModes.OPEN_LOOP) {
             mTurret.setOpenLoop(mTurretThrottle);
-        } else  if (mTurretMode == TurretControlModes.VISION_AIMED) {
-            mTurret.setSetpointPositionPID(mTurretSetpoint, 0);
         } else {
-            mTurret.setSetpointMotionMagic(mTurretSetpoint, 0);
+            mTurret.setSetpointMotionMagic(mTurretSetpoint);
         }
-        //mTurret.setOpenLoop(0);
-        //mHood.setOpenLoop(0);
     }
 
-    public synchronized Optional<AimingParameters> getLatestAimingParameters() {
-        return mLatestAimingParameters;
-    }
-
-    public synchronized boolean isOnTarget() {
-        return mOnTarget;
-    }
-    
     public synchronized void setWantAutoAim(Rotation2d field_to_turret_hint, boolean enforce_min_distance,
             double min_distance) {
         mTurretMode = TurretControlModes.VISION_AIMED;
@@ -407,34 +341,16 @@ public class Superstructure extends Subsystem {
     public synchronized void setWantShoot() {
         mWantsSpinUp = false;
         mWantsShoot = !mWantsShoot;
-        mSettled = false;
         mGotSpunUp = false;
+    }
+
+    public synchronized void setWantInnerTarget(boolean inner) {
+        mUseInnerTarget = inner;
     }
 
     public synchronized void setWantSpinUp() {
         mWantsSpinUp = !mWantsSpinUp;
         mWantsShoot = false;
-        mGotSpunUp = false;
-    }
-
-    public synchronized void setWantShoot(boolean shoot) {
-        mWantsSpinUp = false;
-        mWantsShoot = shoot;
-        mSettled = false;
-        mGotSpunUp = false;
-    }
-
-    public synchronized void setWantSpinUp(boolean spin_up) {
-        mWantsSpinUp = spin_up;
-        mWantsShoot = false;
-    }
-
-    public synchronized void setWantTuck() {
-        mWantsTuck = !mWantsTuck;
-    }
-
-    public synchronized void setWantInnerTarget(boolean inner) {
-        mUseInnerTarget = inner;
     }
 
     public synchronized void setAutoIndex(boolean auto_index) {

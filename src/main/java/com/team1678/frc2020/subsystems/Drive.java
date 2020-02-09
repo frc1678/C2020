@@ -39,7 +39,6 @@ import java.util.ArrayList;
 public class Drive extends Subsystem {
 
     private static final int kVelocityControlSlot = 0;
-    private static final int kPositionControlSlot = 1;
     private static final double DRIVE_ENCODER_PPR = 2048. * 10.;
     private static Drive mInstance = new Drive();
     // Hardware
@@ -58,8 +57,6 @@ public class Drive extends Subsystem {
     
     private boolean mHasResetSteering = false;
     private boolean mStartedResetTimer = false;
-    private Rotation2d mTargetHeading = new Rotation2d();
-    private boolean mIsOnTarget = false;
 
     LogStorage<PeriodicIO> mStorage = null;
 
@@ -92,9 +89,6 @@ public class Drive extends Subsystem {
                         break;
                     case CLOSED_LOOP:
                         break;
-                    case TURN_TO_HEADING:
-                        updateTurnToHeading(timestamp);
-                        break;
                     default:
                         System.out.println("Unexpected drive control state: " + mDriveControlState);
                         break;
@@ -123,8 +117,6 @@ public class Drive extends Subsystem {
         talon.configVelocityMeasurementWindow(1, Constants.kLongCANTimeoutMs);
         talon.configClosedloopRamp(Constants.kDriveVoltageRampRate, Constants.kLongCANTimeoutMs);
         talon.configNeutralDeadband(0.04, 0);
-        talon.configMotionCruiseVelocity(20000, Constants.kLongCANTimeoutMs);
-        talon.configMotionAcceleration(20000, Constants.kLongCANTimeoutMs);
     }
 
     private Drive() {
@@ -173,10 +165,6 @@ public class Drive extends Subsystem {
 
     private static double inchesToRotations(double inches) {
         return inches / (Constants.kDriveWheelDiameterInches * Math.PI);
-    }
-
-    private static double inchesToTicks(double inches) {
-        return inchesToRotations(inches) * DRIVE_ENCODER_PPR;
     }
 
     private static double inchesPerSecondToRpm(double inches_per_second) {
@@ -384,9 +372,6 @@ public class Drive extends Subsystem {
         SmartDashboard.putNumber("Left Drive Distance", mPeriodicIO.left_distance);
         SmartDashboard.putNumber("Right Linear Velocity", getRightLinearVelocity());
         SmartDashboard.putNumber("Left Linear Velocity", getLeftLinearVelocity());
-        SmartDashboard.putNumber("Right Drive Setpoint", mPeriodicIO.right_demand);
-        SmartDashboard.putNumber("Left Drive Setpoint", mPeriodicIO.left_demand);
-        SmartDashboard.putString("Control State", mDriveControlState.toString());
 
         if(getHeading() != null) {
             SmartDashboard.putNumber("Gyro Heading", getHeading().getDegrees());
@@ -461,47 +446,6 @@ public class Drive extends Subsystem {
         mOverrideTrajectory = value;
     }
 
-    public synchronized void setWantTurnToHeading(Rotation2d heading) {
-        if (mDriveControlState != DriveControlState.TURN_TO_HEADING) {
-            mLeftMaster.selectProfileSlot(kPositionControlSlot, 0);
-            mRightMaster.selectProfileSlot(kPositionControlSlot, 0);
-            mLeftMaster.configNeutralDeadband(0.0, 0);
-            mRightMaster.configNeutralDeadband(0.0, 0);
-            mDriveControlState = DriveControlState.TURN_TO_HEADING;
-            mPeriodicIO.left_demand = inchesToTicks(getLeftEncoderDistance());
-            mPeriodicIO.right_demand = inchesToTicks(getRightEncoderDistance());
-        }
-        if (Math.abs(heading.inverse().rotateBy(mTargetHeading).getDegrees()) > 1E-3) {
-            mTargetHeading = heading;
-            mIsOnTarget = false;
-        }
-    }
-
-    private void updateTurnToHeading(double timestamp) {
-        final Rotation2d field_to_robot = RobotState.getInstance().getLatestFieldToVehicle().getValue().getRotation();
-
-        // Figure out the rotation necessary to turn to face the goal.
-        final Rotation2d robot_to_target = field_to_robot.inverse().rotateBy(mTargetHeading);
-
-        // Check if we are on target
-        final double kGoalPosTolerance = 6.0; // degrees
-        final double kGoalVelTolerance = 5.0; // inches per second
-        if (Math.abs(robot_to_target.getDegrees()) < kGoalPosTolerance
-                && Math.abs(getLeftLinearVelocity()) < kGoalVelTolerance
-                && Math.abs(getLeftLinearVelocity()) < kGoalVelTolerance) {
-            // Use the current setpoint and base lock.
-            mIsOnTarget = true;
-            mPeriodicIO.left_demand = inchesToTicks(getLeftEncoderDistance());
-            mPeriodicIO.right_demand = inchesToTicks(getRightEncoderDistance());
-            return;
-        }
-
-        DriveSignal wheel_delta = Kinematics
-                .inverseKinematics(new Twist2d(0, 0, robot_to_target.getRadians()));
-        mPeriodicIO.left_demand =  inchesToTicks(wheel_delta.getLeft() + getLeftEncoderDistance());
-        mPeriodicIO.right_demand = inchesToTicks(wheel_delta.getRight() + getRightEncoderDistance());
-    }
-
     private void updatePathFollower() {
         if(mDriveControlState == DriveControlState.PATH_FOLLOWING) {
             final double now = Timer.getFPGATimestamp();
@@ -540,18 +484,6 @@ public class Drive extends Subsystem {
         mRightMaster.config_kD(kVelocityControlSlot, Constants.kDriveVelocityKd, Constants.kLongCANTimeoutMs);
         mRightMaster.config_kF(kVelocityControlSlot, Constants.kDriveVelocityKf, Constants.kLongCANTimeoutMs);
         mRightMaster.config_IntegralZone(kVelocityControlSlot, Constants.kDriveVelocityIZone, Constants.kLongCANTimeoutMs);
-
-        mLeftMaster.config_kP(kPositionControlSlot, Constants.kDrivePositionKp, Constants.kLongCANTimeoutMs);
-        mLeftMaster.config_kI(kPositionControlSlot, Constants.kDrivePositionKi, Constants.kLongCANTimeoutMs);
-        mLeftMaster.config_kD(kPositionControlSlot, Constants.kDrivePositionKd, Constants.kLongCANTimeoutMs);
-        mLeftMaster.config_kF(kPositionControlSlot, Constants.kDrivePositionKf, Constants.kLongCANTimeoutMs);
-        mLeftMaster.config_IntegralZone(kPositionControlSlot, Constants.kDrivePositionIZone, Constants.kLongCANTimeoutMs);
-
-        mRightMaster.config_kP(kPositionControlSlot, Constants.kDrivePositionKp, Constants.kLongCANTimeoutMs);
-        mRightMaster.config_kI(kPositionControlSlot, Constants.kDrivePositionKi, Constants.kLongCANTimeoutMs);
-        mRightMaster.config_kD(kPositionControlSlot, Constants.kDrivePositionKd, Constants.kLongCANTimeoutMs);
-        mRightMaster.config_kF(kPositionControlSlot, Constants.kDrivePositionKf, Constants.kLongCANTimeoutMs);
-        mRightMaster.config_IntegralZone(kPositionControlSlot, Constants.kDrivePositionIZone, Constants.kLongCANTimeoutMs);
     }
 
     @Override
@@ -591,15 +523,6 @@ public class Drive extends Subsystem {
         // System.out.println("control state: " + mDriveControlState + ", left: " + mPeriodicIO.left_demand + ", right: " + mPeriodicIO.right_demand);
     }
 
-    public synchronized boolean isDoneWithTurn() {
-        if (mDriveControlState == DriveControlState.TURN_TO_HEADING) {
-            return mIsOnTarget;
-        } else {
-            System.out.println("Robot is not in turn to heading mode");
-            return false;
-        }
-    }
-
     @Override
     public synchronized void writePeriodicOutputs() {
         if (mDriveControlState == DriveControlState.OPEN_LOOP) {
@@ -615,9 +538,6 @@ public class Drive extends Subsystem {
                     mPeriodicIO.left_feedforward);
             mRightMaster.set(ControlMode.Velocity, mPeriodicIO.right_demand, DemandType.ArbitraryFeedForward,
                     mPeriodicIO.right_feedforward);
-        } else if (mDriveControlState == DriveControlState.TURN_TO_HEADING) {
-            mLeftMaster.set(ControlMode.MotionMagic, mPeriodicIO.left_demand);
-            mRightMaster.set(ControlMode.MotionMagic, mPeriodicIO.right_demand);
         }
     }
 
@@ -663,7 +583,6 @@ public class Drive extends Subsystem {
         OPEN_LOOP, // open loop voltage control
         PATH_FOLLOWING, // velocity PID control
         CLOSED_LOOP, // teleop velocity control
-        TURN_TO_HEADING,
     }
 
     public static class PeriodicIO {

@@ -8,37 +8,50 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import java.util.Optional;
 
 public class AutoModeSelector {
+    enum StartingPosition {
+        LEFT_HAB_1, RIGHT_HAB_1
+    }
+
     enum DesiredMode {
-        DO_NOTHING, TEST_PATH, TEN_BALL_AUTO, TEN_BALL_TRENCH_AUTO, CHARACTERIZE_DRIVE_TURN, CHARACTERIZE_DRIVE_STRAIGHT,
+        DO_NOTHING, TEST_PATH, CHARACTERIZE_DRIVE_TURN, CHARACTERIZE_DRIVE_STRAIGHT,
     }
 
     private DesiredMode mCachedDesiredMode = null;
+    private StartingPosition mCachedStartingPosition = null;
 
     private Optional<AutoModeBase> mAutoMode = Optional.empty();
 
     private SendableChooser<DesiredMode> mModeChooser;
+    private SendableChooser<StartingPosition> mStartPositionChooser;
 
     public AutoModeSelector() {
         mModeChooser = new SendableChooser<>();
         mModeChooser.setDefaultOption("Do Nothing", DesiredMode.DO_NOTHING);
         mModeChooser.addOption("TEST PATH", DesiredMode.TEST_PATH);
-        mModeChooser.addOption("TEN BALL AUTO", DesiredMode.TEN_BALL_AUTO);
-        mModeChooser.addOption("TEN BALL TRENCH AUTO", DesiredMode.TEN_BALL_TRENCH_AUTO);
         mModeChooser.addOption("Characterize Drive Turn", DesiredMode.CHARACTERIZE_DRIVE_TURN);
         mModeChooser.addOption("Characterize Drive Straight", DesiredMode.CHARACTERIZE_DRIVE_STRAIGHT);
         SmartDashboard.putData("Auto mode", mModeChooser);
+
+        mStartPositionChooser = new SendableChooser<>();
+        mStartPositionChooser.setDefaultOption("Left", StartingPosition.LEFT_HAB_1);
+        mStartPositionChooser.addOption("Right", StartingPosition.RIGHT_HAB_1);
+        SmartDashboard.putData("Starting Position", mStartPositionChooser);
     }
 
     public void updateModeCreator() {
         DesiredMode desiredMode = mModeChooser.getSelected();
-        if (mCachedDesiredMode != desiredMode) {
-            System.out.println("Auto selection changed, updating creator: desiredMode->" + desiredMode.name());
-            mAutoMode = getAutoModeForParams(desiredMode);
+        StartingPosition startingPosition = mStartPositionChooser.getSelected();
+        if (mCachedDesiredMode != desiredMode || startingPosition != mCachedStartingPosition) {
+            System.out.println("Auto selection changed, updating creator: desiredMode->" + desiredMode.name()
+                    + ", starting position->" + startingPosition.name());
+            mAutoMode = getAutoModeForParams(desiredMode, startingPosition);
         }
         mCachedDesiredMode = desiredMode;
+        mCachedStartingPosition = startingPosition;
     }
 
-    private Optional<AutoModeBase> getAutoModeForParams(DesiredMode mode) {
+    private Optional<AutoModeBase> getAutoModeForParams(DesiredMode mode, StartingPosition position) {
+        boolean startOnLeft = StartingPosition.LEFT_HAB_1 == position;
         switch (mode) {
         case DO_NOTHING:
             return Optional.of(new DoNothingMode());
@@ -47,11 +60,7 @@ public class AutoModeSelector {
         case CHARACTERIZE_DRIVE_STRAIGHT:
             return Optional.of(new CharacterizeDrivebaseMode(false, false));
         case TEST_PATH:
-            return Optional.of(new TestPath());
-        case TEN_BALL_AUTO:
-            return Optional.of(new TenBallMode());
-        case TEN_BALL_TRENCH_AUTO:
-            return Optional.of(new TenBallTrenchMode());
+            return Optional.of(new TestPath(startOnLeft));
         default:
             break;
         }
@@ -67,6 +76,7 @@ public class AutoModeSelector {
 
     public void outputToSmartDashboard() {
         SmartDashboard.putString("AutoModeSelected", mCachedDesiredMode.name());
+        SmartDashboard.putString("StartingPositionSelected", mCachedStartingPosition.name());
     }
 
     public Optional<AutoModeBase> getAutoMode() {

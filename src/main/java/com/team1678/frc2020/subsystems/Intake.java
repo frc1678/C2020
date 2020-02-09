@@ -70,7 +70,6 @@ public class Intake extends Subsystem {
     @Override
     public synchronized void outputTelemetry() {
         SmartDashboard.putNumber("Intake Current", mPeriodicIO.current);
-        SmartDashboard.putString("Intake State", mState.toString());
     }
 
     @Override
