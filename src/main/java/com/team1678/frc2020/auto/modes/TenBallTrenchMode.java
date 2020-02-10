@@ -58,7 +58,7 @@ public class TenBallTrenchMode extends AutoModeBase {
         runAction(new LambdaAction(() -> Superstructure.getInstance().setWantShoot(true)));
         runAction(new WaitForSpinupAction());
 
-        runAction(new WaitForIndexerSpinAction(400.0));
+        runAction(new WaitForIndexerSpinAction(360.0));
 
         System.out.println("Wait Complete");
         runAction(new LambdaAction(() -> Superstructure.getInstance().setWantShoot(false)));
@@ -77,7 +77,7 @@ public class TenBallTrenchMode extends AutoModeBase {
         runAction(new LambdaAction(() -> Superstructure.getInstance().setWantShoot(true)));
         runAction(new WaitForSpinupAction());
 
-        runAction(new WaitForIndexerSpinAction(400.0));
+        runAction(new WaitForIndexerSpinAction(360.0));
 
         System.out.println("Wait Complete");
         runAction(new LambdaAction(() -> Superstructure.getInstance().setWantShoot(false)));

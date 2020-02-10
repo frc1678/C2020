@@ -112,7 +112,7 @@ public class Drive extends Subsystem {
         talon.configClosedloopRamp(Constants.kDriveVoltageRampRate, Constants.kLongCANTimeoutMs);
         talon.configNeutralDeadband(0.04, 0);
         talon.configMotionCruiseVelocity(20000, Constants.kLongCANTimeoutMs);
-        talon.configMotionAcceleration(40000, Constants.kLongCANTimeoutMs);
+        talon.configMotionAcceleration(20000, Constants.kLongCANTimeoutMs);
     }
 
     private Drive() {
@@ -213,7 +213,7 @@ public class Drive extends Subsystem {
         }
 
         final double kWheelGain = 0.05;
-        final double kWheelNonlinearity = 0.1;
+        final double kWheelNonlinearity = 0.2;
         final double denominator = Math.sin(Math.PI / 2.0 * kWheelNonlinearity);
         // Apply a sin function that's scaled to make it feel better.
         if (!quickTurn) {

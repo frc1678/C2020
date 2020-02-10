@@ -263,6 +263,8 @@ public class Superstructure extends Subsystem {
             // frame.
             mTurretFeedforwardV = -(angular_component + tangential_component);
 
+            System.out.println(mCorrectedRangeToTarget);
+
             safetyReset();
 
             mHasTarget = true;
