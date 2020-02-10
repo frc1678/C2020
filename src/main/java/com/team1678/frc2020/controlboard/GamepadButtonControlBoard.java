@@ -129,11 +129,20 @@ public class GamepadButtonControlBoard {
         mController.getTrigger(CustomXboxController.Side.LEFT) &&  mController.getTrigger(CustomXboxController.Side.RIGHT);
     }
 
-    public boolean getArmDeploy() {
+    public boolean getArmExtend() {
         return mController.getButton(CustomXboxController.Button.A);
     }
 
+    public boolean getStopExtend() {
+        return mController.getController().getAButtonReleased() || mController.getController().getBButtonReleased() 
+            || mController.getButton(CustomXboxController.Button.BACK);
+    }
+
     public boolean getBuddyDeploy() {
+        return mController.getController().getXButtonPressed();
+    }
+
+    public boolean getClimberAdjust() {
         return mController.getButton(CustomXboxController.Button.B);
     }
 
@@ -141,8 +150,8 @@ public class GamepadButtonControlBoard {
         return mController.getButton(CustomXboxController.Button.Y);
     }
 
-    public boolean getSlowClimb() {
-        return false;//mController.getButton(CustomXboxController.Button.RB);
+    public boolean getBrake() {
+        return mController.getController().getYButtonReleased();
     }
 
     public boolean getWrangle() {

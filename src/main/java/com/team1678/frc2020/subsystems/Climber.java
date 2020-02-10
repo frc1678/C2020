@@ -17,19 +17,20 @@ public class Climber extends Subsystem  {
     private static Climber mInstance = null;
 
     private static final double kIdleVoltage = 0.0;
+    private static final double kPivotVoltage = -2.0;
     private static final double kExtendVoltage = 4.0;
     private static final double kClimbVoltage = -4.0;
-    private static final double kSlowClimbVoltage = 1.0;
+    private static final double kBuddyClimbVoltage = -6.0;
     private static final double kBrakeVelocity = 10.0;
 
     private PeriodicIO mPeriodicIO = new PeriodicIO();
 
     public enum WantedAction {
-        NONE, EXTEND, CLIMB, SLOW_CLIMB, BRAKE, STOP,
+        NONE, PIVOT, EXTEND, CLIMB, BUDDY_CLIMB, BRAKE, STOP,
     }
 
     private enum State {
-        IDLE, EXTENDING, CLIMBING, SLOW_CLIMBING, BRAKING,
+        IDLE, PIVOTING, EXTENDING, CLIMBING, BUDDY_CLIMBING, BRAKING,
     }
 
     private State mState = State.IDLE;
@@ -144,6 +145,11 @@ public class Climber extends Subsystem  {
         case IDLE:
             mPeriodicIO.demand = kIdleVoltage;
             break;
+        case PIVOTING:
+            mPeriodicIO.demand = kPivotVoltage;
+            mPeriodicIO.arm_solenoid = true;
+            mPeriodicIO.brake_solenoid = false;
+            break;
         case EXTENDING:
             mPeriodicIO.demand = kExtendVoltage;
             mPeriodicIO.arm_solenoid = true;
@@ -154,8 +160,8 @@ public class Climber extends Subsystem  {
             mPeriodicIO.arm_solenoid = true;
             mPeriodicIO.brake_solenoid = false;
             break;
-        case SLOW_CLIMBING:
-            mPeriodicIO.demand = kSlowClimbVoltage;
+        case BUDDY_CLIMBING:
+            mPeriodicIO.demand = kBuddyClimbVoltage;
             mPeriodicIO.arm_solenoid = true;
             mPeriodicIO.brake_solenoid = false;
             break;
@@ -180,14 +186,17 @@ public class Climber extends Subsystem  {
         switch (wanted_state) {
         case NONE:
             break;
+        case PIVOT:
+            mState = State.PIVOTING;
+            break;
         case EXTEND:
             mState = State.EXTENDING;
             break;
         case CLIMB:
             mState = State.CLIMBING;
             break;
-        case SLOW_CLIMB:
-            mState = State.SLOW_CLIMBING;
+        case BUDDY_CLIMB:
+            mState = State.BUDDY_CLIMBING;
             break;
         case BRAKE:
             mState = State.BRAKING;
@@ -215,7 +224,7 @@ public class Climber extends Subsystem  {
             mMaster.set(ControlMode.PercentOutput, mPeriodicIO.demand / 12.0);
         }
         mArmSolenoid.set(mPeriodicIO.arm_solenoid);
-        mBrakeSolenoid.set(mPeriodicIO.brake_solenoid);
+        mBrakeSolenoid.set(!mPeriodicIO.brake_solenoid);
     }
 
     public static class PeriodicIO {

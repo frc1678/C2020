@@ -60,7 +60,7 @@ public class Constants {
     public static final int kWinchMasterId = 11;
     public static final int kWinchSlaveId = 12;
     public static final int kArmSolenoidId = 1;
-    public static final int kBrakeSolenoidId = 5;
+    public static final int kBrakeSolenoidId = 0; // should be 5
 
     // wrangler
     public static final int kWranglerId = 13;
@@ -77,7 +77,7 @@ public class Constants {
 
     // Intake
     public static final int kIntakeRollerId = 15;
-    public static final int kDeploySolenoidId = 0;
+    public static final int kDeploySolenoidId = 5; // should be 0
 
     // Color Panel
     public static final int kColorPanelID = 14;
