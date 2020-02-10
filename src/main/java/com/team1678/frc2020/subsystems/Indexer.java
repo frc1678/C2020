@@ -101,6 +101,10 @@ public class Indexer extends Subsystem {
         mMotionPlanner = new IndexerMotionPlanner();
     }
 
+    public synchronized State getState() {
+        return mState;
+    }
+
     public synchronized static Indexer getInstance() {
         if (mInstance == null) {
             mInstance = new Indexer();

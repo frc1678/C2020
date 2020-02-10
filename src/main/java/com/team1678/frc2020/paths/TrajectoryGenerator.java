@@ -16,8 +16,8 @@ import java.util.Arrays;
 import java.util.List;
 
 public class TrajectoryGenerator {
-    private static final double kMaxVelocity = 150.0;
-    private static final double kMaxAccel = 130.0;
+    private static final double kMaxVelocity = 160.0;
+    private static final double kMaxAccel = 135.0;
     private static final double kMaxCentripetalAccel = 110.0;
     private static final double kMaxVoltage = 9.0;
 
@@ -207,7 +207,7 @@ public class TrajectoryGenerator {
             waypoints.add(kTrenchEnterWaypoint);
             waypoints.add(kTrenchWaypoint);
             return generateTrajectory(true, waypoints,
-            Arrays.asList(new CentripetalAccelerationConstraint(kMaxCentripetalAccel)), kMaxVelocity, kMaxAccel,
+            Arrays.asList(new CentripetalAccelerationConstraint(kMaxCentripetalAccel)), kMaxVelocity, 140,
             kMaxVoltage);
         }
 
