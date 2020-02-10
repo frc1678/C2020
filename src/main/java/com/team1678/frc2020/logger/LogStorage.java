@@ -26,6 +26,7 @@ public class LogStorage<T> implements ILoggable {
             |           |         |        |
             |           |         |        |
     */
+    
     @Override
     public synchronized ArrayList<ArrayList<Double>> getItems() {
         ArrayList<ArrayList<Double>> items_tmp = mItems;

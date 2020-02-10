@@ -23,7 +23,9 @@ public class LoggingSystem {
         Whenever the logging system reboots, function will scan over all the existing files and subdirectories and find the largest one.
         New subdirectory is created by adding one (1) to the max file number.
     */
+
     private LoggingSystem() {
+        //  Creates a new directory every time the robot is turned on (regardless of enabling/disabling)
         LogDirectory();
     }
 
@@ -58,6 +60,7 @@ public class LoggingSystem {
         }
         return mInstance; 
     }
+
     //  start function that opens file
     public void register(ILoggable newLoggable, String fileName) {
         FileWriter fileWriter = null;
@@ -107,6 +110,7 @@ public class LoggingSystem {
             System.err.println("Couldn't get object and/or log it");
         }
     }
+
     //  Close Logging System
     void Close() {
         try {
@@ -121,6 +125,7 @@ public class LoggingSystem {
             System.err.println("Couldn't close file");
         }
     }
+    
     public void registerLoops(ILooper looper) {
         looper.register(new Loop() {
             @Override
