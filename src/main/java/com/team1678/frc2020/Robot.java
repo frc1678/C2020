@@ -22,6 +22,7 @@ import com.team1678.frc2020.controlboard.ControlBoard;
 import com.team1678.frc2020.controlboard.GamepadButtonControlBoard;
 import com.team1678.frc2020.logger.LoggingSystem;
 import com.team254.lib.wpilib.TimedRobot;
+import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.team1678.frc2020.SubsystemManager;
 import com.team1678.frc2020.subsystems.*;
 import com.team254.lib.util.*;
@@ -151,6 +152,8 @@ public class Robot extends TimedRobot {
             RobotState.getInstance().reset(Timer.getFPGATimestamp(), Pose2d.identity());
 
             Drive.getInstance().zeroSensors();
+            mTurret.setNeutralMode(NeutralMode.Brake);
+            mHood.setNeutralMode(NeutralMode.Brake);
             mInfrastructure.setIsDuringAuto(true);
 
             mAutoModeExecutor.start();
@@ -186,9 +189,11 @@ public class Robot extends TimedRobot {
 
             mInfrastructure.setIsDuringAuto(false);
 
-            RobotState.getInstance().reset(Timer.getFPGATimestamp(), Pose2d.identity());
+            //RobotState.getInstance().reset(Timer.getFPGATimestamp(), Pose2d.identity());
             mEnabledLooper.start();
             mLimelight.setPipeline(Constants.kPortPipeline);
+            mTurret.setNeutralMode(NeutralMode.Brake);
+            mHood.setNeutralMode(NeutralMode.Brake);
 
             mControlBoard.reset();
         } catch (Throwable t) {
@@ -207,7 +212,7 @@ public class Robot extends TimedRobot {
             mDrive.setCheesyishDrive(throttle, turn, mControlBoard.getQuickTurn());
 
             //mSuperstructure.setWantAutoAim(mControlBoard.getTurretCardinal().rotation);
-            mSuperstructure.setWantAutoAim(mControlBoard.getTurretCardinal().rotation);//setWantFieldRelativeTurret(mControlBoard.getTurretCardinal().rotation);
+            mSuperstructure.setWantFieldRelativeTurret(mControlBoard.getTurretCardinal().rotation);
 
             if (mControlBoard.climbMode()) {
                 climb_mode = true;
@@ -233,12 +238,12 @@ public class Robot extends TimedRobot {
                 } else if (mControlBoard.getControlPanelRotation()) {
                     mIntake.setState(Intake.WantedAction.INTAKE);
                     mSuperstructure.setAutoIndex(false);
-                    mIndexer.setBackwardsMode(false);
+                    //mIndexer.setBackwardsMode(false);
                 } else if (mControlBoard.getControlPanelPosition()) {
                     // mRoller.setState(Roller.WantedAction.ACHIEVE_POSITION_CONTROL);
                     mIntake.setState(Intake.WantedAction.INTAKE);
                     mSuperstructure.setAutoIndex(false);
-                    mIndexer.setBackwardsMode(true);
+                    //mIndexer.setBackwardsMode(true);
                 } else {
                     mIntake.setState(Intake.WantedAction.NONE);
                 } 
@@ -317,6 +322,8 @@ public class Robot extends TimedRobot {
             mLimelight.setLed(Limelight.LedMode.ON);
             mLimelight.triggerOutputs();
 
+            mTurret.setNeutralMode(NeutralMode.Coast);
+            mHood.setNeutralMode(NeutralMode.Coast);
             mDrive.setBrakeMode(false);
             mLimelight.writePeriodicOutputs();
         } catch (Throwable t) {
