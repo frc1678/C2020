@@ -105,7 +105,7 @@ public class Constants {
 
     public static final int kIndexerSlots = 5;
     public static final int kAnglePerSlot = 360 / kIndexerSlots;
-    public static final double kIndexerDeadband = 5.0; // degrees
+    public static final double kIndexerDeadband = 2.0; // degrees
 
     public static final double kTestEpsilon = 1e-6;
 
@@ -132,7 +132,7 @@ public class Constants {
 
         kTurretConstants.kPositionKp = 0.1;
         kTurretConstants.kPositionKi = 0.0;
-        kTurretConstants.kPositionKd = 0.0;
+        kTurretConstants.kPositionKd = 10.0;
         kTurretConstants.kPositionKf = 0.0;
         kTurretConstants.kPositionMaxIntegralAccumulator = 0;
         kTurretConstants.kPositionIZone = 0; // Ticks
@@ -147,7 +147,7 @@ public class Constants {
         kTurretConstants.kContinuousCurrentLimit = 20; // amps
         kTurretConstants.kPeakCurrentLimit = 40; // amps
         kTurretConstants.kPeakCurrentDuration = 10; // milliseconds
-        kTurretConstants.kMaxVoltage = 4.0;
+        kTurretConstants.kMaxVoltage = 12.0;
 
         // kTurretConstants.kStatusFrame8UpdateRate = 50;
         kTurretConstants.kRecoverPositionOnReset = true;
@@ -225,9 +225,9 @@ public class Constants {
     public static final double kImageCaptureLatency = 11.0 / 1000.0; // seconds
 
     public static final double kMaxTrackerDistance = 9.0;
-    public static final double kMaxGoalTrackAge = 2.5;
+    public static final double kMaxGoalTrackAge = 3.0;
     public static final double kMaxGoalTrackAgeNotTracking = 0.1;
-    public static final double kMaxGoalTrackSmoothingTime = 0.5;
+    public static final double kMaxGoalTrackSmoothingTime = 0.7;
     public static final double kTrackStabilityWeight = 0.0;
     public static final double kTrackAgeWeight = 10.0;
     public static final double kTrackSwitchingWeight = 100.0;

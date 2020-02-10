@@ -213,7 +213,7 @@ public class Drive extends Subsystem {
         }
 
         final double kWheelGain = 0.05;
-        final double kWheelNonlinearity = 0.1;
+        final double kWheelNonlinearity = 0.2;
         final double denominator = Math.sin(Math.PI / 2.0 * kWheelNonlinearity);
         // Apply a sin function that's scaled to make it feel better.
         if (!quickTurn) {
@@ -323,6 +323,8 @@ public class Drive extends Subsystem {
             mMotionPlanner.setTrajectory(trajectory);
             mDriveControlState = DriveControlState.PATH_FOLLOWING;
         }
+        mLeftMaster.selectProfileSlot(kVelocityControlSlot, 0);
+        mRightMaster.selectProfileSlot(kVelocityControlSlot, 0);
     }
 
     public boolean isDoneWithTrajectory() {

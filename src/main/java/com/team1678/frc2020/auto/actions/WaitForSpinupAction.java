@@ -1,5 +1,6 @@
 package com.team1678.frc2020.auto.actions;
 
+import com.team1678.frc2020.subsystems.Indexer;
 import com.team1678.frc2020.subsystems.Superstructure;
 
 
@@ -17,7 +18,7 @@ public class WaitForSpinupAction implements Action {
 
     @Override
     public boolean isFinished() {
-        return mSuperstrucure.spunUp();
+        return Indexer.getInstance().getState() == Indexer.State.ZOOMING;
     }
 
     @Override
