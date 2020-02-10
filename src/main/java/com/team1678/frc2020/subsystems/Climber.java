@@ -16,8 +16,10 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 public class Climber extends Subsystem  {
     private static Climber mInstance = null;
 
-    private static final double kClimbVoltage = -1.;
-    private static final double kSlowClimbVoltage = 1.;
+    private static final double kIdleVoltage = 0.0;
+    private static final double kExtendVoltage = 4.0;
+    private static final double kClimbVoltage = -4.0;
+    private static final double kSlowClimbVoltage = 1.0;
     private static final double kBrakeVelocity = 10.0;
 
     private PeriodicIO mPeriodicIO = new PeriodicIO();
@@ -140,15 +142,15 @@ public class Climber extends Subsystem  {
     public void runStateMachine() {
         switch (mState) {
         case IDLE:
-            mPeriodicIO.demand = 0;
+            mPeriodicIO.demand = kIdleVoltage;
             break;
         case EXTENDING:
-            mPeriodicIO.demand = 4;
+            mPeriodicIO.demand = kExtendVoltage;
             mPeriodicIO.arm_solenoid = true;
             mPeriodicIO.brake_solenoid = false;
             break;
         case CLIMBING:
-            mPeriodicIO.demand = -4;
+            mPeriodicIO.demand = kClimbVoltage;
             mPeriodicIO.arm_solenoid = true;
             mPeriodicIO.brake_solenoid = false;
             break;
@@ -208,11 +210,7 @@ public class Climber extends Subsystem  {
     @Override
     public synchronized void writePeriodicOutputs() {
         if (mState == State.BRAKING) {
-            //if (!mPeriodicIO.braked) {
-                mMaster.set(ControlMode.MotionMagic, mPeriodicIO.demand);
-            //} else {
-            //    mMaster.set(ControlMode.PercentOutput, 0);
-            //}
+            mMaster.set(ControlMode.MotionMagic, mPeriodicIO.demand);
         } else {
             mMaster.set(ControlMode.PercentOutput, mPeriodicIO.demand / 12.0);
         }
