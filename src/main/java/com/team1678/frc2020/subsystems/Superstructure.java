@@ -11,6 +11,7 @@ import com.team254.lib.geometry.Pose2d;
 import com.team254.lib.geometry.Rotation2d;
 import com.team254.lib.geometry.Twist2d;
 import com.team254.lib.util.InterpolatingDouble;
+import com.team254.lib.util.TimeDelayedBoolean;
 import com.team254.lib.util.Units;
 import com.team254.lib.util.Util;
 import com.team254.lib.vision.AimingParameters;
@@ -62,6 +63,8 @@ public class Superstructure extends Subsystem {
     private TurretControlModes mTurretMode = TurretControlModes.FIELD_RELATIVE;
 
     private double mTurretThrottle = 0.0;
+    private TimeDelayedBoolean trigger_popout = new TimeDelayedBoolean();
+    private boolean estim_popout = false;
 
     public synchronized boolean spunUp() {
         return mGotSpunUp;
@@ -263,6 +266,8 @@ public class Superstructure extends Subsystem {
             // frame.
             mTurretFeedforwardV = -(angular_component + tangential_component);
 
+            System.out.println(mCorrectedRangeToTarget);
+
             safetyReset();
 
             mHasTarget = true;
@@ -336,25 +341,35 @@ public class Superstructure extends Subsystem {
         if (mWantsSpinUp) {
             real_shooter = mShooterSetpoint;
             indexerAction = Indexer.WantedAction.PASSIVE_INDEX;
+            real_trigger = Constants.kTriggerRPM;
         } else if (mWantsShoot) {
             real_shooter = mShooterSetpoint;
             indexerAction = Indexer.WantedAction.PREP;
+            real_trigger = Constants.kTriggerRPM;
+            
+            if (mSettled) {
+                real_popout = true;
+            }
 
             if (mIndexer.isAtDeadSpot() && Math.abs(mIndexer.getIndexerVelocity()) < 5) {
                 mSettled = true;
             }
 
-            if (mSettled) {
+            /*if (mSettled) {
                 real_popout = true;
                 real_trigger = Constants.kTriggerRPM;
                 if (mShooter.spunUp() && mTrigger.spunUp()) {
                     mGotSpunUp = true;
                 }
+            }*/
+
+            if (mShooter.spunUp() && mTrigger.spunUp()) {
+                mGotSpunUp = true;
             }
 
-            if (mGotSpunUp) {
-                real_popout = true;
-                real_trigger = Constants.kTriggerRPM;
+            if (mGotSpunUp && estim_popout) {
+                //real_popout = true;
+                //real_trigger = Constants.kTriggerRPM;
                 indexerAction = Indexer.WantedAction.ZOOM;
             }
         }
@@ -377,6 +392,7 @@ public class Superstructure extends Subsystem {
         }
         //mTurret.setOpenLoop(0);
         //mHood.setOpenLoop(0);
+        estim_popout = trigger_popout.update(real_popout, 0.2);
     }
 
     public synchronized Optional<AimingParameters> getLatestAimingParameters() {

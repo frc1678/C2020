@@ -37,6 +37,7 @@ public class Indexer extends Subsystem {
         public double indexer_angle;
         public double indexer_velocity;
         public double turret_angle;
+        public boolean snapped;
 
         // OUTPUTS
         public ControlMode indexer_control_mode = ControlMode.PercentOutput;
@@ -100,6 +101,10 @@ public class Indexer extends Subsystem {
         mMotionPlanner = new IndexerMotionPlanner();
     }
 
+    public synchronized State getState() {
+        return mState;
+    }
+
     public synchronized static Indexer getInstance() {
         if (mInstance == null) {
             mInstance = new Indexer();
@@ -128,6 +133,7 @@ public class Indexer extends Subsystem {
 
         SmartDashboard.putString("DirtySlots", Arrays.toString(mPeriodicIO.raw_slots));
         SmartDashboard.putString("CleanSlots", Arrays.toString(mCleanSlots));
+        SmartDashboard.putBoolean("Snapped", mPeriodicIO.snapped);
     }
 
     public synchronized void setOpenLoop(double percentage) {
@@ -326,6 +332,7 @@ public class Indexer extends Subsystem {
 
         mPeriodicIO.indexer_angle = mMaster.getSelectedSensorPosition(0) / 2048. / kGearRatio * 360.;
         final double indexer_angle = mPeriodicIO.indexer_angle;
+        mPeriodicIO.snapped = mMotionPlanner.isSnapped(indexer_angle);
 
         if (mMotionPlanner.isSnapped(indexer_angle)) {
             updateSlots(indexer_angle);
