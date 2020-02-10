@@ -142,7 +142,7 @@ public class GamepadButtonControlBoard {
     }
 
     public boolean getSlowClimb() {
-        return mController.getButton(CustomXboxController.Button.RB);
+        return false;//mController.getButton(CustomXboxController.Button.RB);
     }
 
     public boolean getWrangle() {

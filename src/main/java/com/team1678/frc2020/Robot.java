@@ -99,6 +99,8 @@ public class Robot extends TimedRobot {
         mSubsystemManager.outputToSmartDashboard();
         mAutoModeSelector.outputToSmartDashboard();
         mEnabledLooper.outputToSmartDashboard();
+
+        SmartDashboard.putBoolean("Climb Mode", climb_mode);
     }
 
     @Override
@@ -108,17 +110,18 @@ public class Robot extends TimedRobot {
 
             mSubsystemManager.setSubsystems(
                 mRobotStateEstimator,
-                mCanifier, 
+                //mCanifier, 
                 mDrive, 
                 mLimelight, 
                 mIntake, 
                 mIndexer, 
                 mWrangler, 
-                mShooter,
-                mTrigger,
+                //mShooter,
+                //mTrigger,
                 mSuperstructure,
-                mHood,
+                //mHood,
                 mTurret,
+                mClimber,
                 mInfrastructure
             );
 
@@ -248,9 +251,9 @@ public class Robot extends TimedRobot {
                 if (mControlBoard.getArmDeploy()) {
                     mClimber.setState(Climber.WantedAction.EXTEND);
                 } else if (mControlBoard.getBuddyDeploy()) {
-                    mWrangler.setState(Wrangler.WantedAction.DEPLOY);
+                    mClimber.setState(Climber.WantedAction.STOP);
                 } else if (mControlBoard.getWrangle()) {
-                    mWrangler.setState(Wrangler.WantedAction.WRANGLE);
+                    mClimber.setState(Climber.WantedAction.BRAKE);
                 } else if (mControlBoard.getClimb()) {
                     mClimber.setState(Climber.WantedAction.CLIMB);
                 } else if (mControlBoard.getSlowClimb()) {

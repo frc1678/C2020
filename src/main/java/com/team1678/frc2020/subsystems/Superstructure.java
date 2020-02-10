@@ -249,7 +249,6 @@ public class Superstructure extends Subsystem {
 
             final double aiming_setpoint = getHoodSetpointAngle(mCorrectedRangeToTarget);
             mHoodSetpoint = aiming_setpoint;
-            System.out.println(aiming_setpoint);
 
             final Rotation2d turret_error = /*Rotation2d.fromDegrees(Limelight.getInstance().getTx());*/mRobotState.getVehicleToTurret(timestamp).getRotation().inverse()
                     .rotateBy(mLatestAimingParameters.get().getRobotToGoalRotation());
