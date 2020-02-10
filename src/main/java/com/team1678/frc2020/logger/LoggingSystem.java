@@ -18,7 +18,7 @@ public class LoggingSystem {
     ArrayList<FileWriter> loggableFiles = new ArrayList<FileWriter>();
 
     //  Use Boolean to decide whether or not to start logging
-    Boolean log = false;
+    Boolean log = true;
 
     /* 
         Create a for loop that goes over all the current files and subdirectories in mDirectories.
