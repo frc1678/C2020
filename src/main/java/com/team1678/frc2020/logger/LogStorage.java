@@ -37,33 +37,36 @@ public class LogStorage<T> implements ILoggable {
     public ArrayList<String> getItemNames() {
         return mColumns;
     }
+
     public ArrayList<String> setHeadersFromClass(Class<T> typeClass) {
         Field[] mVars;
         mVars = typeClass.getFields();
         //  create array list to the names of the member variables collected
-        ArrayList<String> getItemNames = new ArrayList<String>();
-            //  For the member variables, get the variable  and add it to the array list
-            for (Field variableName : mVars) {
-                if (variableName.getType() == boolean[].class || variableName.getType() == double[].class || variableName.getType() == int[].class) {
-                    try {
-                        T x = supplier.get(); //  there is no good name for this variable :(
-                        Object obj = variableName.get(x);
-                        int length = Array.getLength(obj);
-                        for (int i = 0; i < length; i++) {
-                            getItemNames.add(variableName.getName() + Integer.toString(i));
-                        }
-                    } catch (Exception e) {}
-                } else {
-                    getItemNames.add(variableName.getName());
-                }
+        mColumns.clear();
+        //  For the member variables, get the variable  and add it to the array list
+        for (Field variableName : mVars) {
+            if (variableName.getType() == boolean[].class || variableName.getType() == double[].class || variableName.getType() == int[].class) {
+                try {
+                    T x = supplier.get(); //  there is no good name for this variable :(
+                    Object obj = variableName.get(x);
+                    int length = Array.getLength(obj);
+                    for (int i = 0; i < length; i++) {
+                        mColumns.add(variableName.getName() + Integer.toString(i));
+                    }
+                } catch (Exception e) {}
+            } else {
+                mColumns.add(variableName.getName());
             }
+        }
         //  Log item names from array list
-        return getItemNames;
+        return mColumns;
     }
+
     public void setHeaders(ArrayList<String> columns) {
         mColumns = columns;
         
     }
+
     public synchronized void addData(ArrayList<Double> items) {
         mItems.add(items);
 
