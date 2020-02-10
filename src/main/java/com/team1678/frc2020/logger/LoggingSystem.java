@@ -11,7 +11,8 @@ import java.io.FileWriter;
 public class LoggingSystem {
     private static LoggingSystem mInstance; 
     //  set original directory path. Will be added to in LoggingSystem() when new directories are created inside /home/lvuser/logs
-    public static String mDirectory = "/home/lvuser/logs";
+    public static String mRootDirectory = "/home/lvuser/logs";
+    public static String mDirectory = mRootDirectory;
     ArrayList<ILoggable> loggableItems = new ArrayList<ILoggable>();
 
     ArrayList<FileWriter> loggableFiles = new ArrayList<FileWriter>();
@@ -23,6 +24,7 @@ public class LoggingSystem {
         New subdirectory is created by adding one (1) to the max file number.
     */
     private LoggingSystem() {
+        LogDirectory();
     }
 
     public  void LogDirectory() {
@@ -45,7 +47,7 @@ public class LoggingSystem {
             }
         }
         maxNum++;
-        mDirectory = mDirectory + "/" + maxNum.toString(); 
+        mDirectory = mRootDirectory + "/" + maxNum.toString(); 
         File newDirectory = new File(mDirectory);
         newDirectory.mkdir();
     }
@@ -123,7 +125,6 @@ public class LoggingSystem {
         looper.register(new Loop() {
             @Override
             public void onStart(double timestamp) {
-                LogDirectory();
             }
             @Override 
             public void onLoop(double timestamp) {
