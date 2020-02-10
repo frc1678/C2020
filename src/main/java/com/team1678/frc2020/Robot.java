@@ -79,6 +79,7 @@ public class Robot extends TimedRobot {
     private final Climber mClimber = Climber.getInstance();
     private final Hood mHood = Hood.getInstance();
     private final Wrangler mWrangler = Wrangler.getInstance();
+    private final Canifier mCanifier = Canifier.getInstance();
 
     private final Roller mRoller = Roller.getInstance();
     private final Canifier mCanifier = Canifier.getInstance();
