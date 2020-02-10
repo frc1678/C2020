@@ -6,13 +6,17 @@ import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.ctre.phoenix.sensors.PigeonIMU;
 import com.ctre.phoenix.sensors.PigeonIMU_StatusFrame;
+
 import com.team1678.frc2020.Constants;
 import com.team1678.frc2020.Kinematics;
 import com.team1678.frc2020.RobotState;
 import com.team1678.frc2020.loops.ILooper;
 import com.team1678.frc2020.loops.Loop;
+import com.team1678.frc2020.logger.LoggingSystem;
+import com.team1678.frc2020.logger.LogStorage;
 import com.team1678.frc2020.planners.DriveMotionPlanner;
 import com.team1678.lib.control.PIDController;
+
 import com.team254.lib.drivers.MotorChecker;
 import com.team254.lib.drivers.TalonFXChecker;
 import com.team254.lib.drivers.TalonFXFactory;
@@ -23,11 +27,12 @@ import com.team254.lib.geometry.Twist2d;
 import com.team254.lib.trajectory.TrajectoryIterator;
 import com.team254.lib.trajectory.timing.TimedState;
 import com.team254.lib.util.DriveSignal;
-import com.team254.lib.util.ReflectingCSVWriter;
 import com.team254.lib.util.Util;
+
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
 import java.util.ArrayList;
 
 
@@ -45,7 +50,6 @@ public class Drive extends Subsystem {
     // Hardware states
     private PeriodicIO mPeriodicIO;
     private boolean mIsBrakeMode;
-    private ReflectingCSVWriter<PeriodicIO> mCSVWriter = null;
     private DriveMotionPlanner mMotionPlanner;
     private Rotation2d mGyroOffset = Rotation2d.identity();
     private boolean mOverrideTrajectory = false;
@@ -56,6 +60,15 @@ public class Drive extends Subsystem {
     private boolean mStartedResetTimer = false;
     private Rotation2d mTargetHeading = new Rotation2d();
     private boolean mIsOnTarget = false;
+
+    LogStorage<PeriodicIO> mStorage = null;
+
+    @Override
+    public void registerLogger(LoggingSystem LS) {
+        logSetup();
+        LS.register(mStorage, "drive.csv");
+    }
+
 
     private final Loop mLoop = new Loop() {
         @Override
@@ -92,7 +105,6 @@ public class Drive extends Subsystem {
         @Override
         public void onStop(double timestamp) {
             stop();
-            stopLogging();
         }
     };
 
@@ -213,7 +225,7 @@ public class Drive extends Subsystem {
         }
 
         final double kWheelGain = 0.05;
-        final double kWheelNonlinearity = 0.1;
+        final double kWheelNonlinearity = 0.2;
         final double denominator = Math.sin(Math.PI / 2.0 * kWheelNonlinearity);
         // Apply a sin function that's scaled to make it feel better.
         if (!quickTurn) {
@@ -323,6 +335,8 @@ public class Drive extends Subsystem {
             mMotionPlanner.setTrajectory(trajectory);
             mDriveControlState = DriveControlState.PATH_FOLLOWING;
         }
+        mLeftMaster.selectProfileSlot(kVelocityControlSlot, 0);
+        mRightMaster.selectProfileSlot(kVelocityControlSlot, 0);
     }
 
     public boolean isDoneWithTrajectory() {
@@ -390,9 +404,6 @@ public class Drive extends Subsystem {
             SmartDashboard.putNumber("x err", mPeriodicIO.error.getTranslation().x());
             SmartDashboard.putNumber("y err", mPeriodicIO.error.getTranslation().y());
             SmartDashboard.putNumber("theta err", mPeriodicIO.error.getRotation().getDegrees());
-        }
-        if (mCSVWriter != null) {
-            mCSVWriter.write();
         }
     }
 
@@ -551,6 +562,7 @@ public class Drive extends Subsystem {
 
     @Override
     public synchronized void readPeriodicInputs() {
+        LogSend();
         mPeriodicIO.timestamp = Timer.getFPGATimestamp();
 
         double prevLeftTicks = mPeriodicIO.left_position_ticks;
@@ -578,9 +590,6 @@ public class Drive extends Subsystem {
         mPeriodicIO.left_current = mLeftMaster.getOutputCurrent();
         mPeriodicIO.right_current = mRightMaster.getOutputCurrent();
 
-        if (mCSVWriter != null) {
-            mCSVWriter.add(mPeriodicIO);
-        }
         // System.out.println("control state: " + mDriveControlState + ", left: " + mPeriodicIO.left_demand + ", right: " + mPeriodicIO.right_demand);
     }
 
@@ -651,19 +660,6 @@ public class Drive extends Subsystem {
         return leftSide && rightSide;
     }
 
-    public synchronized void startLogging() {
-        if (mCSVWriter == null) {
-            mCSVWriter = new ReflectingCSVWriter<>("/home/lvuser/DRIVE-LOGS.csv", PeriodicIO.class);
-        }
-    }
-
-    public synchronized void stopLogging() {
-        if (mCSVWriter != null) {
-            mCSVWriter.flush();
-            mCSVWriter = null;
-        }
-    }
-
     // The robot drivetrain's various states.
     public enum DriveControlState {
         OPEN_LOOP, // open loop voltage control
@@ -695,6 +691,37 @@ public class Drive extends Subsystem {
         public double left_feedforward;
         public double right_feedforward;
         public TimedState<Pose2dWithCurvature> path_setpoint = new TimedState<Pose2dWithCurvature>(Pose2dWithCurvature.identity());
+    }
+
+    public void logSetup() {
+        mStorage = new LogStorage<PeriodicIO>();
+        mStorage.setHeadersFromClass(PeriodicIO.class);
+    }
+
+    public void LogSend() {
+        ArrayList<Double> items = new ArrayList<Double>();
+        items.add(Timer.getFPGATimestamp());
+
+        // INPUTS
+        items.add((double) mPeriodicIO.left_position_ticks);
+        items.add((double) mPeriodicIO.right_position_ticks);
+        items.add(mPeriodicIO.left_distance);
+        items.add(mPeriodicIO.right_distance);
+        items.add(mPeriodicIO.left_current);
+        items.add(mPeriodicIO.right_current);
+        items.add((double) mPeriodicIO.left_velocity_ticks_per_100ms);
+        items.add((double) mPeriodicIO.right_velocity_ticks_per_100ms);
+        items.add(Double.valueOf(mPeriodicIO.gyro_heading.getDegrees()));
+
+        // OUTPUTS
+        items.add(mPeriodicIO.left_demand);
+        items.add(mPeriodicIO.right_demand);
+        items.add(mPeriodicIO.left_accel);
+        items.add(mPeriodicIO.right_accel);
+        items.add(mPeriodicIO.left_feedforward);
+        items.add(mPeriodicIO.right_feedforward);
+
+        mStorage.addData(items);
     }
   
 }

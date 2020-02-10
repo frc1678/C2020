@@ -1,6 +1,7 @@
 package com.team1678.frc2020.subsystems;
 
 import com.team1678.frc2020.loops.ILooper;
+import com.team1678.frc2020.logger.LoggingSystem;
 
 /**
  * The Subsystem abstract class, which serves as a basic framework for all robot subsystems. Each subsystem outputs
@@ -22,6 +23,8 @@ public abstract class Subsystem {
     public void writePeriodicOutputs() {}
 
     public void registerEnabledLoops(ILooper mEnabledLooper) {}
+
+    public void registerLogger(LoggingSystem LS) {}
 
     public void zeroSensors() {}
 

@@ -10,11 +10,15 @@ import java.io.FileWriter;
 
 public class LoggingSystem {
     private static LoggingSystem mInstance; 
-    //  set original directory path. Will be added to in LoggingSystem() when new directories are created inside /tmp/
-    public static String mDirectory = "/tmp/";
+    //  set original directory path. Will be added to in LoggingSystem() when new directories are created inside /home/lvuser/logs
+    public static String mRootDirectory = "/home/lvuser/logs";
+    public static String mDirectory = mRootDirectory;
     ArrayList<ILoggable> loggableItems = new ArrayList<ILoggable>();
 
     ArrayList<FileWriter> loggableFiles = new ArrayList<FileWriter>();
+
+    //  Use Boolean to decide whether or not to start logging
+    Boolean log = true;
 
     /* 
         Create a for loop that goes over all the current files and subdirectories in mDirectories.
@@ -22,9 +26,22 @@ public class LoggingSystem {
         Whenever the logging system reboots, function will scan over all the existing files and subdirectories and find the largest one.
         New subdirectory is created by adding one (1) to the max file number.
     */
+
     private LoggingSystem() {
+        if (log == true) {
+        //  Creates a new directory every time the robot is turned on (regardless of enabling/disabling)
+        LogDirectory();
+        }
+    }
+
+    public  void LogDirectory() {
+        if (log == true) {
         File Directory = new File(mDirectory);
         Integer maxNum = 0;
+        if  (! Directory.isDirectory()) {
+            Directory.mkdir();
+        }
+        
         for (final File directoryEntry : Directory.listFiles()) {
             try {
                 if (directoryEntry.isDirectory()) {
@@ -38,44 +55,51 @@ public class LoggingSystem {
             }
         }
         maxNum++;
-        mDirectory = mDirectory + "/" + maxNum.toString(); 
+        mDirectory = mRootDirectory + "/" + maxNum.toString(); 
         File newDirectory = new File(mDirectory);
         newDirectory.mkdir();
     }
+    }
+
     public synchronized static LoggingSystem getInstance() {
         if (mInstance == null) {
             mInstance = new LoggingSystem();
         }
         return mInstance; 
     }
+
     //  start function that opens file
     public void register(ILoggable newLoggable, String fileName) {
-        FileWriter fileWriter = null;
-        try {
-            fileWriter = new FileWriter(mDirectory + "/" + fileName);
-        } catch (Exception e) {
-            System.err.println("Couldn't register new file" + fileName);
-        }
-        ArrayList<String> itemNames = newLoggable.getItemNames();
-        loggableFiles.add(fileWriter);
-        //  Write names to file
-        try {
-            for (int h=0; h < itemNames.size(); h++) {
-                fileWriter.write(itemNames.get(h));
-                if (h!= itemNames.size()) {
-                    fileWriter.write(",");
-                }
+        if (log == true) {
+            FileWriter fileWriter = null;
+            try {
+                fileWriter = new FileWriter(mDirectory + "/" + fileName);
+            } catch (Exception e) {
+                System.err.println("Couldn't register new file" + fileName);
             }
-            fileWriter.write("\n");
-            //  Adding Loggable to loggableItems list
-            loggableItems.add(newLoggable);
-        } catch (Exception e) {
-            System.err.println("Couldn't write to file");
+            ArrayList<String> itemNames = newLoggable.getItemNames();
+            loggableFiles.add(fileWriter);
+            //  Write names to file
+            try {
+                for (int h=0; h < itemNames.size(); h++) {
+                    fileWriter.write(itemNames.get(h));
+                    if (h!= itemNames.size()) {
+                        fileWriter.write(",");
+                    }
+                }
+                fileWriter.write("\n");
+                //  Adding Loggable to loggableItems list
+                loggableItems.add(newLoggable);
+            } catch (Exception e) {
+                System.err.println("Couldn't write to file");
+            }
         }
     }
+
     //  Logging Function
     //  gets called when main begins logging
     void Log() {
+        if (log == true) {
         try{
             for (int i=0; i < loggableItems.size(); i++) {
                ArrayList<ArrayList<Double>> items = loggableItems.get(i).getItems();
@@ -97,20 +121,25 @@ public class LoggingSystem {
             System.err.println("Couldn't get object and/or log it");
         }
     }
+    }
+
     //  Close Logging System
     void Close() {
-        try {
-            //  Get final logs
-            Log();
-            //  Close files 
-            for (int i=0; i< loggableFiles.size(); i++) {
-                FileWriter fileWriter = loggableFiles.get(i);
-                fileWriter.close();
+        if (log = true) {
+            try {
+                //  Get final logs
+                Log();
+                //  Close files 
+                for (int i=0; i< loggableFiles.size(); i++) {
+                    FileWriter fileWriter = loggableFiles.get(i);
+                    fileWriter.close();
+                }
+            } catch (Exception e) {
+                System.err.println("Couldn't close file");
             }
-        } catch (Exception e) {
-            System.err.println("Couldn't close file");
         }
     }
+
     public void registerLoops(ILooper looper) {
         looper.register(new Loop() {
             @Override
@@ -118,7 +147,9 @@ public class LoggingSystem {
             }
             @Override 
             public void onLoop(double timestamp) {
+                if (log == true) {
                 Log();
+                }
             }
             @Override 
             public void onStop(double timestamp) {
