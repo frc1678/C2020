@@ -9,6 +9,7 @@ import com.team1678.frc2020.subsystems.Canifier;
 
 import com.team254.lib.drivers.BaseTalonChecker;
 import com.team254.lib.drivers.MotorChecker;
+import com.team254.lib.util.Util;
 
 import java.util.ArrayList;
 
@@ -37,16 +38,13 @@ public class Hood extends ServoMotorSubsystem {
         return getPosition();
     }
 
+    public synchronized boolean getAtGoal() {
+        return Util.epsilonEquals(getAngle(), getSetpoint(), 0.5);
+    }
+
     @Override
     public synchronized void writePeriodicOutputs() {
         if (mHoming) {
-            if (atHomingLocation()) {
-                mMaster.setSelectedSensorPosition((int) unitsToTicks(0));
-                mMaster.overrideSoftLimitsEnable(true);
-                System.out.println("Homed!!!");
-                mHoming = false;
-            }
-
             if (mControlState == ControlState.OPEN_LOOP) {
                 mMaster.set(ControlMode.PercentOutput, mPeriodicIO.demand, DemandType.ArbitraryFeedForward, 0.0);
             } else {
@@ -55,6 +53,17 @@ public class Hood extends ServoMotorSubsystem {
         } else {
             super.writePeriodicOutputs();
         }
+    }
+
+    @Override
+    public synchronized void readPeriodicInputs() {
+        if (mHoming && atHomingLocation()) {
+            mMaster.setSelectedSensorPosition((int) unitsToTicks(12.875));
+            mMaster.overrideSoftLimitsEnable(true);
+            System.out.println("Homed!!!");
+            mHoming = false;
+        }
+        super.readPeriodicInputs();
     }
 
     @Override
