@@ -112,10 +112,6 @@ public class Indexer extends Subsystem {
         LogSetup();
         LS.register(mStorage, "indexer.csv");
     }
-    
-    public synchronized State getState() {
-        return mState;
-    }
 
     public synchronized static Indexer getInstance() {
         if (mInstance == null) {
