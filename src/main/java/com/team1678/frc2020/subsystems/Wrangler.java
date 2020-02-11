@@ -1,6 +1,8 @@
 package com.team1678.frc2020.subsystems;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.StatorCurrentLimitConfiguration;
+import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.team1678.frc2020.Constants;
 import com.team1678.frc2020.loops.ILooper;
@@ -10,7 +12,7 @@ import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Wrangler extends Subsystem {
-    public static double kWrangleVoltage = -12.;
+    public static double kWrangleVoltage = -4.;
     public static double kHoldingVoltage = 0.;
     
     private static Wrangler mInstance;
@@ -18,6 +20,7 @@ public class Wrangler extends Subsystem {
     private final TalonFX mMaster;
     private final Solenoid mDeployer;
 
+    public StatorCurrentLimitConfiguration STATOR_CURRENT_LIMIT = new StatorCurrentLimitConfiguration(true, 20, 20, .2);
     private boolean mBuddyClimb = false;
 
     public enum WantedAction {
@@ -43,6 +46,7 @@ public class Wrangler extends Subsystem {
 
         mMaster.set(ControlMode.PercentOutput, 0.);
         mMaster.setInverted(false);
+        mMaster.configStatorCurrentLimit(STATOR_CURRENT_LIMIT);
         mMaster.configVoltageCompSaturation(12.0, Constants.kLongCANTimeoutMs);
         mMaster.enableVoltageCompensation(true);
     }
