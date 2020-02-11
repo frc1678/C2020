@@ -3,6 +3,7 @@ package com.team1678.frc2020;
 import com.team1678.frc2020.loops.ILooper;
 import com.team1678.frc2020.loops.Loop;
 import com.team1678.frc2020.loops.Looper;
+import com.team1678.frc2020.logger.LoggingSystem;
 import com.team1678.frc2020.subsystems.Subsystem;
 
 import java.util.ArrayList;
@@ -93,6 +94,10 @@ public class SubsystemManager implements ILooper {
 
     public void registerDisabledLoops(Looper disabledLooper) {
         disabledLooper.register(new DisabledLoop());
+    }
+
+    public void registerLoggingSystems(LoggingSystem LS) {
+        mAllSubsystems.forEach(s -> s.registerLogger(LS));
     }
 
     @Override

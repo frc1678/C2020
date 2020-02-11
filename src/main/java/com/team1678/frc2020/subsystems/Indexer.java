@@ -8,6 +8,8 @@ import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.team1678.frc2020.Constants;
 import com.team1678.frc2020.loops.ILooper;
 import com.team1678.frc2020.loops.Loop;
+import com.team1678.frc2020.logger.LogStorage;
+import com.team1678.frc2020.logger.LoggingSystem;
 import com.team1678.frc2020.subsystems.Turret;
 import com.team254.lib.drivers.TalonFXFactory;
 import com.team254.lib.util.Util;
@@ -17,6 +19,8 @@ import com.team1678.lib.util.HallCalibration;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
+import java.util.ArrayList;
 
 public class Indexer extends Subsystem {
     private static Indexer mInstance = null;
@@ -74,6 +78,8 @@ public class Indexer extends Subsystem {
     private double mOffset = 0;
     private double mAngleGoal = 0;
 
+    LogStorage<PeriodicIO> mStorage = null;
+
     private Indexer() {
         mMaster = TalonFXFactory.createDefaultTalon(Constants.kIndexerId);
 
@@ -101,6 +107,12 @@ public class Indexer extends Subsystem {
         mMotionPlanner = new IndexerMotionPlanner();
     }
 
+    @Override
+    public void registerLogger(LoggingSystem LS) {
+        LogSetup();
+        LS.register(mStorage, "indexer.csv");
+    }
+    
     public synchronized State getState() {
         return mState;
     }
@@ -322,6 +334,7 @@ public class Indexer extends Subsystem {
 
     @Override
     public synchronized void readPeriodicInputs() {
+        LogSend();
         mPeriodicIO.raw_slots[0] = mSlot0Proxy.get();
         mPeriodicIO.raw_slots[1] = mSlot1Proxy.get();
         mPeriodicIO.raw_slots[2] = mSlot2Proxy.get();
@@ -359,5 +372,29 @@ public class Indexer extends Subsystem {
     @Override
     public boolean checkSystem() {
         return true;
+    }
+
+    public void LogSetup() {
+        mStorage = new LogStorage<PeriodicIO>();
+        mStorage.setHeadersFromClass(PeriodicIO.class);
+    }
+
+    public void LogSend() {
+        ArrayList<Double> items = new ArrayList<Double>();
+        items.add(Timer.getFPGATimestamp());
+
+        items.add(mPeriodicIO.limit_switch? 0.0 : 1.0);
+        items.add(mPeriodicIO.indexer_velocity);
+        items.add(mPeriodicIO.indexer_angle);
+        items.add(mPeriodicIO.turret_angle);
+
+        //  items.add(Double.valueOf(mPeriodicIO.indexer_control_mode.toString()));
+        items.add(mPeriodicIO.indexer_demand);
+
+        for (int i = 0; i < mPeriodicIO.raw_slots.length; i++) {
+            items.add(mPeriodicIO.raw_slots[i]? 0.0 : 1.0);
+        }
+
+        mStorage.addData(items);
     }
 }
