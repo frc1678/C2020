@@ -61,7 +61,7 @@ public class Hood extends ServoMotorSubsystem {
     @Override
     public synchronized void readPeriodicInputs() {
         if (mHoming && atHomingLocation()) {
-            mMaster.setSelectedSensorPosition((int) unitsToTicks(12.875));
+            mMaster.setSelectedSensorPosition((int) unitsToTicks(17.66));
             mMaster.overrideSoftLimitsEnable(true);
             System.out.println("Homed!!!");
             mHoming = false;

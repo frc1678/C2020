@@ -32,6 +32,7 @@ public class Indexer extends Subsystem {
     private double mIndexerStart = Timer.getFPGATimestamp();
     private static final double kLoopsPerSec = 1.0;
     private static final double kAmplitude = 25.0;
+    private static final double kAngleConversion = (2048.0 * kGearRatio) / 360.0;
     
     public static class PeriodicIO {
         // INPUTS
@@ -74,7 +75,7 @@ public class Indexer extends Subsystem {
     private DigitalInput mSlot3Proxy = new DigitalInput(Constants.kSlot3Proxy);
     private DigitalInput mSlot4Proxy = new DigitalInput(Constants.kSlot4Proxy);
     private DigitalInput mLimitSwitch = new DigitalInput(Constants.kIndexerLimitSwitch);
-    private HallCalibration calibration = new HallCalibration(0);
+    private HallCalibration calibration = new HallCalibration(-37.0);
     private double mOffset = 0;
     private double mAngleGoal = 0;
 
@@ -99,7 +100,7 @@ public class Indexer extends Subsystem {
         mMaster.configVoltageCompSaturation(12.0, Constants.kLongCANTimeoutMs);
         mMaster.enableVoltageCompensation(true);
 
-        mMaster.setSelectedSensorPosition(0, 0, Constants.kCANTimeoutMs);
+        mMaster.setSelectedSensorPosition(0, 0, Constants.kLongCANTimeoutMs);
         mMaster.configClosedloopRamp(0.0);
 
         mMotionPlanner = new IndexerMotionPlanner();
@@ -118,7 +119,7 @@ public class Indexer extends Subsystem {
 
     public boolean atHomingLocation() {
         calibration.update(mPeriodicIO.indexer_angle, mPeriodicIO.limit_switch);
-        if (calibration.isCalibrated()) {
+        if (calibration.isCalibrated() && !mHasBeenZeroed) {
             mOffset = mPeriodicIO.indexer_angle + calibration.getOffset();
             return true;
         }
@@ -132,6 +133,7 @@ public class Indexer extends Subsystem {
         SmartDashboard.putNumber("IndexerAngle", mPeriodicIO.indexer_angle);
         SmartDashboard.putBoolean("Indexer Calibrated", calibration.isCalibrated());
         SmartDashboard.putNumber("IndexerVelocity", mPeriodicIO.indexer_velocity);
+        SmartDashboard.putNumber("IndexerOffset", mOffset);
 
         SmartDashboard.putNumber("SlotNumberGoal", mSlotGoal);
 
@@ -354,19 +356,19 @@ public class Indexer extends Subsystem {
         mPeriodicIO.limit_switch = !mLimitSwitch.get();
         mPeriodicIO.indexer_velocity = mMaster.getSelectedSensorVelocity(0) * 600. / 2048. / kGearRatio;
 
-        mPeriodicIO.indexer_angle = mMaster.getSelectedSensorPosition(0) / 2048. / kGearRatio * 360.;
+        mPeriodicIO.indexer_angle = mMaster.getSelectedSensorPosition(0) / kAngleConversion;
         final double indexer_angle = mPeriodicIO.indexer_angle;
         mPeriodicIO.snapped = mMotionPlanner.isSnapped(indexer_angle);
 
         if (mMotionPlanner.isSnapped(indexer_angle)) {
             updateSlots(indexer_angle);
         }
-        // if (atHomingLocation() && !mHasBeenZeroed) {
-        // mMaster.setSelectedSensorPosition((int) Math.floor(mOffset));
-        // mMaster.overrideSoftLimitsEnable(true);
-        // System.out.println("Homed!!!");
-        // mHasBeenZeroed = true;
-        // }
+        if (atHomingLocation() && !mHasBeenZeroed) {
+            mMaster.setSelectedSensorPosition((int) Math.floor(mOffset * kAngleConversion));
+            mMaster.overrideSoftLimitsEnable(true);
+            System.out.println("Homed!!!");
+            mHasBeenZeroed = true;
+        }
     }
 
     @Override

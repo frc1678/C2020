@@ -28,7 +28,7 @@ public class Constants {
     /* ROBOT PHYSICAL CONSTANTS */
     // Wheels
     public static final double kDriveWheelTrackWidthInches = 33.660;
-    public static final double kDriveWheelDiameterInches = 6.0;
+    public static final double kDriveWheelDiameterInches = 5.67;
     public static final double kDriveWheelRadiusInches = kDriveWheelDiameterInches / 2.0;
     public static final double kTrackScrubFactor = 1.0; // Tune me!
     // Tuned dynamics
@@ -164,7 +164,7 @@ public class Constants {
 
         // Unit == Degrees
         kHoodConstants.kHomePosition = 0.0; // Degrees
-        kHoodConstants.kTicksPerUnitDistance = (2048 * 154.7) / 360.0;
+        kHoodConstants.kTicksPerUnitDistance = (2048.0 * 70.0) / 360.0;
         kHoodConstants.kKp = 0.1;
         kHoodConstants.kKi = 0;
         kHoodConstants.kKd = 0;
@@ -181,8 +181,8 @@ public class Constants {
         kHoodConstants.kPositionIZone = 0; // Ticks
         kHoodConstants.kPositionDeadband = 0; // Ticks
 
-        kHoodConstants.kMinUnitsLimit = 12.8;
-        kHoodConstants.kMaxUnitsLimit = 70.0;
+        kHoodConstants.kMinUnitsLimit = 17.66;
+        kHoodConstants.kMaxUnitsLimit = 80.0;
 
         kHoodConstants.kCruiseVelocity = 20000; // Ticks / 100ms
         kHoodConstants.kAcceleration = 20000; // Ticks / 100ms / s
@@ -193,7 +193,7 @@ public class Constants {
         kHoodConstants.kMaxVoltage = 12.0;
     }
 
-    public static final double kHoodRadius = 9.834; // radius of hood
+    public static final double kHoodRadius = 11.904; // radius of hood
 
     // pigeon
     public static final int kPigeonIMUId = 16;
@@ -215,7 +215,7 @@ public class Constants {
         kLimelightConstants.kTableName = "limelight";
         kLimelightConstants.kHeight = 24.; // inches
         kLimelightConstants.kTurretToLens = Pose2d.identity();
-        kLimelightConstants.kHorizontalPlaneToLens = Rotation2d.fromDegrees(-10.0);
+        kLimelightConstants.kHorizontalPlaneToLens = Rotation2d.fromDegrees(0.0);
     }
 
     public static final double kHorizontalFOV = 59.6; // degrees

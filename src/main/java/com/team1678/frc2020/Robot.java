@@ -80,6 +80,7 @@ public class Robot extends TimedRobot {
     private final Hood mHood = Hood.getInstance();
     private final Wrangler mWrangler = Wrangler.getInstance();
     private final Canifier mCanifier = Canifier.getInstance();
+    private final LEDs mLEDs = LEDs.getInstance();
 
     private final RobotState mRobotState = RobotState.getInstance();
     private final RobotStateEstimator mRobotStateEstimator = RobotStateEstimator.getInstance();
@@ -120,6 +121,7 @@ public class Robot extends TimedRobot {
                 mSuperstructure,
                 mHood,
                 mTurret,
+                mLEDs,
                 mInfrastructure
             );
 
@@ -189,11 +191,12 @@ public class Robot extends TimedRobot {
 
             mInfrastructure.setIsDuringAuto(false);
 
-            //RobotState.getInstance().reset(Timer.getFPGATimestamp(), Pose2d.identity());
+            RobotState.getInstance().reset(Timer.getFPGATimestamp(), Pose2d.identity());
             mEnabledLooper.start();
             mLimelight.setPipeline(Constants.kPortPipeline);
             mTurret.setNeutralMode(NeutralMode.Brake);
             mHood.setNeutralMode(NeutralMode.Brake);
+            mLEDs.conformToState(LEDs.State.ENABLED);
 
             mControlBoard.reset();
         } catch (Throwable t) {
@@ -326,6 +329,7 @@ public class Robot extends TimedRobot {
             mHood.setNeutralMode(NeutralMode.Coast);
             mDrive.setBrakeMode(false);
             mLimelight.writePeriodicOutputs();
+            mLEDs.conformToState(LEDs.State.RAINBOW);
         } catch (Throwable t) {
             CrashTracker.logThrowableCrash(t);
             throw t;
@@ -341,6 +345,8 @@ public class Robot extends TimedRobot {
         try {
             mLimelight.setLed(Limelight.LedMode.ON);
 
+            mLEDs.conformToState(LEDs.State.RAINBOW);
+
             mAutoModeSelector.updateModeCreator();
 
             Optional<AutoModeBase> autoMode = mAutoModeSelector.getAutoMode();
@@ -348,6 +354,8 @@ public class Robot extends TimedRobot {
                 System.out.println("Set auto mode to: " + autoMode.get().getClass().toString());
                 mAutoModeExecutor.setAutoMode(autoMode.get());
             }
+
+            mLEDs.writePeriodicOutputs();
 
         } catch (Throwable t) {
             CrashTracker.logThrowableCrash(t);
