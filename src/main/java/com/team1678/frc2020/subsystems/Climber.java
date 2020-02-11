@@ -4,14 +4,21 @@ import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.TalonFXFeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
+
 import com.team1678.frc2020.Constants;
 import com.team1678.frc2020.loops.ILooper;
 import com.team1678.frc2020.loops.Loop;
+import com.team1678.frc2020.logger.LogStorage;
+import com.team1678.frc2020.logger.LoggingSystem;
+
 import com.team254.lib.drivers.TalonFXFactory;
 import com.team254.lib.util.TimeDelayedBoolean;
 
 import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.Timer;
+
+import java.util.ArrayList;
 
 public class Climber extends Subsystem  {
     private static Climber mInstance = null;
@@ -32,6 +39,8 @@ public class Climber extends Subsystem  {
     private enum State {
         IDLE, PIVOTING, EXTENDING, CLIMBING, BUDDY_CLIMBING, BRAKING,
     }
+
+    LogStorage<PeriodicIO> mStorage = null;
 
     private State mState = State.IDLE;
 
@@ -69,6 +78,12 @@ public class Climber extends Subsystem  {
 
         mMaster.setNeutralMode(NeutralMode.Brake);
         mSlave.setNeutralMode(NeutralMode.Brake);
+    }
+    
+    @Override
+    public void registerLogger(LoggingSystem LS) {
+        LogSetup();
+        LS.register(mStorage, "climber.csv");
     }
 
     public synchronized static Climber getInstance() {
@@ -214,6 +229,8 @@ public class Climber extends Subsystem  {
         mPeriodicIO.position = mMaster.getSelectedSensorPosition(0);
         mPeriodicIO.velocity = mMaster.getSelectedSensorVelocity(0);
         mPeriodicIO.braked = brake_activation.update(mBrakeSolenoid.get(), 0.5);
+        
+        LogSend();  
     }
 
     @Override
@@ -237,5 +254,19 @@ public class Climber extends Subsystem  {
         public double demand;
         public boolean arm_solenoid;
         public boolean brake_solenoid;
+    }
+
+    public void LogSetup() {
+        mStorage = new LogStorage<PeriodicIO>();
+        mStorage.setHeadersFromClass(PeriodicIO.class);
+    }
+
+    public void LogSend() {
+        ArrayList<Double> items = new ArrayList<Double>();
+        items.add(Timer.getFPGATimestamp());
+        items.add(mPeriodicIO.demand);
+        items.add(Double.valueOf(mPeriodicIO.arm_solenoid? 0.0 : 1.0));
+        items.add(Double.valueOf(mPeriodicIO.brake_solenoid? 0.0 : 1.0));
+        mStorage.addData(items);
     }
 }
