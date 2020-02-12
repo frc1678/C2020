@@ -391,6 +391,7 @@ public class Robot extends TimedRobot {
 
         try {
             mLimelight.setLed(Limelight.LedMode.ON);
+            mLEDs.conformToState(LEDs.State.RAINBOW);
             mLEDs.writePeriodicOutputs();
 
             mAutoModeSelector.updateModeCreator();
