@@ -27,12 +27,16 @@ public class Indexer extends Subsystem {
     private IndexerMotionPlanner mMotionPlanner;
     private Turret mTurret = Turret.getInstance();
 
-    private static final double kZoomingVelocity = 60.;
-    private static final double kPassiveIndexingVelocity = 45.0;
+    private static final double kZoomingVelocity = 70.;
+    private static final double kPassiveIndexingVelocity = 60.0;
     private static final double kGearRatio = (60. / 16.) * (160. / 16.);
     private static final boolean[] kFullSlots = {true, true, true, true, true };
     private static final boolean[] kEmptySlots = {false, false, false, false, false };
 
+    private double mIndexerStart = Timer.getFPGATimestamp();
+    private static final double kLoopsPerSec = 1.0;
+    private static final double kAmplitude = 25.0;
+    
     public static class PeriodicIO {
         // INPUTS
         private boolean[] raw_slots = { false, false, false, false, false };
@@ -102,7 +106,7 @@ public class Indexer extends Subsystem {
         mMaster.enableVoltageCompensation(true);
 
         mMaster.setSelectedSensorPosition(0, 0, Constants.kCANTimeoutMs);
-       // mMaster.configClosedloopRamp(0.0);
+        mMaster.configClosedloopRamp(0.0);
 
         mMotionPlanner = new IndexerMotionPlanner();
     }
@@ -224,6 +228,7 @@ public class Indexer extends Subsystem {
     public void runStateMachine() {
         final double turret_angle = mTurret.getAngle();
         final double indexer_angle = mPeriodicIO.indexer_angle;
+        final double now = Timer.getFPGATimestamp();
 
         switch (mState) {
         case IDLE:
@@ -251,10 +256,19 @@ public class Indexer extends Subsystem {
         case PASSIVE_INDEXING:
             mPeriodicIO.indexer_control_mode = ControlMode.Velocity;
             mPeriodicIO.indexer_demand = mBackwards ? -kPassiveIndexingVelocity : kPassiveIndexingVelocity;
+
+            final double t = now - mIndexerStart;
+            final double period = (2 * Math.PI) / kLoopsPerSec;
+
+            mPeriodicIO.indexer_demand -= kAmplitude * Math.sin(t * period);
+            //if ((now - mIndexerStart) % 2 < .1) {
+            //    mPeriodicIO.indexer_demand *= -1;
+            //}
+            
             break;
         case PREPPING:
             mPeriodicIO.indexer_control_mode = ControlMode.MotionMagic;
-            mPeriodicIO.indexer_demand = mMotionPlanner.findAngleGoal(mSlotGoal, indexer_angle, turret_angle) + 36.0;
+            mPeriodicIO.indexer_demand = mMotionPlanner.findAngleGoal(mSlotGoal, indexer_angle, turret_angle) + (36.0 * (mBackwards ? -1 : 1));
             break;
         case REVOLVING:
             mPeriodicIO.indexer_control_mode = ControlMode.MotionMagic;
@@ -278,7 +292,6 @@ public class Indexer extends Subsystem {
         case FEEDING:
             mPeriodicIO.indexer_control_mode = ControlMode.MotionMagic;
             if (mMotionPlanner.isAtGoal(mSlotGoal, indexer_angle, turret_angle)) {
-                final double now = Timer.getFPGATimestamp();
                 if (!mStartCounting) {
                     mInitialTime = now;
                     mStartCounting = true;
@@ -329,6 +342,17 @@ public class Indexer extends Subsystem {
 
         if (mState != prev_state && mState != State.REVOLVING && mState != State.INDEXING) {
             mSlotGoal = mMotionPlanner.findNearestSlot(mPeriodicIO.indexer_angle, mTurret.getAngle());
+        }
+
+        if (mState != prev_state && mState == State.PASSIVE_INDEXING) {
+            mIndexerStart = Timer.getFPGATimestamp();
+            mBackwards = !mBackwards;
+        }
+
+        if (mState != prev_state && mState == State.ZOOMING) {
+            mMaster.configClosedloopRamp(0.2, 0);
+        } else if (mState != prev_state) {
+            mMaster.configClosedloopRamp(0.0, 0);
         }
     }
 

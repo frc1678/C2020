@@ -42,7 +42,7 @@ public class Hood extends ServoMotorSubsystem {
     }
 
     public synchronized boolean getAtGoal() {
-        return Util.epsilonEquals(getAngle(), getSetpoint(), 0.5);
+        return Util.epsilonEquals(getAngle(), getSetpoint(), 5.0);
     }
 
     @Override
