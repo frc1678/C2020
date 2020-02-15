@@ -110,7 +110,7 @@ public class LoggingSystem {
                    ArrayList<Double> data = items.get(j);
                    for (int m=0; m < data.size(); m++){
                         fileWriter.write(data.get(m).toString());
-                        if (m != data.size()){
+                        if (m != data.size()-1){
                             fileWriter.write(",");
                         }
                     }
