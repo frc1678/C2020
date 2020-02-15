@@ -10,7 +10,7 @@ public class LoggerMain {
        for (int i = 0; i<10; i++) {
          LS.Log();
          try {
-           Thread.sleep(1000);
+           Thread.sleep(20);
          } catch (Exception e) {}
          
        }
