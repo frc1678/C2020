@@ -9,16 +9,7 @@ import java.util.Optional;
 
 public class AutoModeSelector {
     enum DesiredMode {
-        DO_NOTHING, 
-        TEST_PATH, 
-        TEN_BALL_AUTO, 
-        TEN_BALL_TRENCH_AUTO, 
-        LEFT_EIGHT_BALL_AUTO, 
-        LEFT_NEAR_EIGHT_BALL_AUTO,
-        RIGHT_EIGHT_BALL_AUTO, 
-        RIGHT_NEAR_EIGHT_BALL_AUTO,
-        CHARACTERIZE_DRIVE_TURN, 
-        CHARACTERIZE_DRIVE_STRAIGHT,
+        DO_NOTHING, TEST_PATH, TEN_BALL_AUTO, TEN_BALL_TRENCH_AUTO, LEFT_EIGHT_BALL_AUTO, RIGHT_EIGHT_BALL_AUTO, RIGHT_EIGHT_BALL_NEAR_AUTO, CHARACTERIZE_DRIVE_TURN, CHARACTERIZE_DRIVE_STRAIGHT,
     }
 
     private DesiredMode mCachedDesiredMode = null;
@@ -30,13 +21,12 @@ public class AutoModeSelector {
     public AutoModeSelector() {
         mModeChooser = new SendableChooser<>();
         mModeChooser.setDefaultOption("Do Nothing", DesiredMode.DO_NOTHING);
-        mModeChooser.addOption("Test Path", DesiredMode.TEST_PATH);
-        mModeChooser.addOption("Ten Ball Auto", DesiredMode.TEN_BALL_AUTO);
-        mModeChooser.addOption("Ten Ball Trench Auto", DesiredMode.TEN_BALL_TRENCH_AUTO);
-        mModeChooser.addOption("Left Eight Ball Auto", DesiredMode.LEFT_EIGHT_BALL_AUTO);
-        mModeChooser.addOption("Left Near Eight Ball Auto", DesiredMode.LEFT_NEAR_EIGHT_BALL_AUTO);
-        mModeChooser.addOption("Right Eight Ball Auto", DesiredMode.RIGHT_EIGHT_BALL_AUTO);
-        mModeChooser.addOption("Right Near Eight Ball Auto", DesiredMode.RIGHT_NEAR_EIGHT_BALL_AUTO);
+        mModeChooser.addOption("TEST PATH", DesiredMode.TEST_PATH);
+        mModeChooser.addOption("TEN BALL AUTO", DesiredMode.TEN_BALL_AUTO);
+        mModeChooser.addOption("TEN BALL TRENCH AUTO", DesiredMode.TEN_BALL_TRENCH_AUTO);
+        mModeChooser.addOption("LEFT EIGHT BALL AUTO", DesiredMode.LEFT_EIGHT_BALL_AUTO);
+        mModeChooser.addOption("RIGHT EIGHT BALL AUTO", DesiredMode.RIGHT_EIGHT_BALL_AUTO);
+        mModeChooser.addOption("RIGHT EIGHT BALL NEAR AUTO", DesiredMode.RIGHT_EIGHT_BALL_NEAR_AUTO);
         mModeChooser.addOption("Characterize Drive Turn", DesiredMode.CHARACTERIZE_DRIVE_TURN);
         mModeChooser.addOption("Characterize Drive Straight", DesiredMode.CHARACTERIZE_DRIVE_STRAIGHT);
         SmartDashboard.putData("Auto mode", mModeChooser);
@@ -71,8 +61,8 @@ public class AutoModeSelector {
             return Optional.of(new NearLeftEightBallMode());
         case RIGHT_EIGHT_BALL_AUTO:
             return Optional.of(new RightEightBallMode());
-        case RIGHT_NEAR_EIGHT_BALL_AUTO:
-            return Optional.of(new DoNothingMode());
+        case RIGHT_EIGHT_BALL_NEAR_AUTO:
+            return Optional.of(new RightEightBallNearMode());
         default:
             break;
         }
