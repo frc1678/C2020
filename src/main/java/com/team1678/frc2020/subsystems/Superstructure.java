@@ -237,7 +237,7 @@ public class Superstructure extends Subsystem {
         if (mLatestAimingParameters.isPresent()) {
             mTrackId = mLatestAimingParameters.get().getTrackId();
 
-            final double kLookaheadTime = 0.7;
+            final double kLookaheadTime = 6.0;
             Pose2d robot_to_predicted_robot = mRobotState.getLatestFieldToVehicle().getValue().inverse()
                     .transformBy(mRobotState.getPredictedFieldToVehicle(kLookaheadTime));
             Pose2d predicted_robot_to_goal = robot_to_predicted_robot.inverse()
@@ -297,11 +297,13 @@ public class Superstructure extends Subsystem {
         if (mFieldRelativeTurretGoal == null) {
             return;
         }
-        final double kLookaheadTime = 0.7;
+        final double kLookaheadTime = 6.0;
         Rotation2d turret_error = mRobotState.getPredictedFieldToVehicle(kLookaheadTime)
                 .transformBy(Pose2d.fromRotation(mRobotState.getVehicleToTurret(timestamp))).getRotation().inverse()
                 .rotateBy(mFieldRelativeTurretGoal);
         mTurretSetpoint = mCurrentTurret + turret_error.getDegrees();
+        System.out.println("Predicted: " + mRobotState.getPredictedFieldToVehicle(kLookaheadTime).getRotation().getDegrees() + 
+                                "Current: " + mRobotState.getLatestFieldToVehicle().getValue().getRotation().getDegrees());
 
         safetyReset();
     }
@@ -385,8 +387,8 @@ public class Superstructure extends Subsystem {
 
         if (mTurretMode == TurretControlModes.OPEN_LOOP) {
             mTurret.setOpenLoop(mTurretThrottle);
-        } else  if (mTurretMode == TurretControlModes.VISION_AIMED) {
-            mTurret.setSetpointPositionPID(mTurretSetpoint, 0);
+        //} else  if (mTurretMode == TurretControlModes.VISION_AIMED) {
+         //   mTurret.setSetpointPositionPID(mTurretSetpoint, mTurretFeedforwardV);
         } else {
             mTurret.setSetpointMotionMagic(mTurretSetpoint, 0);
         }

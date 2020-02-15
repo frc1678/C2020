@@ -214,8 +214,8 @@ public class Robot extends TimedRobot {
 
             mDrive.setCheesyishDrive(throttle, turn, mControlBoard.getQuickTurn());
 
-            //mSuperstructure.setWantAutoAim(mControlBoard.getTurretCardinal().rotation);
-            mSuperstructure.setWantFieldRelativeTurret(mControlBoard.getTurretCardinal().rotation);
+            mSuperstructure.setWantAutoAim(mControlBoard.getTurretCardinal().rotation);
+            //mSuperstructure.setWantFieldRelativeTurret(mControlBoard.getTurretCardinal().rotation);
 
             if (mControlBoard.climbMode()) {
                 climb_mode = true;

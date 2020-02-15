@@ -135,7 +135,7 @@ public class LEDs extends Subsystem{
 
     public double stateHue = State.RAINBOW.startingHue;
     public float saturation = 1.0f; // Ensures that the colors are on the outside of the color wheel
-    public float value = 1.0f; // Hardcoded brightness
+    public float value = 0.5f; // Hardcoded brightness
     public double startingTransTime = 0.0;
     public boolean resetBreath = false;
 

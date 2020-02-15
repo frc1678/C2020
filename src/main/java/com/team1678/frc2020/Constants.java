@@ -27,7 +27,7 @@ public class Constants {
 
     /* ROBOT PHYSICAL CONSTANTS */
     // Wheels
-    public static final double kDriveWheelTrackWidthInches = 33.660;
+    public static final double kDriveWheelTrackWidthInches = 31.670;
     public static final double kDriveWheelDiameterInches = 5.67;
     public static final double kDriveWheelRadiusInches = kDriveWheelDiameterInches / 2.0;
     public static final double kTrackScrubFactor = 1.0; // Tune me!
@@ -142,7 +142,7 @@ public class Constants {
         kTurretConstants.kMaxUnitsLimit = 360.0;
 
         kTurretConstants.kCruiseVelocity = 20000; // Ticks / 100ms
-        kTurretConstants.kAcceleration = 40000; // Ticks / 100ms / s
+        kTurretConstants.kAcceleration = 30000; // Ticks / 100ms / s
         kTurretConstants.kRampRate = 0.0; // s
         kTurretConstants.kContinuousCurrentLimit = 20; // amps
         kTurretConstants.kPeakCurrentLimit = 40; // amps
@@ -182,7 +182,7 @@ public class Constants {
         kHoodConstants.kPositionDeadband = 0; // Ticks
 
         kHoodConstants.kMinUnitsLimit = 17.66;
-        kHoodConstants.kMaxUnitsLimit = 80.0;
+        kHoodConstants.kMaxUnitsLimit = 87.5;
 
         kHoodConstants.kCruiseVelocity = 20000; // Ticks / 100ms
         kHoodConstants.kAcceleration = 20000; // Ticks / 100ms / s
@@ -213,7 +213,7 @@ public class Constants {
     static {
         kLimelightConstants.kName = "Limelight";
         kLimelightConstants.kTableName = "limelight";
-        kLimelightConstants.kHeight = 24.; // inches
+        kLimelightConstants.kHeight = 24.5; // inches
         kLimelightConstants.kTurretToLens = Pose2d.identity();
         kLimelightConstants.kHorizontalPlaneToLens = Rotation2d.fromDegrees(0.0);
     }
@@ -255,7 +255,7 @@ public class Constants {
     public static final double kTriggerF = 0.05;
     public static final int kPopoutSolenoidId = 4; // TODO 
 
-    public static final double kTriggerRPM = 5000.0;
+    public static final double kTriggerRPM = 0.0;
 
     public static final double kMaxTopLimelightHeight = 16.0;
 
