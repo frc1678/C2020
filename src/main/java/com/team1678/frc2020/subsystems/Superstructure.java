@@ -56,7 +56,7 @@ public class Superstructure extends Subsystem {
     private double mCurrentHood = 0.0;
 
     private double mTurretSetpoint = 0.0;
-    private double mHoodSetpoint = 22.5;
+    private double mHoodSetpoint = 62.5;
     private double mShooterSetpoint = 2000.0;
     private boolean mGotSpunUp = false;
 
@@ -320,7 +320,7 @@ public class Superstructure extends Subsystem {
         }
 
         if (mWantsTuck) {
-            mHood.setSetpointMotionMagic(0.0);
+            mHood.setSetpointMotionMagic(Constants.kHoodConstants.kMinUnitsLimit);
         } else {
             mHood.setSetpointMotionMagic(mHoodSetpoint);
         }

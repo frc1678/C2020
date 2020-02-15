@@ -38,17 +38,19 @@ public class RightEightBallNearMode extends AutoModeBase {
             new LambdaAction(() -> Superstructure.getInstance().setWantFieldRelativeTurret(Rotation2d.fromDegrees(180.))))));
 
         runAction(mRightSideStartToBarIntake);
-        
+       
         runAction(mBarIntakeToShot);
-        // runAction(new LambdaAction(() -> Superstructure.getInstance().setWantAutoAim(Rotation2d.fromDegrees(180.))));
+         // runAction(new LambdaAction(() -> Superstructure.getInstance().setWantAutoAim(Rotation2d.fromDegrees(180.))));
+         runAction(new LambdaAction(() -> Intake.getInstance().setState(Intake.WantedAction.NONE)));
 
-        runAction(new LambdaAction(() -> Superstructure.getInstance().setWantShoot(true)));
-        // runAction(new WaitForSpinupAction());
-        runAction(new WaitForIndexerSpinAction(360.0));
-
-        System.out.println("Wait Complete");
-        runAction(new LambdaAction(() -> Superstructure.getInstance().setWantShoot(false)));
-        runAction(new LambdaAction(() -> Intake.getInstance().setState(Intake.WantedAction.INTAKE)));
+         runAction(new LambdaAction(() -> Superstructure.getInstance().setWantShoot(true)));
+         runAction(new WaitForSpinupAction());
+         runAction(new WaitForIndexerSpinAction(720.0));
+ 
+         System.out.println("Wait Complete");
+         runAction(new LambdaAction(() -> Superstructure.getInstance().setWantShoot(false)));
+         runAction(new LambdaAction(() -> Intake.getInstance().setState(Intake.WantedAction.INTAKE)));
+ 
         runAction(mShotToTrenchEnd);
         
         runAction(mTrenchToShot);
@@ -57,13 +59,12 @@ public class RightEightBallNearMode extends AutoModeBase {
         runAction(new LambdaAction(() -> Intake.getInstance().setState(Intake.WantedAction.NONE)));
 
         runAction(new LambdaAction(() -> Superstructure.getInstance().setWantShoot(true)));
-        // runAction(new WaitForSpinupAction());
-        runAction(new WaitForIndexerSpinAction(360.0));
+        runAction(new WaitForSpinupAction());
+        runAction(new WaitForIndexerSpinAction(720.0));
 
         System.out.println("Wait Complete");
         runAction(new LambdaAction(() -> Superstructure.getInstance().setWantShoot(false)));
-        runAction(new LambdaAction(() -> Intake.getInstance().setState(Intake.WantedAction.INTAKE)));
-        
+
 
         System.out.println("Auto Complete");
     }
