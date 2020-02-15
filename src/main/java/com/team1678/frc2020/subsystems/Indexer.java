@@ -28,14 +28,14 @@ public class Indexer extends Subsystem {
     private Turret mTurret = Turret.getInstance();
 
     private static final double kZoomingVelocity = 70.;
-    private static final double kPassiveIndexingVelocity = 60.0;
+    private static final double kPassiveIndexingVelocity = 70.0;
     private static final double kGearRatio = (60. / 16.) * (160. / 16.);
     private static final boolean[] kFullSlots = {true, true, true, true, true };
     private static final boolean[] kEmptySlots = {false, false, false, false, false };
 
     private double mIndexerStart = Timer.getFPGATimestamp();
     private static final double kLoopsPerSec = 1.0;
-    private static final double kAmplitude = 25.0;
+    private static final double kAmplitude = 0.0;
     
     public static class PeriodicIO {
         // INPUTS
@@ -358,7 +358,7 @@ public class Indexer extends Subsystem {
 
     @Override
     public synchronized void readPeriodicInputs() {
-        LogSend();
+        //LogSend();
         mPeriodicIO.raw_slots[0] = mSlot0Proxy.get();
         mPeriodicIO.raw_slots[1] = mSlot1Proxy.get();
         mPeriodicIO.raw_slots[2] = mSlot2Proxy.get();

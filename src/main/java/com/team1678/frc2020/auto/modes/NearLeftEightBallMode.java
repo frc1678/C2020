@@ -22,10 +22,10 @@ public class NearLeftEightBallMode extends AutoModeBase {
     private DriveTrajectoryAction mSecondBarIntakeToNearShot;
 
     public NearLeftEightBallMode() {
-        mStartToSteal = new DriveTrajectoryAction(mTrajectoryGenerator.getTrajectorySet().leftStartToSteal, true);
+        mStartToSteal = new DriveTrajectoryAction(mTrajectoryGenerator.getTrajectorySet().startToSteal, true);
         mLeftStealToNearFirstShot =  new DriveTrajectoryAction(mTrajectoryGenerator.getTrajectorySet().leftStealToNearFirstShot, false);
         mNearFirstShotToBarIntake =  new DriveTrajectoryAction(mTrajectoryGenerator.getTrajectorySet().nearFirstShotToBarIntake, false);
-        mFirstToPreSecondBarIntake = new DriveTrajectoryAction(mTrajectoryGenerator.getTrajectorySet().firstToPreSecondBarIntake, false);
+        mFirstToPreSecondBarIntake = new DriveTrajectoryAction(mTrajectoryGenerator.getTrajectorySet().firstToPreSecondBarIntake, true);
         mSecondBarIntake = new DriveTrajectoryAction(mTrajectoryGenerator.getTrajectorySet().secondBarIntake, false);
         mSecondBarIntakeToNearShot = new DriveTrajectoryAction(mTrajectoryGenerator.getTrajectorySet().secondBarIntakeToNearShot, false);
     }
@@ -44,13 +44,12 @@ public class NearLeftEightBallMode extends AutoModeBase {
 
         runAction(mLeftStealToNearFirstShot);
 
-        
         // runAction(new LambdaAction(() -> Superstructure.getInstance().setWantAutoAim(Rotation2d.fromDegrees(180.))));
         runAction(new LambdaAction(() -> Intake.getInstance().setState(Intake.WantedAction.NONE)));
 
         runAction(new LambdaAction(() -> Superstructure.getInstance().setWantShoot(true)));
-        // runAction(new WaitForSpinupAction());
-        runAction(new WaitForIndexerSpinAction(360.0));
+        runAction(new WaitForSpinupAction());
+        runAction(new WaitForIndexerSpinAction(700.0));
 
         System.out.println("Wait Complete");
         runAction(new LambdaAction(() -> Superstructure.getInstance().setWantShoot(false)));
@@ -70,8 +69,8 @@ public class NearLeftEightBallMode extends AutoModeBase {
         runAction(new LambdaAction(() -> Intake.getInstance().setState(Intake.WantedAction.NONE)));
 
         runAction(new LambdaAction(() -> Superstructure.getInstance().setWantShoot(true)));
-        // runAction(new WaitForSpinupAction());
-        runAction(new WaitAction(2.0));
+        runAction(new WaitForSpinupAction());
+        runAction(new WaitForIndexerSpinAction(700));
 
         System.out.println("Wait Complete");
         runAction(new LambdaAction(() -> Superstructure.getInstance().setWantShoot(false)));

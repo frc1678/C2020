@@ -115,11 +115,15 @@ public class TrajectoryGenerator {
     public static final Pose2d kLEBSecondBarIntakePose = new Pose2d(205.0, 10.0, Rotation2d.fromDegrees(20.0));
     public static final Pose2d kLEBSecondShotPose = new Pose2d(180.0, 85.0, Rotation2d.fromDegrees(-100.0));
 
-    public static final Pose2d kLEBNearShotPose = new Pose2d(50.0, 75.0, Rotation2d.fromDegrees(90.0));
+    public static final Pose2d kLEBNearShotPose = new Pose2d(70.0, 55.0, Rotation2d.fromDegrees(-90.0));
     public static final Pose2d kLEBMidToNearShotPose = new Pose2d(50.0, 20.0, Rotation2d.fromDegrees(90.0));
 
 
     public static final Pose2d kTestPoint1 = new Pose2d(265, 80, Rotation2d.fromDegrees(-110));
+    public static final Pose2d kLNEBFirstBarIntakePose = new Pose2d(220.0, -25.0, Rotation2d.fromDegrees(20.0));
+    public static final Pose2d kLNEBNearShotPose = new Pose2d(60.0, 75.0, Rotation2d.fromDegrees(-90.0));
+
+
 
     public class TrajectorySet {
 
@@ -352,16 +356,16 @@ public class TrajectoryGenerator {
             waypoints.add(kShotPose);
             waypoints.add(kLEBFirstBarIntakePose);
             return generateTrajectory(false, waypoints,
-                    Arrays.asList(new CentripetalAccelerationConstraint(kMaxCentripetalAccel)), 130, 110,
+                    Arrays.asList(new CentripetalAccelerationConstraint(kMaxCentripetalAccel)), 130, kMaxAccel,
                     kMaxVoltage);
         }
 
         private Trajectory<TimedState<Pose2dWithCurvature>> getToPreSecondBarIntake() {
             List<Pose2d> waypoints = new ArrayList<>();
             waypoints.add(kLEBFirstBarIntakePose);
-            waypoints.add(kLEBPreSecondBarIntakePose);
+            waypoints.add(kLEBPreSecondBarIntakePose.transformBy(Pose2d.fromTranslation(new Translation2d(-10.0, 0.0))));
             return generateTrajectory(true, waypoints,
-                    Arrays.asList(new CentripetalAccelerationConstraint(kMaxCentripetalAccel)), 130, 110,
+                    Arrays.asList(new CentripetalAccelerationConstraint(kMaxCentripetalAccel)), 130, kMaxAccel,
                     kMaxVoltage);
         }
 
@@ -370,7 +374,7 @@ public class TrajectoryGenerator {
             waypoints.add(kLEBPreSecondBarIntakePose);
             waypoints.add(kLEBSecondBarIntakePose);
             return generateTrajectory(false, waypoints,
-                    Arrays.asList(new CentripetalAccelerationConstraint(kMaxCentripetalAccel)), 130, 110,
+                    Arrays.asList(new CentripetalAccelerationConstraint(kMaxCentripetalAccel)), 130, kMaxAccel,
                     kMaxVoltage);
         }
 
@@ -379,7 +383,7 @@ public class TrajectoryGenerator {
             waypoints.add(kLEBSecondBarIntakePose);
             waypoints.add(kLEBSecondShotPose);
             return generateTrajectory(true, waypoints,
-                    Arrays.asList(new CentripetalAccelerationConstraint(kMaxCentripetalAccel)), 130, 120,
+                    Arrays.asList(new CentripetalAccelerationConstraint(kMaxCentripetalAccel)), 130, kMaxAccel,
                     kMaxVoltage);
         }
 
@@ -395,8 +399,8 @@ public class TrajectoryGenerator {
         private Trajectory<TimedState<Pose2dWithCurvature>> getNearFirstShotToBarIntake() {
             List<Pose2d> waypoints = new ArrayList<>();
             waypoints.add(kLEBNearShotPose);
-            waypoints.add(kLEBFirstBarIntakePose);
-            return generateTrajectory(true, waypoints,
+            waypoints.add(kLNEBFirstBarIntakePose);
+            return generateTrajectory(false, waypoints,
                     Arrays.asList(new CentripetalAccelerationConstraint(kMaxCentripetalAccel)), 130, 120,
                     kMaxVoltage);
         }
@@ -404,7 +408,7 @@ public class TrajectoryGenerator {
         private Trajectory<TimedState<Pose2dWithCurvature>> getSecondBarIntakeToNearShot() {
             List<Pose2d> waypoints = new ArrayList<>();
             waypoints.add(kLEBSecondBarIntakePose);
-            waypoints.add(kLEBNearShotPose);
+            waypoints.add(kLNEBNearShotPose);
             return generateTrajectory(true, waypoints,
                     Arrays.asList(new CentripetalAccelerationConstraint(kMaxCentripetalAccel)), 130, 120,
                     kMaxVoltage);

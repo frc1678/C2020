@@ -22,8 +22,8 @@ public class LeftEightBallMode extends AutoModeBase {
     private DriveTrajectoryAction mSecondBarIntakeToShot;
 
     public LeftEightBallMode() {
-        mStartToSteal = new DriveTrajectoryAction(mTrajectoryGenerator.getTrajectorySet().leftStartToSteal, true);
-        mStealToFirstShot =  new DriveTrajectoryAction(mTrajectoryGenerator.getTrajectorySet().leftStealToFirstShot, false);
+        mStartToSteal = new DriveTrajectoryAction(mTrajectoryGenerator.getTrajectorySet().startToSteal, true);
+        mStealToFirstShot =  new DriveTrajectoryAction(mTrajectoryGenerator.getTrajectorySet().stealToFirstShot, false);
         //mStealToOffsetFirstShot = new DriveTrajectoryAction(mTrajectoryGenerator.getTrajectorySet().stealToOffsetFirstShot, false);
         mOffsetShotToFirstBarIntake = new DriveTrajectoryAction(mTrajectoryGenerator.getTrajectorySet().offsetShotToFirstBarIntake, false);
         mFirstToPreSecondBarIntake = new DriveTrajectoryAction(mTrajectoryGenerator.getTrajectorySet().firstToPreSecondBarIntake, false);
@@ -50,8 +50,8 @@ public class LeftEightBallMode extends AutoModeBase {
         runAction(new LambdaAction(() -> Intake.getInstance().setState(Intake.WantedAction.NONE)));
 
         runAction(new LambdaAction(() -> Superstructure.getInstance().setWantShoot(true)));
-        // runAction(new WaitForSpinupAction());
-        runAction(new WaitForIndexerSpinAction(360.0));
+        runAction(new WaitForSpinupAction());
+        runAction(new WaitForIndexerSpinAction(720.0));
 
         System.out.println("Wait Complete");
         runAction(new LambdaAction(() -> Superstructure.getInstance().setWantShoot(false)));
@@ -71,8 +71,8 @@ public class LeftEightBallMode extends AutoModeBase {
         runAction(new LambdaAction(() -> Intake.getInstance().setState(Intake.WantedAction.NONE)));
 
         runAction(new LambdaAction(() -> Superstructure.getInstance().setWantShoot(true)));
-        // runAction(new WaitForSpinupAction());
-        runAction(new WaitAction(2.0));
+        runAction(new WaitForSpinupAction());
+        runAction(new WaitForIndexerSpinAction(720.0));
 
         System.out.println("Wait Complete");
         runAction(new LambdaAction(() -> Superstructure.getInstance().setWantShoot(false)));

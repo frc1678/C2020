@@ -182,7 +182,7 @@ public class Climber extends Subsystem  {
 
     @Override
     public synchronized void readPeriodicInputs() { 
-        LogSend();  
+        //LogSend();  
     }
 
     @Override

@@ -60,7 +60,7 @@ public class Robot extends TimedRobot {
 
     private final Looper mEnabledLooper = new Looper();
     private final Looper mDisabledLooper = new Looper();
-    private final Looper mLoggingLooper = new Looper();
+    //private final Looper mLoggingLooper = new Looper();
 
 
     private final ControlBoard mControlBoard = ControlBoard.getInstance();
@@ -87,7 +87,7 @@ public class Robot extends TimedRobot {
     private AutoModeExecutor mAutoModeExecutor;
     private AutoModeSelector mAutoModeSelector = new AutoModeSelector();
 
-    private LoggingSystem mLogger = LoggingSystem.getInstance();
+    //private LoggingSystem mLogger = LoggingSystem.getInstance();
 
     public Robot() {
         CrashTracker.logRobotConstruction();
@@ -119,7 +119,7 @@ public class Robot extends TimedRobot {
                 mTrigger,
                 mSuperstructure,
                 mHood,
-                mTurret,
+                // mTurret,
                 mInfrastructure,
                 mCanifier
             );
@@ -132,8 +132,8 @@ public class Robot extends TimedRobot {
             mDrive.setHeading(Rotation2d.identity());
 
             mLimelight.setLed(Limelight.LedMode.ON);
-            mSubsystemManager.registerLoggingSystems(mLogger);
-            mLogger.registerLoops(mLoggingLooper);
+            //mSubsystemManager.registerLoggingSystems(mLogger);
+            //mLogger.registerLoops(mLoggingLooper);
 
             mTrajectoryGenerator.generateTrajectories();
         } catch (Throwable t) {
@@ -160,7 +160,7 @@ public class Robot extends TimedRobot {
             mAutoModeExecutor.start();
 
             mEnabledLooper.start();
-            mLoggingLooper.start();
+            //mLoggingLooper.start();
         } catch (Throwable t) {
             CrashTracker.logThrowableCrash(t);
             throw t;
@@ -193,7 +193,7 @@ public class Robot extends TimedRobot {
 
             //RobotState.getInstance().reset(Timer.getFPGATimestamp(), Pose2d.identity());
             mEnabledLooper.start();
-            mLoggingLooper.start();
+            //mLoggingLooper.start();
             mLimelight.setPipeline(Constants.kPortPipeline);
             mTurret.setNeutralMode(NeutralMode.Brake);
             mHood.setNeutralMode(NeutralMode.Brake);
@@ -285,7 +285,7 @@ public class Robot extends TimedRobot {
 
             mDisabledLooper.stop();
             mEnabledLooper.stop();
-            mLoggingLooper.stop();
+            //mLoggingLooper.stop();
 
             mDrive.checkSystem();
             // mCargoIntake.checkSystem();
@@ -307,7 +307,7 @@ public class Robot extends TimedRobot {
         try {
             CrashTracker.logDisabledInit();
             mEnabledLooper.stop();
-            mLoggingLooper.stop();
+            //mLoggingLooper.stop();
             if (mAutoModeExecutor != null) {
                 mAutoModeExecutor.stop();
             }
