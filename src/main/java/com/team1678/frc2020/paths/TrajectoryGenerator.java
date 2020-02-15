@@ -93,7 +93,7 @@ public class TrajectoryGenerator {
     public static final Pose2d kRVEnterWaypoint = new Pose2d(210.0, 75.0, Rotation2d.fromDegrees(0.0));
     public static final Pose2d kSecondIntakePose = new Pose2d(235.0, 55.0, Rotation2d.fromDegrees(-50.0));
     public static final Pose2d kPillarWaypoint = new Pose2d(254.0, 20.0, Rotation2d.fromDegrees(200.0));
-    //public static final Pose2d kPreThirdIntakeWaypoint = new Pose2d(260.0, -10, Rotation2d.fromDegrees(200.0));
+    // public static final Pose2d kPreThirdIntakeWaypoint = new Pose2d(260.0, -10, Rotation2d.fromDegrees(200.0));
     // public static final Pose2d kShotPoseWaypoint = new Pose2d(240.0, -40.0, Rotation2d.fromDegrees(-60.0));
     public static final Pose2d kThirdIntakePoseTurned = new Pose2d(230.0, -20.0, Rotation2d.fromDegrees(0.0));
     public static final Pose2d kSecondShotWaypoint = new Pose2d(170.0, -20.0, Rotation2d.fromDegrees(0.0));
@@ -114,6 +114,9 @@ public class TrajectoryGenerator {
     public static final Pose2d kLEBPreSecondBarIntakePose = new Pose2d(180.0, 0.0, Rotation2d.fromDegrees(20.0));
     public static final Pose2d kLEBSecondBarIntakePose = new Pose2d(205.0, 10.0, Rotation2d.fromDegrees(20.0));
     public static final Pose2d kLEBSecondShotPose = new Pose2d(180.0, 85.0, Rotation2d.fromDegrees(-100.0));
+
+    public static final Pose2d kLEBNearShotPose = new Pose2d(50.0, 75.0, Rotation2d.fromDegrees(90.0));
+    public static final Pose2d kLEBMidToNearShotPose = new Pose2d(50.0, 20.0, Rotation2d.fromDegrees(90.0));
 
 
     public static final Pose2d kTestPoint1 = new Pose2d(265, 80, Rotation2d.fromDegrees(-110));
@@ -145,7 +148,10 @@ public class TrajectoryGenerator {
         public final Trajectory<TimedState<Pose2dWithCurvature>> secondBarIntake;
         public final Trajectory<TimedState<Pose2dWithCurvature>> secondBarIntakeToShot;
 
-        
+        public final Trajectory<TimedState<Pose2dWithCurvature>> leftStealToNearFirstShot;
+        public final Trajectory<TimedState<Pose2dWithCurvature>> nearFirstShotToBarIntake;
+        public final Trajectory<TimedState<Pose2dWithCurvature>> secondBarIntakeToNearShot;
+
         private TrajectorySet() {
             testPath = getTestPath();
             testPathReversed = getTestPathReversed();
@@ -170,8 +176,12 @@ public class TrajectoryGenerator {
             stealToOffsetFirstShot = getStealToOffsetFirstShot();
             offsetShotToFirstBarIntake = getOffsetShotToFirstBarIntake();
             firstToPreSecondBarIntake = getToPreSecondBarIntake();
-            secondBarIntake = secondBarIntake();
-            secondBarIntakeToShot = secondBarIntakeToShot();
+            secondBarIntake = getSecondBarIntake();
+            secondBarIntakeToShot = getSecondBarIntakeToShot();
+
+            leftStealToNearFirstShot = getLeftStealToNearFirstShot();
+            nearFirstShotToBarIntake = getNearFirstShotToBarIntake();
+            secondBarIntakeToNearShot = getSecondBarIntakeToNearShot();
         }
 
         private Trajectory<TimedState<Pose2dWithCurvature>> getTestPath() {
@@ -355,7 +365,7 @@ public class TrajectoryGenerator {
                     kMaxVoltage);
         }
 
-        private Trajectory<TimedState<Pose2dWithCurvature>> secondBarIntake() {
+        private Trajectory<TimedState<Pose2dWithCurvature>> getSecondBarIntake() {
             List<Pose2d> waypoints = new ArrayList<>();
             waypoints.add(kLEBPreSecondBarIntakePose);
             waypoints.add(kLEBSecondBarIntakePose);
@@ -364,10 +374,37 @@ public class TrajectoryGenerator {
                     kMaxVoltage);
         }
 
-        private Trajectory<TimedState<Pose2dWithCurvature>> secondBarIntakeToShot() {
+        private Trajectory<TimedState<Pose2dWithCurvature>> getSecondBarIntakeToShot() {
             List<Pose2d> waypoints = new ArrayList<>();
             waypoints.add(kLEBSecondBarIntakePose);
             waypoints.add(kLEBSecondShotPose);
+            return generateTrajectory(true, waypoints,
+                    Arrays.asList(new CentripetalAccelerationConstraint(kMaxCentripetalAccel)), 130, 120,
+                    kMaxVoltage);
+        }
+
+        private Trajectory<TimedState<Pose2dWithCurvature>> getLeftStealToNearFirstShot() {
+            List<Pose2d> waypoints = new ArrayList<>();
+            waypoints.add(kFirstIntakePose);
+            waypoints.add(kLEBNearShotPose);
+            return generateTrajectory(true, waypoints,
+                    Arrays.asList(new CentripetalAccelerationConstraint(kMaxCentripetalAccel)), 130, 120,
+                    kMaxVoltage);
+        }
+
+        private Trajectory<TimedState<Pose2dWithCurvature>> getNearFirstShotToBarIntake() {
+            List<Pose2d> waypoints = new ArrayList<>();
+            waypoints.add(kLEBNearShotPose);
+            waypoints.add(kLEBFirstBarIntakePose);
+            return generateTrajectory(true, waypoints,
+                    Arrays.asList(new CentripetalAccelerationConstraint(kMaxCentripetalAccel)), 130, 120,
+                    kMaxVoltage);
+        }
+
+        private Trajectory<TimedState<Pose2dWithCurvature>> getSecondBarIntakeToNearShot() {
+            List<Pose2d> waypoints = new ArrayList<>();
+            waypoints.add(kLEBSecondBarIntakePose);
+            waypoints.add(kLEBNearShotPose);
             return generateTrajectory(true, waypoints,
                     Arrays.asList(new CentripetalAccelerationConstraint(kMaxCentripetalAccel)), 130, 120,
                     kMaxVoltage);
