@@ -110,9 +110,9 @@ public class TrajectoryGenerator {
     public static final Pose2d kREBTurnedShotPose = new Pose2d(180.0, 75.0, Rotation2d.fromDegrees(60.0));
 
     public static final Pose2d kLEBOffsetShotPose = new Pose2d(180.0, 25.0, Rotation2d.fromDegrees(-90.0));
-    public static final Pose2d kLEBFirstBarIntakePose = new Pose2d(220.0, -15.0, Rotation2d.fromDegrees(20.0));
+    public static final Pose2d kLEBFirstBarIntakePose = new Pose2d(220.0, -9.0, Rotation2d.fromDegrees(20.0));
     public static final Pose2d kLEBPreSecondBarIntakePose = new Pose2d(180.0, 0.0, Rotation2d.fromDegrees(20.0));
-    public static final Pose2d kLEBSecondBarIntakePose = new Pose2d(205.0, 8.0, Rotation2d.fromDegrees(20.0));
+    public static final Pose2d kLEBSecondBarIntakePose = new Pose2d(205.0, 10.0, Rotation2d.fromDegrees(20.0));
     public static final Pose2d kLEBSecondShotPose = new Pose2d(180.0, 85.0, Rotation2d.fromDegrees(-100.0));
 
 
