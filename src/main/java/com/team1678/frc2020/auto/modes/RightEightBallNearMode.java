@@ -11,7 +11,7 @@ import java.util.Arrays;
 import com.team1678.frc2020.auto.AutoModeEndedException;
 import com.team1678.frc2020.auto.actions.*;
 
-public class RightEightBallMode extends AutoModeBase {
+public class RightEightBallNearMode extends AutoModeBase {
 
     private static final TrajectoryGenerator mTrajectoryGenerator = TrajectoryGenerator.getInstance();
 
@@ -20,11 +20,11 @@ public class RightEightBallMode extends AutoModeBase {
     private DriveTrajectoryAction mShotToTrenchEnd;
     private DriveTrajectoryAction mTrenchToShot;
 
-    public RightEightBallMode() {
+    public RightEightBallNearMode() {
         mRightSideStartToBarIntake = new DriveTrajectoryAction(mTrajectoryGenerator.getTrajectorySet().rightSideStartToBarIntake, true);
-        mBarIntakeToShot = new DriveTrajectoryAction(mTrajectoryGenerator.getTrajectorySet().barIntakeToShot, false);
-        mShotToTrenchEnd = new DriveTrajectoryAction(mTrajectoryGenerator.getTrajectorySet().shotToTrenchEnd, false);
-        mTrenchToShot = new DriveTrajectoryAction(mTrajectoryGenerator.getTrajectorySet().trenchToShot, false);
+        mBarIntakeToShot = new DriveTrajectoryAction(mTrajectoryGenerator.getTrajectorySet().barIntakeToShotNear, false);
+        mShotToTrenchEnd = new DriveTrajectoryAction(mTrajectoryGenerator.getTrajectorySet().getNearShotToTrenchEnd, false);
+        mTrenchToShot = new DriveTrajectoryAction(mTrajectoryGenerator.getTrajectorySet().trenchToNearShot, false);
     }
 
     @Override
@@ -35,13 +35,12 @@ public class RightEightBallMode extends AutoModeBase {
           runAction(new ParallelAction(Arrays.asList(
             new LambdaAction(() -> Superstructure.getInstance().setWantSpinUp(true)),       
             new LambdaAction(() -> Intake.getInstance().setState(Intake.WantedAction.INTAKE)),
-            new LambdaAction(() -> Superstructure.getInstance().setWantFieldRelativeTurret(Rotation2d.fromDegrees(160.))))));
+            new LambdaAction(() -> Superstructure.getInstance().setWantFieldRelativeTurret(Rotation2d.fromDegrees(180.))))));
 
         runAction(mRightSideStartToBarIntake);
         
         runAction(mBarIntakeToShot);
         // runAction(new LambdaAction(() -> Superstructure.getInstance().setWantAutoAim(Rotation2d.fromDegrees(180.))));
-        runAction(new LambdaAction(() -> Intake.getInstance().setState(Intake.WantedAction.NONE)));
 
         runAction(new LambdaAction(() -> Superstructure.getInstance().setWantShoot(true)));
         // runAction(new WaitForSpinupAction());

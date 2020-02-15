@@ -84,12 +84,18 @@ public class TrajectoryGenerator {
     public static final Pose2d kTrenchExitWaypoint = new Pose2d(200.0, -110.0, Rotation2d.fromDegrees(-80.0));
     public static final Pose2d kShotPose = new Pose2d(180.0, 75.0, Rotation2d.fromDegrees(-90.0));
     public static final Pose2d kShotPoseTurned = new Pose2d(180.0, 75.0, Rotation2d.fromDegrees(0.0));
+    public static final Pose2d kShotPoseNear = new Pose2d(50.0, 75.0, Rotation2d.fromDegrees(90.0));
     public static final Pose2d kShotPoseTrench = new Pose2d(180.0, 75.0, Rotation2d.fromDegrees(40.0));
 
     public static final Pose2d kTrenchWaypoint = new Pose2d(180.0, 125.0, Rotation2d.fromDegrees(0));
     public static final Pose2d kTrenchIntakePose = new Pose2d(285.0, 130.0, Rotation2d.fromDegrees(0));
+    public static final Pose2d kTrenchIntakePoseREB = new Pose2d(290.0, 130.0, Rotation2d.fromDegrees(0));
+
+    public static final Pose2d kNearShotWaypoint = new Pose2d(100.0, 130.0, Rotation2d.fromDegrees(0));
+
 
     public static final Pose2d kTrenchEnterWaypoint = new Pose2d(215.0, 95.0, Rotation2d.fromDegrees(-65.0));
+    public static final Pose2d kTrenchEnterWaypointREB = new Pose2d(215.0, 95.0, Rotation2d.fromDegrees(65.0));
     public static final Pose2d kRVEnterWaypoint = new Pose2d(210.0, 75.0, Rotation2d.fromDegrees(0.0));
     public static final Pose2d kSecondIntakePose = new Pose2d(235.0, 55.0, Rotation2d.fromDegrees(-50.0));
     public static final Pose2d kPillarWaypoint = new Pose2d(254.0, 20.0, Rotation2d.fromDegrees(200.0));
@@ -106,8 +112,10 @@ public class TrajectoryGenerator {
     public static final Pose2d kPreEnterTrenchPose = new Pose2d(235.0, 100.0, Rotation2d.fromDegrees(60.0));
     public static final Pose2d kSecondTrenchIntakePose = new Pose2d(285.0, 128.0, Rotation2d.fromDegrees(0.0));
 
-    public static final Pose2d kREBStartPose = new Pose2d(140.0, 75.0, Rotation2d.fromDegrees(0.0));
+    public static final Pose2d kREBStartPose = new Pose2d(140.0, 135.0, Rotation2d.fromDegrees(0.0));
     public static final Pose2d kREBTurnedShotPose = new Pose2d(180.0, 75.0, Rotation2d.fromDegrees(60.0));
+    public static final Pose2d kREBBarIntakePose = new Pose2d(237.0, 63.0, Rotation2d.fromDegrees(-60.0));
+
 
     public static final Pose2d kLEBOffsetShotPose = new Pose2d(180.0, 25.0, Rotation2d.fromDegrees(-90.0));
     public static final Pose2d kLEBFirstBarIntakePose = new Pose2d(220.0, -9.0, Rotation2d.fromDegrees(20.0));
@@ -144,6 +152,10 @@ public class TrajectoryGenerator {
         public final Trajectory<TimedState<Pose2dWithCurvature>> barIntakeToShot;
         public final Trajectory<TimedState<Pose2dWithCurvature>> shotToTrenchEnd;
 
+        public final Trajectory<TimedState<Pose2dWithCurvature>> barIntakeToShotNear;
+        public final Trajectory<TimedState<Pose2dWithCurvature>> getNearShotToTrenchEnd;
+        public final Trajectory<TimedState<Pose2dWithCurvature>> trenchToNearShot;
+
         public final Trajectory<TimedState<Pose2dWithCurvature>> leftStartToSteal;
         public final Trajectory<TimedState<Pose2dWithCurvature>> leftStealToFirstShot;
         public final Trajectory<TimedState<Pose2dWithCurvature>> stealToOffsetFirstShot;
@@ -174,6 +186,12 @@ public class TrajectoryGenerator {
             rightSideStartToBarIntake = getRightSideStartToBarIntake();
             barIntakeToShot = getBarIntakeToShot();
             shotToTrenchEnd = getShotToTrenchEnd();
+
+            
+            barIntakeToShotNear = getBarIntakeToShotNear();
+            getNearShotToTrenchEnd = getNearShotToTrenchEnd();
+            trenchToNearShot = getTrenchToNearShot();
+
 
             leftStartToSteal = getLeftStartToSteal();
             leftStealToFirstShot = getLeftStealToFirstShot();
@@ -299,25 +317,55 @@ public class TrajectoryGenerator {
         private Trajectory<TimedState<Pose2dWithCurvature>> getRightSideStartToBarIntake() {
             List<Pose2d> waypoints = new ArrayList<>();
             waypoints.add(kREBStartPose);
-            waypoints.add(kBarIntakePose);
+            waypoints.add(kREBBarIntakePose);
             return generateTrajectory(false, waypoints,
-                    Arrays.asList(new CentripetalAccelerationConstraint(kMaxCentripetalAccel)), kMaxVelocity, kMaxAccel,
+                    Arrays.asList(new CentripetalAccelerationConstraint(60)), 130, 110,
                     kMaxVoltage);
         }
         
         private Trajectory<TimedState<Pose2dWithCurvature>> getBarIntakeToShot() {
             List<Pose2d> waypoints = new ArrayList<>();
-            waypoints.add(kBarIntakePose);
-            waypoints.add(kREBTurnedShotPose);
+            waypoints.add(kREBBarIntakePose);
+            waypoints.add(kShotPoseTurned);
+            return generateTrajectory(true, waypoints,
+                    Arrays.asList(new CentripetalAccelerationConstraint(kMaxCentripetalAccel)), kMaxVelocity, kMaxAccel,
+                    kMaxVoltage);
+        }
+        private Trajectory<TimedState<Pose2dWithCurvature>> getBarIntakeToShotNear() {
+            List<Pose2d> waypoints = new ArrayList<>();
+            waypoints.add(kREBBarIntakePose);
+            waypoints.add(kNearShotWaypoint);
+            waypoints.add(kShotPoseNear);
             return generateTrajectory(true, waypoints,
                     Arrays.asList(new CentripetalAccelerationConstraint(kMaxCentripetalAccel)), kMaxVelocity, kMaxAccel,
                     kMaxVoltage);
         }
 
+        private Trajectory<TimedState<Pose2dWithCurvature>> getNearShotToTrenchEnd() {
+            List<Pose2d> waypoints = new ArrayList<>();
+            waypoints.add(kShotPoseNear);
+            waypoints.add(kNearShotWaypoint);
+            waypoints.add(kTrenchIntakePoseREB);
+            return generateTrajectory(false, waypoints,
+                    Arrays.asList(new CentripetalAccelerationConstraint(kMaxCentripetalAccel)), kMaxVelocity, kMaxAccel,
+                    kMaxVoltage);
+        }
+
+        private Trajectory<TimedState<Pose2dWithCurvature>> getTrenchToNearShot() {
+            List<Pose2d> waypoints = new ArrayList<>();
+            waypoints.add(kTrenchIntakePoseREB);
+            waypoints.add(kNearShotWaypoint);
+            waypoints.add(kShotPoseNear);
+            return generateTrajectory(true, waypoints,
+                    Arrays.asList(new CentripetalAccelerationConstraint(kMaxCentripetalAccel)), kMaxVelocity, 165,
+                    kMaxVoltage);
+        }
+
         private Trajectory<TimedState<Pose2dWithCurvature>> getShotToTrenchEnd() {
             List<Pose2d> waypoints = new ArrayList<>();
-            waypoints.add(kREBTurnedShotPose);
-            waypoints.add(kTrenchIntakePose);
+            waypoints.add(kShotPoseTurned);
+            waypoints.add(kTrenchEnterWaypointREB);
+            waypoints.add(kTrenchIntakePoseREB);
             return generateTrajectory(false, waypoints,
                     Arrays.asList(new CentripetalAccelerationConstraint(kMaxCentripetalAccel)), kMaxVelocity, kMaxAccel,
                     kMaxVoltage);
