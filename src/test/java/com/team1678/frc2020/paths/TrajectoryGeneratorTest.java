@@ -44,9 +44,9 @@ public class TrajectoryGeneratorTest {
                             prev.state().getCurvature() < -kTestEpsilon;
                     final double actual_curvature = change.dtheta / change.dx;
                     if (actual_curvature < -kTestEpsilon) {
-                        //Assert.assertTrue(curvature_negative);
+                        Assert.assertTrue(curvature_negative);
                     } else if (actual_curvature > kTestEpsilon) {
-                        //Assert.assertTrue(curvature_positive);
+                        Assert.assertTrue(curvature_positive);
                     }
                 }
             }
@@ -63,10 +63,10 @@ public class TrajectoryGeneratorTest {
         TrajectoryGenerator.getInstance().generateTrajectories();
 
         verifyMirroredTrajectories(TrajectoryGenerator.getInstance().getTrajectorySet().startToSteal, false);
-        verifyMirroredTrajectories(TrajectoryGenerator.getInstance().getTrajectorySet().leftStealToNearFirstShot, true);
-        verifyMirroredTrajectories(TrajectoryGenerator.getInstance().getTrajectorySet().nearFirstShotToBarIntake, false);
-        verifyMirroredTrajectories(TrajectoryGenerator.getInstance().getTrajectorySet().firstToPreSecondBarIntake, true);
-        verifyMirroredTrajectories(TrajectoryGenerator.getInstance().getTrajectorySet().secondBarIntake, false);
-        verifyMirroredTrajectories(TrajectoryGenerator.getInstance().getTrajectorySet().secondBarIntakeToNearShot, true);
+        verifyMirroredTrajectories(TrajectoryGenerator.getInstance().getTrajectorySet().leftStealToFirstShot, true);
+        // verifyMirroredTrajectories(TrajectoryGenerator.getInstance().getTrajectorySet().nearFirstShotToBarIntake, false);
+        // verifyMirroredTrajectories(TrajectoryGenerator.getInstance().getTrajectorySet().firstToPreSecondBarIntake, true);
+        // verifyMirroredTrajectories(TrajectoryGenerator.getInstance().getTrajectorySet().secondBarIntake, false);
+        // verifyMirroredTrajectories(TrajectoryGenerator.getInstance().getTrajectorySet().secondBarIntakeToNearShot, true);
     }
 }
