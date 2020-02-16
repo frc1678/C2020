@@ -98,6 +98,10 @@ public class Canifier extends Subsystem {
         
     }
 
+    public synchronized CANifier getCanifier() {
+        return mCanifier;
+    }
+
     @Override
     public boolean checkSystem() {
         return false;

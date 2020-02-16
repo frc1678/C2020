@@ -2,11 +2,14 @@ package com.team1678.frc2020.subsystems;
 
 import com.team1678.frc2020.logger.*;
 import com.team1678.frc2020.logger.LogStorage;
+import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.team1678.frc2020.Constants;
 import com.team1678.frc2020.loops.ILooper;
 import com.team1678.frc2020.loops.Loop;
 
 import com.team254.lib.drivers.SparkMaxFactory;
+import com.team254.lib.drivers.TalonFXFactory;
 import com.team254.lib.drivers.LazySparkMax;
 
 import edu.wpi.first.wpilibj.Timer;
@@ -16,7 +19,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import java.util.ArrayList;
 
 public class Intake extends Subsystem {
-    private static double kIntakingVoltage = -12.0;
+    private static double kIntakingVoltage = 12.0;
     private static double kIdleVoltage = 0;
 
     private static Intake mInstance;
@@ -35,7 +38,7 @@ public class Intake extends Subsystem {
 
     private static PeriodicIO mPeriodicIO = new PeriodicIO();
 
-    private final LazySparkMax mMaster;
+    private final TalonFX mMaster;
 
     public static class PeriodicIO {
         // INPUTS
@@ -46,11 +49,11 @@ public class Intake extends Subsystem {
         public double demand;
         public boolean deploy;
     }
+
     LogStorage<PeriodicIO> mStorage = null;
 
-
     private Intake() {
-        mMaster = SparkMaxFactory.createDefaultSparkMax(Constants.kIntakeRollerId);
+        mMaster = TalonFXFactory.createDefaultTalon(Constants.kIntakeRollerId);
         mDeploySolenoid = Constants.makeSolenoidForId(Constants.kDeploySolenoidId);
     }
 
@@ -75,7 +78,7 @@ public class Intake extends Subsystem {
 
     @Override
     public void stop() {
-        mMaster.set(0);
+        mMaster.set(ControlMode.PercentOutput, 0);
     }
 
     @Override
@@ -118,11 +121,12 @@ public class Intake extends Subsystem {
                 mPeriodicIO.deploy = true;
             break;
         case RETRACTING:
-                mPeriodicIO.demand = 12;
+                mPeriodicIO.demand = kIdleVoltage;
                 mPeriodicIO.deploy = false;
             break;
         case IDLE:
                 mPeriodicIO.demand = kIdleVoltage;
+                mPeriodicIO.deploy = false;
         }
     }
 
@@ -156,7 +160,7 @@ public class Intake extends Subsystem {
 
     @Override
     public void writePeriodicOutputs() {
-        mMaster.set(mPeriodicIO.demand / 12.0);
+        mMaster.set(ControlMode.PercentOutput, mPeriodicIO.demand / 12.0);
         mDeploySolenoid.set(mPeriodicIO.deploy);
     }
 

@@ -56,7 +56,7 @@ public class Superstructure extends Subsystem {
     private double mCurrentHood = 0.0;
 
     private double mTurretSetpoint = 0.0;
-    private double mHoodSetpoint = 63;
+    private double mHoodSetpoint = 62.5;
     private double mShooterSetpoint = 4000.0;
     private boolean mGotSpunUp = false;
 
@@ -125,6 +125,8 @@ public class Superstructure extends Subsystem {
         SmartDashboard.putString("Turret Control State", mTurretMode.toString());
         SmartDashboard.putNumber("Turret Goal", mTurretSetpoint);
         SmartDashboard.putNumber("Hood Goal", mHoodSetpoint);
+        SmartDashboard.putBoolean("Stopped at Deadspot", mSettled);
+        SmartDashboard.putBoolean("Spun Up", mGotSpunUp);
     }
 
     @Override
@@ -266,8 +268,6 @@ public class Superstructure extends Subsystem {
             // frame.
             mTurretFeedforwardV = -(angular_component + tangential_component);
 
-            System.out.println(mCorrectedRangeToTarget);
-
             safetyReset();
 
             mHasTarget = true;
@@ -351,7 +351,7 @@ public class Superstructure extends Subsystem {
                 real_popout = true;
             }
 
-            if (mIndexer.isAtDeadSpot() && Math.abs(mIndexer.getIndexerVelocity()) < 5) {
+            if (mIndexer.isAtDeadSpot() && Math.abs((mTurret.getVelocity() / 360. / 60.) - mIndexer.getIndexerVelocity()) < 1) {
                 mSettled = true;
             }
 
@@ -425,6 +425,7 @@ public class Superstructure extends Subsystem {
     public synchronized void setWantSpinUp() {
         mWantsSpinUp = !mWantsSpinUp;
         mWantsShoot = false;
+        mSettled = false;
         mGotSpunUp = false;
     }
 

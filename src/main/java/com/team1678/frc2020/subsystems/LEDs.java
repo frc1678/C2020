@@ -12,9 +12,10 @@ import java.util.List;
 
 import com.ctre.phoenix.CANifier;
 import com.ctre.phoenix.CANifier.LEDChannel;
+
+import com.team1678.frc2020.Constants;
 import com.team1678.frc2020.loops.ILooper;
 import com.team1678.frc2020.loops.Loop;
-import com.team1678.frc2020.Constants;
 import com.team1323.lib.util.HSVtoRGB;
 import com.team1323.lib.util.MovingAverage;
 
@@ -34,7 +35,7 @@ public class LEDs extends Subsystem{
     CANifier canifier;
 
     public LEDs(){
-        canifier = new CANifier(Constants.kCanifierId);
+        canifier = Canifier.getInstance().getCanifier();
     }
 
     boolean lit = false;
@@ -44,6 +45,9 @@ public class LEDs extends Subsystem{
 
     public enum State{
         OFF(0.0, 0.0, 0.0, Double.POSITIVE_INFINITY, 0.0, false), // off
+        RED(255.0, 0.0, 0.0, Double.POSITIVE_INFINITY, 0.0, false),
+        GREEN(0.0, 255.0, 0.0, Double.POSITIVE_INFINITY, 0.0, false),
+        BLUE(0.0, 0.0, 255.0, Double.POSITIVE_INFINITY, 0.0, false),
         DISABLED(255.0, 20.0, 30.0, Double.POSITIVE_INFINITY, 0.0, false), // pink
         ENABLED(0.0, 0.0, 255.0, Double.POSITIVE_INFINITY, 0.0, false), // blue
         EMERGENCY(255.0, 0.0, 0.0, 0.5, 0.5, false), // red
@@ -123,7 +127,7 @@ public class LEDs extends Subsystem{
     public void setLEDs(double r, double g, double b){
 		//A: Green
 		//B: Red
-		//C: Blue
+        //C: Blue
 		canifier.setLEDOutput(r, LEDChannel.LEDChannelB);
 		canifier.setLEDOutput(g, LEDChannel.LEDChannelA);
 		canifier.setLEDOutput(b, LEDChannel.LEDChannelC);

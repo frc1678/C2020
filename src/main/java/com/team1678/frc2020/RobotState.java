@@ -199,14 +199,16 @@ public class RobotState {
 
     private Translation2d getCameraToVisionTargetPose(double timestamp, TargetInfo target, Limelight source) {
         // Compensate for camera pitch
+        final Rotation2d limelight_angle = getVehicleToHood(timestamp);
+        final Rotation2d hood_angle = Rotation2d.fromDegrees(90 - limelight_angle.getDegrees() - 17.66);
         Translation2d xz_plane_translation = new Translation2d(target.getX(), target.getZ())
-                .rotateBy(source.getHorizontalPlaneToLens().rotateBy(getVehicleToHood(timestamp)));
+                .rotateBy(limelight_angle);
         double x = xz_plane_translation.x();
         double y = target.getY();
         double z = xz_plane_translation.y();
 
         // find intersection with the goal
-        double lens_height = source.getLensHeight() + (Constants.kHoodRadius * getVehicleToHood(timestamp).sin());
+        double lens_height = source.getLensHeight() + (Constants.kHoodRadius * hood_angle.sin());
         double differential_height = lens_height - (Constants.kGoalHeight);
         if ((z < 0.0) == (differential_height > 0.0)) {
             double scaling = differential_height / -z;
@@ -334,6 +336,7 @@ public class RobotState {
         SmartDashboard.putNumber("Robot X", getLatestFieldToVehicle().getValue().getTranslation().x());
         SmartDashboard.putNumber("Robot Y", getLatestFieldToVehicle().getValue().getTranslation().y());
         SmartDashboard.putNumber("Robot Theta", getLatestFieldToVehicle().getValue().getRotation().getDegrees());
+        SmartDashboard.putNumber("Limelight Pitch", getVehicleToHood(Timer.getFPGATimestamp()).getDegrees());
         Optional<AimingParameters> params = getAimingParameters(false, -1, Constants.kMaxGoalTrackAge);
         if (params.isPresent()) {    
             SmartDashboard.putNumber("Vehicle to Target", params.get().getRange());

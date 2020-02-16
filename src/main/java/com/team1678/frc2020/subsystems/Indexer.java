@@ -27,12 +27,17 @@ public class Indexer extends Subsystem {
     private IndexerMotionPlanner mMotionPlanner;
     private Turret mTurret = Turret.getInstance();
 
-    private static final double kZoomingVelocity = 60.;
-    private static final double kPassiveIndexingVelocity = 45.0;
+    private static final double kZoomingVelocity = 70.;
+    private static final double kPassiveIndexingVelocity = 60.0;
     private static final double kGearRatio = (60. / 16.) * (160. / 16.);
     private static final boolean[] kFullSlots = {true, true, true, true, true };
     private static final boolean[] kEmptySlots = {false, false, false, false, false };
 
+    private double mIndexerStart = Timer.getFPGATimestamp();
+    private static final double kLoopsPerSec = 1.0;
+    private static final double kAmplitude = 25.0;
+    private static final double kAngleConversion = (2048.0 * kGearRatio) / 360.0;
+    
     public static class PeriodicIO {
         // INPUTS
         private boolean[] raw_slots = { false, false, false, false, false };
@@ -74,7 +79,7 @@ public class Indexer extends Subsystem {
     private DigitalInput mSlot3Proxy = new DigitalInput(Constants.kSlot3Proxy);
     private DigitalInput mSlot4Proxy = new DigitalInput(Constants.kSlot4Proxy);
     private DigitalInput mLimitSwitch = new DigitalInput(Constants.kIndexerLimitSwitch);
-    private HallCalibration calibration = new HallCalibration(0);
+    private HallCalibration calibration = new HallCalibration(-37.0);
     private double mOffset = 0;
     private double mAngleGoal = 0;
 
@@ -101,8 +106,8 @@ public class Indexer extends Subsystem {
         mMaster.configVoltageCompSaturation(12.0, Constants.kLongCANTimeoutMs);
         mMaster.enableVoltageCompensation(true);
 
-        mMaster.setSelectedSensorPosition(0, 0, Constants.kCANTimeoutMs);
-       // mMaster.configClosedloopRamp(0.0);
+        mMaster.setSelectedSensorPosition(0, 0, Constants.kLongCANTimeoutMs);
+        mMaster.configClosedloopRamp(0.0);
 
         mMotionPlanner = new IndexerMotionPlanner();
     }
@@ -122,7 +127,7 @@ public class Indexer extends Subsystem {
 
     public boolean atHomingLocation() {
         calibration.update(mPeriodicIO.indexer_angle, mPeriodicIO.limit_switch);
-        if (calibration.isCalibrated()) {
+        if (calibration.isCalibrated() && !mHasBeenZeroed) {
             mOffset = mPeriodicIO.indexer_angle + calibration.getOffset();
             return true;
         }
@@ -136,6 +141,7 @@ public class Indexer extends Subsystem {
         SmartDashboard.putNumber("IndexerAngle", mPeriodicIO.indexer_angle);
         SmartDashboard.putBoolean("Indexer Calibrated", calibration.isCalibrated());
         SmartDashboard.putNumber("IndexerVelocity", mPeriodicIO.indexer_velocity);
+        SmartDashboard.putNumber("IndexerOffset", mOffset);
 
         SmartDashboard.putNumber("SlotNumberGoal", mSlotGoal);
 
@@ -224,6 +230,7 @@ public class Indexer extends Subsystem {
     public void runStateMachine() {
         final double turret_angle = mTurret.getAngle();
         final double indexer_angle = mPeriodicIO.indexer_angle;
+        final double now = Timer.getFPGATimestamp();
 
         switch (mState) {
         case IDLE:
@@ -251,10 +258,19 @@ public class Indexer extends Subsystem {
         case PASSIVE_INDEXING:
             mPeriodicIO.indexer_control_mode = ControlMode.Velocity;
             mPeriodicIO.indexer_demand = mBackwards ? -kPassiveIndexingVelocity : kPassiveIndexingVelocity;
+
+            final double t = now - mIndexerStart;
+            final double period = (2 * Math.PI) / kLoopsPerSec;
+
+            mPeriodicIO.indexer_demand -= kAmplitude * Math.sin(t * period);
+            //if ((now - mIndexerStart) % 2 < .1) {
+            //    mPeriodicIO.indexer_demand *= -1;
+            //}
+            
             break;
         case PREPPING:
             mPeriodicIO.indexer_control_mode = ControlMode.MotionMagic;
-            mPeriodicIO.indexer_demand = mMotionPlanner.findAngleGoal(mSlotGoal, indexer_angle, turret_angle) + 36.0;
+            mPeriodicIO.indexer_demand = mMotionPlanner.findAngleGoal(mSlotGoal, indexer_angle, turret_angle) + (36.0 * (mBackwards ? -1 : 1));
             break;
         case REVOLVING:
             mPeriodicIO.indexer_control_mode = ControlMode.MotionMagic;
@@ -278,7 +294,6 @@ public class Indexer extends Subsystem {
         case FEEDING:
             mPeriodicIO.indexer_control_mode = ControlMode.MotionMagic;
             if (mMotionPlanner.isAtGoal(mSlotGoal, indexer_angle, turret_angle)) {
-                final double now = Timer.getFPGATimestamp();
                 if (!mStartCounting) {
                     mInitialTime = now;
                     mStartCounting = true;
@@ -330,6 +345,17 @@ public class Indexer extends Subsystem {
         if (mState != prev_state && mState != State.REVOLVING && mState != State.INDEXING) {
             mSlotGoal = mMotionPlanner.findNearestSlot(mPeriodicIO.indexer_angle, mTurret.getAngle());
         }
+
+        if (mState != prev_state && mState == State.PASSIVE_INDEXING) {
+            mIndexerStart = Timer.getFPGATimestamp();
+            mBackwards = !mBackwards;
+        }
+
+        if (mState != prev_state && mState == State.ZOOMING) {
+            mMaster.configClosedloopRamp(0.2, 0);
+        } else if (mState != prev_state) {
+            mMaster.configClosedloopRamp(0.0, 0);
+        }
     }
 
     @Override
@@ -343,19 +369,19 @@ public class Indexer extends Subsystem {
         mPeriodicIO.limit_switch = !mLimitSwitch.get();
         mPeriodicIO.indexer_velocity = mMaster.getSelectedSensorVelocity(0) * 600. / 2048. / kGearRatio;
 
-        mPeriodicIO.indexer_angle = mMaster.getSelectedSensorPosition(0) / 2048. / kGearRatio * 360.;
+        mPeriodicIO.indexer_angle = mMaster.getSelectedSensorPosition(0) / kAngleConversion;
         final double indexer_angle = mPeriodicIO.indexer_angle;
         mPeriodicIO.snapped = mMotionPlanner.isSnapped(indexer_angle);
 
         if (mMotionPlanner.isSnapped(indexer_angle)) {
             updateSlots(indexer_angle);
         }
-        // if (atHomingLocation() && !mHasBeenZeroed) {
-        // mMaster.setSelectedSensorPosition((int) Math.floor(mOffset));
-        // mMaster.overrideSoftLimitsEnable(true);
-        // System.out.println("Homed!!!");
-        // mHasBeenZeroed = true;
-        // }
+        if (atHomingLocation() && !mHasBeenZeroed) {
+            mMaster.setSelectedSensorPosition((int) Math.floor(mOffset * kAngleConversion));
+            mMaster.overrideSoftLimitsEnable(true);
+            System.out.println("Homed!!!");
+            mHasBeenZeroed = true;
+        }
     }
 
     @Override
