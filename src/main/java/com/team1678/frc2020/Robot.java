@@ -132,6 +132,7 @@ public class Robot extends TimedRobot {
 
             mLimelight.setLed(Limelight.LedMode.ON);
             mSubsystemManager.registerLoggingSystems(mLogger);
+            mRobotState.registerLogger(mLogger);
             mLogger.registerLoops(mLoggingLooper);
 
             mTrajectoryGenerator.generateTrajectories();
