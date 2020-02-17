@@ -345,6 +345,10 @@ public class RobotState {
         }
     }
 
+    public void registerLoggingSystems(LoggingSystem LS) {
+        mInstance.registerLogger(LS);
+    }
+    
     public void registerLogger(LoggingSystem LS) {
         logSetup();
         LS.register(mStorage, "robotState.csv");
