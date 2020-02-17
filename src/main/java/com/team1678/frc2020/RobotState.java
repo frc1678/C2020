@@ -354,13 +354,13 @@ public class RobotState {
         ArrayList<String> item_names = new ArrayList<String>();
         mStorage = new LogStorage<RobotState>();
 
-        item_names.add("Robot X");
-        item_names.add("Robot Y");
-        item_names.add("Robot Theta");
+        item_names.add("Robot_X");
+        item_names.add("Robot_Y");
+        item_names.add("Robot_Theta");
         Optional<AimingParameters> params = getAimingParameters(false, -1, Constants.kMaxGoalTrackAge);
         if (params.isPresent()) {
-            item_names.add("Vehicle to Target");
-            item_names.add("Vehicle to TargetAngle");
+            item_names.add("Vehicle_to_Target");
+            item_names.add("Vehicle_to_TargetAngle");
         }
 
         mStorage.setHeaders(item_names);
