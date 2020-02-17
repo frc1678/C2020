@@ -8,6 +8,6 @@ import java.util.ArrayList;
 */
  
  public interface ILoggable {
-     ArrayList<ArrayList<Double>> getItems();
+     ArrayList<ArrayList<Number>> getItems();
      ArrayList<String> getItemNames();
  }

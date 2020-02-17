@@ -9,7 +9,7 @@ import java.lang.reflect.Field;
 
 public class ReflectingLogStorage<T> extends LogStorage<T> {
     private Field[] mVars;
-    ArrayList<Double> newRow = new ArrayList<Double>();
+    ArrayList<Number> newRow = new ArrayList<Number>();
 
     public ReflectingLogStorage(Class<T> typeClass) {
         //  Getting member variables

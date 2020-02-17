@@ -7,7 +7,7 @@ import java.util.function.Supplier;
 
 public class LogStorage<T> implements ILoggable {
     ArrayList<String> mColumns = new ArrayList<String>();
-    ArrayList<ArrayList<Double>> mItems = new ArrayList<ArrayList<Double>>();
+    ArrayList<ArrayList<Number>> mItems = new ArrayList<ArrayList<Number>>();
 
     private Supplier<T> supplier; 
 
@@ -28,9 +28,9 @@ public class LogStorage<T> implements ILoggable {
     */
     
     @Override
-    public synchronized ArrayList<ArrayList<Double>> getItems() {
-        ArrayList<ArrayList<Double>> items_tmp = mItems;
-        mItems = new ArrayList<ArrayList<Double>>();
+    public synchronized ArrayList<ArrayList<Number>> getItems() {
+        ArrayList<ArrayList<Number>> items_tmp = mItems;
+        mItems = new ArrayList<ArrayList<Number>>();
         return items_tmp;
     }
 
@@ -68,7 +68,7 @@ public class LogStorage<T> implements ILoggable {
         
     }
 
-    public synchronized void addData(ArrayList<Double> items) {
+    public synchronized void addData(ArrayList<Number> items) {
         mItems.add(items);
 
     }

@@ -102,12 +102,12 @@ public class LoggingSystem {
         if (log == true) {
         try{
             for (int i=0; i < loggableItems.size(); i++) {
-               ArrayList<ArrayList<Double>> items = loggableItems.get(i).getItems();
+               ArrayList<ArrayList<Number>> items = loggableItems.get(i).getItems();
                //  get object fileWriter from the list 
                FileWriter fileWriter = loggableFiles.get(i);
                //  write to files
                for (int j=0; j < items.size(); j++) {
-                   ArrayList<Double> data = items.get(j);
+                   ArrayList<Number> data = items.get(j);
                    for (int m=0; m < data.size(); m++){
                         fileWriter.write(data.get(m).toString());
                         if (m != data.size()-1){
