@@ -33,8 +33,6 @@ public class Climber extends Subsystem  {
         IDLE, EXTENDING, CLIMBING, SLOW_CLIMBING, BRAKING,
     }
 
-    LogStorage<PeriodicIO> mStorage = null;
-
     private State mState = State.IDLE;
 
     private final TalonFX mMaster;
@@ -55,12 +53,6 @@ public class Climber extends Subsystem  {
         mSlave = TalonFXFactory.createPermanentSlaveTalon(Constants.kWinchSlaveId, Constants.kWinchMasterId);
         mSlave.setInverted(false);
         mSlave.follow(mMaster);
-    }
-    
-    @Override
-    public void registerLogger(LoggingSystem LS) {
-        LogSetup();
-        LS.register(mStorage, "climber.csv");
     }
 
     public synchronized static Climber getInstance() {
@@ -182,7 +174,7 @@ public class Climber extends Subsystem  {
 
     @Override
     public synchronized void readPeriodicInputs() { 
-        //LogSend();  
+        //();  
     }
 
     @Override
@@ -199,19 +191,5 @@ public class Climber extends Subsystem  {
         public double demand;
         public boolean arm_solenoid;
         public boolean brake_solenoid;
-    }
-
-    public void LogSetup() {
-        mStorage = new LogStorage<PeriodicIO>();
-        mStorage.setHeadersFromClass(PeriodicIO.class);
-    }
-
-    public void LogSend() {
-        ArrayList<Double> items = new ArrayList<Double>();
-        items.add(Timer.getFPGATimestamp());
-        items.add(mPeriodicIO.demand);
-        items.add(Double.valueOf(mPeriodicIO.arm_solenoid? 0.0 : 1.0));
-        items.add(Double.valueOf(mPeriodicIO.brake_solenoid? 0.0 : 1.0));
-        mStorage.addData(items);
     }
 }

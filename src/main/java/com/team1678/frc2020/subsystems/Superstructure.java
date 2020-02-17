@@ -57,7 +57,7 @@ public class Superstructure extends Subsystem {
 
     private double mTurretSetpoint = 0.0;
     private double mHoodSetpoint = 82.5;
-    private double mShooterSetpoint = 2700.0;
+    private double mShooterSetpoint = 4000.0;
     private boolean mGotSpunUp = false;
 
     private TurretControlModes mTurretMode = TurretControlModes.FIELD_RELATIVE;
@@ -67,7 +67,7 @@ public class Superstructure extends Subsystem {
     private boolean estim_popout = false;
 
     public synchronized boolean spunUp() {
-        return mGotSpunUp && estim_popout;
+        return mGotSpunUp;
     }
     
     public synchronized static Superstructure getInstance() {
@@ -262,7 +262,7 @@ public class Superstructure extends Subsystem {
             final Rotation2d turret_error = mRobotState.getVehicleToTurret(timestamp).getRotation().inverse()
                     .rotateBy(mLatestAimingParameters.get().getTurretToGoalRotation());
             
-            mTurretSetpoint = mCurrentTurret + turret_error.getDegrees();
+            mTurretSetpoint = mLatestAimingParameters.get().getTurretToGoalRotation().getDegrees();
             final Twist2d velocity = mRobotState.getMeasuredVelocity();
             // Angular velocity component from tangential robot motion about the goal.
             final double tangential_component = mLatestAimingParameters.get().getTurretToGoalRotation().sin()
@@ -323,7 +323,7 @@ public class Superstructure extends Subsystem {
         }
 
         if (mWantsTuck) {
-            mHood.setSetpointMotionMagic(Constants.kHoodConstants.kMinUnitsLimit);
+            mHood.setSetpointMotionMagic(0.0);
         } else {
             mHood.setSetpointMotionMagic(mHoodSetpoint);
         }
@@ -339,21 +339,20 @@ public class Superstructure extends Subsystem {
             } else {
                 indexerAction = Indexer.WantedAction.PASSIVE_INDEX;
             }
-            real_trigger = -600.0;
         }
 
         if (mWantsSpinUp) {
             real_shooter = mShooterSetpoint;
             indexerAction = Indexer.WantedAction.PASSIVE_INDEX;
-            real_trigger = -600.0;
+            real_trigger = Constants.kTriggerRPM;
         } else if (mWantsShoot) {
             real_shooter = mShooterSetpoint;
-            indexerAction = Indexer.WantedAction.ZOOM;
+            indexerAction = Indexer.WantedAction.PREP;
             real_trigger = Constants.kTriggerRPM;
             
-            //if (mSettled) {
+            if (mSettled) {
                 real_popout = true;
-            //}
+            }
 
             if (mIndexer.isAtDeadSpot() && Math.abs((mTurret.getVelocity() / 360. / 60.) - mIndexer.getIndexerVelocity()) < 1) {
                 mSettled = true;
@@ -371,8 +370,8 @@ public class Superstructure extends Subsystem {
                 mGotSpunUp = true;
             }
 
-            if (mGotSpunUp) {
-                real_popout = true;
+            if (mGotSpunUp && estim_popout) {
+                //real_popout = true;
                 //real_trigger = Constants.kTriggerRPM;
                 indexerAction = Indexer.WantedAction.ZOOM;
             }

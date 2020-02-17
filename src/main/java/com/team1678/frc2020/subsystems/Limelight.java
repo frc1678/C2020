@@ -47,12 +47,6 @@ public class Limelight extends Subsystem {
         mNetworkTable = NetworkTableInstance.getDefault().getTable(mConstants.kTableName);
     }
 
-    @Override
-    public void registerLogger(LoggingSystem LS) {
-        LogSetup();
-        LS.register(mStorage, "limelight.csv");
-    }
-
     public static Limelight getInstance() {
         if (mInstance == null) {
             mInstance = new Limelight();
@@ -106,7 +100,6 @@ public class Limelight extends Subsystem {
         public int snapshot = 0; // 0 - stop snapshots, 1 - 2 Hz
     }
     
-    LogStorage<PeriodicIO> mStorage = null;
     private LimelightConstants mConstants = null;
     private PeriodicIO mPeriodicIO = new PeriodicIO();
     private boolean mOutputsHaveChanged = true;
@@ -128,7 +121,7 @@ public class Limelight extends Subsystem {
 
     @Override
     public synchronized void readPeriodicInputs() {
-        //LogSend();
+        //();
         mPeriodicIO.latency = mNetworkTable.getEntry("tl").getDouble(0) / 1000.0 + Constants.kImageCaptureLatency;
         mPeriodicIO.givenLedMode = (int) mNetworkTable.getEntry("ledMode").getDouble(1.0);
         mPeriodicIO.givenPipeline = (int) mNetworkTable.getEntry("pipeline").getDouble(0);
@@ -326,31 +319,5 @@ public class Limelight extends Subsystem {
 
     public double getLatency() {
         return mPeriodicIO.latency;
-    }
-
-    public void LogSetup() {
-        mStorage = new LogStorage<PeriodicIO>();
-        mStorage.setHeadersFromClass(PeriodicIO.class);
-    }
-    public void LogSend() {
-        ArrayList<Double> items = new ArrayList<Double>();
-        items.add(Timer.getFPGATimestamp());
-        // INPUTS
-        items.add(mPeriodicIO.latency);
-        items.add((double) mPeriodicIO.givenLedMode);
-        items.add((double) mPeriodicIO.givenPipeline);
-        items.add(mPeriodicIO.xOffset);
-        items.add(mPeriodicIO.yOffset);
-        items.add(mPeriodicIO.area);
-
-        // OUTPUTS
-        items.add((double) mPeriodicIO.ledMode);
-        items.add((double) mPeriodicIO.camMode);
-        items.add((double) mPeriodicIO.pipeline);
-        items.add((double) mPeriodicIO.stream);
-        items.add((double) mPeriodicIO.snapshot);
-
-        mStorage.addData(items);
-
     }
 }

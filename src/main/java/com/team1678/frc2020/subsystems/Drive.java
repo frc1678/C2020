@@ -61,15 +61,6 @@ public class Drive extends Subsystem {
     private Rotation2d mTargetHeading = new Rotation2d();
     private boolean mIsOnTarget = false;
 
-    LogStorage<PeriodicIO> mStorage = null;
-
-    @Override
-    public void registerLogger(LoggingSystem LS) {
-        logSetup();
-        LS.register(mStorage, "drive.csv");
-    }
-
-
     private final Loop mLoop = new Loop() {
         @Override
         public void onStart(double timestamp) {
@@ -562,7 +553,7 @@ public class Drive extends Subsystem {
 
     @Override
     public synchronized void readPeriodicInputs() {
-        //LogSend();
+        //();
         mPeriodicIO.timestamp = Timer.getFPGATimestamp();
 
         double prevLeftTicks = mPeriodicIO.left_position_ticks;
@@ -692,36 +683,4 @@ public class Drive extends Subsystem {
         public double right_feedforward;
         public TimedState<Pose2dWithCurvature> path_setpoint = new TimedState<Pose2dWithCurvature>(Pose2dWithCurvature.identity());
     }
-
-    public void logSetup() {
-        mStorage = new LogStorage<PeriodicIO>();
-        mStorage.setHeadersFromClass(PeriodicIO.class);
-    }
-
-    public void LogSend() {
-        ArrayList<Double> items = new ArrayList<Double>();
-        items.add(Timer.getFPGATimestamp());
-
-        // INPUTS
-        items.add((double) mPeriodicIO.left_position_ticks);
-        items.add((double) mPeriodicIO.right_position_ticks);
-        items.add(mPeriodicIO.left_distance);
-        items.add(mPeriodicIO.right_distance);
-        items.add(mPeriodicIO.left_current);
-        items.add(mPeriodicIO.right_current);
-        items.add((double) mPeriodicIO.left_velocity_ticks_per_100ms);
-        items.add((double) mPeriodicIO.right_velocity_ticks_per_100ms);
-        items.add(Double.valueOf(mPeriodicIO.gyro_heading.getDegrees()));
-
-        // OUTPUTS
-        items.add(mPeriodicIO.left_demand);
-        items.add(mPeriodicIO.right_demand);
-        items.add(mPeriodicIO.left_accel);
-        items.add(mPeriodicIO.right_accel);
-        items.add(mPeriodicIO.left_feedforward);
-        items.add(mPeriodicIO.right_feedforward);
-
-        mStorage.addData(items);
-    }
-  
 }

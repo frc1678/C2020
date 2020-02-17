@@ -36,8 +36,6 @@ public class Shooter extends Subsystem {
 
     private static double kShooterTolerance = 600.0;
 
-    LogStorage<PeriodicIO> mStorage = null;
-
     private Shooter() {
         mMaster = TalonFXFactory.createDefaultTalon(Constants.kMasterFlywheelID);
         mSlave = TalonFXFactory.createPermanentSlaveTalon(Constants.kSlaveFlywheelID, Constants.kMasterFlywheelID);
@@ -61,12 +59,6 @@ public class Shooter extends Subsystem {
         
         mMaster.set(ControlMode.PercentOutput, 0);
         mMaster.configSelectedFeedbackSensor(TalonFXFeedbackDevice.IntegratedSensor, 0, Constants.kLongCANTimeoutMs);
-    }
-
-    @Override
-    public void registerLogger(LoggingSystem LS) {
-        LogSetup();
-        LS.register(mStorage, "shooter.csv");
     }
 
     public synchronized static Shooter mInstance() {
@@ -139,7 +131,7 @@ public class Shooter extends Subsystem {
 
     @Override
     public synchronized void readPeriodicInputs() {
-        //LogSend();
+        //();
         mPeriodicIO.timestamp = Timer.getFPGATimestamp();
         
         mPeriodicIO.flywheel_velocity = mMaster.getSelectedSensorVelocity() * kFlywheelVelocityConversion;
@@ -180,25 +172,5 @@ public class Shooter extends Subsystem {
 
         //OUTPUTS
         public double flywheel_demand;
-    }
-
-    public void LogSetup() {
-        mStorage = new LogStorage<PeriodicIO>();
-        mStorage.setHeadersFromClass(PeriodicIO.class);
-    }
-
-    public void LogSend() {
-        ArrayList<Double> items = new ArrayList<Double>();
-        items.add(Timer.getFPGATimestamp());
-
-        //INPUTS
-        items.add(mPeriodicIO.flywheel_velocity);
-        items.add(mPeriodicIO.flywheel_voltage);
-        items.add(mPeriodicIO.flywheel_current);
-        items.add(mPeriodicIO.flywheel_temperature);
-        //OUTPUTS
-        items.add(mPeriodicIO.flywheel_demand);
-
-        mStorage.addData(items);
     }
 }

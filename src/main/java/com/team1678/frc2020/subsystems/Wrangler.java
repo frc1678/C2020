@@ -28,8 +28,6 @@ public class Wrangler extends Subsystem {
 
     private boolean mBuddyClimb = false;
 
-    LogStorage<PeriodicOutputs> mStorage = null;
-
     public enum WantedAction {
         NONE, DEPLOY, WRANGLE, RETRACT,
     }
@@ -55,12 +53,6 @@ public class Wrangler extends Subsystem {
         mMaster.setInverted(false);
         mMaster.configVoltageCompSaturation(12.0, Constants.kLongCANTimeoutMs);
         mMaster.enableVoltageCompensation(true);
-    }
-
-    @Override
-    public void registerLogger(LoggingSystem LS) {
-        LogSetup();
-        LS.register(mStorage, "wrangler.csv");
     }
 
     @Override
@@ -159,7 +151,7 @@ public class Wrangler extends Subsystem {
 
     @Override
     public synchronized void readPeriodicInputs() {
-        //LogSend();
+        //();
     }
 
     @Override
@@ -177,18 +169,5 @@ public class Wrangler extends Subsystem {
         // OUTPUTS
         public static double demand;
         public static boolean deployer_solenoid;
-    }
-
-    public void LogSetup() {
-        mStorage = new LogStorage<PeriodicOutputs>();
-        mStorage.setHeadersFromClass(PeriodicOutputs.class);
-    }
-
-    public void LogSend() {
-        ArrayList<Double> items = new ArrayList<Double>();
-        items.add(Timer.getFPGATimestamp());
-        items.add(PeriodicOutputs.demand);
-        items.add(PeriodicOutputs.deployer_solenoid ? 0.0 : 1.0);
-        mStorage.addData(items);
     }
 }

@@ -17,7 +17,7 @@ import org.junit.runners.JUnit4;
 public class TrajectoryGeneratorTest {
     public static final double kTestEpsilon = 1e-5;
 
-    public void verifyMirroredTrajectories(final Trajectory<TimedState<Pose2dWithCurvature>> trajectory,
+    public void verifyTrajectory(final Trajectory<TimedState<Pose2dWithCurvature>> trajectory,
                                            boolean shouldBeReversed) {
         TrajectoryIterator<TimedState<Pose2dWithCurvature>> iterator = new TrajectoryIterator<>(new TimedView<>
                 (trajectory));
@@ -62,11 +62,7 @@ public class TrajectoryGeneratorTest {
     public void test() {
         TrajectoryGenerator.getInstance().generateTrajectories();
 
-        verifyMirroredTrajectories(TrajectoryGenerator.getInstance().getTrajectorySet().startToSteal, false);
-        verifyMirroredTrajectories(TrajectoryGenerator.getInstance().getTrajectorySet().leftStealToFirstShot, true);
-        // verifyMirroredTrajectories(TrajectoryGenerator.getInstance().getTrajectorySet().nearFirstShotToBarIntake, false);
-        // verifyMirroredTrajectories(TrajectoryGenerator.getInstance().getTrajectorySet().firstToPreSecondBarIntake, true);
-        // verifyMirroredTrajectories(TrajectoryGenerator.getInstance().getTrajectorySet().secondBarIntake, false);
-        // verifyMirroredTrajectories(TrajectoryGenerator.getInstance().getTrajectorySet().secondBarIntakeToNearShot, true);
+        verifyTrajectory(TrajectoryGenerator.getInstance().getTrajectorySet().testPath, false);
+        verifyTrajectory(TrajectoryGenerator.getInstance().getTrajectorySet().testPathReversed, true);
     }
 }
