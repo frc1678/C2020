@@ -207,7 +207,7 @@ public class Climber extends Subsystem  {
     }
 
     public void LogSend() {
-        ArrayList<Double> items = new ArrayList<Double>();
+        ArrayList<Number> items = new ArrayList<Number>();
         items.add(Timer.getFPGATimestamp());
         items.add(mPeriodicIO.demand);
         items.add(Double.valueOf(mPeriodicIO.arm_solenoid? 0.0 : 1.0));

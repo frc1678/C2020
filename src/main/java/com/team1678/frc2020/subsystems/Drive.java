@@ -699,7 +699,7 @@ public class Drive extends Subsystem {
     }
 
     public void LogSend() {
-        ArrayList<Double> items = new ArrayList<Double>();
+        ArrayList<Number> items = new ArrayList<Number>();
         items.add(Timer.getFPGATimestamp());
 
         // INPUTS

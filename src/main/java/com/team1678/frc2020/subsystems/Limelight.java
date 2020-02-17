@@ -332,7 +332,7 @@ public class Limelight extends Subsystem {
         mStorage.setHeadersFromClass(PeriodicIO.class);
     }
     public void LogSend() {
-        ArrayList<Double> items = new ArrayList<Double>();
+        ArrayList<Number> items = new ArrayList<Number>();
         items.add(Timer.getFPGATimestamp());
         // INPUTS
         items.add(mPeriodicIO.latency);

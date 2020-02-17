@@ -134,7 +134,7 @@ public class Canifier extends Subsystem {
     }
 
     public void LogSend() {
-        ArrayList<Double> items = new ArrayList<Double>();
+        ArrayList<Number> items = new ArrayList<Number>();
         items.add(Timer.getFPGATimestamp());
         items.add(mPeriodicInputs.indexer_limit_? 0.0 : 1.0);
         items.add(mPeriodicInputs.turret_limit_? 0.0 : 1.0);

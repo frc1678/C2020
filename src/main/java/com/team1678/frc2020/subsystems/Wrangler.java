@@ -185,7 +185,7 @@ public class Wrangler extends Subsystem {
     }
 
     public void LogSend() {
-        ArrayList<Double> items = new ArrayList<Double>();
+        ArrayList<Number> items = new ArrayList<Number>();
         items.add(Timer.getFPGATimestamp());
         items.add(PeriodicOutputs.demand);
         items.add(PeriodicOutputs.deployer_solenoid ? 0.0 : 1.0);

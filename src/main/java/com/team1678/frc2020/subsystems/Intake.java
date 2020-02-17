@@ -170,7 +170,7 @@ public class Intake extends Subsystem {
         mStorage.setHeadersFromClass(PeriodicIO.class);
     }
     public void LogSend() {
-        ArrayList<Double> items = new ArrayList<Double>();
+        ArrayList<Number> items = new ArrayList<Number>();
         items.add(Timer.getFPGATimestamp());
         items.add(mPeriodicIO.current);
         items.add(mPeriodicIO.demand);  

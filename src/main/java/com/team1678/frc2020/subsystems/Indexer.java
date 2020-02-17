@@ -383,7 +383,7 @@ public class Indexer extends Subsystem {
     }
 
     public void LogSend() {
-        ArrayList<Double> items = new ArrayList<Double>();
+        ArrayList<Number> items = new ArrayList<Number>();
         items.add(Timer.getFPGATimestamp());
 
         items.add(mPeriodicIO.limit_switch? 0.0 : 1.0);

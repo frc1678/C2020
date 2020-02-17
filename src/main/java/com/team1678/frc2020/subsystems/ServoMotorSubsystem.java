@@ -556,7 +556,7 @@ public abstract class ServoMotorSubsystem extends Subsystem {
     }
 
     public void LogSend() {
-        ArrayList<Double> items = new ArrayList<Double>();
+        ArrayList<Number> items = new ArrayList<Number>();
 
         items.add(Timer.getFPGATimestamp());
         items.add(mPeriodicIO.position_units);
