@@ -54,7 +54,7 @@ public class Robot extends TimedRobot {
 
     private final Looper mEnabledLooper = new Looper();
     private final Looper mDisabledLooper = new Looper();
-    private final Looper mLoggingLooper = new Looper();
+    //private final Looper mLoggingLooper = new Looper();
 
 
     private final ControlBoard mControlBoard = ControlBoard.getInstance();
@@ -82,7 +82,7 @@ public class Robot extends TimedRobot {
     private AutoModeExecutor mAutoModeExecutor;
     private AutoModeSelector mAutoModeSelector = new AutoModeSelector();
 
-    private LoggingSystem mLogger = LoggingSystem.getInstance();
+    //private LoggingSystem mLogger = LoggingSystem.getInstance();
 
     public Robot() {
         CrashTracker.logRobotConstruction();
@@ -106,18 +106,20 @@ public class Robot extends TimedRobot {
 
             mSubsystemManager.setSubsystems(
                 mRobotStateEstimator,
-                mCanifier,
+                // mCanifier,
                 mDrive, 
                 mLimelight, 
-                mIntake, 
-                mIndexer, 
+                // mIntake, 
+                // mIndexer, 
                 mWrangler, 
                 //mShooter,
                 //mTrigger,
-                mSuperstructure,
+                // mSuperstructure,
                 //mHood,
-                mTurret,
-                mInfrastructure            );
+                // mTurret,
+                mInfrastructure,
+                mClimber
+            );
 
             mSubsystemManager.registerEnabledLoops(mEnabledLooper);
             mSubsystemManager.registerDisabledLoops(mDisabledLooper);
@@ -127,8 +129,8 @@ public class Robot extends TimedRobot {
             mDrive.setHeading(Rotation2d.identity());
 
             mLimelight.setLed(Limelight.LedMode.ON);
-            mSubsystemManager.registerLoggingSystems(mLogger);
-            mLogger.registerLoops(mLoggingLooper);
+            //mSubsystemManager.registerLoggingSystems(mLogger);
+            //mLogger.registerLoops(mLoggingLooper);
 
             mTrajectoryGenerator.generateTrajectories();
         } catch (Throwable t) {
@@ -153,7 +155,7 @@ public class Robot extends TimedRobot {
             mAutoModeExecutor.start();
 
             mEnabledLooper.start();
-            mLoggingLooper.start();
+            //mLoggingLooper.start();
         } catch (Throwable t) {
             CrashTracker.logThrowableCrash(t);
             throw t;
@@ -186,7 +188,7 @@ public class Robot extends TimedRobot {
 
             RobotState.getInstance().reset(Timer.getFPGATimestamp(), Pose2d.identity());
             mEnabledLooper.start();
-            mLoggingLooper.start();
+            //mLoggingLooper.start();
             mLimelight.setPipeline(Constants.kPortPipeline);
 
             mControlBoard.reset();
@@ -210,10 +212,12 @@ public class Robot extends TimedRobot {
 
             if (mControlBoard.climbMode()) {
                 climb_mode = true;
-                System.out.println("climb mode");
+                // mClimber.setZeroPosition();
             }
 
             if (!climb_mode){ //TODO: turret preset stuff and jog turret and rumbles
+                mWrangler.setState(Wrangler.WantedAction.RETRACT);
+
                 if (mIndexer.slotsFilled()) {
                     mControlBoard.setRumble(false);
                 } else {
@@ -243,24 +247,24 @@ public class Robot extends TimedRobot {
                 } 
             } else {
                 mIndexer.setState(WantedAction.PREP);
-                mIntake.setState(Intake.WantedAction.NONE);
-                if (mControlBoard.getArmExtend()) { // Press and hold A
+                mIntake.setState(Intake.WantedAction.RETRACT);
+                if (mControlBoard.getArmExtend()) { // Press A
                     mClimber.setState(Climber.WantedAction.PIVOT);
                 } else if (mControlBoard.getStopExtend()) {
                     mClimber.setState(Climber.WantedAction.STOP);
-                } else if (mControlBoard.getClimberAdjust()) { // Press and hold B
-                    mClimber.setState(Climber.WantedAction.EXTEND); // hook onto the rung
-                /* } else if (mControlBoard.getBuddyDeploy()) { // Press X
-                    mWrangler.setState(Wrangler.WantedAction.DEPLOY); */
+                } else if (mControlBoard.getArmHug()) { // Press B
+                    mClimber.setState(Climber.WantedAction.HUG); // hook onto the rung
+                } else if (mControlBoard.getBuddyDeploy()) { // Press Back
+                    mWrangler.setState(Wrangler.WantedAction.DEPLOY);
+                    buddy_climb = true;
                 } else if (mControlBoard.getWrangle()) { // Press and hold X
                     mWrangler.setState(Wrangler.WantedAction.WRANGLE);
-                    buddy_climb = true;
-                } else if (mControlBoard.getClimb()) { // Press and hold Y
-                    if (!buddy_climb) {
-                        mClimber.setState(Climber.WantedAction.CLIMB);
-                    } else {
-                        mClimber.setState(Climber.WantedAction.BUDDY_CLIMB);
-                    }
+                } else if (mControlBoard.getClimb()) { // Press Y
+                    mClimber.setState(Climber.WantedAction.CLIMB);
+                } else if (mControlBoard.getManualArmExtend()) { // Press and hold left joystick
+                    mClimber.setState(Climber.WantedAction.MANUAL_EXTEND);
+                } else if (mControlBoard.getManualArmRetract()) { // Press and hold right joystick
+                    mClimber.setState(Climber.WantedAction.MANUAL_CLIMB);
                 } else if (mControlBoard.getBrake()) { // Release Y
                     mClimber.setState(Climber.WantedAction.BRAKE);
                 } else if (mControlBoard.getLeaveClimbMode()) {
@@ -286,12 +290,9 @@ public class Robot extends TimedRobot {
 
             mDisabledLooper.stop();
             mEnabledLooper.stop();
-            mLoggingLooper.stop();
+            //mLoggingLooper.stop();
 
             mDrive.checkSystem();
-            // mCargoIntake.checkSystem();
-            // mWrist.checkSystem();
-            // mElevator.checkSystem();
 
         } catch (Throwable t) {
             CrashTracker.logThrowableCrash(t);
@@ -308,7 +309,7 @@ public class Robot extends TimedRobot {
         try {
             CrashTracker.logDisabledInit();
             mEnabledLooper.stop();
-            mLoggingLooper.stop();
+            //mLoggingLooper.stop();
             if (mAutoModeExecutor != null) {
                 mAutoModeExecutor.stop();
             }

@@ -151,7 +151,7 @@ public class Intake extends Subsystem {
 
     @Override
     public synchronized void readPeriodicInputs() {
-        LogSend();
+        //LogSend();
     }
 
     @Override

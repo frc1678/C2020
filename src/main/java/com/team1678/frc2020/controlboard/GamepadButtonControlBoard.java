@@ -130,28 +130,35 @@ public class GamepadButtonControlBoard {
     }
 
     public boolean getArmExtend() {
-        return mController.getButton(CustomXboxController.Button.A);
+        return mController.getController().getAButtonPressed();
     }
 
     public boolean getStopExtend() {
-        return mController.getController().getAButtonReleased() || mController.getController().getBButtonReleased() 
-            || mController.getButton(CustomXboxController.Button.BACK);
+        return mController.getController().getStickButtonReleased(Hand.kRight) || mController.getController().getStickButtonReleased(Hand.kLeft);
     }
 
     public boolean getBuddyDeploy() {
-        return mController.getController().getXButtonPressed();
+        return mController.getController().getBackButtonPressed();
     }
 
-    public boolean getClimberAdjust() {
-        return mController.getButton(CustomXboxController.Button.B);
+    public boolean getArmHug() {
+        return mController.getController().getBButtonPressed();
+    }
+
+    public boolean getManualArmExtend() {
+        return mController.getButton(CustomXboxController.Button.L_JOYSTICK);
+    }
+
+    public boolean getManualArmRetract() {
+        return mController.getButton(CustomXboxController.Button.R_JOYSTICK);
     }
 
     public boolean getClimb() {
-        return mController.getButton(CustomXboxController.Button.Y);
+        return mController.getController().getYButtonPressed();
     }
 
     public boolean getBrake() {
-        return mController.getController().getYButtonReleased();
+        return false; // mController.getController().getYButtonReleased();
     }
 
     public boolean getWrangle() {

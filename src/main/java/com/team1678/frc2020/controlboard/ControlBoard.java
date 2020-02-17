@@ -91,8 +91,16 @@ public class ControlBoard {
         return mButtonControlBoard.getBuddyDeploy();
     }
 
-    public boolean getClimberAdjust() {
-        return mButtonControlBoard.getClimberAdjust();
+    public boolean getArmHug() {
+        return mButtonControlBoard.getArmHug();
+    }
+
+    public boolean getManualArmExtend() {
+        return mButtonControlBoard.getManualArmExtend();
+    }
+
+    public boolean getManualArmRetract() {
+        return mButtonControlBoard.getManualArmRetract();
     }
 
     public boolean getClimb() {

@@ -20,7 +20,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import java.util.ArrayList;
 
 public class Wrangler extends Subsystem {
-    public static double kWrangleVoltage = -4.;
+    public static double kWrangleVoltage = -10.;
     public static double kHoldingVoltage = 0.;
     
     private static Wrangler mInstance;
@@ -59,17 +59,21 @@ public class Wrangler extends Subsystem {
         mMaster.configStatorCurrentLimit(STATOR_CURRENT_LIMIT);
         mMaster.configVoltageCompSaturation(12.0, Constants.kLongCANTimeoutMs);
         mMaster.enableVoltageCompensation(true);
+
+        mMaster.configOpenloopRamp(.5);
     }
 
     @Override
     public void registerLogger(LoggingSystem LS) {
-        LogSetup();
+        // LogSetup();
         LS.register(mStorage, "wrangler.csv");
     }
 
     @Override
     public synchronized void outputTelemetry() {
+        SmartDashboard.putString("WranglerState", mState.name());
         SmartDashboard.putNumber("WranglerMotorSetpoint", mPeriodicOutputs.demand);
+        SmartDashboard.putBoolean("WranglerOut", getWranglerOut());
     }
 
     @Override
@@ -105,10 +109,6 @@ public class Wrangler extends Subsystem {
 
     public synchronized boolean getWranglerOut() {
         return mDeployer.get() && mPeriodicOutputs.deployer_solenoid;
-    }
-
-    public synchronized boolean isBuddyClimbing() {
-        return mBuddyClimb;
     }
 
     public void runStateMachine() {
@@ -163,7 +163,7 @@ public class Wrangler extends Subsystem {
 
     @Override
     public synchronized void readPeriodicInputs() {
-        LogSend();
+        //LogSend();
     }
 
     @Override
@@ -179,20 +179,7 @@ public class Wrangler extends Subsystem {
 
     public static class PeriodicOutputs {
         // OUTPUTS
-        public static double demand;
-        public static boolean deployer_solenoid;
-    }
-
-    public void LogSetup() {
-        mStorage = new LogStorage<PeriodicOutputs>();
-        mStorage.setHeadersFromClass(PeriodicOutputs.class);
-    }
-
-    public void LogSend() {
-        ArrayList<Double> items = new ArrayList<Double>();
-        items.add(Timer.getFPGATimestamp());
-        items.add(PeriodicOutputs.demand);
-        items.add(PeriodicOutputs.deployer_solenoid ? 0.0 : 1.0);
-        mStorage.addData(items);
+        public double demand;
+        public boolean deployer_solenoid;
     }
 }
