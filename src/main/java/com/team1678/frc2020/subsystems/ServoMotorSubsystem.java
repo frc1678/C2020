@@ -360,11 +360,11 @@ public abstract class ServoMotorSubsystem extends Subsystem {
         mEnabledLooper.register(new Loop() {
             @Override
             public void onStart(double timestamp) {
-                if (mCSVWriter == null) {
+                /*if (mCSVWriter == null) {
                     mCSVWriter = new ReflectingCSVWriter<>("/home/lvuser/"
                             + mConstants.kName.replaceAll("[^A-Za-z0-9]+", "").toUpperCase() + "-LOGS.csv",
                             PeriodicIO.class);
-                }
+                }*/
             }
 
             @Override

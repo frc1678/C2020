@@ -57,7 +57,7 @@ public class Superstructure extends Subsystem {
 
     private double mTurretSetpoint = 0.0;
     private double mHoodSetpoint = 82.5;
-    private double mShooterSetpoint = 4000.0;
+    private double mShooterSetpoint = 2700.0;
     private boolean mGotSpunUp = false;
 
     private TurretControlModes mTurretMode = TurretControlModes.FIELD_RELATIVE;
@@ -262,7 +262,7 @@ public class Superstructure extends Subsystem {
             final Rotation2d turret_error = mRobotState.getVehicleToTurret(timestamp).getRotation().inverse()
                     .rotateBy(mLatestAimingParameters.get().getTurretToGoalRotation());
             
-            mTurretSetpoint = mLatestAimingParameters.get().getTurretToGoalRotation().getDegrees();
+            mTurretSetpoint = mCurrentTurret + turret_error.getDegrees();
             final Twist2d velocity = mRobotState.getMeasuredVelocity();
             // Angular velocity component from tangential robot motion about the goal.
             final double tangential_component = mLatestAimingParameters.get().getTurretToGoalRotation().sin()
@@ -344,7 +344,7 @@ public class Superstructure extends Subsystem {
         if (mWantsSpinUp) {
             real_shooter = mShooterSetpoint;
             indexerAction = Indexer.WantedAction.PASSIVE_INDEX;
-            real_trigger = Constants.kTriggerRPM;
+            real_trigger = -600.0;
         } else if (mWantsShoot) {
             real_shooter = mShooterSetpoint;
             indexerAction = Indexer.WantedAction.PREP;

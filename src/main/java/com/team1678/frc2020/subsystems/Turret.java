@@ -9,6 +9,7 @@ import com.ctre.phoenix.motorcontrol.can.TalonFX;
 
 import com.team1678.frc2020.Constants;
 import com.team254.lib.drivers.TalonUtil;
+import com.team254.lib.geometry.Rotation2d;
 import com.team254.lib.util.LatchedBoolean;
 
 import edu.wpi.first.wpilibj.DigitalInput;
@@ -64,6 +65,14 @@ public class Turret extends ServoMotorSubsystem {
             mHoming = true;
             mMaster.overrideSoftLimitsEnable(false);
         }
+    }
+
+    public synchronized boolean safeToIntake() {
+        Rotation2d angle = Rotation2d.fromDegrees(getAngle());
+        if (angle.getDegrees() < 55 && angle.getDegrees() > -55) {
+            return false;
+        }
+        return true;
     }
 
     public synchronized boolean isHoming() {

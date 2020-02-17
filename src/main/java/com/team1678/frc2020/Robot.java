@@ -90,6 +90,7 @@ public class Robot extends TimedRobot {
     private AutoModeSelector mAutoModeSelector = new AutoModeSelector();
 
     // private LoggingSystem mLogger = LoggingSystem.getInstance();
+    private boolean mUseVision = false;
 
     public Robot() {
         CrashTracker.logRobotConstruction();
@@ -133,7 +134,7 @@ public class Robot extends TimedRobot {
             mRobotState.reset(Timer.getFPGATimestamp(), Pose2d.identity());
             mDrive.setHeading(Rotation2d.identity());
 
-            mLimelight.setLed(Limelight.LedMode.ON);
+            mLimelight.setLed(Limelight.LedMode.OFF);
             //mIntake.registerLogger(mLogger);
             //mLogger.registerLoops(mLoggingLooper);
 
@@ -194,6 +195,7 @@ public class Robot extends TimedRobot {
 
             RobotState.getInstance().reset(Timer.getFPGATimestamp(), Pose2d.identity());
             mEnabledLooper.start();
+            mLimelight.setLed(Limelight.LedMode.ON);
             mLimelight.setPipeline(Constants.kPortPipeline);
             mTurret.setNeutralMode(NeutralMode.Brake);
             mHood.setNeutralMode(NeutralMode.Brake);
@@ -213,8 +215,17 @@ public class Robot extends TimedRobot {
             double throttle = mControlBoard.getThrottle();
             double turn = mControlBoard.getTurn();
 
+            if (mSuperstructure.isOnTarget()) {
+                mLEDs.conformToState(LEDs.State.TARGET_TRACKING); 
+            } else if (mSuperstructure.getLatestAimingParameters().isPresent()) {
+                mLEDs.conformToState(LEDs.State.TARGET_VISIBLE);
+            } else {
+                mLEDs.conformToState(LEDs.State.ENABLED);
+            }
+
             mDrive.setCheesyishDrive(throttle, turn, mControlBoard.getQuickTurn());
 
+            mLimelight.setLed(Limelight.LedMode.ON);
             TurretCardinal cardinal = mControlBoard.getTurretCardinal();
             if (cardinal == TurretCardinal.NONE) {
                 mSuperstructure.setWantAutoAim(Rotation2d.fromDegrees(180.0));
@@ -248,7 +259,7 @@ public class Robot extends TimedRobot {
                     mIntake.setState(Intake.WantedAction.INTAKE);
                     mSuperstructure.setAutoIndex(false);
                     //mIndexer.setBackwardsMode(false);
-                } else if (mControlBoard.getControlPanelPosition()) {
+                } else if (mControlBoard.getControlPanelPosition() && mTurret.safeToIntake()) {
                     // mRoller.setState(Roller.WantedAction.ACHIEVE_POSITION_CONTROL);
                     mIntake.setState(Intake.WantedAction.INTAKE);
                     mSuperstructure.setAutoIndex(false);
@@ -349,9 +360,14 @@ public class Robot extends TimedRobot {
         // mLimelight.setStream(2);
 
         try {
-            mLimelight.setLed(Limelight.LedMode.ON);
+            mLimelight.setLed(Limelight.LedMode.OFF);
+            mLimelight.writePeriodicOutputs();
 
-            mLEDs.conformToState(LEDs.State.RAINBOW);
+            if (mTurret.isHoming()) {
+                mLEDs.conformToState(LEDs.State.RAINBOW);
+            } else {
+                mLEDs.conformToState(LEDs.State.BREATHING_PINK);
+            }
 
             mAutoModeSelector.updateModeCreator();
 
