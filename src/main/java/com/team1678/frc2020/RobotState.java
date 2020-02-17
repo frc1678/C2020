@@ -1,6 +1,8 @@
 package com.team1678.frc2020;
 
 import com.team1678.frc2020.subsystems.Limelight;
+import com.team1678.frc2020.logger.LogStorage;
+import com.team1678.frc2020.logger.LoggingSystem;
 import com.team254.lib.geometry.Pose2d;
 import com.team254.lib.geometry.Rotation2d;
 import com.team254.lib.geometry.Translation2d;
@@ -81,6 +83,7 @@ public class RobotState {
     private GoalTracker vision_target_ = new GoalTracker();
 
     List<Translation2d> mCameraToVisionTargetPoses = new ArrayList<>();
+    LogStorage<RobotState> mStorage = null;
 
     private RobotState() {
         reset(0.0, Pose2d.identity(), Rotation2d.identity(), Rotation2d.identity());
@@ -340,5 +343,41 @@ public class RobotState {
             SmartDashboard.putNumber("Vehicle to TargetAngle", params.get().getRobotToGoalRotation().getDegrees());
 
         }
+    }
+
+    public void registerLogger(LoggingSystem LS) {
+        logSetup();
+        LS.register(mStorage, "robotState.csv");
+    }
+
+    public synchronized void logSetup() {
+        ArrayList<String> item_names = new ArrayList<String>();
+        mStorage = new LogStorage<RobotState>();
+
+        item_names.add("Robot X");
+        item_names.add("Robot Y");
+        item_names.add("Robot Theta");
+        Optional<AimingParameters> params = getAimingParameters(false, -1, Constants.kMaxGoalTrackAge);
+        if (params.isPresent()) {
+            item_names.add("Vehicle to Target");
+            item_names.add("Vehicle to TargetAngle");
+        }
+
+        mStorage.setHeaders(item_names);
+    }
+
+    public void logSend() {
+        ArrayList<Double> items = new ArrayList<Double>();
+        
+        items.add(getLatestFieldToVehicle().getValue().getTranslation().x());
+        items.add(getLatestFieldToVehicle().getValue().getTranslation().y());
+        items.add(getLatestFieldToVehicle().getValue().getRotation().getDegrees());
+        Optional<AimingParameters> params = getAimingParameters(false, -1, Constants.kMaxGoalTrackAge);
+        if (params.isPresent()) {    
+            items.add(params.get().getRange());
+            items.add(params.get().getRobotToGoalRotation().getDegrees());
+        }
+
+        mStorage.addData(items);
     }
 }
