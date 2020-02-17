@@ -23,7 +23,7 @@ public class Indexer extends Subsystem {
     private IndexerMotionPlanner mMotionPlanner;
     private Turret mTurret = Turret.getInstance();
 
-    private static final double kZoomingVelocity = 70.;
+    private static final double kZoomingVelocity =30.;
     private static final double kPassiveIndexingVelocity = 60.0;
     private static final double kGearRatio = (60. / 16.) * (160. / 16.);
     private static final boolean[] kFullSlots = {true, true, true, true, true };

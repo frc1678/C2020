@@ -121,7 +121,7 @@ public class Constants {
         // Unit == Degrees
         kTurretConstants.kHomePosition = 0.0; // CCW degrees from forward
         kTurretConstants.kTicksPerUnitDistance = (2048.0 * 36.0) / 360.0;
-        kTurretConstants.kKp = 0.1;
+        kTurretConstants.kKp = 0.5;
         kTurretConstants.kKi = 0;
         kTurretConstants.kKd = 0.0;
         kTurretConstants.kKf = 0.05;
@@ -138,8 +138,8 @@ public class Constants {
         kTurretConstants.kPositionIZone = 0; // Ticks
         kTurretConstants.kPositionDeadband = 0; // Ticks
 
-        kTurretConstants.kMinUnitsLimit = -360.0;
-        kTurretConstants.kMaxUnitsLimit = 360.0;
+        kTurretConstants.kMinUnitsLimit = -700.0;
+        kTurretConstants.kMaxUnitsLimit = 700.0;
 
         kTurretConstants.kCruiseVelocity = 20000; // Ticks / 100ms
         kTurretConstants.kAcceleration = 30000; // Ticks / 100ms / s
@@ -153,6 +153,8 @@ public class Constants {
         kTurretConstants.kRecoverPositionOnReset = true;
     }
 
+    public static final Translation2d kVehicleToTurretTranslation = new Translation2d(3.75, 0);
+
     // hood
     public static final ServoMotorSubsystemConstants kHoodConstants = new ServoMotorSubsystemConstants();
     static {
@@ -165,7 +167,7 @@ public class Constants {
         // Unit == Degrees
         kHoodConstants.kHomePosition = 0.0; // Degrees
         kHoodConstants.kTicksPerUnitDistance = (2048.0 * 70.0) / 360.0;
-        kHoodConstants.kKp = 0.1;
+        kHoodConstants.kKp = 0.5;
         kHoodConstants.kKi = 0;
         kHoodConstants.kKd = 0;
         kHoodConstants.kKf = 0.05;
@@ -181,6 +183,7 @@ public class Constants {
         kHoodConstants.kPositionIZone = 0; // Ticks
         kHoodConstants.kPositionDeadband = 0; // Ticks
 
+        // degrees of limelight pitch from horiz
         kHoodConstants.kMinUnitsLimit = 17.66;
         kHoodConstants.kMaxUnitsLimit = 87.5;
 
@@ -236,7 +239,7 @@ public class Constants {
     public static final double kMinStability = 0.5;
     public static final int kPortPipeline = 0;
     public static final int kBallPipeline = 2;
-    public static final double kGoalHeight = 97.5;
+    public static final double kGoalHeight = 81.0;
 
     public static final int kCanifierId = 0;
 
@@ -245,7 +248,7 @@ public class Constants {
     public static final int kSlaveFlywheelID = 10;
     public static final int kTriggerWheelID = 6;
     public static final int kTriggerPopoutSolenoidID = 4;
-    public static final double kShooterP = 0.1;
+    public static final double kShooterP = 0.2;
     public static final double kShooterI = 0.00004;
     public static final double kShooterD = 0.0;
     public static final double kShooterF = 0.05;
@@ -255,7 +258,7 @@ public class Constants {
     public static final double kTriggerF = 0.05;
     public static final int kPopoutSolenoidId = 4; // TODO 
 
-    public static final double kTriggerRPM = 0.0;
+    public static final double kTriggerRPM = 5000.0;
 
     public static final double kMaxTopLimelightHeight = 16.0;
 
@@ -266,9 +269,11 @@ public class Constants {
 
     // Drive control
     public static final double kStingerForwardPower = 0.8;
-    public static final double kClimbingElevatorHeightForLowShift = 10.0; // in
-    public static final double kJogTurretScalar = -22;
+
     public static final double kInnerGoalDepth = 0;
+	public static final double kHoodToTurret = 4.25; // center of the turret to the axis of rotation of the hood
+	public static final double kLimelightPitchOffset = 17.66; // limelight pitch at hood 0
+	public static final double kAutoAimPredictionTime = 6.0; // lookahead for robot state during aiming
 
     public static Solenoid makeSolenoidForId(int solenoidId) {
         if (solenoidId < 8) {

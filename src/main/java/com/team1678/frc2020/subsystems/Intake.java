@@ -1,7 +1,5 @@
 package com.team1678.frc2020.subsystems;
 
-import com.team1678.frc2020.logger.*;
-import com.team1678.frc2020.logger.LogStorage;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.team1678.frc2020.Constants;
@@ -50,16 +48,9 @@ public class Intake extends Subsystem {
         public boolean deploy;
     }
 
-    LogStorage<PeriodicIO> mStorage = null;
-
     private Intake() {
         mMaster = TalonFXFactory.createDefaultTalon(Constants.kIntakeRollerId);
         mDeploySolenoid = Constants.makeSolenoidForId(Constants.kDeploySolenoidId);
-    }
-
-    public void registerLogger(LoggingSystem LS) {
-        LogSetup();
-        LS.register(mStorage, "intake.csv");
     }
 
     public synchronized static Intake getInstance() {
@@ -154,7 +145,6 @@ public class Intake extends Subsystem {
 
     @Override
     public synchronized void readPeriodicInputs() {
-        LogSend();
     }
 
     @Override
@@ -166,17 +156,5 @@ public class Intake extends Subsystem {
     @Override
     public boolean checkSystem() {
         return true;
-    }
-
-    public void LogSetup() {
-        mStorage = new LogStorage<PeriodicIO>();
-        mStorage.setHeadersFromClass(PeriodicIO.class);
-    }
-    public void LogSend() {
-        ArrayList<Double> items = new ArrayList<Double>();
-        items.add(Timer.getFPGATimestamp());
-        items.add(mPeriodicIO.current);
-        items.add(mPeriodicIO.demand);  
-        mStorage.addData(items);
     }
 }

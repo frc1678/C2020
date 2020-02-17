@@ -56,7 +56,7 @@ public class Superstructure extends Subsystem {
     private double mCurrentHood = 0.0;
 
     private double mTurretSetpoint = 0.0;
-    private double mHoodSetpoint = 62.5;
+    private double mHoodSetpoint = 82.5;
     private double mShooterSetpoint = 4000.0;
     private boolean mGotSpunUp = false;
 
@@ -233,16 +233,20 @@ public class Superstructure extends Subsystem {
             return;
         }
 
-        mLatestAimingParameters = mRobotState.getAimingParameters(mUseInnerTarget, -1, Constants.kMaxGoalTrackAge);
+        if (mWantsShoot) {
+            mLatestAimingParameters = mRobotState.getAimingParameters(mUseInnerTarget, mTrackId, Constants.kMaxGoalTrackAge);
+        } else {
+            mLatestAimingParameters = mRobotState.getAimingParameters(mUseInnerTarget, -1, Constants.kMaxGoalTrackAge);
+        }
+
         if (mLatestAimingParameters.isPresent()) {
             mTrackId = mLatestAimingParameters.get().getTrackId();
 
-            final double kLookaheadTime = 6.0;
             Pose2d robot_to_predicted_robot = mRobotState.getLatestFieldToVehicle().getValue().inverse()
-                    .transformBy(mRobotState.getPredictedFieldToVehicle(kLookaheadTime));
-            Pose2d predicted_robot_to_goal = robot_to_predicted_robot.inverse()
-                    .transformBy(mLatestAimingParameters.get().getRobotToGoal());
-            mCorrectedRangeToTarget = predicted_robot_to_goal.getTranslation().norm();
+                    .transformBy(mRobotState.getPredictedFieldToVehicle(Constants.kAutoAimPredictionTime));
+            Pose2d predicted_turret_to_goal = robot_to_predicted_robot.inverse()
+                    .transformBy(mLatestAimingParameters.get().getTurretToGoal());
+            mCorrectedRangeToTarget = predicted_turret_to_goal.getTranslation().norm();
 
             // Don't aim if not in min distance
             if (mEnforceAutoAimMinDistance && mCorrectedRangeToTarget > mAutoAimMinDistance) {
@@ -255,13 +259,13 @@ public class Superstructure extends Subsystem {
             final double aiming_setpoint = getHoodSetpointAngle(mCorrectedRangeToTarget);
             mHoodSetpoint = aiming_setpoint;
 
-            final Rotation2d turret_error = /*Rotation2d.fromDegrees(Limelight.getInstance().getTx());*/mRobotState.getVehicleToTurret(timestamp).getRotation().inverse()
-                    .rotateBy(mLatestAimingParameters.get().getRobotToGoalRotation());
+            final Rotation2d turret_error = mRobotState.getVehicleToTurret(timestamp).getRotation().inverse()
+                    .rotateBy(mLatestAimingParameters.get().getTurretToGoalRotation());
             
-            mTurretSetpoint = mCurrentTurret + turret_error.getDegrees();
+            mTurretSetpoint = mLatestAimingParameters.get().getTurretToGoalRotation().getDegrees();
             final Twist2d velocity = mRobotState.getMeasuredVelocity();
             // Angular velocity component from tangential robot motion about the goal.
-            final double tangential_component = mLatestAimingParameters.get().getRobotToGoalRotation().sin()
+            final double tangential_component = mLatestAimingParameters.get().getTurretToGoalRotation().sin()
                     * velocity.dx / mLatestAimingParameters.get().getRange();
             final double angular_component = Units.radians_to_degrees(velocity.dtheta);
             // Add (opposite) of tangential velocity about goal + angular velocity in local
@@ -299,12 +303,9 @@ public class Superstructure extends Subsystem {
         }
         final double kLookaheadTime = 6.0;
         Rotation2d turret_error = mRobotState.getPredictedFieldToVehicle(kLookaheadTime)
-                .transformBy(Pose2d.fromRotation(mRobotState.getVehicleToTurret(timestamp))).getRotation().inverse()
+                .transformBy(mRobotState.getVehicleToTurret(timestamp)).getRotation().inverse()
                 .rotateBy(mFieldRelativeTurretGoal);
         mTurretSetpoint = mCurrentTurret + turret_error.getDegrees();
-        System.out.println("Predicted: " + mRobotState.getPredictedFieldToVehicle(kLookaheadTime).getRotation().getDegrees() + 
-                                "Current: " + mRobotState.getLatestFieldToVehicle().getValue().getRotation().getDegrees());
-
         safetyReset();
     }
 
@@ -390,7 +391,7 @@ public class Superstructure extends Subsystem {
         //} else  if (mTurretMode == TurretControlModes.VISION_AIMED) {
          //   mTurret.setSetpointPositionPID(mTurretSetpoint, mTurretFeedforwardV);
         } else {
-            mTurret.setSetpointMotionMagic(mTurretSetpoint, 0);
+            mTurret.setSetpointMotionMagic(mTurretSetpoint);
         }
         //mTurret.setOpenLoop(0);
         //mHood.setOpenLoop(0);

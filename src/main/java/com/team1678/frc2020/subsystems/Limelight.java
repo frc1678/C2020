@@ -197,7 +197,8 @@ public class Limelight extends Subsystem {
      *         targets are found
      */
     public synchronized List<TargetInfo> getTarget() {
-        List<TargetInfo> targets = getRawTargetInfos();
+        List<TargetInfo> targets = new ArrayList<TargetInfo>(); //getRawTargetInfos();
+        targets.add(new TargetInfo(Math.tan(Math.toRadians(-mPeriodicIO.xOffset)), Math.tan(Math.toRadians(mPeriodicIO.yOffset))));
         if (seesTarget() && targets != null) {
             return targets;
         }

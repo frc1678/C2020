@@ -20,6 +20,7 @@ import com.team1678.frc2020.subsystems.Intake;
 import com.team1678.frc2020.subsystems.Limelight;
 import com.team1678.frc2020.controlboard.ControlBoard;
 import com.team1678.frc2020.controlboard.GamepadButtonControlBoard;
+import com.team1678.frc2020.controlboard.GamepadButtonControlBoard.TurretCardinal;
 import com.team1678.frc2020.logger.LoggingSystem;
 import com.team254.lib.wpilib.TimedRobot;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
@@ -60,7 +61,7 @@ public class Robot extends TimedRobot {
 
     private final Looper mEnabledLooper = new Looper();
     private final Looper mDisabledLooper = new Looper();
-    private final Looper mLoggingLooper = new Looper();
+    //private final Looper mLoggingLooper = new Looper();
 
 
     private final ControlBoard mControlBoard = ControlBoard.getInstance();
@@ -88,7 +89,7 @@ public class Robot extends TimedRobot {
     private AutoModeExecutor mAutoModeExecutor;
     private AutoModeSelector mAutoModeSelector = new AutoModeSelector();
 
-    private LoggingSystem mLogger = LoggingSystem.getInstance();
+    // private LoggingSystem mLogger = LoggingSystem.getInstance();
 
     public Robot() {
         CrashTracker.logRobotConstruction();
@@ -133,8 +134,8 @@ public class Robot extends TimedRobot {
             mDrive.setHeading(Rotation2d.identity());
 
             mLimelight.setLed(Limelight.LedMode.ON);
-            mIntake.registerLogger(mLogger);
-            mLogger.registerLoops(mLoggingLooper);
+            //mIntake.registerLogger(mLogger);
+            //mLogger.registerLoops(mLoggingLooper);
 
             mTrajectoryGenerator.generateTrajectories();
         } catch (Throwable t) {
@@ -214,8 +215,13 @@ public class Robot extends TimedRobot {
 
             mDrive.setCheesyishDrive(throttle, turn, mControlBoard.getQuickTurn());
 
-            mSuperstructure.setWantAutoAim(mControlBoard.getTurretCardinal().rotation);
-            //mSuperstructure.setWantFieldRelativeTurret(mControlBoard.getTurretCardinal().rotation);
+            TurretCardinal cardinal = mControlBoard.getTurretCardinal();
+            if (cardinal == TurretCardinal.NONE) {
+                mSuperstructure.setWantAutoAim(Rotation2d.fromDegrees(180.0));
+            } else {
+                mSuperstructure.setWantFieldRelativeTurret(cardinal.rotation);
+            }
+            //mSuperstructure.setWantFieldRelativeTurret(Rotation2d.fromDegrees(180.0));//mControlBoard.getTurretCardinal().rotation);
 
             if (mControlBoard.climbMode()) {
                 climb_mode = true;
