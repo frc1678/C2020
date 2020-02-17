@@ -35,6 +35,7 @@ public class Indexer extends Subsystem {
 
     public static class PeriodicIO {
         // INPUTS
+        public double timestamp;
         private boolean[] raw_slots = { false, false, false, false, false };
         public boolean limit_switch;
 
@@ -335,6 +336,8 @@ public class Indexer extends Subsystem {
     @Override
     public synchronized void readPeriodicInputs() {
         LogSend();
+        mPeriodicIO.timestamp = Timer.getFPGATimestamp();
+        
         mPeriodicIO.raw_slots[0] = mSlot0Proxy.get();
         mPeriodicIO.raw_slots[1] = mSlot1Proxy.get();
         mPeriodicIO.raw_slots[2] = mSlot2Proxy.get();
