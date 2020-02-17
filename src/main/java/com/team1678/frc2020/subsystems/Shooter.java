@@ -34,7 +34,7 @@ public class Shooter extends Subsystem {
 
     private static double kFlywheelVelocityConversion = 600.0 / 2048.0;
 
-    private static double kShooterTolerance = 600.0;
+    private static double kShooterTolerance = 200.0;
 
     private Shooter() {
         mMaster = TalonFXFactory.createDefaultTalon(Constants.kMasterFlywheelID);

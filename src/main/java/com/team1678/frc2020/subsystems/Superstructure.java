@@ -262,7 +262,7 @@ public class Superstructure extends Subsystem {
             final Rotation2d turret_error = mRobotState.getVehicleToTurret(timestamp).getRotation().inverse()
                     .rotateBy(mLatestAimingParameters.get().getTurretToGoalRotation());
             
-            mTurretSetpoint = mLatestAimingParameters.get().getTurretToGoalRotation().getDegrees();
+            mTurretSetpoint = mCurrentTurret + turret_error.getDegrees();
             final Twist2d velocity = mRobotState.getMeasuredVelocity();
             // Angular velocity component from tangential robot motion about the goal.
             final double tangential_component = mLatestAimingParameters.get().getTurretToGoalRotation().sin()
