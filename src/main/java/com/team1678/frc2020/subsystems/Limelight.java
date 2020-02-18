@@ -32,6 +32,8 @@ public class Limelight extends Subsystem {
 
     private static Limelight mInstance = null;
 
+    private int mLatencyCounter = 0;
+
     public static class LimelightConstants {
         public String kName = "";
         public String kTableName = "";
@@ -66,7 +68,7 @@ public class Limelight extends Subsystem {
             @Override
             public void onLoop(double timestamp) {
                 synchronized (this) {
-                    if (Hood.getInstance().getAtGoal()) {
+                    if (Hood.getInstance().getAtGoal() && mPeriodicIO.has_comms) {
                         RobotState.getInstance().addVisionUpdate(timestamp - getLatency(), getTarget());
                     } else {
                         RobotState.getInstance().addVisionUpdate(timestamp - getLatency(), null);
@@ -83,6 +85,10 @@ public class Limelight extends Subsystem {
         mEnabledLooper.register(mLoop);
     }
 
+    public synchronized boolean limelightOK() {
+        return mPeriodicIO.has_comms;
+    }
+
     public static class PeriodicIO {
         // INPUTS
         public double latency;
@@ -91,6 +97,7 @@ public class Limelight extends Subsystem {
         public double xOffset;
         public double yOffset;
         public double area;
+        public boolean has_comms;
 
         // OUTPUTS
         public int ledMode = 1; // 0 - use pipeline mode, 1 - off, 2 - blink, 3 - on
@@ -121,13 +128,22 @@ public class Limelight extends Subsystem {
 
     @Override
     public synchronized void readPeriodicInputs() {
-        //();
-        mPeriodicIO.latency = mNetworkTable.getEntry("tl").getDouble(0) / 1000.0 + Constants.kImageCaptureLatency;
+        final double latency = mNetworkTable.getEntry("tl").getDouble(0) / 1000.0 + Constants.kImageCaptureLatency;
         mPeriodicIO.givenLedMode = (int) mNetworkTable.getEntry("ledMode").getDouble(1.0);
         mPeriodicIO.givenPipeline = (int) mNetworkTable.getEntry("pipeline").getDouble(0);
         mPeriodicIO.xOffset = mNetworkTable.getEntry("tx").getDouble(0.0);
         mPeriodicIO.yOffset = mNetworkTable.getEntry("ty").getDouble(0.0);
         mPeriodicIO.area = mNetworkTable.getEntry("ta").getDouble(0.0);
+
+        if (latency == mPeriodicIO.latency) {
+            mLatencyCounter++;
+        } else {
+            mLatencyCounter = 0;
+        }
+
+        mPeriodicIO.latency = latency;
+        mPeriodicIO.has_comms = mLatencyCounter < 10;
+
         mSeesTarget = mNetworkTable.getEntry("tv").getDouble(0) == 1.0;
     }
 

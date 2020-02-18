@@ -210,7 +210,9 @@ public class Robot extends TimedRobot {
             double throttle = mControlBoard.getThrottle();
             double turn = mControlBoard.getTurn();
 
-            if (mSuperstructure.isOnTarget()) {
+            if (!mLimelight.limelightOK()) {
+                mLEDs.conformToState(LEDs.State.EMERGENCY);
+            } else if (mSuperstructure.isOnTarget()) {
                 mLEDs.conformToState(LEDs.State.TARGET_TRACKING); 
             } else if (mSuperstructure.getLatestAimingParameters().isPresent()) {
                 mLEDs.conformToState(LEDs.State.TARGET_VISIBLE);
@@ -358,7 +360,9 @@ public class Robot extends TimedRobot {
             mLimelight.setLed(Limelight.LedMode.OFF);
             mLimelight.writePeriodicOutputs();
 
-            if (mTurret.isHoming()) {
+            if (!mLimelight.limelightOK()) {
+                mLEDs.conformToState(LEDs.State.EMERGENCY);
+            } else if (mTurret.isHoming()) {
                 mLEDs.conformToState(LEDs.State.RAINBOW);
             } else {
                 mLEDs.conformToState(LEDs.State.BREATHING_PINK);

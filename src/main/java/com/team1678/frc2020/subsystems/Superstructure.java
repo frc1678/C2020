@@ -344,7 +344,7 @@ public class Superstructure extends Subsystem {
         if (mWantsSpinUp) {
             real_shooter = mShooterSetpoint;
             indexerAction = Indexer.WantedAction.PASSIVE_INDEX;
-            real_trigger = Constants.kTriggerRPM;
+            real_trigger = -600.0;
         } else if (mWantsShoot) {
             real_shooter = mShooterSetpoint;
             indexerAction = Indexer.WantedAction.PREP;
