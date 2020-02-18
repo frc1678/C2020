@@ -234,7 +234,8 @@ public class Constants {
     public static final double kTrackStabilityWeight = 0.0;
     public static final double kTrackAgeWeight = 10.0;
     public static final double kTrackSwitchingWeight = 100.0;
-
+    public static final boolean kEnableCachedGoal = true;
+    
     public static final double kCameraFrameRate = 90.0;
     public static final double kMinStability = 0.5;
     public static final int kPortPipeline = 0;
