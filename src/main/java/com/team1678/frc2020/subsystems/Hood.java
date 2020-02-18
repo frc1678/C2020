@@ -46,6 +46,10 @@ public class Hood extends ServoMotorSubsystem {
         return Util.epsilonEquals(getAngle(), getSetpoint(), 5.0);
     }
 
+    public synchronized boolean getTucked() {
+        return Util.epsilonEquals(getAngle(), Constants.kHoodConstants.kMinUnitsLimit, 5.0); 
+    }
+
     @Override
     public synchronized void writePeriodicOutputs() {
         if (mHoming) {

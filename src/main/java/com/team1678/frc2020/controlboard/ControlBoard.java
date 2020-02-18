@@ -67,6 +67,14 @@ public class ControlBoard {
         return mButtonControlBoard.getSpinUp();
     }
 
+    public boolean getTuck() {
+        return mButtonControlBoard.getTuck();
+    }
+
+    public boolean getTestSpit() {
+        return mButtonControlBoard.getTestSpit();
+    }
+
     public boolean getControlPanelRotation() {
         return mButtonControlBoard.getControlPanelRotation();
     }

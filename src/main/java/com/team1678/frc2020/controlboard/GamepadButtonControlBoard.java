@@ -100,6 +100,14 @@ public class GamepadButtonControlBoard {
         return mController.getController().getAButtonReleased();
     }
 
+    public boolean getTuck() {
+        return mController.getController().getXButtonReleased();
+    }
+
+    public boolean getTestSpit() {
+        return mController.getController().getBackButtonReleased();
+    }
+
     public boolean getRevolve() {
         return mController.getButton(CustomXboxController.Button.X);
     }

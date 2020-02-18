@@ -49,6 +49,7 @@ public class Superstructure extends Subsystem {
     private boolean mWantsShoot = false;
     private boolean mWantsSpinUp = false;
     private boolean mWantsTuck = false;
+    private boolean mWantsTestSpit = false;
     private boolean mSettled = false;
     private boolean mUseInnerTarget = false;
 
@@ -320,6 +321,9 @@ public class Superstructure extends Subsystem {
         if (SuperstructureConstants.kUseSmartdashboard) {
             mShooterSetpoint = getShootingSetpointRpm(0);
             mHoodSetpoint = getHoodSetpointAngle(0);
+        } else if (mWantsTestSpit) {
+            mShooterSetpoint = 1500;
+            mHoodSetpoint = Constants.kHoodConstants.kMinUnitsLimit;
         }
 
         if (mWantsTuck) {
@@ -354,7 +358,7 @@ public class Superstructure extends Subsystem {
                 real_popout = true;
             }
 
-            if (mIndexer.isAtDeadSpot() && Math.abs((mTurret.getVelocity() / 360. / 60.) - mIndexer.getIndexerVelocity()) < 1) {
+            if (mIndexer.isAtDeadSpot() && Math.abs((mTurret.getVelocity() / 6) - mIndexer.getIndexerVelocity()) < 5) {
                 mSettled = true;
             }
 
@@ -446,6 +450,10 @@ public class Superstructure extends Subsystem {
 
     public synchronized void setWantTuck() {
         mWantsTuck = !mWantsTuck;
+    }
+
+    public synchronized void setWantTestSpit() {
+        mWantsTestSpit = !mWantsTestSpit;
     }
 
     public synchronized void setWantInnerTarget(boolean inner) {
