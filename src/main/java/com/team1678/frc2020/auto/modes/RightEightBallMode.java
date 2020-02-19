@@ -35,7 +35,7 @@ public class RightEightBallMode extends AutoModeBase {
           runAction(new ParallelAction(Arrays.asList(
             new LambdaAction(() -> Superstructure.getInstance().setWantSpinUp(true)),       
             new LambdaAction(() -> Intake.getInstance().setState(Intake.WantedAction.INTAKE)),
-            new LambdaAction(() -> Superstructure.getInstance().setWantFieldRelativeTurret(Rotation2d.fromDegrees(160.))))));
+            new LambdaAction(() -> Superstructure.getInstance().setWantAutoAim(Rotation2d.fromDegrees(-150.))))));
 
         runAction(mRightSideStartToBarIntake);
         
@@ -43,6 +43,10 @@ public class RightEightBallMode extends AutoModeBase {
          // runAction(new LambdaAction(() -> Superstructure.getInstance().setWantAutoAim(Rotation2d.fromDegrees(180.))));
          runAction(new LambdaAction(() -> Intake.getInstance().setState(Intake.WantedAction.NONE)));
 
+         runAction(new WaitUntilOnTargetAction());
+
+         runAction(new WaitUntilOnTargetAction());
+         runAction(new WaitUntilOnTargetAction());
          runAction(new LambdaAction(() -> Superstructure.getInstance().setWantShoot(true)));
          runAction(new WaitForSpinupAction());
          runAction(new WaitForIndexerSpinAction(720.0));
@@ -58,6 +62,7 @@ public class RightEightBallMode extends AutoModeBase {
          // runAction(new LambdaAction(() -> Superstructure.getInstance().setWantAutoAim(Rotation2d.fromDegrees(180.))));
         runAction(new LambdaAction(() -> Intake.getInstance().setState(Intake.WantedAction.NONE)));
 
+        runAction(new WaitUntilOnTargetAction());
         runAction(new LambdaAction(() -> Superstructure.getInstance().setWantShoot(true)));
         runAction(new WaitForSpinupAction());
         runAction(new WaitForIndexerSpinAction(720.0));

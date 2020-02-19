@@ -147,6 +147,7 @@ public class Robot extends TimedRobot {
         try {
             CrashTracker.logAutoInit();
             mDisabledLooper.stop();
+            mLimelight.setLed(Limelight.LedMode.ON);
 
             RobotState.getInstance().reset(Timer.getFPGATimestamp(), Pose2d.identity());
 
@@ -167,6 +168,18 @@ public class Robot extends TimedRobot {
     @Override
     public void autonomousPeriodic() {
         SmartDashboard.putString("Match Cycle", "AUTONOMOUS");
+        mLimelight.setLed(Limelight.LedMode.ON);
+
+        if (!mLimelight.limelightOK()) {
+            mLEDs.conformToState(LEDs.State.EMERGENCY);
+        } else if (mSuperstructure.isOnTarget()) {
+            mLEDs.conformToState(LEDs.State.TARGET_TRACKING); 
+        } else if (mSuperstructure.getLatestAimingParameters().isPresent()) {
+            mLEDs.conformToState(LEDs.State.TARGET_VISIBLE);
+        } else {
+            mLEDs.conformToState(LEDs.State.ENABLED);
+        }
+
 
         try {
 

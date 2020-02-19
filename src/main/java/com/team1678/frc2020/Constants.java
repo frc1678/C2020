@@ -228,7 +228,7 @@ public class Constants {
     public static final double kImageCaptureLatency = 11.0 / 1000.0; // seconds
 
     public static final double kMaxTrackerDistance = 9.0;
-    public static final double kMaxGoalTrackAge = 3.0;
+    public static final double kMaxGoalTrackAge = 15.0;
     public static final double kMaxGoalTrackAgeNotTracking = 0.1;
     public static final double kMaxGoalTrackSmoothingTime = 0.7;
     public static final double kTrackStabilityWeight = 0.0;

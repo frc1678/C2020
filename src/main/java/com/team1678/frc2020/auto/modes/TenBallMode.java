@@ -37,7 +37,7 @@ public class TenBallMode extends AutoModeBase {
         runAction(new ParallelAction(Arrays.asList(
             new LambdaAction(() -> Superstructure.getInstance().setWantSpinUp(true)),       
             new LambdaAction(() -> Intake.getInstance().setState(Intake.WantedAction.INTAKE)),
-            new LambdaAction(() -> Superstructure.getInstance().setWantFieldRelativeTurret(Rotation2d.fromDegrees(180.))))));
+            new LambdaAction(() -> Superstructure.getInstance().setWantAutoAim(Rotation2d.fromDegrees(-150.))))));
 
         // Drive to intake balls
         runAction(mStartToSteal);
@@ -53,7 +53,7 @@ public class TenBallMode extends AutoModeBase {
         runAction(new TurnToHeadingAction(Rotation2d.fromDegrees(0)));
         System.out.println("Turn Complete");
 
-        runAction(new WaitAction(0.3));
+        runAction(new WaitUntilOnTargetAction());
         runAction(new LambdaAction(() -> Superstructure.getInstance().setWantShoot(true)));
         runAction(new WaitForSpinupAction());
         //runAction(new WaitForSlotsAction(false, 2.0));
@@ -75,6 +75,7 @@ public class TenBallMode extends AutoModeBase {
         )));
 
      //   runAction(mIntakeToSecondShot);
+        runAction(new WaitUntilOnTargetAction());
         runAction(new LambdaAction(() -> Superstructure.getInstance().setWantShoot(true)));
         runAction(new WaitAction(2.0));
 

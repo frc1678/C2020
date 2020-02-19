@@ -354,7 +354,7 @@ public class Superstructure extends Subsystem {
             indexerAction = Indexer.WantedAction.PREP;
             real_trigger = Constants.kTriggerRPM;
             
-            if (mSettled) {
+            if (mGotSpunUp) {
                 real_popout = true;
             }
 
