@@ -28,7 +28,7 @@ import java.util.List;
  */
 public class Limelight extends Subsystem {
     public final static int kDefaultPipeline = 0;
-    public final static int kSortTopPipeline = 1;
+    public final static int kZoomedInPipeline = 1;
 
     private static Limelight mInstance = null;
 

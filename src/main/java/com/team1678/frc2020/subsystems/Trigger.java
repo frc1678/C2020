@@ -23,10 +23,15 @@ public class Trigger extends Subsystem {
 
     private final TalonFX mTrigger;
     private final Solenoid mPopoutSolenoid;
+    private boolean mCurrentLimitTriggered = false;
+    private double mCurrentLimitTimer = 0.0;
 
     private boolean mRunningManual = false;
 
     private static double kTriggerVelocityConversion = 600.0 / 2048.0;
+    private static double kUnjamTime = 1.0;
+    private static double kJamCurrent = 15.0;
+    private static double kUnjamSpeed = -600.0;
     
     private static double kTriggerTolerance = 200.0;
 
@@ -110,6 +115,19 @@ public class Trigger extends Subsystem {
         mRunningManual = false;
     }
 
+    public synchronized void currentSafety() {
+        final double now = Timer.getFPGATimestamp();
+
+        if (mPeriodicIO.trigger_current > kJamCurrent && !mCurrentLimitTriggered) {
+            mCurrentLimitTriggered = true;
+            mCurrentLimitTimer = now;
+        } else if (mCurrentLimitTriggered && now - mCurrentLimitTimer < kUnjamTime) {
+            mPeriodicIO.trigger_demand = kUnjamSpeed;
+        } else {
+            mCurrentLimitTriggered = false;
+        }
+    }
+
     @Override
     public void readPeriodicInputs() {
         mPeriodicIO.trigger_velocity = mTrigger.getSelectedSensorVelocity() * kTriggerVelocityConversion;
@@ -121,6 +139,7 @@ public class Trigger extends Subsystem {
     @Override
     public void writePeriodicOutputs() {
         if (!mRunningManual) {
+            currentSafety();
             mTrigger.set(ControlMode.Velocity, mPeriodicIO.trigger_demand / kTriggerVelocityConversion);
             mPopoutSolenoid.set(mPeriodicIO.popout_solenoid);
         } else {

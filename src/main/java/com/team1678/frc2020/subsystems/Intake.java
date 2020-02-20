@@ -8,6 +8,7 @@ import com.team1678.frc2020.loops.Loop;
 
 import com.team254.lib.drivers.SparkMaxFactory;
 import com.team254.lib.drivers.TalonFXFactory;
+import com.team254.lib.util.TimeDelayedBoolean;
 import com.team254.lib.drivers.LazySparkMax;
 
 import edu.wpi.first.wpilibj.Timer;
@@ -17,10 +18,11 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import java.util.ArrayList;
 
 public class Intake extends Subsystem {
-    private static double kIntakingVoltage = 12.0;
+    private static double kIntakingVoltage = 9.0;
     private static double kIdleVoltage = 0;
 
     private static Intake mInstance;
+    private TimeDelayedBoolean mIntakeSolenoidTimer = new TimeDelayedBoolean();
 
     private Solenoid mDeploySolenoid;
 
@@ -42,6 +44,7 @@ public class Intake extends Subsystem {
         // INPUTS
         public double timestamp;
         public double current;
+        public boolean intake_out;
 
         // OUTPUTS
         public double demand;
@@ -107,12 +110,20 @@ public class Intake extends Subsystem {
     public void runStateMachine() {
         switch (mState) {
         case INTAKING:
+            if (mPeriodicIO.intake_out) {    
                 mPeriodicIO.demand = kIntakingVoltage;
-                mPeriodicIO.deploy = true;
+            } else {
+                mPeriodicIO.demand = 0.0;
+            }
+            mPeriodicIO.deploy = true;
             break;
         case RETRACTING:
-                mPeriodicIO.demand = kIdleVoltage;
-                mPeriodicIO.deploy = false;
+            if (mPeriodicIO.intake_out) {    
+                mPeriodicIO.demand = kIntakingVoltage;
+            } else {
+                mPeriodicIO.demand = 0.0;
+            }
+            mPeriodicIO.deploy = true;
             break;
         case IDLE:
                 mPeriodicIO.demand = kIdleVoltage;
@@ -145,6 +156,7 @@ public class Intake extends Subsystem {
 
     @Override
     public synchronized void readPeriodicInputs() {
+        mPeriodicIO.intake_out = mIntakeSolenoidTimer.update(mPeriodicIO.deploy, 0.2);
     }
 
     @Override

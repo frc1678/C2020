@@ -109,18 +109,18 @@ public class Robot extends TimedRobot {
 
             mSubsystemManager.setSubsystems(
                 mRobotStateEstimator,
-                mCanifier, 
+//                mCanifier, 
                 mDrive, 
-                mLimelight, 
+//                mLimelight, 
                 mIntake, 
-                mIndexer, 
+//                mIndexer, 
 //                mWrangler, 
-                mShooter,
-                mTrigger,
-                mSuperstructure,
-                mHood,
-                mTurret,
-                mLEDs,
+//                mShooter,
+//                mTrigger,
+//                mSuperstructure,
+//                mHood,
+//                mTurret,
+//                mLEDs,
                 mInfrastructure
             );
 
@@ -266,18 +266,11 @@ public class Robot extends TimedRobot {
                     mSuperstructure.setWantTestSpit();
                 } else if (mControlBoard.getRunIntake()) {
                     mIntake.setState(Intake.WantedAction.INTAKE);
-                    mSuperstructure.setAutoIndex(true);
+                    mSuperstructure.setAutoIndex(false);
                 } else if (mControlBoard.getRetractIntake()) {
                     mIntake.setState(Intake.WantedAction.RETRACT);
                 } else if (mControlBoard.getControlPanelRotation()) {
-                    mIntake.setState(Intake.WantedAction.INTAKE);
-                    mSuperstructure.setAutoIndex(false);
-                    //mIndexer.setBackwardsMode(false);
-                } else if (mControlBoard.getControlPanelPosition() && mTurret.safeToIntake()) {
-                    // mRoller.setState(Roller.WantedAction.ACHIEVE_POSITION_CONTROL);
-                    mIntake.setState(Intake.WantedAction.INTAKE);
-                    mSuperstructure.setAutoIndex(false);
-                    //mIndexer.setBackwardsMode(true);
+                } else if (mControlBoard.getControlPanelPosition()) {
                 } else {
                     mIntake.setState(Intake.WantedAction.NONE);
                 } 
