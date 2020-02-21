@@ -5,6 +5,7 @@ import com.team1678.frc2020.loops.ILooper;
 import com.team1678.frc2020.loops.Loop;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.StatorCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.TalonFXControlMode;
 import com.ctre.phoenix.motorcontrol.TalonFXFeedbackDevice;
 
@@ -23,17 +24,21 @@ public class Trigger extends Subsystem {
 
     private final TalonFX mTrigger;
     private final Solenoid mPopoutSolenoid;
+
+    private final Indexer mIndexer = Indexer.getInstance();
+
     private boolean mCurrentLimitTriggered = false;
     private double mCurrentLimitTimer = 0.0;
 
     private boolean mRunningManual = false;
 
     private static double kTriggerVelocityConversion = 600.0 / 2048.0;
-    private static double kUnjamTime = 1.0;
-    private static double kJamCurrent = 15.0;
-    private static double kUnjamSpeed = -600.0;
+    private static double kUnjamTime = 0.5;
+    private static double kJamCurrent = 150.0;
+    private static double kUnjamSpeed = -1000.0;
     
     private static double kTriggerTolerance = 200.0;
+    private static final StatorCurrentLimitConfiguration CURR_LIM = new StatorCurrentLimitConfiguration(true, 40, 40, 0.3);
 
     private Trigger() {
         mTrigger = TalonFXFactory.createDefaultTalon(Constants.kTriggerWheelID);
@@ -43,6 +48,7 @@ public class Trigger extends Subsystem {
         mTrigger.setInverted(false); //TODO: check value
         mTrigger.configVoltageCompSaturation(12.0, Constants.kLongCANTimeoutMs);
         mTrigger.enableVoltageCompensation(true);
+        mTrigger.configStatorCurrentLimit(CURR_LIM);
 
         mTrigger.config_kP(0, Constants.kTriggerP, Constants.kLongCANTimeoutMs);
         mTrigger.config_kI(0, Constants.kTriggerI, Constants.kLongCANTimeoutMs);
@@ -66,6 +72,19 @@ public class Trigger extends Subsystem {
         setOpenLoop(0);
     }
 
+    public synchronized void startLogging() {
+        if (mCSVWriter == null) {
+            mCSVWriter = new ReflectingCSVWriter<>("/home/lvuser/TRIGGER-LOGS.csv", PeriodicIO.class);
+        }
+    }
+
+    public synchronized void stopLogging() {
+        if (mCSVWriter != null) {
+            mCSVWriter.flush();
+            mCSVWriter = null;
+        }
+    }
+
     @Override
     public void zeroSensors() {
     }
@@ -75,12 +94,14 @@ public class Trigger extends Subsystem {
         enabledLooper.register(new Loop() {
             @Override
             public void onStart(double timestamp) {
+                startLogging();
             }
             @Override
             public void onLoop(double timestamp) {
             }
             @Override
             public void onStop(double timestamp) {
+                stopLogging();
             }
         });
     }
@@ -123,9 +144,13 @@ public class Trigger extends Subsystem {
             mCurrentLimitTimer = now;
         } else if (mCurrentLimitTriggered && now - mCurrentLimitTimer < kUnjamTime) {
             mPeriodicIO.trigger_demand = kUnjamSpeed;
-        } else {
+        } else if (now - mCurrentLimitTimer > kUnjamTime){
             mCurrentLimitTriggered = false;
         }
+    }
+
+    public synchronized boolean getJammed() {
+        return mCurrentLimitTriggered;
     }
 
     @Override
@@ -134,6 +159,10 @@ public class Trigger extends Subsystem {
         mPeriodicIO.trigger_voltage = mTrigger.getMotorOutputVoltage();
         mPeriodicIO.trigger_current = mTrigger.getStatorCurrent();
         mPeriodicIO.trigger_temperature = mTrigger.getTemperature();
+
+        if (mCSVWriter != null) {
+            mCSVWriter.add(mPeriodicIO);
+        }
     }
 
     @Override
@@ -180,9 +209,11 @@ public class Trigger extends Subsystem {
         SmartDashboard.putNumber("Trigger Temperature", mPeriodicIO.trigger_temperature);
 
         SmartDashboard.putBoolean("Popout Solenoid", mPeriodicIO.popout_solenoid);
+        SmartDashboard.putBoolean("jam", mCurrentLimitTriggered);
         
         if (mCSVWriter != null) {
             mCSVWriter.write();
+            System.out.println("LOGGING trigger");
         }
     }
 }

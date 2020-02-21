@@ -19,8 +19,8 @@ import com.team254.lib.vision.AimingParameters;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Superstructure extends Subsystem {
-    private static final double kZoomedOutRange = 140.0;
-    private static final double kZoomedInRange = 200.0;
+    private static final double kZoomedOutRange = 130.0;
+    private static final double kZoomedInRange = 140.0;
 
     // Instances
     private static Superstructure mInstance;
@@ -342,6 +342,7 @@ public class Superstructure extends Subsystem {
 
         if (Intake.getInstance().getState() == Intake.State.INTAKING) {
             indexerAction = Indexer.WantedAction.PASSIVE_INDEX;
+            real_trigger = -600.0;
         }
 
         if (mWantsSpinUp) {
@@ -350,20 +351,15 @@ public class Superstructure extends Subsystem {
             real_trigger = -600.0;
         } else if (mWantsShoot) {
             real_shooter = mShooterSetpoint;
-            indexerAction = Indexer.WantedAction.PREP;
+            indexerAction = Indexer.WantedAction.ZOOM;
             real_trigger = Constants.kTriggerRPM;
             Intake.getInstance().setState(Intake.WantedAction.NONE);
-         /*   
-            if (mGotSpunUp) {
-                real_popout = true;
-            }
-        */
 
-            if (mIndexer.isAtDeadSpot() && Math.abs((mTurret.getVelocity() / 6) - mIndexer.getIndexerVelocity()) < 5) {
+            if (mIndexer.isAtDeadSpot()) {
                 mSettled = true;
             }
 
-            if (mSettled) {
+            if (mGotSpunUp) {
                 real_popout = true;
             }
 
@@ -371,10 +367,14 @@ public class Superstructure extends Subsystem {
                 mGotSpunUp = true;
             }
 
-            if (mGotSpunUp && estim_popout) {
+            if (mGotSpunUp && estim_popout || mTrigger.getJammed()) {
                 //real_popout = true;
                 //real_trigger = Constants.kTriggerRPM;
                 indexerAction = Indexer.WantedAction.ZOOM;
+            }
+
+            if (real_popout != estim_popout && real_popout) {
+                indexerAction = Indexer.WantedAction.PREP;
             }
         }
 
@@ -406,7 +406,7 @@ public class Superstructure extends Subsystem {
         }
         //mTurret.setOpenLoop(0);
         //mHood.setOpenLoop(0);
-        estim_popout = trigger_popout.update(real_popout, 0.05);
+        estim_popout = trigger_popout.update(real_popout, 0.2);
     }
 
     public synchronized Optional<AimingParameters> getLatestAimingParameters() {

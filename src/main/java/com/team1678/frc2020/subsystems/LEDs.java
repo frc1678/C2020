@@ -49,7 +49,7 @@ public class LEDs extends Subsystem{
         ENABLED(0.0, 0.0, 255.0, Double.POSITIVE_INFINITY, 0.0, false),
         EMERGENCY(255.0, 0.0, 0.0, 0.5, 0.5, false),
         BALL_IN_INTAKE(255.0, 20.0, 0.0, 0.5, 0.5, false),
-        BALL_IN_CARRIAGE(255.0, 20.0, 0.0, Double.POSITIVE_INFINITY, 0.0, false),
+        HOOD_TUCKED(255.0, 20.0, 0.0, Double.POSITIVE_INFINITY, 0.0, false),
         DISK_IN_INTAKE(255.0, 60.0, 0.0, 0.5, 0.5, false),
         DISK_IN_PROBE(255.0, 60.0, 0.0, Double.POSITIVE_INFINITY, 0.0, false),
         TARGET_VISIBLE(0.0, 255.0, 0.0, Double.POSITIVE_INFINITY, 0.0, false),

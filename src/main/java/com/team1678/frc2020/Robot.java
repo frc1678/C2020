@@ -87,7 +87,7 @@ public class Robot extends TimedRobot {
     private AutoModeExecutor mAutoModeExecutor;
     private AutoModeSelector mAutoModeSelector = new AutoModeSelector();
 
-    //private LoggingSystem mLogger = LoggingSystem.getInstance();
+    // private LoggingSystem mLogger = LoggingSystem.getInstance();
 
     public Robot() {
         CrashTracker.logRobotConstruction();
@@ -107,22 +107,8 @@ public class Robot extends TimedRobot {
         try {
             CrashTracker.logRobotInit();
 
-            mSubsystemManager.setSubsystems(
-                mRobotStateEstimator,
-//                mCanifier, 
-                mDrive, 
-//                mLimelight, 
-                mIntake, 
-//                mIndexer, 
-//                mWrangler, 
-//                mShooter,
-//                mTrigger,
-//                mSuperstructure,
-//                mHood,
-//                mTurret,
-//                mLEDs,
-                mInfrastructure
-            );
+            mSubsystemManager.setSubsystems(mRobotStateEstimator, mCanifier, mDrive, mLimelight, mIntake,// mIndexer,
+                    mWrangler, mShooter, mTrigger, mSuperstructure, mHood, mTurret, mLEDs, mInfrastructure);
 
             mSubsystemManager.registerEnabledLoops(mEnabledLooper);
             mSubsystemManager.registerDisabledLoops(mDisabledLooper);
@@ -173,13 +159,12 @@ public class Robot extends TimedRobot {
         if (!mLimelight.limelightOK()) {
             mLEDs.conformToState(LEDs.State.EMERGENCY);
         } else if (mSuperstructure.isOnTarget()) {
-            mLEDs.conformToState(LEDs.State.TARGET_TRACKING); 
+            mLEDs.conformToState(LEDs.State.TARGET_TRACKING);
         } else if (mSuperstructure.getLatestAimingParameters().isPresent()) {
             mLEDs.conformToState(LEDs.State.TARGET_VISIBLE);
         } else {
             mLEDs.conformToState(LEDs.State.ENABLED);
         }
-
 
         try {
 
@@ -188,7 +173,7 @@ public class Robot extends TimedRobot {
             throw t;
         }
     }
-    
+
     @Override
     public void teleopInit() {
         try {
@@ -208,27 +193,31 @@ public class Robot extends TimedRobot {
             mTurret.setNeutralMode(NeutralMode.Brake);
             mHood.setNeutralMode(NeutralMode.Brake);
             mLEDs.conformToState(LEDs.State.ENABLED);
-
+            
             mControlBoard.reset();
         } catch (Throwable t) {
             CrashTracker.logThrowableCrash(t);
             throw t;
         }
     }
-
+    
     @Override
     public void teleopPeriodic() {
         try {
             double timestamp = Timer.getFPGATimestamp();
             double throttle = mControlBoard.getThrottle();
             double turn = mControlBoard.getTurn();
+            double hood_jog = mControlBoard.getJogHood();
+            double turret_jog = mControlBoard.getJogTurret();
 
             if (!mLimelight.limelightOK()) {
                 mLEDs.conformToState(LEDs.State.EMERGENCY);
             } else if (mSuperstructure.isOnTarget()) {
-                mLEDs.conformToState(LEDs.State.TARGET_TRACKING); 
+                mLEDs.conformToState(LEDs.State.TARGET_TRACKING);
             } else if (mSuperstructure.getLatestAimingParameters().isPresent()) {
                 mLEDs.conformToState(LEDs.State.TARGET_VISIBLE);
+            } else if (mHood.getTucked()) {
+                mLEDs.conformToState(LEDs.State.HOOD_TUCKED);
             } else {
                 mLEDs.conformToState(LEDs.State.ENABLED);
             }
@@ -242,22 +231,22 @@ public class Robot extends TimedRobot {
             } else {
                 mSuperstructure.setWantFieldRelativeTurret(cardinal.rotation);
             }
-            //mSuperstructure.setWantFieldRelativeTurret(Rotation2d.fromDegrees(180.0));//mControlBoard.getTurretCardinal().rotation);
+            // mSuperstructure.setWantFieldRelativeTurret(Rotation2d.fromDegrees(180.0));//mControlBoard.getTurretCardinal().rotation);
 
             if (mControlBoard.climbMode()) {
                 climb_mode = true;
                 System.out.println("climb mode");
             }
 
-            if (!climb_mode){ //TODO: turret preset stuff and jog turret and rumbles
+            if (!climb_mode) { // TODO: turret preset stuff and jog turret and rumbles
                 if (mIndexer.slotsFilled()) {
                     mControlBoard.setRumble(false);
                 } else {
                     mControlBoard.setRumble(false);
                 }
-                
-                if (mControlBoard.getShoot()){
-                    mSuperstructure.setWantShoot();    
+
+                if (mControlBoard.getShoot()) {
+                    mSuperstructure.setWantShoot();
                 } else if (mControlBoard.getSpinUp()) {
                     mSuperstructure.setWantSpinUp();
                 } else if (mControlBoard.getTuck()) {
@@ -273,7 +262,7 @@ public class Robot extends TimedRobot {
                 } else if (mControlBoard.getControlPanelPosition()) {
                 } else {
                     mIntake.setState(Intake.WantedAction.NONE);
-                } 
+                }
             } else {
                 mIndexer.setState(WantedAction.PREP);
                 mIntake.setState(Intake.WantedAction.NONE);
@@ -293,6 +282,19 @@ public class Robot extends TimedRobot {
                     mWrangler.setState(Wrangler.WantedAction.NONE);
                     mClimber.setState(Climber.WantedAction.NONE);
                 }
+
+                if (Math.abs(hood_jog) > Constants.kJoystickJogThreshold) {
+                    hood_jog = (hood_jog - Math.signum(hood_jog) * Constants.kJoystickJogThreshold)
+                            / (1.0 - Constants.kJoystickJogThreshold);
+                    mSuperstructure.JogHood(hood_jog * 0.4);
+                }
+
+                if (Math.abs(turret_jog) > Constants.kJoystickJogThreshold) {
+                    turret_jog = (turret_jog - Math.signum(turret_jog) * Constants.kJoystickJogThreshold)
+                            / (1.0 - Constants.kJoystickJogThreshold);
+                    mSuperstructure.jogTurret(turret_jog * 0.4);
+                }
+                
             }
         } catch (Throwable t) {
             CrashTracker.logThrowableCrash(t);

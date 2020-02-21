@@ -138,8 +138,8 @@ public class Constants {
         kTurretConstants.kPositionIZone = 0; // Ticks
         kTurretConstants.kPositionDeadband = 0; // Ticks
 
-        kTurretConstants.kMinUnitsLimit = -700.0;
-        kTurretConstants.kMaxUnitsLimit = 700.0;
+        kTurretConstants.kMinUnitsLimit = -135.0;
+        kTurretConstants.kMaxUnitsLimit = 315.0;
 
         kTurretConstants.kCruiseVelocity = 20000; // Ticks / 100ms
         kTurretConstants.kAcceleration = 30000; // Ticks / 100ms / s
@@ -275,6 +275,7 @@ public class Constants {
 	public static final double kHoodToTurret = 4.25; // center of the turret to the axis of rotation of the hood
 	public static final double kLimelightPitchOffset = 17.66; // limelight pitch at hood 0
 	public static final double kAutoAimPredictionTime = 6.0; // lookahead for robot state during aiming
+	public static final double kJoystickJogThreshold = 0.1;
 
     public static Solenoid makeSolenoidForId(int solenoidId) {
         if (solenoidId < 8) {

@@ -92,6 +92,14 @@ public class GamepadButtonControlBoard {
         return (jog - kDeadband * Math.signum(jog));
     }
 
+    public double getJogHood() {
+        double jog = mController.getJoystick(CustomXboxController.Side.LEFT, CustomXboxController.Axis.Y);
+        if (Deadband.inDeadband(jog, kDeadband)) {
+            return 0.0;
+        }
+        return (jog - kDeadband * Math.signum(jog));
+    }
+
     public void setRumble(boolean on) { //TODO: all 5 power cells indexed
         mController.setRumble(on);
     }

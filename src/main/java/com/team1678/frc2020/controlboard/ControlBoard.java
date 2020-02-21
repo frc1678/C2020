@@ -53,6 +53,10 @@ public class ControlBoard {
         return mButtonControlBoard.getJogTurret();
     }
 
+    public double getJogHood() {
+        return mButtonControlBoard.getJogHood();
+    }
+
     // Intake
 
     public boolean getShoot() {
