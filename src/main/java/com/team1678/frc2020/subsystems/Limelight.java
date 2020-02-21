@@ -177,6 +177,7 @@ public class Limelight extends Subsystem {
     @Override
     public synchronized void outputTelemetry() {
         SmartDashboard.putBoolean(mConstants.kName + ": Has Target", mSeesTarget);
+        SmartDashboard.putBoolean("Limelight Ok", mPeriodicIO.has_comms);
         SmartDashboard.putNumber(mConstants.kName + ": Pipeline Latency (ms)", mPeriodicIO.latency);
     }
 
