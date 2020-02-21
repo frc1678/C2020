@@ -335,17 +335,13 @@ public class Superstructure extends Subsystem {
             mHood.setSetpointMotionMagic(mHoodSetpoint);
         }
 
-        Indexer.WantedAction indexerAction = Indexer.WantedAction.PREP;
+        Indexer.WantedAction indexerAction = Indexer.WantedAction.PASSIVE_INDEX ;
         double real_trigger = 0.0;
         double real_shooter = 0.0;
         boolean real_popout = false;
 
         if (Intake.getInstance().getState() == Intake.State.INTAKING) {
-            if (mAutoIndex) {
-                indexerAction = Indexer.WantedAction.PASSIVE_INDEX;//INDEX;
-            } else {
-                indexerAction = Indexer.WantedAction.PASSIVE_INDEX;
-            }
+            indexerAction = Indexer.WantedAction.PASSIVE_INDEX;
         }
 
         if (mWantsSpinUp) {
@@ -356,22 +352,20 @@ public class Superstructure extends Subsystem {
             real_shooter = mShooterSetpoint;
             indexerAction = Indexer.WantedAction.PREP;
             real_trigger = Constants.kTriggerRPM;
-            
+            Intake.getInstance().setState(Intake.WantedAction.NONE);
+         /*   
             if (mGotSpunUp) {
                 real_popout = true;
             }
+        */
 
             if (mIndexer.isAtDeadSpot() && Math.abs((mTurret.getVelocity() / 6) - mIndexer.getIndexerVelocity()) < 5) {
                 mSettled = true;
             }
 
-            /*if (mSettled) {
+            if (mSettled) {
                 real_popout = true;
-                real_trigger = Constants.kTriggerRPM;
-                if (mShooter.spunUp() && mTrigger.spunUp()) {
-                    mGotSpunUp = true;
-                }
-            }*/
+            }
 
             if (mShooter.spunUp() && mTrigger.spunUp()) {
                 mGotSpunUp = true;
@@ -412,7 +406,7 @@ public class Superstructure extends Subsystem {
         }
         //mTurret.setOpenLoop(0);
         //mHood.setOpenLoop(0);
-        estim_popout = trigger_popout.update(real_popout, 0.2);
+        estim_popout = trigger_popout.update(real_popout, 0.05);
     }
 
     public synchronized Optional<AimingParameters> getLatestAimingParameters() {

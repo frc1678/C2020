@@ -27,15 +27,13 @@ public class Indexer extends Subsystem {
     private IndexerMotionPlanner mMotionPlanner;
     private Turret mTurret = Turret.getInstance();
 
-    private static final double kZoomingVelocity =30.;
-    private static final double kPassiveIndexingVelocity = 60.0;
+    private static final double kZoomingVelocity = 70.;
+    private static final double kPassiveIndexingVelocity = 80.0;
     private static final double kGearRatio = (60. / 16.) * (160. / 16.);
     private static final boolean[] kFullSlots = {true, true, true, true, true };
     private static final boolean[] kEmptySlots = {false, false, false, false, false };
 
     private double mIndexerStart = Timer.getFPGATimestamp();
-    private static final double kLoopsPerSec = 1.0;
-    private static final double kAmplitude = 25.0;
     private static final double kAngleConversion = (2048.0 * kGearRatio) / 360.0;
     
     public static class PeriodicIO {
@@ -251,10 +249,6 @@ public class Indexer extends Subsystem {
             mPeriodicIO.indexer_control_mode = ControlMode.Velocity;
             mPeriodicIO.indexer_demand = mBackwards ? -kPassiveIndexingVelocity : kPassiveIndexingVelocity;
 
-            final double t = now - mIndexerStart;
-            final double period = (2 * Math.PI) / kLoopsPerSec;
-
-            mPeriodicIO.indexer_demand -= kAmplitude * Math.sin(t * period);
             //if ((now - mIndexerStart) % 2 < .1) {
             //    mPeriodicIO.indexer_demand *= -1;
             //}
