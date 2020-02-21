@@ -94,7 +94,7 @@ public class Trigger extends Subsystem {
         enabledLooper.register(new Loop() {
             @Override
             public void onStart(double timestamp) {
-                startLogging();
+                // startLogging();
             }
             @Override
             public void onLoop(double timestamp) {

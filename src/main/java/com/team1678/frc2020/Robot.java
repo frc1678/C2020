@@ -226,7 +226,14 @@ public class Robot extends TimedRobot {
 
             mLimelight.setLed(Limelight.LedMode.ON);
             TurretCardinal cardinal = mControlBoard.getTurretCardinal();
-            if (cardinal == TurretCardinal.NONE) {
+            
+            
+            if (Math.abs(turret_jog) > Constants.kJoystickJogThreshold) {
+                turret_jog = (turret_jog - Math.signum(turret_jog) * Constants.kJoystickJogThreshold)
+                        / (1.0 - Constants.kJoystickJogThreshold);
+
+                mSuperstructure.jogTurret(turret_jog * 0.4);
+            } else if (cardinal == TurretCardinal.NONE) {
                 mSuperstructure.setWantAutoAim(Rotation2d.fromDegrees(180.0));
             } else {
                 mSuperstructure.setWantFieldRelativeTurret(cardinal.rotation);
@@ -250,7 +257,9 @@ public class Robot extends TimedRobot {
                 } else if (mControlBoard.getSpinUp()) {
                     mSuperstructure.setWantSpinUp();
                 } else if (mControlBoard.getTuck()) {
-                    mSuperstructure.setWantTuck();
+                    mSuperstructure.setWantTuck(true);
+                } else if (mControlBoard.getUntuck()) {
+                    mSuperstructure.setWantTuck(false);
                 } else if (mControlBoard.getTestSpit()) {
                     mSuperstructure.setWantTestSpit();
                 } else if (mControlBoard.getRunIntake()) {
@@ -282,19 +291,6 @@ public class Robot extends TimedRobot {
                     mWrangler.setState(Wrangler.WantedAction.NONE);
                     mClimber.setState(Climber.WantedAction.NONE);
                 }
-
-                if (Math.abs(hood_jog) > Constants.kJoystickJogThreshold) {
-                    hood_jog = (hood_jog - Math.signum(hood_jog) * Constants.kJoystickJogThreshold)
-                            / (1.0 - Constants.kJoystickJogThreshold);
-                    mSuperstructure.JogHood(hood_jog * 0.4);
-                }
-
-                if (Math.abs(turret_jog) > Constants.kJoystickJogThreshold) {
-                    turret_jog = (turret_jog - Math.signum(turret_jog) * Constants.kJoystickJogThreshold)
-                            / (1.0 - Constants.kJoystickJogThreshold);
-                    mSuperstructure.jogTurret(turret_jog * 0.4);
-                }
-                
             }
         } catch (Throwable t) {
             CrashTracker.logThrowableCrash(t);

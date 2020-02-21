@@ -72,7 +72,11 @@ public class ControlBoard {
     }
 
     public boolean getTuck() {
-        return mButtonControlBoard.getTuck();
+        return mButtonControlBoard.getTuck() || mDriveControlBoard.getTuck();
+    }
+
+    public boolean getUntuck() {
+        return mButtonControlBoard.getUntuck();
     }
 
     public boolean getTestSpit() {

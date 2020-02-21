@@ -19,8 +19,8 @@ import com.team254.lib.vision.AimingParameters;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Superstructure extends Subsystem {
-    private static final double kZoomedOutRange = 130.0;
-    private static final double kZoomedInRange = 140.0;
+    private static final double kZoomedOutRange = 150.0;
+    private static final double kZoomedInRange = 200.0;
 
     // Instances
     private static Superstructure mInstance;
@@ -177,8 +177,8 @@ public class Superstructure extends Subsystem {
     // Jog Turret
     public synchronized void jogTurret(double delta) {
         mTurretMode = TurretControlModes.JOGGING;
-        double prev_delta = mTurret.getAngle();
-        mTurretSetpoint = (prev_delta + delta);
+        mTurretSetpoint += delta;
+        System.out.println(mTurretSetpoint);
         mTurretFeedforwardV = 0.0;
     }
 
@@ -330,7 +330,7 @@ public class Superstructure extends Subsystem {
         }
 
         if (mWantsTuck) {
-            mHood.setSetpointMotionMagic(0.0);
+            mHood.setSetpointPositionPID(Constants.kHoodConstants.kMinUnitsLimit, 0);
         } else {
             mHood.setSetpointMotionMagic(mHoodSetpoint);
         }
@@ -455,8 +455,12 @@ public class Superstructure extends Subsystem {
         mWantsShoot = false;
     }
 
-    public synchronized void setWantTuck() {
-        mWantsTuck = !mWantsTuck;
+    public synchronized void setWantTuck(boolean tuck) {
+        mWantsTuck = tuck;
+    }
+
+    public synchronized boolean getTucked() {
+        return mWantsTuck;
     }
 
     public synchronized void setWantTestSpit() {

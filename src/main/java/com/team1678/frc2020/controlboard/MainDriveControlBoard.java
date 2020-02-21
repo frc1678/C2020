@@ -38,7 +38,7 @@ public class MainDriveControlBoard {
         return mTurnStick.getRawButton(2);
     }
 
-    public boolean getWantsLowGear() {
+    public boolean getTuck() {
         return mThrottleStick.getRawButton(2);
     }
 

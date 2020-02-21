@@ -109,7 +109,11 @@ public class GamepadButtonControlBoard {
     }
 
     public boolean getTuck() {
-        return mController.getController().getXButtonReleased();
+        return mController.getButton(Button.X);
+    }
+
+    public boolean getUntuck() {
+        return mController.getButton(Button.START);
     }
 
     public boolean getTestSpit() {
