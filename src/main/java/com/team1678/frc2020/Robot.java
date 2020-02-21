@@ -232,7 +232,7 @@ public class Robot extends TimedRobot {
                 turret_jog = (turret_jog - Math.signum(turret_jog) * Constants.kJoystickJogThreshold)
                         / (1.0 - Constants.kJoystickJogThreshold);
 
-                mSuperstructure.jogTurret(turret_jog * 0.4);
+                mSuperstructure.jogTurret(turret_jog);
             } else if (cardinal == TurretCardinal.NONE) {
                 mSuperstructure.setWantAutoAim(Rotation2d.fromDegrees(180.0));
             } else {
