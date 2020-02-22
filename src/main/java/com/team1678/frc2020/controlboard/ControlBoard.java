@@ -63,6 +63,10 @@ public class ControlBoard {
         return mButtonControlBoard.getShoot();
     }
 
+    public boolean getPreShot() {
+        return mButtonControlBoard.getPreShot();
+    }
+
     public boolean getRevolve() {
         return mButtonControlBoard.getRevolve();
     }
@@ -80,7 +84,7 @@ public class ControlBoard {
     }
 
     public boolean getFendorShot() {
-        return mButtonControlBoard.getFendorShot() || mDriveControlBoard.getTuck();
+        return mButtonControlBoard.getFendorShot();
     }
 
     public boolean getTestSpit() {

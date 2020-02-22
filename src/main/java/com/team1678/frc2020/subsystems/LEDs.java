@@ -56,7 +56,7 @@ public class LEDs extends Subsystem{
         TARGET_TRACKING(0.0, 255.0, 0.0, 0.0625, 0.0625, false),
         CLIMBING(255.0, 0.0, 255.0, Double.POSITIVE_INFINITY, 0.0, false),
         RAINBOW(0, true),
-        BREATHING_PINK(357, 10.0, true);
+        BREATHING_PINK(10, 10.0, true);
 
         double red, green, blue, onTime, offTime, cycleTime, transitionTime;
         float startingHue;

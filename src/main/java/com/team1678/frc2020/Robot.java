@@ -43,6 +43,10 @@ import com.team254.lib.geometry.Rotation2d;
 import com.team254.lib.util.CrashTracker;
 import com.team254.lib.wpilib.TimedRobot;
 
+import edu.wpi.cscore.MjpegServer;
+import edu.wpi.cscore.UsbCamera;
+import edu.wpi.cscore.VideoMode;
+import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -105,6 +109,11 @@ public class Robot extends TimedRobot {
     @Override
     public void robotInit() {
         try {
+            UsbCamera camera = CameraServer.getInstance().startAutomaticCapture();
+            camera.setVideoMode(VideoMode.PixelFormat.kMJPEG, 320, 240, 15);
+            MjpegServer cameraServer = new MjpegServer("serve_USB Camera 0", Constants.kCameraStreamPort);
+            cameraServer.setSource(camera);
+
             CrashTracker.logRobotInit();
 
             mSubsystemManager.setSubsystems(mRobotStateEstimator, mCanifier, mDrive, mLimelight, mIntake, mIndexer,
@@ -256,6 +265,8 @@ public class Robot extends TimedRobot {
 
                 if (mControlBoard.getShoot()) {
                     mSuperstructure.setWantShoot();
+                } else if (mControlBoard.getPreShot()) {
+                    mSuperstructure.setWantPreShot(true);
                 } else if (mControlBoard.getSpinUp()) {
                     mSuperstructure.setWantSpinUp();
                 } else if (mControlBoard.getTuck()) {

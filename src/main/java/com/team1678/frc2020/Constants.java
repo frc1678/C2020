@@ -276,6 +276,7 @@ public class Constants {
 	public static final double kLimelightPitchOffset = 17.66; // limelight pitch at hood 0
 	public static final double kAutoAimPredictionTime = 6.0; // lookahead for robot state during aiming
 	public static final double kJoystickJogThreshold = 0.1;
+	public static final int kCameraStreamPort = 5810;
 
     public static Solenoid makeSolenoidForId(int solenoidId) {
         if (solenoidId < 8) {

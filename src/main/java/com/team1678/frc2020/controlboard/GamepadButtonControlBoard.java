@@ -129,7 +129,11 @@ public class GamepadButtonControlBoard {
     }
 
     public boolean getShoot() {
-        return mController.getController().getBButtonReleased();
+        return mController.getController().getYButtonReleased();
+    }
+
+    public boolean getPreShot() {
+        return mController.getButton(Button.B);
     }
     
     public boolean getIntake() {

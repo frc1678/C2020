@@ -18,7 +18,7 @@ import java.util.ArrayList;
 
 public class Hood extends ServoMotorSubsystem {
     private static Hood mInstance;
-    private boolean mHoming = false;
+    private boolean mHoming = true;
 
     public synchronized static Hood getInstance() {
         if (mInstance == null) {
