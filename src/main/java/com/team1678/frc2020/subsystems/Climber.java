@@ -94,7 +94,7 @@ public class Climber extends Subsystem  {
         mMaster.setNeutralMode(NeutralMode.Coast);
         mSlave.setNeutralMode(NeutralMode.Coast);
 
-        mMaster.configGetStatorCurrentLimit(STATOR_CURRENT_LIMIT);
+        mMaster.configStatorCurrentLimit(STATOR_CURRENT_LIMIT);
     }
     
     @Override
@@ -239,7 +239,8 @@ public class Climber extends Subsystem  {
             mPeriodicIO.arm_solenoid = true;
             mPeriodicIO.brake_solenoid = false;
 
-            if (Math.abs(mPeriodicIO.position - (mZeroPos + kSoloClimbDelta)) < 5000 && Math.abs(mPeriodicIO.velocity) < kBrakeVelocity) {
+            if ((Math.abs(mPeriodicIO.position - (mZeroPos + kSoloClimbDelta)) < 5000 && Math.abs(mPeriodicIO.velocity) < kBrakeVelocity) 
+                || mMaster.getStatorCurrent() > 10.0) {
                 mHoldingPos = mPeriodicIO.position;
                 mState = State.BRAKING;
             }
