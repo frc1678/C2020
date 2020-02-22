@@ -85,7 +85,6 @@ public class TenBallMode extends AutoModeBase {
 
         System.out.println("Wait Complete");
         runAction(new LambdaAction(() -> Superstructure.getInstance().setWantShoot(false)));
-        runAction(new LambdaAction(() -> Intake.getInstance().setState(Intake.WantedAction.INTAKE)));
 
 
         System.out.println("Auto Complete");

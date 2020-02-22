@@ -79,6 +79,10 @@ public class ControlBoard {
         return mButtonControlBoard.getUntuck();
     }
 
+    public boolean getFendorShot() {
+        return mButtonControlBoard.getFendorShot() || mDriveControlBoard.getTuck();
+    }
+
     public boolean getTestSpit() {
         return mButtonControlBoard.getTestSpit();
     }

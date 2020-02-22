@@ -112,6 +112,10 @@ public class GamepadButtonControlBoard {
         return mController.getButton(Button.X);
     }
 
+    public boolean getFendorShot() {
+        return mController.getButton(Button.L_JOYSTICK);
+    }
+
     public boolean getUntuck() {
         return mController.getButton(Button.START);
     }

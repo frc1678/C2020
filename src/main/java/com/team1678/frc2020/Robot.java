@@ -233,6 +233,8 @@ public class Robot extends TimedRobot {
                         / (1.0 - Constants.kJoystickJogThreshold);
 
                 mSuperstructure.jogTurret(turret_jog);
+            } else if (mControlBoard.getFendorShot()) {
+                mSuperstructure.setGoal(1000, 35, 180);
             } else if (cardinal == TurretCardinal.NONE) {
                 mSuperstructure.setWantAutoAim(Rotation2d.fromDegrees(180.0));
             } else {
