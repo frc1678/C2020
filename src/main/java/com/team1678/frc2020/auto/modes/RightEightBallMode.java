@@ -44,9 +44,6 @@ public class RightEightBallMode extends AutoModeBase {
          runAction(new LambdaAction(() -> Intake.getInstance().setState(Intake.WantedAction.NONE)));
 
          runAction(new WaitUntilOnTargetAction());
-
-         runAction(new WaitUntilOnTargetAction());
-         runAction(new WaitUntilOnTargetAction());
          runAction(new LambdaAction(() -> Superstructure.getInstance().setWantShoot(true)));
          runAction(new WaitForSpinupAction());
          runAction(new WaitForIndexerSpinAction(720.0));

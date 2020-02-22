@@ -303,28 +303,25 @@ public class RobotState {
             double max_track_age) {
         GoalTracker tracker = vision_target_;
         List<GoalTracker.TrackReport> reports = tracker.getTracks();
-        double timestamp = Timer.getFPGATimestamp();
 
-        GoalTracker.TrackReport report = null;
-
-        if (reports.isEmpty() && !Constants.kEnableCachedGoal) {
+        if (reports.isEmpty()) {
             return Optional.empty();
-        } else if (reports.isEmpty() && Constants.kEnableCachedGoal) {
-            report = mCachedGoal;
-        } else if (!reports.isEmpty()) {
-            // Find the best track.
-            TrackReportComparator comparator = new TrackReportComparator(Constants.kTrackStabilityWeight,
-                    Constants.kTrackAgeWeight, Constants.kTrackSwitchingWeight, prev_track_id, timestamp);
-            reports.sort(comparator);
-
-            for (GoalTracker.TrackReport track : reports) {
-                if (track.latest_timestamp > timestamp - max_track_age) {
-                    report = track;
-                    break;
-                }
-            }
         }
 
+        double timestamp = Timer.getFPGATimestamp();
+
+        // Find the best track.
+        TrackReportComparator comparator = new TrackReportComparator(Constants.kTrackStabilityWeight,
+                Constants.kTrackAgeWeight, Constants.kTrackSwitchingWeight, prev_track_id, timestamp);
+        reports.sort(comparator);
+
+        GoalTracker.TrackReport report = null;
+        for (GoalTracker.TrackReport track : reports) {
+            if (track.latest_timestamp > timestamp - max_track_age) {
+                report = track;
+                break;
+            }
+        }
         if (report == null) {
             return Optional.empty();
         }

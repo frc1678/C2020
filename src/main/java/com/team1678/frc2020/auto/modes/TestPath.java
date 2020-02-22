@@ -21,8 +21,10 @@ public class TestPath extends AutoModeBase {
     protected void routine() throws AutoModeEndedException {
         System.out.println("Running testing auto");
        // runAction(mTestPath);
-        runAction(new TurnToHeadingAction(Rotation2d.fromDegrees(90)));
+        runAction(new TurnToHeadingAction(Rotation2d.fromDegrees(90), 1.5));
         System.out.println("Point Turn complete");
+
+        runAction(new DriveOpenLoopAction(0, 0, .1));
 
        // runAction(mTestPath);
 

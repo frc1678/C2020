@@ -55,6 +55,7 @@ public class Superstructure extends Subsystem {
     private boolean mWantsTestSpit = false;
     private boolean mSettled = false;
     private boolean mUseInnerTarget = false;
+    private boolean mWantsPreShot = false;
 
     private double mCurrentTurret = 0.0;
     private double mCurrentHood = 0.0;
@@ -349,6 +350,11 @@ public class Superstructure extends Subsystem {
             real_shooter = mShooterSetpoint;
             indexerAction = Indexer.WantedAction.PASSIVE_INDEX;
             real_trigger = -600.0;
+        } else if (mWantsPreShot) {
+            real_shooter = mShooterSetpoint;
+            indexerAction = Indexer.WantedAction.ZOOM;
+            real_trigger = Constants.kTriggerRPM;
+            real_popout = false;
         } else if (mWantsShoot) {
             real_shooter = mShooterSetpoint;
             indexerAction = Indexer.WantedAction.ZOOM;
@@ -371,10 +377,6 @@ public class Superstructure extends Subsystem {
                 //real_popout = true;
                 //real_trigger = Constants.kTriggerRPM;
                 indexerAction = Indexer.WantedAction.ZOOM;
-            }
-
-            if (real_popout != estim_popout && real_popout) {
-                indexerAction = Indexer.WantedAction.PREP;
             }
         }
 
@@ -434,6 +436,15 @@ public class Superstructure extends Subsystem {
         mWantsShoot = !mWantsShoot;
         mSettled = false;
         mGotSpunUp = false;
+        mWantsPreShot = false;
+    }
+
+    public synchronized void setWantPreShot(boolean pre_shot) {
+        mWantsSpinUp = false;
+        mWantsShoot = false;
+        mSettled = false;
+        mGotSpunUp = false;
+        mWantsPreShot = pre_shot;
     }
 
     public synchronized void setWantSpinUp() {
@@ -441,6 +452,7 @@ public class Superstructure extends Subsystem {
         mWantsShoot = false;
         mSettled = false;
         mGotSpunUp = false;
+        mWantsPreShot = false;
     }
 
     public synchronized void setWantShoot(boolean shoot) {
@@ -448,11 +460,13 @@ public class Superstructure extends Subsystem {
         mWantsShoot = shoot;
         mSettled = false;
         mGotSpunUp = false;
+        mWantsPreShot = false;
     }
 
     public synchronized void setWantSpinUp(boolean spin_up) {
         mWantsSpinUp = spin_up;
         mWantsShoot = false;
+        mWantsPreShot = false;
     }
 
     public synchronized void setWantTuck(boolean tuck) {

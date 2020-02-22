@@ -227,10 +227,10 @@ public class Constants {
     public static final double kVPH = 2.0 * Math.tan(Math.toRadians(kVerticalFOV / 2.0));
     public static final double kImageCaptureLatency = 11.0 / 1000.0; // seconds
 
-    public static final double kMaxTrackerDistance = 9.0;
+    public static final double kMaxTrackerDistance = 15.0;
     public static final double kMaxGoalTrackAge = 15.0;
-    public static final double kMaxGoalTrackAgeNotTracking = 0.1;
-    public static final double kMaxGoalTrackSmoothingTime = 0.7;
+    public static final double kMaxGoalTrackAgeNotTracking = 0.3;
+    public static final double kMaxGoalTrackSmoothingTime = 1.5;
     public static final double kTrackStabilityWeight = 0.0;
     public static final double kTrackAgeWeight = 10.0;
     public static final double kTrackSwitchingWeight = 100.0;
