@@ -107,7 +107,7 @@ public class Robot extends TimedRobot {
         try {
             CrashTracker.logRobotInit();
 
-            mSubsystemManager.setSubsystems(mRobotStateEstimator, mCanifier, mDrive, mLimelight, mIntake,// mIndexer,
+            mSubsystemManager.setSubsystems(mRobotStateEstimator, mCanifier, mDrive, mLimelight, mIntake, mIndexer,
                     mWrangler, mShooter, mTrigger, mSuperstructure, mHood, mTurret, mLEDs, mInfrastructure);
 
             mSubsystemManager.registerEnabledLoops(mEnabledLooper);
@@ -212,12 +212,12 @@ public class Robot extends TimedRobot {
 
             if (!mLimelight.limelightOK()) {
                 mLEDs.conformToState(LEDs.State.EMERGENCY);
+            } else if (mSuperstructure.getTucked()) {
+                mLEDs.conformToState(LEDs.State.HOOD_TUCKED);
             } else if (mSuperstructure.isOnTarget()) {
                 mLEDs.conformToState(LEDs.State.TARGET_TRACKING);
             } else if (mSuperstructure.getLatestAimingParameters().isPresent()) {
                 mLEDs.conformToState(LEDs.State.TARGET_VISIBLE);
-            } else if (mSuperstructure.getTucked()) {
-                mLEDs.conformToState(LEDs.State.HOOD_TUCKED);
             } else {
                 mLEDs.conformToState(LEDs.State.ENABLED);
             }
