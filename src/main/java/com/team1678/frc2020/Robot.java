@@ -231,6 +231,10 @@ public class Robot extends TimedRobot {
                 mLEDs.conformToState(LEDs.State.ENABLED);
             }
 
+            if (climb_mode) {
+                mLEDs.conformToState(mWrangler.getWranglerOut() ? LEDs.State.CLIMBING_BUDDY : LEDs.State.CLIMBING);
+            }
+
             mDrive.setCheesyishDrive(throttle, turn, mControlBoard.getQuickTurn());
 
             mLimelight.setLed(Limelight.LedMode.ON);

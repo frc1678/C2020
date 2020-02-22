@@ -54,7 +54,14 @@ public class LEDs extends Subsystem{
         DISK_IN_PROBE(255.0, 60.0, 0.0, Double.POSITIVE_INFINITY, 0.0, false),
         TARGET_VISIBLE(0.0, 255.0, 0.0, Double.POSITIVE_INFINITY, 0.0, false),
         TARGET_TRACKING(0.0, 255.0, 0.0, 0.0625, 0.0625, false),
-        CLIMBING(255.0, 0.0, 255.0, Double.POSITIVE_INFINITY, 0.0, false),
+        CLIMB_MODE(255.0, 0.0, 255.0, Double.POSITIVE_INFINITY, 0.0, false),
+        CLIMB_MODE_BUDDY(255.0, 0.0, 255.0, 0.125, 0.125, false),
+        EXTENDING(255.0, 165.0, 0.0, Double.POSITIVE_INFINITY, 0.0, false),
+        EXTENDING_BUDDY(255.0, 165.0, 0.0, 0.125, 0.125, false),
+        HUGGING(255.0, 255.0, 0.0, Double.POSITIVE_INFINITY, 0.0, false),
+        HUGGING_BUDDY(255.0, 255.0, 0.0, 0.125, 0.125, false),
+        CLIMBING(0.0, 255.0, 0.0, Double.POSITIVE_INFINITY, 0.0, false),
+        CLIMBING_BUDDY(0.0, 255.0, 0.0, 0.125, 0.125, false),
         RAINBOW(0, true),
         BREATHING_PINK(10, 10.0, true);
 
