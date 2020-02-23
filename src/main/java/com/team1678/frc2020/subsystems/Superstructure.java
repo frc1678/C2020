@@ -64,6 +64,11 @@ public class Superstructure extends Subsystem {
     private double mHoodSetpoint = 82.5;
     private double mShooterSetpoint = 4000.0;
     private boolean mGotSpunUp = false;
+    private boolean mEnableIndexer = true;
+
+    public synchronized void enableIndexer(boolean indexer) {
+        mEnableIndexer = indexer;
+    }
 
     private TurretControlModes mTurretMode = TurretControlModes.FIELD_RELATIVE;
 
@@ -330,7 +335,7 @@ public class Superstructure extends Subsystem {
             mHoodSetpoint = Constants.kHoodConstants.kMinUnitsLimit;
         }
 
-        if (mWantsTuck) {
+        if (mWantsTuck || !mEnableIndexer) {
             mHood.setSetpointPositionPID(Constants.kHoodConstants.kMinUnitsLimit, 0);
         } else {
             mHood.setSetpointMotionMagic(mHoodSetpoint);
@@ -380,7 +385,11 @@ public class Superstructure extends Subsystem {
             }
         }
 
-        mIndexer.setState(indexerAction);
+        if (mEnableIndexer) {
+            mIndexer.setState(indexerAction);
+        } else {
+            mIndexer.setState(Indexer.WantedAction.PREP);
+        }
         mTrigger.setPopoutSolenoid(real_popout);
         mTrigger.setVelocity(real_trigger);
         if (Math.abs(real_shooter) < Util.kEpsilon) {
@@ -399,8 +408,9 @@ public class Superstructure extends Subsystem {
             }
         }
 
-        if (mTurretMode == TurretControlModes.OPEN_LOOP) {
-            mTurret.setOpenLoop(mTurretThrottle);
+        if (mTurretMode == TurretControlModes.OPEN_LOOP || !mEnableIndexer) {
+            mTurret.setOpenLoop(0
+            );
         //} else  if (mTurretMode == TurretControlModes.VISION_AIMED) {
          //   mTurret.setSetpointPositionPID(mTurretSetpoint, mTurretFeedforwardV);
         } else {

@@ -158,7 +158,7 @@ public class GamepadButtonControlBoard {
     }
 
     public boolean getArmExtend() {
-        return mController.getController().getAButtonPressed();
+        return mController.getController().getAButton();
     }
 
     public boolean getStopExtend() {

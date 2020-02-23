@@ -273,6 +273,7 @@ public class Robot extends TimedRobot {
             }
 
             if (!climb_mode){ //TODO: turret preset stuff and jog turret and rumbles
+                mSuperstructure.enableIndexer(true);
                 mWrangler.setState(Wrangler.WantedAction.RETRACT);
 
                 if (mIndexer.slotsFilled()) {
@@ -306,8 +307,8 @@ public class Robot extends TimedRobot {
                     mIntake.setState(Intake.WantedAction.NONE);
                 }
             } else {
+                mSuperstructure.enableIndexer(false);
                 mLEDs.conformToState(buddy_climb ? LEDs.State.CLIMBING_BUDDY : LEDs.State.CLIMBING);
-                mIndexer.setState(WantedAction.PREP);
                 mIntake.setState(Intake.WantedAction.NONE);
                 if (mControlBoard.getArmExtend()) { // Press A
                     mClimber.setState(Climber.WantedAction.PIVOT);

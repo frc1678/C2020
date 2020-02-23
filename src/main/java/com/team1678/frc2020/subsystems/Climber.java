@@ -26,15 +26,15 @@ public class Climber extends Subsystem  {
     private static Climber mInstance = null;
 
     private static final double kIdleVoltage = 0.0;
-    private static final double kPivotVoltage = -2.0;
+    private static final double kPivotVoltage = -3.4;
     private static final double kExtendVoltage = 2.0;
-    private static final double kClimbVoltage = -2.0;
+    private static final double kClimbVoltage = -4.0;
     private static final double kBrakeVelocity = 500.0;
-    private static final double kPivotWaitTime = .25;
+    private static final double kPivotWaitTime = .3;
     private double mInitialTime;
 
-    private static final int kExtendDelta = 280000;
-    private static final int kHugDelta = 237000;
+    private static final int kExtendDelta = 212500;
+    private static final int kHugDelta = 172500;
     private static final int kClimbDelta = 5000;
 
     private PeriodicIO mPeriodicIO = new PeriodicIO();
@@ -57,7 +57,7 @@ public class Climber extends Subsystem  {
     private double mZeroPos;
     private TimeDelayedBoolean brake_activation = new TimeDelayedBoolean();
 
-    public StatorCurrentLimitConfiguration STATOR_CURRENT_LIMIT = new StatorCurrentLimitConfiguration(true, 10, 10, .2);
+    public StatorCurrentLimitConfiguration STATOR_CURRENT_LIMIT = new StatorCurrentLimitConfiguration(true, 20, 20, .2);
 
     private Climber() {
         mArmSolenoid = Constants.makeSolenoidForId(Constants.kArmSolenoidId);
@@ -171,7 +171,7 @@ public class Climber extends Subsystem  {
             mPeriodicIO.arm_solenoid = true;
             break;
         case PIVOTING:
-            if (now - mInitialTime < kPivotWaitTime) {
+            /*if (now - mInitialTime < kPivotWaitTime) {
                 mPeriodicIO.arm_solenoid = false;
             } else {
                 mPeriodicIO.arm_solenoid = true;
@@ -182,8 +182,11 @@ public class Climber extends Subsystem  {
                 mPeriodicIO.demand = kIdleVoltage;
                 mZeroPos = mPeriodicIO.position;
                 mState = State.EXTENDING;
-            }
+            }*/
+            mPeriodicIO.demand = kPivotVoltage;
+            mPeriodicIO.arm_solenoid = false;
             mPeriodicIO.brake_solenoid = false;
+            mZeroPos = mPeriodicIO.position;
             break;
         case EXTENDING:
             mPeriodicIO.demand = mZeroPos + kExtendDelta;
@@ -206,7 +209,7 @@ public class Climber extends Subsystem  {
             mPeriodicIO.brake_solenoid = false;
 
             if ((Math.abs(mPeriodicIO.position - (mZeroPos + kClimbDelta)) < 5000 && Math.abs(mPeriodicIO.velocity) < kBrakeVelocity) 
-                || mMaster.getStatorCurrent() > 10.0) {
+                || mMaster.getStatorCurrent() > 20.0) {
                 mHoldingPos = mPeriodicIO.position;
                 mState = State.BRAKING;
             }
