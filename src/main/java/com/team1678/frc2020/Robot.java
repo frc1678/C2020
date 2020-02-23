@@ -243,10 +243,6 @@ public class Robot extends TimedRobot {
                 mLEDs.conformToState(LEDs.State.ENABLED);
             }
 
-            if (climb_mode) {
-                mLEDs.conformToState(mWrangler.getWranglerOut() ? LEDs.State.CLIMBING_BUDDY : LEDs.State.CLIMBING);
-            }
-
             mDrive.setCheesyishDrive(throttle, turn, mControlBoard.getQuickTurn());
 
             mLimelight.setLed(Limelight.LedMode.ON);
@@ -269,6 +265,7 @@ public class Robot extends TimedRobot {
 
             if (mControlBoard.climbMode()) {
                 climb_mode = true;
+            }
 
             if (!climb_mode){ //TODO: turret preset stuff and jog turret and rumbles
                 mWrangler.setState(Wrangler.WantedAction.RETRACT);
@@ -302,14 +299,17 @@ public class Robot extends TimedRobot {
                     mIntake.setState(Intake.WantedAction.NONE);
                 }
             } else {
+                mLEDs.conformToState(buddy_climb ? LEDs.State.CLIMBING_BUDDY : LEDs.State.CLIMBING);
                 mIndexer.setState(WantedAction.PREP);
                 mIntake.setState(Intake.WantedAction.RETRACT);
                 if (mControlBoard.getArmExtend()) { // Press A
                     mClimber.setState(Climber.WantedAction.PIVOT);
+                    mLEDs.conformToState(buddy_climb ? LEDs.State.EXTENDING_BUDDY : LEDs.State.EXTENDING);
                 } else if (mControlBoard.getStopExtend()) {
                     mClimber.setState(Climber.WantedAction.STOP);
                 } else if (mControlBoard.getArmHug()) { // Press B
                     mClimber.setState(Climber.WantedAction.HUG); // hook onto the rung
+                    mLEDs.conformToState(buddy_climb ? LEDs.State.HUGGING_BUDDY : LEDs.State.HUGGING);
                 } else if (mControlBoard.getBuddyDeploy()) { // Press Back
                     mWrangler.setState(Wrangler.WantedAction.DEPLOY);
                     buddy_climb = true;
@@ -317,6 +317,7 @@ public class Robot extends TimedRobot {
                     mWrangler.setState(Wrangler.WantedAction.WRANGLE);
                 } else if (mControlBoard.getClimb()) { // Press Y
                     mClimber.setState(Climber.WantedAction.CLIMB);
+                    mLEDs.conformToState(buddy_climb ? LEDs.State.HUGGING_BUDDY : LEDs.State.HUGGING);
                 } else if (mControlBoard.getManualArmExtend()) { // Press and hold left joystick
                     mClimber.setState(Climber.WantedAction.MANUAL_EXTEND);
                 } else if (mControlBoard.getManualArmRetract()) { // Press and hold right joystick
