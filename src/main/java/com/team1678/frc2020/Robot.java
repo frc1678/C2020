@@ -234,6 +234,7 @@ public class Robot extends TimedRobot {
             double hood_jog = mControlBoard.getJogHood();
             double turret_jog = mControlBoard.getJogTurret();
 
+            if (!climb_mode) {
             if (!mLimelight.limelightOK()) {
                 mLEDs.conformToState(LEDs.State.EMERGENCY);
             } else if (mSuperstructure.getTucked()) {
@@ -245,6 +246,7 @@ public class Robot extends TimedRobot {
             } else {
                 mLEDs.conformToState(LEDs.State.ENABLED);
             }
+        }
 
             mDrive.setCheesyishDrive(throttle, turn, mControlBoard.getQuickTurn());
 
@@ -306,7 +308,7 @@ public class Robot extends TimedRobot {
             } else {
                 mLEDs.conformToState(buddy_climb ? LEDs.State.CLIMBING_BUDDY : LEDs.State.CLIMBING);
                 mIndexer.setState(WantedAction.PREP);
-                mIntake.setState(Intake.WantedAction.RETRACT);
+                mIntake.setState(Intake.WantedAction.NONE);
                 if (mControlBoard.getArmExtend()) { // Press A
                     mClimber.setState(Climber.WantedAction.PIVOT);
                     mLEDs.conformToState(buddy_climb ? LEDs.State.EXTENDING_BUDDY : LEDs.State.EXTENDING);
