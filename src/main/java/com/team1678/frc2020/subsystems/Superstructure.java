@@ -383,7 +383,7 @@ public class Superstructure extends Subsystem {
         mIndexer.setState(indexerAction);
         mTrigger.setPopoutSolenoid(real_popout);
         mTrigger.setVelocity(real_trigger);
-        if (real_shooter < Util.kEpsilon) {
+        if (Math.abs(real_shooter) < Util.kEpsilon) {
             mShooter.setOpenLoop(0);
         } else {
             mShooter.setVelocity(real_shooter);

@@ -262,7 +262,7 @@ public class Robot extends TimedRobot {
             } else if (mControlBoard.getFendorShot()) {
                 mSuperstructure.setGoal(1000, 35, 180);
             } else if (cardinal == TurretCardinal.NONE) {
-                mSuperstructure.setWantAutoAim(Rotation2d.fromDegrees(180.0));
+                mSuperstructure.setWantAutoAim(Rotation2d.fromDegrees(0.0));
             } else {
                 mSuperstructure.setWantFieldRelativeTurret(cardinal.rotation);
             }
