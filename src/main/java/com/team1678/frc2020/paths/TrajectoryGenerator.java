@@ -96,8 +96,8 @@ public class TrajectoryGenerator {
     public static final Pose2d kNearShotWaypoint = new Pose2d(150.0, 130.0, Rotation2d.fromDegrees(0));
     public static final Pose2d kNearShotWaypointREN = new Pose2d(150.0, 120.0, Rotation2d.fromDegrees(0));
 
-    public static final Pose2d kSecondBarIntakePose = new Pose2d(250.0, 15, Rotation2d.fromDegrees(-120.0));
-    public static final Pose2d kCenterRVWaypoint = new Pose2d(280.0, 17.0, Rotation2d.fromDegrees(-170.0));
+    public static final Pose2d kSecondBarIntakePose = new Pose2d(255.0, 4, Rotation2d.fromDegrees(-133.0));
+    public static final Pose2d kCenterRVWaypoint = new Pose2d(280.0, 10.0, Rotation2d.fromDegrees(-170.0));
     public static final Pose2d kShotTBAWaypoint = new Pose2d(190.0, 10.0, Rotation2d.fromDegrees(-200.0));
     public static final Pose2d kShotPoseTBA = new Pose2d(170.0, 70.0, Rotation2d.fromDegrees(100.0));
 
@@ -106,8 +106,6 @@ public class TrajectoryGenerator {
     public static final Pose2d kRVEnterWaypoint = new Pose2d(210.0, 75.0, Rotation2d.fromDegrees(0.0));
     public static final Pose2d kSecondIntakePose = new Pose2d(232.0, 55.0, Rotation2d.fromDegrees(-56.0));
     public static final Pose2d kPillarWaypoint = new Pose2d(235.0, 20.0, Rotation2d.fromDegrees(-120.0));
-    public static final Pose2d kSecondIntakePose = new Pose2d(235.0, 55.0, Rotation2d.fromDegrees(-50.0));
-    public static final Pose2d kPillarWaypoint = new Pose2d(245.0, 20.0, Rotation2d.fromDegrees(-130.0));
     public static final Pose2d kPreThirdIntakeWaypoint = new Pose2d(260.0, -10, Rotation2d.fromDegrees(200.0));
     public static final Pose2d kShotPoseWaypoint = new Pose2d(240.0, -40.0, Rotation2d.fromDegrees(-60.0));
     public static final Pose2d kThirdIntakePose = new Pose2d(240.0, 5.0, Rotation2d.fromDegrees(-60.0));
