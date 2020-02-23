@@ -28,6 +28,8 @@ public class SparkMaxFactory {
 
         public boolean ENABLE_VOLTAGE_COMPENSATION = false;
         public double NOMINAL_VOLTAGE = 12.0;
+
+        public int SMART_CURRENT_LIMIT = 20;
     }
 
     private static final Configuration kDefaultConfiguration = new Configuration();
@@ -83,6 +85,8 @@ public class SparkMaxFactory {
         } else {
             handleCANError(id, sparkMax.disableVoltageCompensation(), "voltage compensation");
         }
+
+        sparkMax.setSmartCurrentLimit(config.SMART_CURRENT_LIMIT);
 
         return sparkMax;
     }

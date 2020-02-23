@@ -2,17 +2,21 @@ package com.team1678.frc2020.subsystems;
 
 import com.team1678.frc2020.Constants;
 import com.team1678.frc2020.RobotState;
+import com.team1678.frc2020.logger.LoggingSystem;
+import com.team1678.frc2020.logger.LogStorage;
+import com.team1678.frc2020.loops.Loop;
+import com.team1678.frc2020.loops.ILooper;
+
 import com.team254.lib.geometry.Pose2d;
 import com.team254.lib.geometry.Rotation2d;
 import com.team254.lib.geometry.Translation2d;
 import com.team254.lib.util.Util;
 import com.team254.lib.vision.TargetInfo;
+
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import com.team1678.frc2020.loops.Loop;
-import com.team1678.frc2020.loops.ILooper;
-import com.team1678.frc2020.RobotState;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -39,8 +43,14 @@ public class Limelight extends Subsystem {
     private NetworkTable mNetworkTable;
 
     private Limelight() {
-        mConstants = Constants.kTopLimelightConstants;
+        mConstants = Constants.kLimelightConstants;
         mNetworkTable = NetworkTableInstance.getDefault().getTable(mConstants.kTableName);
+    }
+
+    @Override
+    public void registerLogger(LoggingSystem LS) {
+        LogSetup();
+        LS.register(mStorage, "limelight.csv");
     }
 
     public static Limelight getInstance() {
@@ -62,7 +72,11 @@ public class Limelight extends Subsystem {
             @Override
             public void onLoop(double timestamp) {
                 synchronized (this) {
-                    RobotState.getInstance().addVisionUpdate(timestamp - getLatency(), getTarget());
+                    //if (!Superstructure.getInstance().getWantsShoot() && Hood.getInstance().getAtGoal()) {
+                        RobotState.getInstance().addVisionUpdate(timestamp - getLatency(), getTarget());
+                    //} else {
+                    //    RobotState.getInstance().addVisionUpdate(timestamp - getLatency(), null);
+                    //}
                 }
 
             }
@@ -91,7 +105,8 @@ public class Limelight extends Subsystem {
         public int stream = 2; // sets stream layout if another webcam is attached
         public int snapshot = 0; // 0 - stop snapshots, 1 - 2 Hz
     }
-
+    
+    LogStorage<PeriodicIO> mStorage = null;
     private LimelightConstants mConstants = null;
     private PeriodicIO mPeriodicIO = new PeriodicIO();
     private boolean mOutputsHaveChanged = true;
@@ -113,6 +128,7 @@ public class Limelight extends Subsystem {
 
     @Override
     public synchronized void readPeriodicInputs() {
+        LogSend();
         mPeriodicIO.latency = mNetworkTable.getEntry("tl").getDouble(0) / 1000.0 + Constants.kImageCaptureLatency;
         mPeriodicIO.givenLedMode = (int) mNetworkTable.getEntry("ledMode").getDouble(1.0);
         mPeriodicIO.givenPipeline = (int) mNetworkTable.getEntry("pipeline").getDouble(0);
@@ -286,7 +302,6 @@ public class Limelight extends Subsystem {
             for (int i = 0; i < corners.size() - 4; i++) {
                 corners.remove(1 + i);
             }
-            System.out.println(corners.size());
         }
 
         List<Translation2d> left = corners.subList(0, 2);
@@ -310,5 +325,31 @@ public class Limelight extends Subsystem {
 
     public double getLatency() {
         return mPeriodicIO.latency;
+    }
+
+    public void LogSetup() {
+        mStorage = new LogStorage<PeriodicIO>();
+        mStorage.setHeadersFromClass(PeriodicIO.class);
+    }
+    public void LogSend() {
+        ArrayList<Double> items = new ArrayList<Double>();
+        items.add(Timer.getFPGATimestamp());
+        // INPUTS
+        items.add(mPeriodicIO.latency);
+        items.add((double) mPeriodicIO.givenLedMode);
+        items.add((double) mPeriodicIO.givenPipeline);
+        items.add(mPeriodicIO.xOffset);
+        items.add(mPeriodicIO.yOffset);
+        items.add(mPeriodicIO.area);
+
+        // OUTPUTS
+        items.add((double) mPeriodicIO.ledMode);
+        items.add((double) mPeriodicIO.camMode);
+        items.add((double) mPeriodicIO.pipeline);
+        items.add((double) mPeriodicIO.stream);
+        items.add((double) mPeriodicIO.snapshot);
+
+        mStorage.addData(items);
+
     }
 }

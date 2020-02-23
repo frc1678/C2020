@@ -11,6 +11,7 @@ import com.team254.lib.geometry.Pose2d;
 import com.team254.lib.geometry.Rotation2d;
 import com.team254.lib.geometry.Twist2d;
 import com.team254.lib.util.InterpolatingDouble;
+import com.team254.lib.util.TimeDelayedBoolean;
 import com.team254.lib.util.Units;
 import com.team254.lib.util.Util;
 import com.team254.lib.vision.AimingParameters;
@@ -23,9 +24,11 @@ public class Superstructure extends Subsystem {
 
     private final Turret mTurret = Turret.getInstance();
     private final Shooter mShooter = Shooter.getInstance();
+    private final Trigger mTrigger = Trigger.getInstance();
     private final Hood mHood = Hood.getInstance();
     private final Indexer mIndexer = Indexer.getInstance();
     private final RobotState mRobotState = RobotState.getInstance();
+    private boolean mAutoIndex = false;
 
     private Rotation2d mFieldRelativeTurretGoal = null;
 
@@ -45,19 +48,28 @@ public class Superstructure extends Subsystem {
     private double mAutoAimMinDistance = 500;
     private boolean mWantsShoot = false;
     private boolean mWantsSpinUp = false;
+    private boolean mWantsTuck = false;
+    private boolean mSettled = false;
     private boolean mUseInnerTarget = false;
 
     private double mCurrentTurret = 0.0;
     private double mCurrentHood = 0.0;
 
     private double mTurretSetpoint = 0.0;
-    private double mHoodSetpoint = 0.0;
-    private double mShooterSetpoint = 0.0;
+    private double mHoodSetpoint = 63;
+    private double mShooterSetpoint = 4000.0;
+    private boolean mGotSpunUp = false;
 
     private TurretControlModes mTurretMode = TurretControlModes.FIELD_RELATIVE;
 
     private double mTurretThrottle = 0.0;
+    private TimeDelayedBoolean trigger_popout = new TimeDelayedBoolean();
+    private boolean estim_popout = false;
 
+    public synchronized boolean spunUp() {
+        return mGotSpunUp;
+    }
+    
     public synchronized static Superstructure getInstance() {
         if (mInstance == null) {
             mInstance = new Superstructure();
@@ -69,6 +81,10 @@ public class Superstructure extends Subsystem {
     private Superstructure() {
     }
 
+    public boolean getWantShoot() {
+        return mWantsShoot;
+    }
+
     @Override
     public void registerEnabledLoops(ILooper mEnabledLooper) {
         mEnabledLooper.register(new Loop() {
@@ -76,6 +92,10 @@ public class Superstructure extends Subsystem {
             public void onStart(double timestamp) {
                 synchronized (Superstructure.this) {
                     mTurretMode = TurretControlModes.FIELD_RELATIVE;
+                    if (SuperstructureConstants.kUseSmartdashboard) {
+                        SmartDashboard.putNumber("Shooting RPM", mShooterSetpoint);
+                        SmartDashboard.putNumber("Hood Angle", mHoodSetpoint);
+                    }
                 }
             }
 
@@ -96,10 +116,15 @@ public class Superstructure extends Subsystem {
         });
     }
 
+    public synchronized boolean getWantsShoot() {
+        return mWantsShoot;
+    }
+
     @Override
     public void outputTelemetry() {
         SmartDashboard.putString("Turret Control State", mTurretMode.toString());
         SmartDashboard.putNumber("Turret Goal", mTurretSetpoint);
+        SmartDashboard.putNumber("Hood Goal", mHoodSetpoint);
     }
 
     @Override
@@ -116,7 +141,9 @@ public class Superstructure extends Subsystem {
     }
 
     private double getShootingSetpointRpm(double range) {
-        if (SuperstructureConstants.kUseFlywheelAutoAimPolynomial) {
+        if (SuperstructureConstants.kUseSmartdashboard) {
+            return SmartDashboard.getNumber("Shooting RPM", 0);
+        } else if (SuperstructureConstants.kUseFlywheelAutoAimPolynomial) {
             return SuperstructureConstants.kFlywheelAutoAimPolynomial.predict(range);
         } else {
             return SuperstructureConstants.kFlywheelAutoAimMap.getInterpolated(new InterpolatingDouble(range)).value;
@@ -124,7 +151,9 @@ public class Superstructure extends Subsystem {
     }
 
     private double getHoodSetpointAngle(double range) {
-        if (SuperstructureConstants.kUseHoodAutoAimPolynomial) {
+        if (SuperstructureConstants.kUseSmartdashboard) {
+            return SmartDashboard.getNumber("Hood Angle", 0);
+        } else if (SuperstructureConstants.kUseHoodAutoAimPolynomial) {
             return SuperstructureConstants.kHoodAutoAimPolynomial.predict(range);
         } else {
             return SuperstructureConstants.kHoodAutoAimMap.getInterpolated(new InterpolatingDouble(range)).value;
@@ -224,8 +253,9 @@ public class Superstructure extends Subsystem {
             final double aiming_setpoint = getHoodSetpointAngle(mCorrectedRangeToTarget);
             mHoodSetpoint = aiming_setpoint;
 
-            final Rotation2d turret_error = mRobotState.getVehicleToTurret(timestamp).getRotation().inverse()
+            final Rotation2d turret_error = /*Rotation2d.fromDegrees(Limelight.getInstance().getTx());*/mRobotState.getVehicleToTurret(timestamp).getRotation().inverse()
                     .rotateBy(mLatestAimingParameters.get().getRobotToGoalRotation());
+            
             mTurretSetpoint = mCurrentTurret + turret_error.getDegrees();
             final Twist2d velocity = mRobotState.getMeasuredVelocity();
             // Angular velocity component from tangential robot motion about the goal.
@@ -235,6 +265,8 @@ public class Superstructure extends Subsystem {
             // Add (opposite) of tangential velocity about goal + angular velocity in local
             // frame.
             mTurretFeedforwardV = -(angular_component + tangential_component);
+
+            System.out.println(mCorrectedRangeToTarget);
 
             safetyReset();
 
@@ -281,36 +313,96 @@ public class Superstructure extends Subsystem {
     }
 
     public synchronized void followSetpoint() {
+  
+        if (SuperstructureConstants.kUseSmartdashboard) {
+            mShooterSetpoint = getShootingSetpointRpm(0);
+            mHoodSetpoint = getHoodSetpointAngle(0);
+        }
+
+        if (mWantsTuck) {
+            mHood.setSetpointMotionMagic(0.0);
+        } else {
+            mHood.setSetpointMotionMagic(mHoodSetpoint);
+        }
+
+        Indexer.WantedAction indexerAction = Indexer.WantedAction.PREP;
+        double real_trigger = 0.0;
+        double real_shooter = 0.0;
+        boolean real_popout = false;
+
+        if (Intake.getInstance().getState() == Intake.State.INTAKING) {
+            if (mAutoIndex) {
+                indexerAction = Indexer.WantedAction.INDEX;
+            } else {
+                indexerAction = Indexer.WantedAction.PASSIVE_INDEX;
+            }
+        }
+
+        if (mWantsSpinUp) {
+            real_shooter = mShooterSetpoint;
+            indexerAction = Indexer.WantedAction.PASSIVE_INDEX;
+            real_trigger = Constants.kTriggerRPM;
+        } else if (mWantsShoot) {
+            real_shooter = mShooterSetpoint;
+            indexerAction = Indexer.WantedAction.PREP;
+            real_trigger = Constants.kTriggerRPM;
+            
+            if (mSettled) {
+                real_popout = true;
+            }
+
+            if (mIndexer.isAtDeadSpot() && Math.abs(mIndexer.getIndexerVelocity()) < 5) {
+                mSettled = true;
+            }
+
+            /*if (mSettled) {
+                real_popout = true;
+                real_trigger = Constants.kTriggerRPM;
+                if (mShooter.spunUp() && mTrigger.spunUp()) {
+                    mGotSpunUp = true;
+                }
+            }*/
+
+            if (mShooter.spunUp() && mTrigger.spunUp()) {
+                mGotSpunUp = true;
+            }
+
+            if (mGotSpunUp && estim_popout) {
+                //real_popout = true;
+                //real_trigger = Constants.kTriggerRPM;
+                indexerAction = Indexer.WantedAction.ZOOM;
+            }
+        }
+
+        mIndexer.setState(indexerAction);
+        mTrigger.setPopoutSolenoid(real_popout);
+        mTrigger.setVelocity(real_trigger);
+        if (real_shooter < Util.kEpsilon) {
+            mShooter.setOpenLoop(0);
+        } else {
+            mShooter.setVelocity(real_shooter);
+        }
+
         if (mTurretMode == TurretControlModes.OPEN_LOOP) {
             mTurret.setOpenLoop(mTurretThrottle);
+        } else  if (mTurretMode == TurretControlModes.VISION_AIMED) {
+            mTurret.setSetpointPositionPID(mTurretSetpoint, 0);
         } else {
-            mTurret.setSetpointMotionMagic(mTurretSetpoint);
+            mTurret.setSetpointMotionMagic(mTurretSetpoint, 0);
         }
-
-        mHood.setSetpointPositionPID(mHoodSetpoint, mHoodFeedforwardV);
-
-        Indexer.WantedAction indexerAction = Indexer.WantedAction.NONE;
-
-        if (Intake.getInstance().getState() != Intake.State.IDLE) {
-            indexerAction = Indexer.WantedAction.INDEX;
-        }
-
-        if ((mWantsSpinUp && mIndexer.isAtDeadSpot())) {
-            mShooter.setVelocity(mShooterSetpoint);
-            indexerAction = Indexer.WantedAction.PREP;
-        } else if (mWantsShoot) {
-            mShooter.setVelocity(mShooterSetpoint);
-            if (mShooter.spunUp()) {
-                indexerAction = Indexer.WantedAction.ZOOM;
-            } else {
-                indexerAction = Indexer.WantedAction.PREP;
-            }
-        } else {
-            mShooter.setOpenLoop(0);
-        }
-        mIndexer.setState(indexerAction);
+        //mTurret.setOpenLoop(0);
+        //mHood.setOpenLoop(0);
+        estim_popout = trigger_popout.update(real_popout, 0.2);
     }
 
+    public synchronized Optional<AimingParameters> getLatestAimingParameters() {
+        return mLatestAimingParameters;
+    }
+
+    public synchronized boolean isOnTarget() {
+        return mOnTarget;
+    }
+    
     public synchronized void setWantAutoAim(Rotation2d field_to_turret_hint, boolean enforce_min_distance,
             double min_distance) {
         mTurretMode = TurretControlModes.VISION_AIMED;
@@ -323,18 +415,41 @@ public class Superstructure extends Subsystem {
         setWantAutoAim(field_to_turret_hint, false, 500);
     }
 
+    public synchronized void setWantShoot() {
+        mWantsSpinUp = false;
+        mWantsShoot = !mWantsShoot;
+        mSettled = false;
+        mGotSpunUp = false;
+    }
+
+    public synchronized void setWantSpinUp() {
+        mWantsSpinUp = !mWantsSpinUp;
+        mWantsShoot = false;
+        mGotSpunUp = false;
+    }
+
     public synchronized void setWantShoot(boolean shoot) {
         mWantsSpinUp = false;
         mWantsShoot = shoot;
+        mSettled = false;
+        mGotSpunUp = false;
+    }
+
+    public synchronized void setWantSpinUp(boolean spin_up) {
+        mWantsSpinUp = spin_up;
+        mWantsShoot = false;
+    }
+
+    public synchronized void setWantTuck() {
+        mWantsTuck = !mWantsTuck;
     }
 
     public synchronized void setWantInnerTarget(boolean inner) {
         mUseInnerTarget = inner;
     }
 
-    public synchronized void setWantSpinUp(boolean spin_up) {
-        mWantsSpinUp = spin_up;
-        mWantsShoot = false;
+    public synchronized void setAutoIndex(boolean auto_index) {
+        mAutoIndex = auto_index;
     }
 
     public synchronized void setWantFieldRelativeTurret(Rotation2d field_to_turret) {

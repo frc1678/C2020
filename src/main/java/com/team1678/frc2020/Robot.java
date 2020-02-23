@@ -35,6 +35,7 @@ import com.team254.lib.util.*;
 import com.team254.lib.vision.AimingParameters;
 import com.team254.lib.geometry.Rotation2d;
 import com.team1678.frc2020.subsystems.RobotStateEstimator;
+import com.team1678.frc2020.subsystems.Indexer.WantedAction;
 import com.team254.lib.geometry.Pose2d;
 import com.team254.lib.geometry.Rotation2d;
 import com.team254.lib.util.CrashTracker;
@@ -74,9 +75,12 @@ public class Robot extends TimedRobot {
     private final Superstructure mSuperstructure = Superstructure.getInstance();
     private final Turret mTurret = Turret.getInstance();
     private final Shooter mShooter = Shooter.getInstance();
+    private final Trigger mTrigger = Trigger.getInstance();
     private final Climber mClimber = Climber.getInstance();
+    private final Hood mHood = Hood.getInstance();
     private final Wrangler mWrangler = Wrangler.getInstance();
     private final Roller mRoller = Roller.getInstance();
+    private final Canifier mCanifier = Canifier.getInstance();
 
     private final RobotState mRobotState = RobotState.getInstance();
     private final RobotStateEstimator mRobotStateEstimator = RobotStateEstimator.getInstance();
@@ -96,6 +100,7 @@ public class Robot extends TimedRobot {
         RobotState.getInstance().outputToSmartDashboard();
         mSubsystemManager.outputToSmartDashboard();
         mAutoModeSelector.outputToSmartDashboard();
+        mEnabledLooper.outputToSmartDashboard();
     }
 
     @Override
@@ -103,18 +108,33 @@ public class Robot extends TimedRobot {
         try {
             CrashTracker.logRobotInit();
 
-            mSubsystemManager.setSubsystems(mRobotStateEstimator, mDrive, mLimelight, mIntake, mSuperstructure,
-                    mTurret, mRoller);
+            mSubsystemManager.setSubsystems(
+                mRobotStateEstimator,
+                mCanifier, 
+                mDrive, 
+                mLimelight, 
+                mIntake, 
+                //mIndexer, 
+                mWrangler, 
+                //mShooter,
+                //mTrigger,
+                //mSuperstructure,
+                //mHood,
+                //mTurret,
+                mRoller,
+                mInfrastructure,
+                mCanifier
+            );
 
             mSubsystemManager.registerEnabledLoops(mEnabledLooper);
             mSubsystemManager.registerDisabledLoops(mDisabledLooper);
 
             // Robot starts forwards.
-            mRobotState.reset(Timer.getFPGATimestamp(), Pose2d.identity(), Rotation2d.identity(),0.0);
+            mRobotState.reset(Timer.getFPGATimestamp(), Pose2d.identity());
             mDrive.setHeading(Rotation2d.identity());
 
-            mLimelight.setLed(Limelight.LedMode.OFF);
-            mIntake.registerLogger(mLogger);
+            mLimelight.setLed(Limelight.LedMode.ON);
+            mSubsystemManager.registerLoggingSystems(mLogger);
             mLogger.registerLoops(mLoggingLooper);
 
             mTrajectoryGenerator.generateTrajectories();
@@ -140,6 +160,7 @@ public class Robot extends TimedRobot {
             mAutoModeExecutor.start();
 
             mEnabledLooper.start();
+            mLoggingLooper.start();
         } catch (Throwable t) {
             CrashTracker.logThrowableCrash(t);
             throw t;
@@ -172,6 +193,7 @@ public class Robot extends TimedRobot {
 
             RobotState.getInstance().reset(Timer.getFPGATimestamp(), Pose2d.identity());
             mEnabledLooper.start();
+            mLoggingLooper.start();
             mLimelight.setPipeline(Constants.kPortPipeline);
 
             mControlBoard.reset();
@@ -203,31 +225,48 @@ public class Robot extends TimedRobot {
           
             mDrive.setCheesyishDrive(throttle, turn, mControlBoard.getQuickTurn());
 
-            mSuperstructure.setWantFieldRelativeTurret(mControlBoard.getTurretCardinal().rotation);
+            //mSuperstructure.setWantAutoAim(mControlBoard.getTurretCardinal().rotation);
+            mSuperstructure.setWantAutoAim(mControlBoard.getTurretCardinal().rotation);//setWantFieldRelativeTurret(mControlBoard.getTurretCardinal().rotation);
+
+            if (mControlBoard.climbMode()) {
+                climb_mode = true;
+                System.out.println("climb mode");
+            }
 
             if (!climb_mode){ //TODO: turret preset stuff and jog turret and rumbles
                 if (mIndexer.slotsFilled()) {
-                    mControlBoard.setRumble(true);
+                    mControlBoard.setRumble(false);
                 } else {
                     mControlBoard.setRumble(false);
                 }
                 
                 if (mControlBoard.getShoot()){
-                    mSuperstructure.setWantShoot(true);    
+                    mSuperstructure.setWantShoot();    
                 } else if (mControlBoard.getSpinUp()) {
-                    mSuperstructure.setWantSpinUp(true);
+                    mSuperstructure.setWantSpinUp();
                 } else if (mControlBoard.getRunIntake()) {
                     mIntake.setState(Intake.WantedAction.INTAKE);
+                    mSuperstructure.setAutoIndex(true);
                 } else if (mControlBoard.getRetractIntake()) {
                     mIntake.setState(Intake.WantedAction.RETRACT);
                 } else if (mControlBoard.getControlPanelRotation()) {
+                    //mIntake.setState(Intake.WantedAction.INTAKE);
+                    //mSuperstructure.setAutoIndex(false);
+                    //mIndexer.setBackwardsMode(false);
+
                     mRoller.setState(Roller.WantedAction.ACHIEVE_ROTATION_CONTROL);
                 } else if (mControlBoard.getControlPanelPosition()) {
+                    //mIntake.setState(Intake.WantedAction.INTAKE);
+                    //mSuperstructure.setAutoIndex(false);
+                    //mIndexer.setBackwardsMode(true);
+
                     mRoller.setState(Roller.WantedAction.ACHIEVE_POSITION_CONTROL);
                 } else {
                     mIntake.setState(Intake.WantedAction.NONE);
                 } 
             } else {
+                mIndexer.setState(WantedAction.PREP);
+                mIntake.setState(Intake.WantedAction.NONE);
                 if (mControlBoard.getArmDeploy()) {
                     mClimber.setState(Climber.WantedAction.EXTEND);
                 } else if (mControlBoard.getBuddyDeploy()) {
@@ -240,14 +279,11 @@ public class Robot extends TimedRobot {
                     mClimber.setState(Climber.WantedAction.SLOW_CLIMB);
                 } else if (mControlBoard.getLeaveClimbMode()) {
                     climb_mode = false;
+                } else {
+                    mWrangler.setState(Wrangler.WantedAction.NONE);
+                    mClimber.setState(Climber.WantedAction.NONE);
                 }
             }
-            
-            if (mControlBoard.climbMode()) {
-                climb_mode = true;
-                System.out.println("climb mode");
-            }
-
         } catch (Throwable t) {
             CrashTracker.logThrowableCrash(t);
             throw t;
@@ -263,6 +299,7 @@ public class Robot extends TimedRobot {
 
             mDisabledLooper.stop();
             mEnabledLooper.stop();
+            mLoggingLooper.stop();
 
             mDrive.checkSystem();
             // mCargoIntake.checkSystem();
@@ -284,6 +321,7 @@ public class Robot extends TimedRobot {
         try {
             CrashTracker.logDisabledInit();
             mEnabledLooper.stop();
+            mLoggingLooper.stop();
             if (mAutoModeExecutor != null) {
                 mAutoModeExecutor.stop();
             }
@@ -300,7 +338,7 @@ public class Robot extends TimedRobot {
 
             mDisabledLooper.start();
 
-            mLimelight.setLed(Limelight.LedMode.OFF);
+            mLimelight.setLed(Limelight.LedMode.ON);
             mLimelight.triggerOutputs();
 
             mDrive.setBrakeMode(false);
@@ -318,7 +356,7 @@ public class Robot extends TimedRobot {
         // mLimelight.setStream(2);
 
         try {
-            mLimelight.setLed(Limelight.LedMode.OFF);
+            mLimelight.setLed(Limelight.LedMode.ON);
 
             mAutoModeSelector.updateModeCreator();
 

@@ -1,5 +1,6 @@
 package com.team1678.frc2020.subsystems;
 
+import com.team1678.frc2020.Constants;
 import com.team1678.frc2020.loops.ILooper;
 import com.team1678.frc2020.loops.Loop;
 import edu.wpi.first.wpilibj.Compressor;
@@ -12,7 +13,7 @@ public class Infrastructure extends Subsystem {
     private boolean mIsDuringAuto = false;
 
     private Infrastructure() {
-        mCompressor = new Compressor();
+        mCompressor = new Compressor(Constants.kPCMId);
         mCompressor.start();
 
     }
