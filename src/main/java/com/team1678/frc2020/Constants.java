@@ -80,7 +80,6 @@ public class Constants {
     public static final int kDeploySolenoidId = 0;
 
     // Color Panel
-    //public static final int kColorPanelID = 14;
     public static final int kRollerId = 14; // TODO - Replace with actual value
     public static final int kRollerSolenoid = 2; // TODO - Replace with actual value
 

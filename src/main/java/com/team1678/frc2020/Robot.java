@@ -123,7 +123,7 @@ public class Robot extends TimedRobot {
                 //mTurret,
                 mRoller,
                 mInfrastructure,
-                mCanifier
+                mRoller
             );
 
             mSubsystemManager.registerEnabledLoops(mEnabledLooper);
@@ -210,8 +210,6 @@ public class Robot extends TimedRobot {
             double throttle = mControlBoard.getThrottle();
             double turn = mControlBoard.getTurn();
 
-
-            //TODO: George Fix this
             //mDrive.setAssistedDrive(timestamp, throttle, -turn, mControlBoard.getQuickTurn());
             //
             //if (mControlBoard.getScorePresetLow()) {
@@ -221,8 +219,7 @@ public class Robot extends TimedRobot {
             //} else if (mControlBoard.getScorePresetHigh()) {
             //    mRoller.setState(Roller.WantedAction.ACHIEVE_POSITION_CONTROL);
             //}
-          
-          
+
             mDrive.setCheesyishDrive(throttle, turn, mControlBoard.getQuickTurn());
 
             //mSuperstructure.setWantAutoAim(mControlBoard.getTurretCardinal().rotation);
@@ -250,17 +247,15 @@ public class Robot extends TimedRobot {
                 } else if (mControlBoard.getRetractIntake()) {
                     mIntake.setState(Intake.WantedAction.RETRACT);
                 } else if (mControlBoard.getControlPanelRotation()) {
+                    mRoller.setState(Roller.WantedAction.ACHIEVE_POSITION_CONTROL);
                     //mIntake.setState(Intake.WantedAction.INTAKE);
                     //mSuperstructure.setAutoIndex(false);
                     //mIndexer.setBackwardsMode(false);
-
-                    mRoller.setState(Roller.WantedAction.ACHIEVE_ROTATION_CONTROL);
                 } else if (mControlBoard.getControlPanelPosition()) {
+                    mRoller.setState(Roller.WantedAction.ACHIEVE_POSITION_CONTROL);
                     //mIntake.setState(Intake.WantedAction.INTAKE);
                     //mSuperstructure.setAutoIndex(false);
                     //mIndexer.setBackwardsMode(true);
-
-                    mRoller.setState(Roller.WantedAction.ACHIEVE_POSITION_CONTROL);
                 } else {
                     mIntake.setState(Intake.WantedAction.NONE);
                 } 
