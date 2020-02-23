@@ -203,6 +203,8 @@ public class Robot extends TimedRobot {
         try {
             CrashTracker.logTeleopInit();
             mDisabledLooper.stop();
+            mClimber.setBrakeMode(true);
+
 
             if (mAutoModeExecutor != null) {
                 mAutoModeExecutor.stop();
@@ -373,6 +375,7 @@ public class Robot extends TimedRobot {
         try {
             CrashTracker.logDisabledInit();
             mEnabledLooper.stop();
+            mClimber.setBrakeMode(false);
             if (mAutoModeExecutor != null) {
                 mAutoModeExecutor.stop();
             }

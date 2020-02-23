@@ -26,15 +26,15 @@ public class Climber extends Subsystem  {
     private static Climber mInstance = null;
 
     private static final double kIdleVoltage = 0.0;
-    private static final double kPivotVoltage = -3.4;
+    private static final double kPivotVoltage = -8.0;
     private static final double kExtendVoltage = 2.0;
     private static final double kClimbVoltage = -4.0;
     private static final double kBrakeVelocity = 500.0;
-    private static final double kPivotWaitTime = .3;
+    private static final double kPivotWaitTime = 0.5;
     private double mInitialTime;
 
-    private static final int kExtendDelta = 212500;
-    private static final int kHugDelta = 172500;
+    private static final int kExtendDelta = (73752 - (-168511)) - 4000;
+    private static final int kHugDelta = (73752 - (-168511)) - 4000;
     private static final int kClimbDelta = 5000;
 
     private PeriodicIO mPeriodicIO = new PeriodicIO();
@@ -57,7 +57,7 @@ public class Climber extends Subsystem  {
     private double mZeroPos;
     private TimeDelayedBoolean brake_activation = new TimeDelayedBoolean();
 
-    public StatorCurrentLimitConfiguration STATOR_CURRENT_LIMIT = new StatorCurrentLimitConfiguration(true, 20, 20, .2);
+    public StatorCurrentLimitConfiguration STATOR_CURRENT_LIMIT = new StatorCurrentLimitConfiguration(true, 40, 40, .2);
 
     private Climber() {
         mArmSolenoid = Constants.makeSolenoidForId(Constants.kArmSolenoidId);
@@ -71,9 +71,9 @@ public class Climber extends Subsystem  {
 
         mMaster.configSelectedFeedbackSensor(TalonFXFeedbackDevice.IntegratedSensor, 0, Constants.kLongCANTimeoutMs);
 
-        mMaster.configMotionAcceleration(20000, Constants.kLongCANTimeoutMs);
+        mMaster.configMotionAcceleration(40000, Constants.kLongCANTimeoutMs);
         mMaster.configMotionCruiseVelocity(20000, Constants.kLongCANTimeoutMs);
-        mMaster.config_kP(0, 0.1);
+        mMaster.config_kP(0, 0.06);
         mMaster.config_kI(0, 0);
         mMaster.config_kD(0, 0);
         mMaster.config_kF(0, 0.05);
@@ -95,6 +95,11 @@ public class Climber extends Subsystem  {
             mInstance = new Climber();
         }
         return mInstance;
+    }
+
+    public synchronized void setBrakeMode(boolean brake) {
+        mMaster.setNeutralMode(brake ? NeutralMode.Brake : NeutralMode.Coast);
+        mSlave.setNeutralMode(brake ? NeutralMode.Brake : NeutralMode.Coast);
     }
 
     @Override
@@ -171,20 +176,19 @@ public class Climber extends Subsystem  {
             mPeriodicIO.arm_solenoid = true;
             break;
         case PIVOTING:
-            /*if (now - mInitialTime < kPivotWaitTime) {
-                mPeriodicIO.arm_solenoid = false;
-            } else {
-                mPeriodicIO.arm_solenoid = true;
+            mPeriodicIO.arm_solenoid = false;
+            mPeriodicIO.demand = kPivotVoltage;
+
+            if (now - mInitialTime > kPivotWaitTime) {
+                if ((Math.abs(mPeriodicIO.velocity) < kBrakeVelocity)) {
+                    mPeriodicIO.demand = kIdleVoltage;
+                    mZeroPos = mPeriodicIO.position;
+                    //mState = State.EXTENDING;
+                    mState = State.IDLE;
+                }
             }
 
-            mPeriodicIO.demand = kPivotVoltage;
-            if ((Math.abs(mPeriodicIO.velocity) < kBrakeVelocity && mPeriodicIO.arm_solenoid) || mMaster.getStatorCurrent() > 10.0) {
-                mPeriodicIO.demand = kIdleVoltage;
-                mZeroPos = mPeriodicIO.position;
-                mState = State.EXTENDING;
-            }*/
-            mPeriodicIO.demand = kPivotVoltage;
-            mPeriodicIO.arm_solenoid = false;
+
             mPeriodicIO.brake_solenoid = false;
             mZeroPos = mPeriodicIO.position;
             break;
@@ -208,8 +212,7 @@ public class Climber extends Subsystem  {
             mPeriodicIO.arm_solenoid = true;
             mPeriodicIO.brake_solenoid = false;
 
-            if ((Math.abs(mPeriodicIO.position - (mZeroPos + kClimbDelta)) < 5000 && Math.abs(mPeriodicIO.velocity) < kBrakeVelocity) 
-                || mMaster.getStatorCurrent() > 20.0) {
+            if ((Math.abs(mPeriodicIO.position - (mZeroPos + kClimbDelta)) < 5000 && Math.abs(mPeriodicIO.velocity) < kBrakeVelocity)) {
                 mHoldingPos = mPeriodicIO.position;
                 mState = State.BRAKING;
             }
