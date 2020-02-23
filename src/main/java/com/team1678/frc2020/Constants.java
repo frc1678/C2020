@@ -208,6 +208,11 @@ public class Constants {
     public static final int kMainTurnJoystickPort = 0;
     public static final double kJoystickThreshold = 0.2;
 
+    // Roller
+    public static final int kRollerId = 14;
+    public static final int kRollerSolenoid = 2;
+
+    // solenoids
     public static final int kPCMId = 20;
     public static final int kPDPId = 21;
 

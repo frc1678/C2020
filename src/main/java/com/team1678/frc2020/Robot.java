@@ -74,6 +74,7 @@ public class Robot extends TimedRobot {
     private final Indexer mIndexer = Indexer.getInstance();
     private final Infrastructure mInfrastructure = Infrastructure.getInstance();
     private final Limelight mLimelight = Limelight.getInstance();
+
     private final Intake mIntake = Intake.getInstance();
     private final Superstructure mSuperstructure = Superstructure.getInstance();
     private final Turret mTurret = Turret.getInstance();
@@ -82,6 +83,8 @@ public class Robot extends TimedRobot {
     private final Climber mClimber = Climber.getInstance();
     private final Hood mHood = Hood.getInstance();
     private final Wrangler mWrangler = Wrangler.getInstance();
+
+    private final Roller mRoller = Roller.getInstance();
     private final Canifier mCanifier = Canifier.getInstance();
     private final LEDs mLEDs = LEDs.getInstance();
 
@@ -116,8 +119,22 @@ public class Robot extends TimedRobot {
 
             CrashTracker.logRobotInit();
 
-            mSubsystemManager.setSubsystems(mRobotStateEstimator, mCanifier, mDrive, mLimelight, mIntake, mIndexer,
-                    mWrangler, mShooter, mTrigger, mSuperstructure, mHood, mTurret, mLEDs, mInfrastructure);
+            mSubsystemManager.setSubsystems(
+                mRobotStateEstimator,
+                mCanifier, 
+                mDrive, 
+                mLimelight, 
+                mIntake, 
+                mIndexer, 
+                mWrangler, 
+                mShooter,
+                mTrigger,
+                mSuperstructure,
+                mHood,
+                mTurret,
+                mInfrastructure,
+                mRoller
+            );
 
             mSubsystemManager.registerEnabledLoops(mEnabledLooper);
             mSubsystemManager.registerDisabledLoops(mDisabledLooper);
@@ -281,7 +298,9 @@ public class Robot extends TimedRobot {
                 } else if (mControlBoard.getRetractIntake()) {
                     mIntake.setState(Intake.WantedAction.RETRACT);
                 } else if (mControlBoard.getControlPanelRotation()) {
+                    mRoller.setState(Roller.WantedAction.ACHIEVE_POSITION_CONTROL);
                 } else if (mControlBoard.getControlPanelPosition()) {
+                    mRoller.setState(Roller.WantedAction.ACHIEVE_POSITION_CONTROL);
                 } else {
                     mIntake.setState(Intake.WantedAction.NONE);
                 }
