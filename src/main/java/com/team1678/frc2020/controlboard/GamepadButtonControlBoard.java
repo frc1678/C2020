@@ -157,20 +157,36 @@ public class GamepadButtonControlBoard {
         mController.getTrigger(CustomXboxController.Side.LEFT) &&  mController.getTrigger(CustomXboxController.Side.RIGHT);
     }
 
-    public boolean getArmDeploy() {
-        return mController.getButton(CustomXboxController.Button.A);
+    public boolean getArmExtend() {
+        return mController.getController().getAButtonPressed();
+    }
+
+    public boolean getStopExtend() {
+        return mController.getController().getStickButtonReleased(Hand.kRight) || mController.getController().getStickButtonReleased(Hand.kLeft);
     }
 
     public boolean getBuddyDeploy() {
-        return mController.getButton(CustomXboxController.Button.B);
+        return mController.getController().getBackButtonPressed();
+    }
+
+    public boolean getArmHug() {
+        return mController.getController().getBButtonPressed();
+    }
+
+    public boolean getManualArmExtend() {
+        return mController.getButton(CustomXboxController.Button.L_JOYSTICK);
+    }
+
+    public boolean getManualArmRetract() {
+        return mController.getButton(CustomXboxController.Button.R_JOYSTICK);
     }
 
     public boolean getClimb() {
-        return mController.getButton(CustomXboxController.Button.Y);
+        return mController.getController().getYButtonPressed();
     }
 
-    public boolean getSlowClimb() {
-        return mController.getButton(CustomXboxController.Button.RB);
+    public boolean getBrake() {
+        return false; // mController.getController().getYButtonReleased();
     }
 
     public boolean getWrangle() {

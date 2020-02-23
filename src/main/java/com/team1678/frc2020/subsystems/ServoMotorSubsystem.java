@@ -263,7 +263,6 @@ public abstract class ServoMotorSubsystem extends Subsystem {
 
     @Override
     public synchronized void readPeriodicInputs() {
-        //();
         mPeriodicIO.timestamp = Timer.getFPGATimestamp();
 
         if (mMaster.hasResetOccurred()) {

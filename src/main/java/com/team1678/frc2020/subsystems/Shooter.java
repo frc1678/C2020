@@ -131,7 +131,6 @@ public class Shooter extends Subsystem {
 
     @Override
     public synchronized void readPeriodicInputs() {
-        //();
         mPeriodicIO.timestamp = Timer.getFPGATimestamp();
         
         mPeriodicIO.flywheel_velocity = mMaster.getSelectedSensorVelocity() * kFlywheelVelocityConversion;
