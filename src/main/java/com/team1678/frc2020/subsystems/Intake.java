@@ -119,7 +119,7 @@ public class Intake extends Subsystem {
             break;
         case RETRACTING:
             if (mPeriodicIO.intake_out) {    
-                mPeriodicIO.demand = kIntakingVoltage;
+                mPeriodicIO.demand = -kIntakingVoltage;
             } else {
                 mPeriodicIO.demand = 0.0;
             }

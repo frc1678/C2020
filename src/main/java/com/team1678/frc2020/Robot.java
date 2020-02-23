@@ -79,7 +79,7 @@ public class Robot extends TimedRobot {
     private final Hood mHood = Hood.getInstance();
     private final Wrangler mWrangler = Wrangler.getInstance();
 
-    //private final Roller mRoller = Roller.getInstance();
+    private final Roller mRoller = Roller.getInstance();
     private final Canifier mCanifier = Canifier.getInstance();
     private final LEDs mLEDs = LEDs.getInstance();
 
@@ -131,7 +131,9 @@ public class Robot extends TimedRobot {
                 mSuperstructure,
                 mTurret,
                 mInfrastructure,
-                mClimber
+                mClimber,
+                mRoller,
+                mLEDs
             );
 
             mSubsystemManager.registerEnabledLoops(mEnabledLooper);
@@ -236,7 +238,6 @@ public class Robot extends TimedRobot {
             double hood_jog = mControlBoard.getJogHood();
             double turret_jog = mControlBoard.getJogTurret();
 
-            if (!climb_mode) {
             if (!mLimelight.limelightOK()) {
                 mLEDs.conformToState(LEDs.State.EMERGENCY);
             } else if (mSuperstructure.getTucked()) {
@@ -248,7 +249,6 @@ public class Robot extends TimedRobot {
             } else {
                 mLEDs.conformToState(LEDs.State.ENABLED);
             }
-        }
 
             mDrive.setCheesyishDrive(throttle, turn, mControlBoard.getQuickTurn());
 

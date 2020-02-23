@@ -134,6 +134,7 @@ public class Superstructure extends Subsystem {
     public void outputTelemetry() {
         SmartDashboard.putString("Turret Control State", mTurretMode.toString());
         SmartDashboard.putNumber("Turret Goal", mTurretSetpoint);
+        SmartDashboard.putNumber("Turret Error", mTurretSetpoint - mCurrentTurret);
         SmartDashboard.putNumber("Hood Goal", mHoodSetpoint);
         SmartDashboard.putBoolean("Stopped at Deadspot", mSettled);
         SmartDashboard.putBoolean("Spun Up", mGotSpunUp);
