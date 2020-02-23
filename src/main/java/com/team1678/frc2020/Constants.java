@@ -185,7 +185,7 @@ public class Constants {
 
         // degrees of limelight pitch from horiz
         kHoodConstants.kMinUnitsLimit = 17.66;
-        kHoodConstants.kMaxUnitsLimit = 87.5;
+        kHoodConstants.kMaxUnitsLimit = 89.5;
 
         kHoodConstants.kCruiseVelocity = 20000; // Ticks / 100ms
         kHoodConstants.kAcceleration = 20000; // Ticks / 100ms / s

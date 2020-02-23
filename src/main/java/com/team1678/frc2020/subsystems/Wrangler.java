@@ -28,7 +28,7 @@ public class Wrangler extends Subsystem {
     private final TalonFX mMaster;
     private final Solenoid mDeployer;
 
-    public StatorCurrentLimitConfiguration STATOR_CURRENT_LIMIT = new StatorCurrentLimitConfiguration(true, 20, 20, .2);
+    public StatorCurrentLimitConfiguration STATOR_CURRENT_LIMIT = new StatorCurrentLimitConfiguration(true, 30, 30, .2);
     private boolean mBuddyClimb = false;
 
     public enum WantedAction {
