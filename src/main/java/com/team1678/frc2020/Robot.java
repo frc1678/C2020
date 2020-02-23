@@ -84,7 +84,7 @@ public class Robot extends TimedRobot {
     private final Hood mHood = Hood.getInstance();
     private final Wrangler mWrangler = Wrangler.getInstance();
 
-    private final Roller mRoller = Roller.getInstance();
+    //private final Roller mRoller = Roller.getInstance();
     private final Canifier mCanifier = Canifier.getInstance();
     private final LEDs mLEDs = LEDs.getInstance();
 
@@ -132,8 +132,8 @@ public class Robot extends TimedRobot {
                 mSuperstructure,
                 mHood,
                 mTurret,
-                mInfrastructure,
-                mRoller
+                mInfrastructure
+                //mRoller
             );
 
             mSubsystemManager.registerEnabledLoops(mEnabledLooper);
@@ -298,9 +298,9 @@ public class Robot extends TimedRobot {
                 } else if (mControlBoard.getRetractIntake()) {
                     mIntake.setState(Intake.WantedAction.RETRACT);
                 } else if (mControlBoard.getControlPanelRotation()) {
-                    mRoller.setState(Roller.WantedAction.ACHIEVE_POSITION_CONTROL);
+                    //mRoller.setState(Roller.WantedAction.ACHIEVE_POSITION_CONTROL);
                 } else if (mControlBoard.getControlPanelPosition()) {
-                    mRoller.setState(Roller.WantedAction.ACHIEVE_POSITION_CONTROL);
+                    //mRoller.setState(Roller.WantedAction.ACHIEVE_POSITION_CONTROL);
                 } else {
                     mIntake.setState(Intake.WantedAction.NONE);
                 }

@@ -166,7 +166,7 @@ public class Constants {
 
         // Unit == Degrees
         kHoodConstants.kHomePosition = 0.0; // Degrees
-        kHoodConstants.kTicksPerUnitDistance = (2048.0 * 70.0) / 360.0;
+        kHoodConstants.kTicksPerUnitDistance = (2048.0 * 93.8) / 360.0;
         kHoodConstants.kKp = 0.5;
         kHoodConstants.kKi = 0;
         kHoodConstants.kKd = 0;
