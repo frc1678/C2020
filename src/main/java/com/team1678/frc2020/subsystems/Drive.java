@@ -553,7 +553,6 @@ public class Drive extends Subsystem {
 
     @Override
     public synchronized void readPeriodicInputs() {
-        //();
         mPeriodicIO.timestamp = Timer.getFPGATimestamp();
 
         double prevLeftTicks = mPeriodicIO.left_position_ticks;

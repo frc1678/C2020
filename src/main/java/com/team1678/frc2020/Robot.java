@@ -14,10 +14,6 @@ import com.team1678.frc2020.auto.modes.AutoModeBase;
 import com.team1678.frc2020.controlboard.ControlBoard;
 import com.team1678.frc2020.loops.Looper;
 import com.team1678.frc2020.paths.TrajectoryGenerator;
-import com.team1678.frc2020.subsystems.Drive;
-import com.team1678.frc2020.subsystems.Infrastructure;
-import com.team1678.frc2020.subsystems.Intake;
-import com.team1678.frc2020.subsystems.Limelight;
 import com.team1678.frc2020.controlboard.ControlBoard;
 import com.team1678.frc2020.controlboard.GamepadButtonControlBoard;
 import com.team1678.frc2020.controlboard.GamepadButtonControlBoard.TurretCardinal;
@@ -36,7 +32,6 @@ import com.team1678.frc2020.subsystems.*;
 import com.team254.lib.util.*;
 import com.team254.lib.vision.AimingParameters;
 import com.team254.lib.geometry.Rotation2d;
-import com.team1678.frc2020.subsystems.RobotStateEstimator;
 import com.team1678.frc2020.subsystems.Indexer.WantedAction;
 import com.team254.lib.geometry.Pose2d;
 import com.team254.lib.geometry.Rotation2d;
@@ -88,6 +83,7 @@ public class Robot extends TimedRobot {
     private final RobotState mRobotState = RobotState.getInstance();
     private final RobotStateEstimator mRobotStateEstimator = RobotStateEstimator.getInstance();
     private boolean climb_mode = false;
+    private boolean buddy_climb = false;
     private AutoModeExecutor mAutoModeExecutor;
     private AutoModeSelector mAutoModeSelector = new AutoModeSelector();
 
@@ -104,6 +100,8 @@ public class Robot extends TimedRobot {
         mSubsystemManager.outputToSmartDashboard();
         mAutoModeSelector.outputToSmartDashboard();
         mEnabledLooper.outputToSmartDashboard();
+
+        SmartDashboard.putBoolean("Climb Mode", climb_mode);
     }
 
     @Override
@@ -116,8 +114,22 @@ public class Robot extends TimedRobot {
 
             CrashTracker.logRobotInit();
 
-            mSubsystemManager.setSubsystems(mRobotStateEstimator, mCanifier, mDrive, mLimelight, mIntake, mIndexer,
-                    mWrangler, mShooter, mTrigger, mSuperstructure, mHood, mTurret, mLEDs, mInfrastructure);
+            mSubsystemManager.setSubsystems(
+                mRobotStateEstimator,
+                mCanifier,
+                mDrive, 
+                mHood,
+                mLimelight, 
+                mIntake, 
+                mIndexer, 
+                mWrangler, 
+                mShooter,
+                mTrigger,
+                mSuperstructure,
+                mTurret,
+                mInfrastructure,
+                mClimber
+            );
 
             mSubsystemManager.registerEnabledLoops(mEnabledLooper);
             mSubsystemManager.registerDisabledLoops(mDisabledLooper);
@@ -257,10 +269,10 @@ public class Robot extends TimedRobot {
 
             if (mControlBoard.climbMode()) {
                 climb_mode = true;
-                System.out.println("climb mode");
-            }
 
-            if (!climb_mode) { // TODO: turret preset stuff and jog turret and rumbles
+            if (!climb_mode){ //TODO: turret preset stuff and jog turret and rumbles
+                mWrangler.setState(Wrangler.WantedAction.RETRACT);
+
                 if (mIndexer.slotsFilled()) {
                     mControlBoard.setRumble(false);
                 } else {
@@ -291,19 +303,29 @@ public class Robot extends TimedRobot {
                 }
             } else {
                 mIndexer.setState(WantedAction.PREP);
-                mIntake.setState(Intake.WantedAction.NONE);
-                if (mControlBoard.getArmDeploy()) {
-                    mClimber.setState(Climber.WantedAction.EXTEND);
-                } else if (mControlBoard.getBuddyDeploy()) {
+                mIntake.setState(Intake.WantedAction.RETRACT);
+                if (mControlBoard.getArmExtend()) { // Press A
+                    mClimber.setState(Climber.WantedAction.PIVOT);
+                } else if (mControlBoard.getStopExtend()) {
+                    mClimber.setState(Climber.WantedAction.STOP);
+                } else if (mControlBoard.getArmHug()) { // Press B
+                    mClimber.setState(Climber.WantedAction.HUG); // hook onto the rung
+                } else if (mControlBoard.getBuddyDeploy()) { // Press Back
                     mWrangler.setState(Wrangler.WantedAction.DEPLOY);
-                } else if (mControlBoard.getWrangle()) {
+                    buddy_climb = true;
+                } else if (mControlBoard.getWrangle()) { // Press and hold X
                     mWrangler.setState(Wrangler.WantedAction.WRANGLE);
-                } else if (mControlBoard.getClimb()) {
+                } else if (mControlBoard.getClimb()) { // Press Y
                     mClimber.setState(Climber.WantedAction.CLIMB);
-                } else if (mControlBoard.getSlowClimb()) {
-                    mClimber.setState(Climber.WantedAction.SLOW_CLIMB);
+                } else if (mControlBoard.getManualArmExtend()) { // Press and hold left joystick
+                    mClimber.setState(Climber.WantedAction.MANUAL_EXTEND);
+                } else if (mControlBoard.getManualArmRetract()) { // Press and hold right joystick
+                    mClimber.setState(Climber.WantedAction.MANUAL_CLIMB);
+                } else if (mControlBoard.getBrake()) { // Release Y
+                    mClimber.setState(Climber.WantedAction.BRAKE);
                 } else if (mControlBoard.getLeaveClimbMode()) {
                     climb_mode = false;
+                    buddy_climb = false;
                 } else {
                     mWrangler.setState(Wrangler.WantedAction.NONE);
                     mClimber.setState(Climber.WantedAction.NONE);
@@ -326,9 +348,6 @@ public class Robot extends TimedRobot {
             mEnabledLooper.stop();
 
             mDrive.checkSystem();
-            // mCargoIntake.checkSystem();
-            // mWrist.checkSystem();
-            // mElevator.checkSystem();
 
         } catch (Throwable t) {
             CrashTracker.logThrowableCrash(t);

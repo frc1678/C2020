@@ -103,20 +103,36 @@ public class ControlBoard {
         mButtonControlBoard.setRumble(on);
     }
 
-    public boolean getArmDeploy() {
-        return mButtonControlBoard.getArmDeploy();
-    } 
+    public boolean getArmExtend() {
+        return mButtonControlBoard.getArmExtend();
+    }
+
+    public boolean getStopExtend() {
+        return mButtonControlBoard.getStopExtend();
+    }
 
     public boolean getBuddyDeploy() {
         return mButtonControlBoard.getBuddyDeploy();
+    }
+
+    public boolean getArmHug() {
+        return mButtonControlBoard.getArmHug();
+    }
+
+    public boolean getManualArmExtend() {
+        return mButtonControlBoard.getManualArmExtend();
+    }
+
+    public boolean getManualArmRetract() {
+        return mButtonControlBoard.getManualArmRetract();
     }
 
     public boolean getClimb() {
         return mButtonControlBoard.getClimb();
     }
 
-    public boolean getSlowClimb() {
-        return mButtonControlBoard.getSlowClimb();
+    public boolean getBrake() {
+        return mButtonControlBoard.getBrake();
     }
 
     public boolean getWrangle() {
