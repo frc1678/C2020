@@ -363,9 +363,17 @@ public class Superstructure extends Subsystem {
             real_popout = false;
         } else if (mWantsShoot) {
             real_shooter = mShooterSetpoint;
-            indexerAction = Indexer.WantedAction.ZOOM;
+
+            if (mLatestAimingParameters.isPresent()) {
+                if (mLatestAimingParameters.get().getRange() > 240.) {
+                    indexerAction = Indexer.WantedAction.SLOW_ZOOM;
+                } else {
+                    indexerAction = Indexer.WantedAction.ZOOM;
+                }
+            } else {
+                indexerAction = Indexer.WantedAction.ZOOM;
+            }
             real_trigger = Constants.kTriggerRPM;
-            Intake.getInstance().setState(Intake.WantedAction.NONE);
 
             if (mIndexer.isAtDeadSpot()) {
                 mSettled = true;
@@ -377,12 +385,6 @@ public class Superstructure extends Subsystem {
 
             if (mShooter.spunUp() && mTrigger.spunUp()) {
                 mGotSpunUp = true;
-            }
-
-            if (mGotSpunUp && estim_popout || mTrigger.getJammed()) {
-                //real_popout = true;
-                //real_trigger = Constants.kTriggerRPM;
-                indexerAction = Indexer.WantedAction.ZOOM;
             }
         }
 

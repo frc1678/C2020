@@ -297,7 +297,9 @@ public class Robot extends TimedRobot {
                 } else if (mControlBoard.getTestSpit()) {
                     mSuperstructure.setWantTestSpit();
                 } else if (mControlBoard.getRunIntake()) {
-                    mIntake.setState(Intake.WantedAction.INTAKE);
+                    if (!mSuperstructure.getWantShoot()) {
+                        mIntake.setState(Intake.WantedAction.INTAKE);
+                    }
                     mSuperstructure.setAutoIndex(false);
                 } else if (mControlBoard.getRetractIntake()) {
                     mIntake.setState(Intake.WantedAction.RETRACT);

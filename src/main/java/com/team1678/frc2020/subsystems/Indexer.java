@@ -52,11 +52,11 @@ public class Indexer extends Subsystem {
     }
 
     public enum WantedAction {
-        NONE, INDEX, PASSIVE_INDEX, PREP, REVOLVE, ZOOM,
+        NONE, INDEX, PASSIVE_INDEX, PREP, REVOLVE, ZOOM, SLOW_ZOOM,
     }
 
     public enum State {
-        IDLE, INDEXING, PASSIVE_INDEXING, PREPPING, REVOLVING, ZOOMING, FEEDING,
+        IDLE, INDEXING, PASSIVE_INDEXING, PREPPING, REVOLVING, ZOOMING, SLOW_ZOOMING, FEEDING,
     }
 
     private boolean mGeneratedGoal = false;
@@ -277,6 +277,10 @@ public class Indexer extends Subsystem {
             mPeriodicIO.indexer_control_mode = ControlMode.Velocity;
             mPeriodicIO.indexer_demand = mBackwards ? -kZoomingVelocity : kZoomingVelocity;
             break;
+        case SLOW_ZOOMING:
+            mPeriodicIO.indexer_control_mode = ControlMode.Velocity;
+            mPeriodicIO.indexer_demand = (mBackwards ? -kZoomingVelocity : kZoomingVelocity) * 0.5;
+            break;
         case FEEDING:
             mPeriodicIO.indexer_control_mode = ControlMode.MotionMagic;
             if (mMotionPlanner.isAtGoal(mSlotGoal, indexer_angle, turret_angle)) {
@@ -325,6 +329,8 @@ public class Indexer extends Subsystem {
             break;
         case ZOOM:
             mState = State.ZOOMING;
+        case SLOW_ZOOM:
+            mState = State.SLOW_ZOOMING;
             break;
         }
 
