@@ -79,7 +79,7 @@ public class Robot extends TimedRobot {
     private final Hood mHood = Hood.getInstance();
     private final Wrangler mWrangler = Wrangler.getInstance();
 
-    private final Roller mRoller = Roller.getInstance();
+    //private final Roller mRoller = Roller.getInstance();
     private final Canifier mCanifier = Canifier.getInstance();
     private final LEDs mLEDs = LEDs.getInstance();
 
@@ -132,7 +132,7 @@ public class Robot extends TimedRobot {
                 mTurret,
                 mInfrastructure,
                 mClimber,
-                mRoller,
+                //mRoller,
                 mLEDs
             );
 
@@ -214,7 +214,7 @@ public class Robot extends TimedRobot {
 
             mInfrastructure.setIsDuringAuto(false);
 
-            RobotState.getInstance().reset(Timer.getFPGATimestamp(), Pose2d.identity());
+            //mRobotState.reset(Timer.getFPGATimestamp(), Pose2d.identity());
             mEnabledLooper.start();
             mLimelight.setLed(Limelight.LedMode.ON);
             mLimelight.setPipeline(Constants.kPortPipeline);
@@ -260,11 +260,11 @@ public class Robot extends TimedRobot {
                 turret_jog = (turret_jog - Math.signum(turret_jog) * Constants.kJoystickJogThreshold)
                         / (1.0 - Constants.kJoystickJogThreshold);
 
-                mSuperstructure.jogTurret(turret_jog);
+                mSuperstructure.jogTurret(turret_jog * 3);
             } else if (mControlBoard.getFendorShot()) {
                 mSuperstructure.setGoal(1000, 35, 180);
             } else if (cardinal == TurretCardinal.NONE) {
-                mSuperstructure.setWantAutoAim(Rotation2d.fromDegrees(0.0));
+                mSuperstructure.setWantAutoAim(Rotation2d.fromDegrees(180.0));
             } else {
                 mSuperstructure.setWantFieldRelativeTurret(cardinal.rotation);
             }
@@ -285,7 +285,9 @@ public class Robot extends TimedRobot {
                 }
 
                 if (mControlBoard.getShoot()) {
-                    mSuperstructure.setWantShoot();
+                    if (mSuperstructure.isAimed()) {
+                        mSuperstructure.setWantShoot();
+                    }
                 } else if (mControlBoard.getPreShot()) {
                     mSuperstructure.setWantPreShot(true);
                 } else if (mControlBoard.getSpinUp()) {
@@ -295,7 +297,8 @@ public class Robot extends TimedRobot {
                 } else if (mControlBoard.getUntuck()) {
                     mSuperstructure.setWantTuck(false);
                 } else if (mControlBoard.getTestSpit()) {
-                    mSuperstructure.setWantTestSpit();
+                    //mSuperstructure.setWantTestSpit();
+                    mRobotState.reset(Timer.getFPGATimestamp(), Pose2d.identity());
                 } else if (mControlBoard.getRunIntake()) {
                     if (!mSuperstructure.getWantShoot()) {
                         mIntake.setState(Intake.WantedAction.INTAKE);

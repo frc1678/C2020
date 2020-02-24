@@ -38,6 +38,7 @@ public class RightEightBallMode extends AutoModeBase {
             new LambdaAction(() -> Superstructure.getInstance().setWantAutoAim(Rotation2d.fromDegrees(-150.))))));
 
         runAction(mRightSideStartToBarIntake);
+        runAction(new LambdaAction(() -> Superstructure.getInstance().setWantPreShot(true)));
         
         runAction(mBarIntakeToShot);
          // runAction(new LambdaAction(() -> Superstructure.getInstance().setWantAutoAim(Rotation2d.fromDegrees(180.))));
@@ -53,7 +54,7 @@ public class RightEightBallMode extends AutoModeBase {
          runAction(new LambdaAction(() -> Intake.getInstance().setState(Intake.WantedAction.INTAKE)));
  
         runAction(mShotToTrenchEnd);
-        
+        runAction(new LambdaAction(() -> Superstructure.getInstance().setWantPreShot(true)));
         runAction(mTrenchToShot);
 
          // runAction(new LambdaAction(() -> Superstructure.getInstance().setWantAutoAim(Rotation2d.fromDegrees(180.))));

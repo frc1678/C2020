@@ -205,7 +205,7 @@ public class GamepadButtonControlBoard {
     public TurretCardinal getTurretCardinal() {
         int dPad = mController.getDPad();
         TurretCardinal newCardinal = dPad == -1 ? TurretCardinal.NONE
-                : TurretCardinal.findClosest(Rotation2d.fromDegrees(-dPad));
+                : TurretCardinal.findClosest(Rotation2d.fromDegrees(-dPad - 180.0));
         if (newCardinal != TurretCardinal.NONE && TurretCardinal.isDiagonal(newCardinal)) {
             // Latch previous direction on diagonal presses, because the D-pad sucks at
             // diagonals.

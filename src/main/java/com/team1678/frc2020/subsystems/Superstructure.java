@@ -19,8 +19,8 @@ import com.team254.lib.vision.AimingParameters;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Superstructure extends Subsystem {
-    private static final double kZoomedOutRange = 150.0;
-    private static final double kZoomedInRange = 200.0;
+    private static final double kZoomedOutRange = 200.0;
+    private static final double kZoomedInRange = 230.0;
 
     // Instances
     private static Superstructure mInstance;
@@ -132,12 +132,9 @@ public class Superstructure extends Subsystem {
 
     @Override
     public void outputTelemetry() {
-        SmartDashboard.putString("Turret Control State", mTurretMode.toString());
-        SmartDashboard.putNumber("Turret Goal", mTurretSetpoint);
-        SmartDashboard.putNumber("Turret Error", mTurretSetpoint - mCurrentTurret);
-        SmartDashboard.putNumber("Hood Goal", mHoodSetpoint);
-        SmartDashboard.putBoolean("Stopped at Deadspot", mSettled);
-        SmartDashboard.putBoolean("Spun Up", mGotSpunUp);
+        SmartDashboard.putBoolean("Shooting", mWantsShoot);
+        SmartDashboard.putBoolean("Spinning Up", mWantsSpinUp);
+        SmartDashboard.putBoolean("Pre Shot", mWantsPreShot);
     }
 
     @Override
@@ -366,6 +363,7 @@ public class Superstructure extends Subsystem {
 
             if (mLatestAimingParameters.isPresent()) {
                 if (mLatestAimingParameters.get().getRange() > 240.) {
+                    System.out.println("SLOW ZOOM");
                     indexerAction = Indexer.WantedAction.SLOW_ZOOM;
                 } else {
                     indexerAction = Indexer.WantedAction.ZOOM;
@@ -401,7 +399,7 @@ public class Superstructure extends Subsystem {
             mShooter.setVelocity(real_shooter);
         }
 
-        if (mLatestAimingParameters.isPresent()) {
+        /*if (mLatestAimingParameters.isPresent()) {
             if (mLatestAimingParameters.get().getRange() > kZoomedInRange 
                     && Limelight.getInstance().getPipeline() == Limelight.kDefaultPipeline) {
                 Limelight.getInstance().setPipeline(Limelight.kZoomedInPipeline);
@@ -409,11 +407,10 @@ public class Superstructure extends Subsystem {
                     && Limelight.getInstance().getPipeline() == Limelight.kZoomedInPipeline) {
                 Limelight.getInstance().setPipeline(Limelight.kDefaultPipeline);
             }
-        }
+        }*/
 
         if (mTurretMode == TurretControlModes.OPEN_LOOP || !mEnableIndexer) {
-            mTurret.setOpenLoop(0
-            );
+            mTurret.setOpenLoop(0);
         //} else  if (mTurretMode == TurretControlModes.VISION_AIMED) {
          //   mTurret.setSetpointPositionPID(mTurretSetpoint, mTurretFeedforwardV);
         } else {

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.DemandType;
+import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.can.BaseTalon;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 
@@ -28,6 +29,7 @@ public class Turret extends ServoMotorSubsystem {
     private DigitalInput mLimitSwitch = new DigitalInput(0);
 
     private static Canifier mCanifier = Canifier.getInstance();
+    private static final SupplyCurrentLimitConfiguration CURR_LIM = new SupplyCurrentLimitConfiguration(true, 40, 60, 0.01);
 
     public synchronized static Turret getInstance() {
         if (mInstance == null) {
@@ -40,6 +42,7 @@ public class Turret extends ServoMotorSubsystem {
         super(constants);
 
         mMaster.setSelectedSensorPosition(0);   
+        mMaster.configSupplyCurrentLimit(CURR_LIM);
     }
 
     // Syntactic sugar.
