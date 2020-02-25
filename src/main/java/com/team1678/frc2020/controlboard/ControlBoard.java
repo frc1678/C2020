@@ -91,6 +91,14 @@ public class ControlBoard {
         return mButtonControlBoard.getTestSpit();
     }
 
+    public boolean getManualRoller() {
+        return mDriveControlBoard.getManualRoller();
+    }
+
+    public boolean getStopManualRoller() {
+        return mDriveControlBoard.getStopManualRoller();
+    }
+
     public boolean getControlPanelRotation() {
         return mButtonControlBoard.getControlPanelRotation();
     }

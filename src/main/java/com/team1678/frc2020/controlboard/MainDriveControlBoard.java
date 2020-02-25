@@ -46,7 +46,11 @@ public class MainDriveControlBoard {
         return mThrottleStick.getRawButton(1);
     }
 
-    public boolean getInterruptAuto() {
+    public boolean getManualRoller() {
         return mThrottleStick.getRawButton(3);
+    }
+
+    public boolean getStopManualRoller() {
+        return mThrottleStick.getRawButtonReleased(3);
     }
 }

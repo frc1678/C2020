@@ -51,6 +51,7 @@ public class Roller extends Subsystem {
 
     private Color mColorPositionTarget;
     private Color mSlowDownTarget;
+    private boolean mRunningManual = false;
 
     // Game data
     private String gameData;
@@ -60,11 +61,11 @@ public class Roller extends Subsystem {
 
     // State management
     public enum WantedAction {
-        NONE, ACHIEVE_ROTATION_CONTROL, ACHIEVE_POSITION_CONTROL, SOLENOID_OUT_ONLY
+        NONE, ACHIEVE_ROTATION_CONTROL, ACHIEVE_POSITION_CONTROL, SOLENOID_OUT_ONLY,
     }
 
     private enum State {
-        IDLE, ACHIEVING_ROTATION_CONTROL, ACHIEVING_POSITION_CONTROL, SOLENOID_OUT
+        IDLE, ACHIEVING_ROTATION_CONTROL, ACHIEVING_POSITION_CONTROL, SOLENOID_OUT, FINISHED,
     }
 
     private State mState = State.IDLE;
@@ -165,7 +166,7 @@ public class Roller extends Subsystem {
             @Override 
             public void onLoop(double timestamp) {
                 synchronized (Roller.this) {
-                    runStateMachine(true);
+                    runStateMachine();
                 }
             }
 
@@ -177,8 +178,17 @@ public class Roller extends Subsystem {
         });
     }
 
+    public void runManual(double voltage) {
+        mRunningManual = true;
+        mPeriodicIO.pop_out_solenoid = true;
+        mPeriodicIO.roller_demand = voltage;
+    }
+
     // TODO: Only perform actions if 'modifyOutputs' is true
-    public void runStateMachine(boolean modifyOutputs) {
+    public void runStateMachine() {
+        if (mRunningManual) {
+            return;
+        }
         switch(mState) {
             case IDLE:
                 mPeriodicIO.roller_demand = 0.0;
@@ -255,6 +265,7 @@ public class Roller extends Subsystem {
                 }
 
                 break;
+            case FINISHED:
             case SOLENOID_OUT:
                 mPeriodicIO.roller_demand = 0;
                 mPeriodicIO.pop_out_solenoid = true;
@@ -271,6 +282,7 @@ public class Roller extends Subsystem {
     public void stop() {
         mPeriodicIO.roller_demand = 0.0;
         mPeriodicIO.pop_out_solenoid = false;
+        setState(WantedAction.NONE);
     }
 
     @Override
@@ -290,6 +302,7 @@ public class Roller extends Subsystem {
     }
 
     public void setState(WantedAction action) {
+        mRunningManual = false;
         switch(action) {
             case NONE:
                 break;
@@ -299,7 +312,7 @@ public class Roller extends Subsystem {
                 if (!mPeriodicIO.pop_out_solenoid) {
                     mState = State.SOLENOID_OUT;
                 } else {
-                    if (mState != State.ACHIEVING_ROTATION_CONTROL && mState != State.IDLE) {
+                    if (mState != State.FINISHED) {
                         mState = State.ACHIEVING_ROTATION_CONTROL;
                     } else {
                         mState = State.IDLE;
@@ -310,7 +323,7 @@ public class Roller extends Subsystem {
                 if (!mPeriodicIO.pop_out_solenoid) {
                     mState = State.SOLENOID_OUT;
                 } else {
-                    if (mState != State.ACHIEVING_POSITION_CONTROL && mState != State.IDLE) {
+                    if (mState != State.FINISHED) {
                         mState = State.ACHIEVING_POSITION_CONTROL;
                     } else {
                         mState = State.IDLE;

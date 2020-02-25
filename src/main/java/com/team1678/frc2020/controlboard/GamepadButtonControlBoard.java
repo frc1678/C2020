@@ -1,6 +1,5 @@
 package com.team1678.frc2020.controlboard;
 
-import com.team1678.frc2020.Robot;
 import com.team1678.frc2020.Constants;
 import com.team1678.frc2020.controlboard.CustomXboxController.Button;
 import com.team1678.frc2020.controlboard.CustomXboxController.Side;
@@ -125,7 +124,7 @@ public class GamepadButtonControlBoard {
     }
 
     public boolean getTestSpit() {
-        return mController.getButton(CustomXboxController.Button.L_JOYSTICK);
+        return mController.getButton(CustomXboxController.Button.R_JOYSTICK);
     }
 
     public boolean getRevolve() {
