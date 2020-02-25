@@ -306,6 +306,8 @@ public class Robot extends TimedRobot {
                 } else if (mControlBoard.getRunIntake()) {
                     if (!mSuperstructure.getWantShoot()) {
                         mIntake.setState(Intake.WantedAction.INTAKE);
+                    } else {
+                        mIntake.setState(Intake.WantedAction.STAY_OUT);
                     }
                     mSuperstructure.setAutoIndex(false);
                 } else if (mControlBoard.getRetractIntake()) {
@@ -397,6 +399,8 @@ public class Robot extends TimedRobot {
             if (mAutoModeExecutor != null) {
                 mAutoModeExecutor.stop();
             }
+
+          //  mRobotState.resetVision();
 
             mInfrastructure.setIsDuringAuto(true);
 

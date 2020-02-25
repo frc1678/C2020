@@ -26,7 +26,7 @@ import com.revrobotics.ControlType;
 // Control panel manipulator
 public class Roller extends Subsystem {
     // Constants
-    public static double kRotateVoltage = -3.0; // Positive value rotates the control panel counter-clockwise
+    public static double kRotateVoltage = -5.0; // Positive value rotates the control panel counter-clockwise
 
     // Motors, solenoids and sensors
     public I2C.Port i2cPort;

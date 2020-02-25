@@ -19,8 +19,8 @@ import com.team254.lib.vision.AimingParameters;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Superstructure extends Subsystem {
-    private static final double kZoomedOutRange = 200.0;
-    private static final double kZoomedInRange = 230.0;
+    private static final double kZoomedOutRange = 170.0;
+    private static final double kZoomedInRange = 220.0;
 
     // Instances
     private static Superstructure mInstance;
@@ -399,7 +399,7 @@ public class Superstructure extends Subsystem {
             mShooter.setVelocity(real_shooter);
         }
 
-        /*if (mLatestAimingParameters.isPresent()) {
+        if (mLatestAimingParameters.isPresent()) {
             if (mLatestAimingParameters.get().getRange() > kZoomedInRange 
                     && Limelight.getInstance().getPipeline() == Limelight.kDefaultPipeline) {
                 Limelight.getInstance().setPipeline(Limelight.kZoomedInPipeline);
@@ -407,7 +407,7 @@ public class Superstructure extends Subsystem {
                     && Limelight.getInstance().getPipeline() == Limelight.kZoomedInPipeline) {
                 Limelight.getInstance().setPipeline(Limelight.kDefaultPipeline);
             }
-        }*/
+        }
 
         if (mTurretMode == TurretControlModes.OPEN_LOOP || !mEnableIndexer) {
             mTurret.setOpenLoop(0);

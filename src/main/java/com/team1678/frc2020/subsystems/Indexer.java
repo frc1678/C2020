@@ -36,7 +36,9 @@ public class Indexer extends Subsystem {
     private double mIndexerStart = Timer.getFPGATimestamp();
     private static final double kAngleConversion = (2048.0 * kGearRatio) / 360.0;
 
-    private static double kJamCurrent = 150.0;
+    private static final double kJamCurrent = 150.0;
+    private double mLastCurrentSpikeTime = 0.0;
+    private static final double kCurrentIgnoreTime = 1.0; 
     
     public static class PeriodicIO {
         // INPUTS
@@ -383,8 +385,9 @@ public class Indexer extends Subsystem {
     @Override
     public synchronized void writePeriodicOutputs() {
         if (mPeriodicIO.indexer_control_mode == ControlMode.Velocity) {
-            if (mPeriodicIO.indexer_current > kJamCurrent) {
+            if (mPeriodicIO.indexer_current > kJamCurrent && Timer.getFPGATimestamp() - mLastCurrentSpikeTime > kCurrentIgnoreTime) {
                 mBackwards = !mBackwards;
+                mLastCurrentSpikeTime = Timer.getFPGATimestamp();
             }
             mMaster.selectProfileSlot(1, 0);
             mMaster.set(mPeriodicIO.indexer_control_mode, (mPeriodicIO.indexer_demand / 600.0) * kGearRatio * 2048.0);

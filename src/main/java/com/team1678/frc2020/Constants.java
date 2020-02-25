@@ -121,7 +121,7 @@ public class Constants {
         // Unit == Degrees
         kTurretConstants.kHomePosition = 0.0; // CCW degrees from forward
         kTurretConstants.kTicksPerUnitDistance = (2048.0 * 36.0) / 360.0;
-        kTurretConstants.kKp = 0.4;
+        kTurretConstants.kKp = 0.5;
         kTurretConstants.kKi = 0;
         kTurretConstants.kKd = 0.0;
         kTurretConstants.kKf = 0.05;
@@ -233,7 +233,7 @@ public class Constants {
     public static final double kImageCaptureLatency = 11.0 / 1000.0; // seconds
 
     public static final double kMaxTrackerDistance = 15.0;
-    public static final double kMaxGoalTrackAge = 15.0;
+    public static final double kMaxGoalTrackAge = 30.0;
     public static final double kMaxGoalTrackAgeNotTracking = 0.3;
     public static final double kMaxGoalTrackSmoothingTime = 1.5;
     public static final double kTrackStabilityWeight = 0.0;
