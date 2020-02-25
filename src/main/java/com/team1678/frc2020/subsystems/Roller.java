@@ -312,7 +312,7 @@ public class Roller extends Subsystem {
                 if (!mPeriodicIO.pop_out_solenoid) {
                     mState = State.SOLENOID_OUT;
                 } else {
-                    if (mState != State.FINISHED) {
+                    if (mState != State.FINISHED && mState != State.ACHIEVING_ROTATION_CONTROL) {
                         mState = State.ACHIEVING_ROTATION_CONTROL;
                     } else {
                         mState = State.IDLE;
@@ -323,7 +323,7 @@ public class Roller extends Subsystem {
                 if (!mPeriodicIO.pop_out_solenoid) {
                     mState = State.SOLENOID_OUT;
                 } else {
-                    if (mState != State.FINISHED) {
+                    if (mState != State.FINISHED && mState != State.ACHIEVING_POSITION_CONTROL) {
                         mState = State.ACHIEVING_POSITION_CONTROL;
                     } else {
                         mState = State.IDLE;
