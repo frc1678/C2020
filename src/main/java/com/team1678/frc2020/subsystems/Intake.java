@@ -126,11 +126,13 @@ public class Intake extends Subsystem {
             mPeriodicIO.deploy = true;
             break;
         case IDLE:
-                mPeriodicIO.demand = kIdleVoltage;
-                mPeriodicIO.deploy = false;
+            mPeriodicIO.demand = kIdleVoltage;
+            mPeriodicIO.deploy = false;
+            break;
         case STAYING_OUT:
             mPeriodicIO.demand = 0;
             mPeriodicIO.deploy = true;
+            break;
         }
     }
 

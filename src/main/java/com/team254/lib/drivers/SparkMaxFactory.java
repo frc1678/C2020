@@ -16,7 +16,7 @@ import edu.wpi.first.wpilibj.Timer;
 public class SparkMaxFactory {
     public static class Configuration {
         public boolean BURN_FACTORY_DEFAULT_FLASH = false;
-        public IdleMode NEUTRAL_MODE = IdleMode.kCoast;
+        public IdleMode NEUTRAL_MODE = IdleMode.kBrake;
         public boolean INVERTED = false;
 
         public int STATUS_FRAME_0_RATE_MS = 10;

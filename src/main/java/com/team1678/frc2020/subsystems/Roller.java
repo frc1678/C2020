@@ -26,7 +26,7 @@ import com.revrobotics.ControlType;
 // Control panel manipulator
 public class Roller extends Subsystem {
     // Constants
-    public static double kRotateVoltage = -5.0; // Positive value rotates the control panel counter-clockwise
+    public static double kRotateVoltage = -6.0; // Positive value rotates the control panel counter-clockwise
 
     // Motors, solenoids and sensors
     public I2C.Port i2cPort;
@@ -193,7 +193,7 @@ public class Roller extends Subsystem {
 
                 mMatch = mColorMatcher.matchClosestColor(mPeriodicIO.detected_color);
 
-                if (mColorCounter < 7) {
+                if (mColorCounter < 9) {
                     if (colorString != "Unknown") {
                         mPeriodicIO.roller_demand = kRotateVoltage;
                 
@@ -299,7 +299,7 @@ public class Roller extends Subsystem {
                 if (!mPeriodicIO.pop_out_solenoid) {
                     mState = State.SOLENOID_OUT;
                 } else {
-                    if (mState != State.ACHIEVING_ROTATION_CONTROL) {
+                    if (mState != State.ACHIEVING_ROTATION_CONTROL && mState != State.IDLE) {
                         mState = State.ACHIEVING_ROTATION_CONTROL;
                     } else {
                         mState = State.IDLE;
@@ -310,7 +310,7 @@ public class Roller extends Subsystem {
                 if (!mPeriodicIO.pop_out_solenoid) {
                     mState = State.SOLENOID_OUT;
                 } else {
-                    if (mState != State.ACHIEVING_POSITION_CONTROL) {
+                    if (mState != State.ACHIEVING_POSITION_CONTROL && mState != State.IDLE) {
                         mState = State.ACHIEVING_POSITION_CONTROL;
                     } else {
                         mState = State.IDLE;

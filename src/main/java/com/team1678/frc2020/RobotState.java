@@ -358,6 +358,7 @@ public class RobotState {
         SmartDashboard.putNumber("Robot Theta", getLatestFieldToVehicle().getValue().getRotation().getDegrees());
         SmartDashboard.putNumber("Limelight Pitch", getVehicleToHood(Timer.getFPGATimestamp()).getDegrees());
         Optional<AimingParameters> params = getAimingParameters(false, -1, Constants.kMaxGoalTrackAge);
+        SmartDashboard.putBoolean("Has Aiming Parameters", params.isPresent());
         if (params.isPresent()) {
             SmartDashboard.putNumber("Vehicle to Target", params.get().getRange());
             SmartDashboard.putNumber("Vehicle to TargetAngle", params.get().getTurretToGoalRotation().getDegrees());
