@@ -20,6 +20,7 @@ import com.team1323.lib.util.HSVtoRGB;
 import com.team1323.lib.util.MovingAverage;
 
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
  * Brings all da colors to da club
@@ -46,11 +47,11 @@ public class LEDs extends Subsystem{
     public enum State{
         OFF(0.0, 0.0, 0.0, Double.POSITIVE_INFINITY, 0.0, false),
         DISABLED(255.0, 20.0, 30.0, Double.POSITIVE_INFINITY, 0.0, false), // solid pink
-        ENABLED(0.0, 0.0, 255.0, Double.POSITIVE_INFINITY, 0.0, false), // solid green
+        ENABLED(0.0, 0.0, 255.0, Double.POSITIVE_INFINITY, 0.0, false), // solid blue
         EMERGENCY(255.0, 0.0, 0.0, 0.5, 0.5, false), // blinking red
         HOOD_TUCKED(255.0, 20.0, 0.0, Double.POSITIVE_INFINITY, 0.0, false), // solid pink
-        TARGET_VISIBLE(0.0, 255.0, 0.0, Double.POSITIVE_INFINITY, 0.0, false), // solid blue
-        TARGET_TRACKING(0.0, 255.0, 0.0, 0.0625, 0.0625, false), // flashing blue
+        TARGET_VISIBLE(0.0, 255.0, 0.0, Double.POSITIVE_INFINITY, 0.0, false), // solid green
+        TARGET_TRACKING(0.0, 255.0, 0.0, 0.0625, 0.0625, false), // flashing green
         CLIMB_MODE(255.0, 0.0, 255.0, Double.POSITIVE_INFINITY, 0.0, false), // solid purple
         CLIMB_MODE_BUDDY(255.0, 0.0, 255.0, 0.125, 0.125, false), // flashing purple
         EXTENDING(255.0, 165.0, 0.0, Double.POSITIVE_INFINITY, 0.0, false), // solid orange
@@ -222,7 +223,7 @@ public class LEDs extends Subsystem{
 
     @Override
     public void outputTelemetry() {
-
+        SmartDashboard.putString("leds state", getState().name());
     }
 
     @Override

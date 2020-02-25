@@ -315,24 +315,21 @@ public class Robot extends TimedRobot {
                 }
             } else {
                 mSuperstructure.enableIndexer(false);
-                mLEDs.conformToState(buddy_climb ? LEDs.State.CLIMBING_BUDDY : LEDs.State.CLIMBING);
                 mIntake.setState(Intake.WantedAction.NONE);
+                buddy_climb = mWrangler.getWranglerOut();
                 if (mControlBoard.getArmExtend()) { // Press A
                     mClimber.setState(Climber.WantedAction.PIVOT);
-                    mLEDs.conformToState(buddy_climb ? LEDs.State.EXTENDING_BUDDY : LEDs.State.EXTENDING);
                 } else if (mControlBoard.getStopExtend()) {
                     mClimber.setState(Climber.WantedAction.STOP);
                 } else if (mControlBoard.getArmHug()) { // Press B
                     mClimber.setState(Climber.WantedAction.HUG); // hook onto the rung
-                    mLEDs.conformToState(buddy_climb ? LEDs.State.HUGGING_BUDDY : LEDs.State.HUGGING);
                 } else if (mControlBoard.getBuddyDeploy()) { // Press Back
                     mWrangler.setState(Wrangler.WantedAction.DEPLOY);
-                    buddy_climb = true;
                 } else if (mControlBoard.getWrangle()) { // Press and hold X
                     mWrangler.setState(Wrangler.WantedAction.WRANGLE);
+                    buddy_climb = true;
                 } else if (mControlBoard.getClimb()) { // Press Y
                     mClimber.setState(Climber.WantedAction.CLIMB);
-                    mLEDs.conformToState(buddy_climb ? LEDs.State.HUGGING_BUDDY : LEDs.State.HUGGING);
                 } else if (mControlBoard.getManualArmExtend()) { // Press and hold left joystick
                     mClimber.setState(Climber.WantedAction.MANUAL_EXTEND);
                 } else if (mControlBoard.getManualArmRetract()) { // Press and hold right joystick
@@ -346,7 +343,18 @@ public class Robot extends TimedRobot {
                     mWrangler.setState(Wrangler.WantedAction.NONE);
                     mClimber.setState(Climber.WantedAction.NONE);
                 }
+
+                if (mClimber.getState() == Climber.State.PIVOTING || mClimber.getState() == Climber.State.EXTENDING) {
+                    mLEDs.conformToState(buddy_climb ? LEDs.State.EXTENDING_BUDDY : LEDs.State.EXTENDING);
+                } else if (mClimber.getState() == Climber.State.HUGGING) {
+                    mLEDs.conformToState(buddy_climb ? LEDs.State.HUGGING_BUDDY : LEDs.State.HUGGING);
+                } else if (mClimber.getState() == Climber.State.CLIMBING) {
+                    mLEDs.conformToState(buddy_climb ? LEDs.State.CLIMBING_BUDDY : LEDs.State.CLIMBING);
+                } else {
+                    mLEDs.conformToState(buddy_climb ? LEDs.State.CLIMB_MODE_BUDDY : LEDs.State.CLIMB_MODE);
+                }
             }
+            mLEDs.writePeriodicOutputs();
         } catch (Throwable t) {
             CrashTracker.logThrowableCrash(t);
             throw t;
@@ -380,7 +388,7 @@ public class Robot extends TimedRobot {
         try {
             CrashTracker.logDisabledInit();
             mEnabledLooper.stop();
-            mClimber.setBrakeMode(false);
+            mClimber.setBrakeMode(true);
             if (mAutoModeExecutor != null) {
                 mAutoModeExecutor.stop();
             }

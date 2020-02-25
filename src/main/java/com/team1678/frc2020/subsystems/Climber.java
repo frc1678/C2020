@@ -14,6 +14,7 @@ import com.team1678.frc2020.logger.LoggingSystem;
 import com.team1678.frc2020.subsystems.Wrangler;
 
 import com.team254.lib.drivers.TalonFXFactory;
+import com.team254.lib.util.ReflectingCSVWriter;
 import com.team254.lib.util.TimeDelayedBoolean;
 
 import edu.wpi.first.wpilibj.Solenoid;
@@ -33,9 +34,9 @@ public class Climber extends Subsystem  {
     private static final double kPivotWaitTime = 0.5;
     private double mInitialTime;
 
-    private static final int kExtendDelta = (73752 - (-168511)) - 4000;
-    private static final int kHugDelta = (73752 - (-168511)) - 4000;
-    private static final int kClimbDelta = 5000;
+    private static final int kExtendDelta = (204000 - (-27600));
+    private static final int kHugDelta = (157000 - (-27600));
+    private static final int kClimbDelta = 10000;
 
     private PeriodicIO mPeriodicIO = new PeriodicIO();
 
@@ -43,7 +44,7 @@ public class Climber extends Subsystem  {
         NONE, PIVOT, EXTEND, MANUAL_EXTEND, HUG, CLIMB, MANUAL_CLIMB, BRAKE, STOP,
     }
 
-    private enum State {
+    public enum State {
         IDLE, PIVOTING, EXTENDING, MANUAL_EXTENDING, HUGGING, CLIMBING, MANUAL_CLIMBING, BRAKING,
     }
 
@@ -55,9 +56,13 @@ public class Climber extends Subsystem  {
     private Solenoid mBrakeSolenoid;
     private double mHoldingPos = 0.0;
     private double mZeroPos;
+    private boolean mPivoted = false;
+    private boolean mExtended = false;
     private TimeDelayedBoolean brake_activation = new TimeDelayedBoolean();
 
     public StatorCurrentLimitConfiguration STATOR_CURRENT_LIMIT = new StatorCurrentLimitConfiguration(true, 40, 40, .2);
+    private ReflectingCSVWriter<PeriodicIO> mCSVWriter = null;
+
 
     private Climber() {
         mArmSolenoid = Constants.makeSolenoidForId(Constants.kArmSolenoidId);
@@ -73,7 +78,7 @@ public class Climber extends Subsystem  {
 
         mMaster.configMotionAcceleration(40000, Constants.kLongCANTimeoutMs);
         mMaster.configMotionCruiseVelocity(20000, Constants.kLongCANTimeoutMs);
-        mMaster.config_kP(0, 0.06);
+        mMaster.config_kP(0, 0.5);
         mMaster.config_kI(0, 0);
         mMaster.config_kD(0, 0);
         mMaster.config_kF(0, 0.05);
@@ -115,6 +120,10 @@ public class Climber extends Subsystem  {
         SmartDashboard.putNumber("ClimbVoltage", mPeriodicIO.demand);
         SmartDashboard.putNumber("ClimberPosition", mPeriodicIO.position);
         SmartDashboard.putNumber("ClimberVelocity", mPeriodicIO.velocity);
+
+        if (mCSVWriter != null) {
+            mCSVWriter.write();
+        }
     }
 
     @Override
@@ -132,6 +141,7 @@ public class Climber extends Subsystem  {
             @Override
             public void onStart(double timestamp) {
                 mState = State.IDLE;
+                startLogging();
             }
 
             @Override
@@ -144,8 +154,22 @@ public class Climber extends Subsystem  {
             @Override
             public void onStop(double timestamp) {
                 mState = State.IDLE;
+                stopLogging();
             }
         });
+    }
+
+    public synchronized void startLogging() {
+        if (mCSVWriter == null) {
+            mCSVWriter = new ReflectingCSVWriter<>("/home/lvuser/CLIMBER-LOGS.csv", PeriodicIO.class);
+        }
+    }
+
+    public synchronized void stopLogging() {
+        if (mCSVWriter != null) {
+            mCSVWriter.flush();
+            mCSVWriter = null;
+        }
     }
 
     public synchronized State getState() {
@@ -183,17 +207,18 @@ public class Climber extends Subsystem  {
                 if ((Math.abs(mPeriodicIO.velocity) < kBrakeVelocity)) {
                     mPeriodicIO.demand = kIdleVoltage;
                     mZeroPos = mPeriodicIO.position;
-                    //mState = State.EXTENDING;
-                    mState = State.IDLE;
+                    mState = State.EXTENDING;
                 }
             }
-
 
             mPeriodicIO.brake_solenoid = false;
             mZeroPos = mPeriodicIO.position;
             break;
         case EXTENDING:
             mPeriodicIO.demand = mZeroPos + kExtendDelta;
+            if ((mPeriodicIO.position - mZeroPos) > kExtendDelta - 2000) {
+                mExtended = true;
+            }
             mPeriodicIO.arm_solenoid = true;
             mPeriodicIO.brake_solenoid = false;
             break;
@@ -203,7 +228,9 @@ public class Climber extends Subsystem  {
             mPeriodicIO.brake_solenoid = false;
             break;
         case HUGGING:
-            mPeriodicIO.demand = mZeroPos + kHugDelta;
+            if (mExtended) {
+                mPeriodicIO.demand = mZeroPos + kHugDelta;
+            }
             mPeriodicIO.arm_solenoid = true;
             mPeriodicIO.brake_solenoid = false;
             break;
@@ -249,9 +276,13 @@ public class Climber extends Subsystem  {
         case NONE:
             break;
         case PIVOT:
-            mState = State.PIVOTING;
+            if (!mPivoted) {
+                mState = State.PIVOTING;
+            }
+            mPivoted = true;
             break;
         case EXTEND:
+            mExtended = false;
             mState = State.EXTENDING;
             break;
         case MANUAL_EXTEND:
@@ -283,6 +314,11 @@ public class Climber extends Subsystem  {
         mPeriodicIO.velocity = mMaster.getSelectedSensorVelocity(0);
         mPeriodicIO.braked = brake_activation.update(mBrakeSolenoid.get(), 0.5);
         
+        if (mCSVWriter != null) {
+            mCSVWriter.add(mPeriodicIO);
+        }
+        mPeriodicIO.current = mMaster.getSupplyCurrent();
+        mPeriodicIO.voltage = mMaster.getMotorOutputVoltage();
         //LogSend();  
     }
 
@@ -293,6 +329,7 @@ public class Climber extends Subsystem  {
         } else {
             mMaster.set(ControlMode.PercentOutput, mPeriodicIO.demand / 12.0);
         }
+
         mArmSolenoid.set(!mPeriodicIO.arm_solenoid);
         mBrakeSolenoid.set(!mPeriodicIO.brake_solenoid);
     }
@@ -302,6 +339,8 @@ public class Climber extends Subsystem  {
         public double position;
         public double velocity;
         public boolean braked;
+        public double current;
+        public double voltage;
 
         // OUTPUTS
         public double demand;
