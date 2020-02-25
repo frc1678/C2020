@@ -317,7 +317,7 @@ public class Robot extends TimedRobot {
                 } else if (mControlBoard.getControlPanelPosition()) {
                     mRoller.setState(Roller.WantedAction.ACHIEVE_POSITION_CONTROL);
                 } else if (mControlBoard.getManualRoller()) {
-                    mRoller.runManual(3.0);
+                    mRoller.runManual(-3.0);
                 } else if (mControlBoard.getStopManualRoller()) {
                     mRoller.stop();
                 } else {
