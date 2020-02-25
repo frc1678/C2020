@@ -26,7 +26,7 @@ import com.revrobotics.ControlType;
 // Control panel manipulator
 public class Roller extends Subsystem {
     // Constants
-    public static double kRotateVoltage = 3.0; // Positive value rotates the control panel counter-clockwise
+    public static double kRotateVoltage = -3.0; // Positive value rotates the control panel counter-clockwise
 
     // Motors, solenoids and sensors
     public I2C.Port i2cPort;
@@ -149,10 +149,10 @@ public class Roller extends Subsystem {
 
     // Optional design pattern for caching periodic writes to avoid hammering the HAL/CAN.
     public synchronized void writePeriodicOutputs() {
-        //mRollerMotor.set(mPeriodicIO.roller_demand / 12.0);
-        //mPopoutSolenoid.set(mPeriodicIO.pop_out_solenoid);
-        mRollerMotor.set(0.5);
-        mPopoutSolenoid.set(true);
+        mRollerMotor.set(mPeriodicIO.roller_demand / 12.0);
+        mPopoutSolenoid.set(mPeriodicIO.pop_out_solenoid);
+        //mRollerMotor.set(0.1);
+        //mPopoutSolenoid.set(true);
     }
 
     public void registerEnabledLoops(ILooper enabledLooper) {
@@ -185,25 +185,28 @@ public class Roller extends Subsystem {
                 mPeriodicIO.pop_out_solenoid = false;
                 break;
             case ACHIEVING_ROTATION_CONTROL:
+                mPeriodicIO.pop_out_solenoid = true;
+
                 if (!mSolenoidOut) {
                     return;
                 }
 
-                mPeriodicIO.pop_out_solenoid = true;
                 mMatch = mColorMatcher.matchClosestColor(mPeriodicIO.detected_color);
 
                 if (mColorCounter < 7) {
-                    mPeriodicIO.roller_demand = kRotateVoltage;
-            
-                    if (mMatch.color != mOneColorAgo) {
-                      if (mMatch.color == mInitialColor) {
-                        // Necessary to avoid color confusion between red/green and blue/yellow
-                        // Haven't tested this logic yet
-                        if (!(mInitialColor == kYellowTarget && mMatch.color == kYellowTarget && mOneColorAgo == kGreenTarget && mTwoColorsAgo == kBlueTarget)
-                        || !(mInitialColor == kGreenTarget && mMatch.color == kGreenTarget && mOneColorAgo == kYellowTarget && mTwoColorsAgo == kRedTarget)) {
-                            mColorCounter++;
+                    if (colorString != "Unknown") {
+                        mPeriodicIO.roller_demand = kRotateVoltage;
+                
+                        if (mMatch.color != mOneColorAgo) {
+                            if (mMatch.color == mInitialColor) {
+                                // Necessary to avoid color confusion between red/green and blue/yellow
+                                // Haven't tested this logic yet
+                                if (!(mInitialColor == kYellowTarget && mMatch.color == kYellowTarget && mOneColorAgo == kGreenTarget && mTwoColorsAgo == kBlueTarget)
+                                || !(mInitialColor == kGreenTarget && mMatch.color == kGreenTarget && mOneColorAgo == kYellowTarget && mTwoColorsAgo == kRedTarget)) {
+                                    mColorCounter++;
+                                }
+                            }
                         }
-                      }
                     }
                   }
             
@@ -219,44 +222,43 @@ public class Roller extends Subsystem {
 
                 break;
             case ACHIEVING_POSITION_CONTROL:
-                if (!mSolenoidOut) {
-                    return;
-                }
-
                 mMatch = mColorMatcher.matchClosestColor(mPeriodicIO.detected_color);
 
                 if (gameData.length() > 0) {
                     mPeriodicIO.pop_out_solenoid = true;
 
-                    if (mMatch.color != mColorPositionTarget) {
-                        double adjustedRotateVoltage = kRotateVoltage;
-                        double adjustedSlowRotateVoltage = kRotateVoltage * 0.25;
-                        
-                        if ((mInitialColor == kRedTarget && mColorPositionTarget == kGreenTarget) || 
-                        (mInitialColor == kGreenTarget && mColorPositionTarget == kBlueTarget) ||
-                        (mInitialColor == kYellowTarget && mColorPositionTarget == kRedTarget) ||
-                        (mInitialColor == kBlueTarget && mColorPositionTarget == kYellowTarget)) {
-                            adjustedRotateVoltage = -adjustedRotateVoltage;
-                            adjustedSlowRotateVoltage = -adjustedSlowRotateVoltage;
-                        }
-            
-                        if (mMatch.color == mSlowDownTarget) {
-                            mPeriodicIO.roller_demand = adjustedSlowRotateVoltage;
-                        } else {
-                            mPeriodicIO.roller_demand = adjustedRotateVoltage;
-                        }
-                    } else {
-                        mColorCounter = 0;
-                        setState(WantedAction.SOLENOID_OUT_ONLY);
+                    if (!mSolenoidOut) {
+                        return;
                     }
+
+                        if (mMatch.color != mColorPositionTarget) {
+                            double adjustedRotateVoltage = kRotateVoltage;
+                            double adjustedSlowRotateVoltage = kRotateVoltage * 0.25;
+                            
+                            /*if ((mInitialColor == kRedTarget && mColorPositionTarget == kGreenTarget) || 
+                            (mInitialColor == kGreenTarget && mColorPositionTarget == kBlueTarget) ||
+                            (mInitialColor == kYellowTarget && mColorPositionTarget == kRedTarget) ||
+                            (mInitialColor == kBlueTarget && mColorPositionTarget == kYellowTarget)) {
+                                adjustedRotateVoltage = -adjustedRotateVoltage;
+                                adjustedSlowRotateVoltage = -adjustedSlowRotateVoltage;
+                            }*/
+                
+                            //if (mMatch.color == mSlowDownTarget) {
+                                mPeriodicIO.roller_demand = adjustedSlowRotateVoltage;
+                            //} else {
+                            //    mPeriodicIO.roller_demand = adjustedRotateVoltage;
+                            //}
+                        } else {
+                            mColorCounter = 0;
+                            setState(WantedAction.SOLENOID_OUT_ONLY);
+                        }
                 }
 
                 break;
             case SOLENOID_OUT:
                 mPeriodicIO.roller_demand = 0;
-                if (colorString == "Unknown") {
-                    setState(WantedAction.NONE);
-                }
+                mPeriodicIO.pop_out_solenoid = true;
+                break;
             default:
                 System.out.println("Invalid roller goal!");
                 break;
@@ -284,20 +286,36 @@ public class Roller extends Subsystem {
         SmartDashboard.putString("Color", colorString);
         SmartDashboard.putNumber("Color Counter", mColorCounter);
         SmartDashboard.putString("State", mState.toString());
+        SmartDashboard.putNumber("Conf", mMatch.confidence);
     }
 
     public void setState(WantedAction action) {
         switch(action) {
             case NONE:
-                mState = State.IDLE;
                 break;
             case ACHIEVE_ROTATION_CONTROL:
                 // This is frowned upon by Java developers, so I'm willing to change it
                 mInitialColor = mOneColorAgo = mTwoColorsAgo = mMatch.color;
-                mState = State.ACHIEVING_ROTATION_CONTROL;
+                if (!mPeriodicIO.pop_out_solenoid) {
+                    mState = State.SOLENOID_OUT;
+                } else {
+                    if (mState != State.ACHIEVING_ROTATION_CONTROL) {
+                        mState = State.ACHIEVING_ROTATION_CONTROL;
+                    } else {
+                        mState = State.IDLE;
+                    }
+                }
                 break;
             case ACHIEVE_POSITION_CONTROL:
-                mState = State.ACHIEVING_POSITION_CONTROL;
+                if (!mPeriodicIO.pop_out_solenoid) {
+                    mState = State.SOLENOID_OUT;
+                } else {
+                    if (mState != State.ACHIEVING_POSITION_CONTROL) {
+                        mState = State.ACHIEVING_POSITION_CONTROL;
+                    } else {
+                        mState = State.IDLE;
+                    }
+                }
                 break;
             case SOLENOID_OUT_ONLY:
                 mState = State.SOLENOID_OUT;

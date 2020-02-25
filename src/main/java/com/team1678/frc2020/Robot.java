@@ -79,7 +79,7 @@ public class Robot extends TimedRobot {
     private final Hood mHood = Hood.getInstance();
     private final Wrangler mWrangler = Wrangler.getInstance();
 
-    //private final Roller mRoller = Roller.getInstance();
+    private final Roller mRoller = Roller.getInstance();
     private final Canifier mCanifier = Canifier.getInstance();
     private final LEDs mLEDs = LEDs.getInstance();
 
@@ -105,6 +105,7 @@ public class Robot extends TimedRobot {
         mEnabledLooper.outputToSmartDashboard();
 
         SmartDashboard.putBoolean("Climb Mode", climb_mode);
+        SmartDashboard.putString("LEDs State", mLEDs.getState().name());
     }
 
     @Override
@@ -132,7 +133,7 @@ public class Robot extends TimedRobot {
                 mTurret,
                 mInfrastructure,
                 mClimber,
-                //mRoller,
+                mRoller,
                 mLEDs
             );
 
@@ -238,16 +239,18 @@ public class Robot extends TimedRobot {
             double hood_jog = mControlBoard.getJogHood();
             double turret_jog = mControlBoard.getJogTurret();
 
-            if (!mLimelight.limelightOK()) {
-                mLEDs.conformToState(LEDs.State.EMERGENCY);
-            } else if (mSuperstructure.getTucked()) {
-                mLEDs.conformToState(LEDs.State.HOOD_TUCKED);
-            } else if (mSuperstructure.isOnTarget()) {
-                mLEDs.conformToState(LEDs.State.TARGET_TRACKING);
-            } else if (mSuperstructure.getLatestAimingParameters().isPresent()) {
-                mLEDs.conformToState(LEDs.State.TARGET_VISIBLE);
-            } else {
-                mLEDs.conformToState(LEDs.State.ENABLED);
+            if (!climb_mode) {
+                if (!mLimelight.limelightOK()) {
+                    mLEDs.conformToState(LEDs.State.EMERGENCY);
+                } else if (mSuperstructure.getTucked()) {
+                    mLEDs.conformToState(LEDs.State.HOOD_TUCKED);
+                } else if (mSuperstructure.isOnTarget()) {
+                    mLEDs.conformToState(LEDs.State.TARGET_TRACKING);
+                } else if (mSuperstructure.getLatestAimingParameters().isPresent()) {
+                    mLEDs.conformToState(LEDs.State.TARGET_VISIBLE);
+                } else {
+                    mLEDs.conformToState(LEDs.State.ENABLED);
+                }
             }
 
             mDrive.setCheesyishDrive(throttle, turn, mControlBoard.getQuickTurn());
@@ -296,9 +299,10 @@ public class Robot extends TimedRobot {
                     mSuperstructure.setWantTuck(true);
                 } else if (mControlBoard.getUntuck()) {
                     mSuperstructure.setWantTuck(false);
-                } else if (mControlBoard.getTestSpit()) {
-                    //mSuperstructure.setWantTestSpit();
+                } else if (mControlBoard.getTurretReset()) {
                     mRobotState.reset(Timer.getFPGATimestamp(), Pose2d.identity());
+                } else if (mControlBoard.getTestSpit()) {
+                    mSuperstructure.setWantTestSpit();
                 } else if (mControlBoard.getRunIntake()) {
                     if (!mSuperstructure.getWantShoot()) {
                         mIntake.setState(Intake.WantedAction.INTAKE);
@@ -307,9 +311,9 @@ public class Robot extends TimedRobot {
                 } else if (mControlBoard.getRetractIntake()) {
                     mIntake.setState(Intake.WantedAction.RETRACT);
                 } else if (mControlBoard.getControlPanelRotation()) {
-                    //mRoller.setState(Roller.WantedAction.ACHIEVE_POSITION_CONTROL);
+                    mRoller.setState(Roller.WantedAction.ACHIEVE_ROTATION_CONTROL);
                 } else if (mControlBoard.getControlPanelPosition()) {
-                    //mRoller.setState(Roller.WantedAction.ACHIEVE_POSITION_CONTROL);
+                    mRoller.setState(Roller.WantedAction.ACHIEVE_POSITION_CONTROL);
                 } else {
                     mIntake.setState(Intake.WantedAction.NONE);
                 }
@@ -317,6 +321,7 @@ public class Robot extends TimedRobot {
                 mSuperstructure.enableIndexer(false);
                 mIntake.setState(Intake.WantedAction.NONE);
                 buddy_climb = mWrangler.getWranglerOut();
+                mRoller.setState(Roller.WantedAction.NONE);
                 if (mControlBoard.getArmExtend()) { // Press A
                     mClimber.setState(Climber.WantedAction.PIVOT);
                 } else if (mControlBoard.getStopExtend()) {
@@ -431,7 +436,7 @@ public class Robot extends TimedRobot {
 
             if (!mLimelight.limelightOK()) {
                 mLEDs.conformToState(LEDs.State.EMERGENCY);
-            } else if (mTurret.isHoming()) {
+            } else if (mTurret.isHoming() || mHood.isHoming()) {
                 mLEDs.conformToState(LEDs.State.RAINBOW);
             } else {
                 mLEDs.conformToState(LEDs.State.BREATHING_PINK);

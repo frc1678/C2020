@@ -120,8 +120,12 @@ public class GamepadButtonControlBoard {
         return mController.getButton(Button.START);
     }
 
-    public boolean getTestSpit() {
+    public boolean getTurretReset() {
         return mController.getController().getBackButtonReleased();
+    }
+
+    public boolean getTestSpit() {
+        return mController.getButton(CustomXboxController.Button.L_JOYSTICK);
     }
 
     public boolean getRevolve() {
@@ -145,11 +149,11 @@ public class GamepadButtonControlBoard {
     }
 
     public boolean getControlPanelRotation() {
-        return mController.getButton(CustomXboxController.Button.LB);
+        return mController.getController().getBumperReleased(Hand.kLeft);
     }
 
     public boolean getControlPanelPosition() {
-        return mController.getButton(CustomXboxController.Button.RB);
+        return mController.getController().getBumperReleased(Hand.kRight);
     }
 
     public boolean climbMode() {

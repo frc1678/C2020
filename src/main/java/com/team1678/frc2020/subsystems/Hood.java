@@ -38,6 +38,10 @@ public class Hood extends ServoMotorSubsystem {
         return Canifier.getInstance().getHoodLimit();
     }
 
+    public synchronized boolean isHoming() {
+        return mHoming;
+    }
+    
     public synchronized double getAngle() {
         return getPosition();
     }

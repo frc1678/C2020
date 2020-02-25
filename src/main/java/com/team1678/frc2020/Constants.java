@@ -121,7 +121,7 @@ public class Constants {
         // Unit == Degrees
         kTurretConstants.kHomePosition = 0.0; // CCW degrees from forward
         kTurretConstants.kTicksPerUnitDistance = (2048.0 * 36.0) / 360.0;
-        kTurretConstants.kKp = 0.5;
+        kTurretConstants.kKp = 0.4;
         kTurretConstants.kKi = 0;
         kTurretConstants.kKd = 0.0;
         kTurretConstants.kKf = 0.05;
@@ -142,7 +142,7 @@ public class Constants {
         kTurretConstants.kMaxUnitsLimit = 315.0;
 
         kTurretConstants.kCruiseVelocity = 20000; // Ticks / 100ms
-        kTurretConstants.kAcceleration = 40000; // Ticks / 100ms / s
+        kTurretConstants.kAcceleration = 30000; // Ticks / 100ms / s
         kTurretConstants.kRampRate = 0.0; // s
         kTurretConstants.kContinuousCurrentLimit = 20; // amps
         kTurretConstants.kPeakCurrentLimit = 40; // amps

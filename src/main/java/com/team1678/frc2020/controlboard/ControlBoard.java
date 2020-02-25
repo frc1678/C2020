@@ -99,6 +99,10 @@ public class ControlBoard {
         return mButtonControlBoard.getControlPanelPosition();
     }
 
+    public boolean getTurretReset() {
+        return mButtonControlBoard.getTurretReset();
+    }
+
     public void setRumble(boolean on) {
         mButtonControlBoard.setRumble(on);
     }

@@ -35,6 +35,8 @@ public class Indexer extends Subsystem {
 
     private double mIndexerStart = Timer.getFPGATimestamp();
     private static final double kAngleConversion = (2048.0 * kGearRatio) / 360.0;
+
+    private static double kJamCurrent = 150.0;
     
     public static class PeriodicIO {
         // INPUTS
@@ -43,6 +45,7 @@ public class Indexer extends Subsystem {
 
         public double indexer_angle;
         public double indexer_velocity;
+        public double indexer_current;
         public double turret_angle;
         public boolean snapped;
 
@@ -360,6 +363,7 @@ public class Indexer extends Subsystem {
         mPeriodicIO.raw_slots[4] = mSlot4Proxy.get();
         mPeriodicIO.limit_switch = !mLimitSwitch.get();
         mPeriodicIO.indexer_velocity = mMaster.getSelectedSensorVelocity(0) * 600. / 2048. / kGearRatio;
+        mPeriodicIO.indexer_current = mMaster.getStatorCurrent();
 
         mPeriodicIO.indexer_angle = mMaster.getSelectedSensorPosition(0) / kAngleConversion;
         final double indexer_angle = mPeriodicIO.indexer_angle;
@@ -379,6 +383,9 @@ public class Indexer extends Subsystem {
     @Override
     public synchronized void writePeriodicOutputs() {
         if (mPeriodicIO.indexer_control_mode == ControlMode.Velocity) {
+            if (mPeriodicIO.indexer_current > kJamCurrent) {
+                mBackwards = !mBackwards;
+            }
             mMaster.selectProfileSlot(1, 0);
             mMaster.set(mPeriodicIO.indexer_control_mode, (mPeriodicIO.indexer_demand / 600.0) * kGearRatio * 2048.0);
         } else if (mPeriodicIO.indexer_control_mode == ControlMode.MotionMagic) {
