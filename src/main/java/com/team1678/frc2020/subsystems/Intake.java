@@ -6,10 +6,8 @@ import com.team1678.frc2020.Constants;
 import com.team1678.frc2020.loops.ILooper;
 import com.team1678.frc2020.loops.Loop;
 
-import com.team254.lib.drivers.SparkMaxFactory;
 import com.team254.lib.drivers.TalonFXFactory;
 import com.team254.lib.util.TimeDelayedBoolean;
-import com.team254.lib.drivers.LazySparkMax;
 
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.Solenoid;

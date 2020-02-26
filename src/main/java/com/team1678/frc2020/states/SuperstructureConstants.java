@@ -45,6 +45,8 @@ public class SuperstructureConstants {
         { 178.0, 78.0 },
         { 185.0, 78.0 },
         { 230.0, 79.0 },
+        { 365.0, 88.0 },
+        { 318.0, 89.0 },
         { 330.0, 89.5 },
         
     };
@@ -82,6 +84,8 @@ public class SuperstructureConstants {
         { 178.0, 2800 },
         { 185.0, 2800 },
         { 230.0, 3000 },
+        { 265.0, 3300 },
+        { 318.0, 3700 },
         { 330.0, 4000 },
         
         // TODO: Fill in with values

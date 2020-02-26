@@ -148,11 +148,11 @@ public class GamepadButtonControlBoard {
     }
 
     public boolean getControlPanelRotation() {
-        return mController.getController().getBumperReleased(Hand.kLeft);
+        return mController.getController().getBumperReleased(Hand.kRight);
     }
 
     public boolean getControlPanelPosition() {
-        return mController.getController().getBumperReleased(Hand.kRight);
+        return mController.getController().getBumperReleased(Hand.kLeft);
     }
 
     public boolean climbMode() {

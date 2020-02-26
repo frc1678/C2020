@@ -79,7 +79,6 @@ public class RobotState {
     private MovingAverageTwist2d vehicle_velocity_measured_filtered_;
     private double distance_driven_;
 
-    private GoalTracker.TrackReport mCachedGoal = null;
 
     private GoalTracker vision_target_ = new GoalTracker();
 
@@ -95,7 +94,7 @@ public class RobotState {
     public synchronized void reset(double start_time, Pose2d initial_field_to_vehicle,
             Rotation2d initial_vehicle_to_turret, Rotation2d initial_vehicle_to_hood) {
         reset(start_time, initial_field_to_vehicle);
-        mCachedGoal = null;
+
         turret_rotation_ = new InterpolatingTreeMap<>(kObservationBufferSize);
         turret_rotation_.put(new InterpolatingDouble(start_time), initial_vehicle_to_turret);
 
@@ -110,12 +109,10 @@ public class RobotState {
         vehicle_velocity_measured_ = Twist2d.identity();
         vehicle_velocity_measured_filtered_ = new MovingAverageTwist2d(25);
         distance_driven_ = 0.0;
-        mCachedGoal = null;
     }
 
     public synchronized void reset() {
         reset(Timer.getFPGATimestamp(), Pose2d.identity(), Rotation2d.identity(), Rotation2d.identity());
-        mCachedGoal = null;
     }
 
     /**
@@ -334,7 +331,6 @@ public class RobotState {
 
         AimingParameters params = new AimingParameters(latestTurretFixedToGoal, report.field_to_target,
                 report.field_to_target.getRotation(), report.latest_timestamp, report.stability, report.id);
-        mCachedGoal = report;
         return Optional.of(params);
     }
 

@@ -209,7 +209,7 @@ public class Constants {
     public static final double kJoystickThreshold = 0.2;
 
     // Roller
-    public static final int kRollerId = 14;
+    public static final int kRollerId = 0;
     public static final int kRollerSolenoid = 2;
 
     // solenoids

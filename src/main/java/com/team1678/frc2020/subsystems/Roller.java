@@ -5,17 +5,15 @@ import java.util.stream.Stream;
 import com.team1678.frc2020.Constants;
 import com.team1678.frc2020.loops.ILooper;
 import com.team1678.frc2020.loops.Loop;
-import com.team254.lib.drivers.LazySparkMax;
-import com.team254.lib.drivers.SparkMaxFactory;
 import com.team254.lib.util.TimeDelayedBoolean;
 
 import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.I2C;
+import edu.wpi.first.wpilibj.PWMSparkMax;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
 
-import edu.wpi.first.wpilibj.Spark;
 
 import com.revrobotics.ColorSensorV3;
 import com.revrobotics.ColorMatchResult;
@@ -31,7 +29,7 @@ public class Roller extends Subsystem {
     // Motors, solenoids and sensors
     public I2C.Port i2cPort;
     public ColorSensorV3 mColorSensor;
-    private final LazySparkMax mRollerMotor;
+    private final PWMSparkMax mRollerMotor;
     public Solenoid mPopoutSolenoid;
 
     // Color sensing
@@ -76,7 +74,7 @@ public class Roller extends Subsystem {
     private PeriodicIO mPeriodicIO = new PeriodicIO();
 
     private Roller() {
-        mRollerMotor = SparkMaxFactory.createDefaultSparkMax(Constants.kRollerId);
+        mRollerMotor = new PWMSparkMax(Constants.kRollerId);
         mPopoutSolenoid = Constants.makeSolenoidForId(Constants.kRollerSolenoid);
 
         i2cPort = I2C.Port.kOnboard;
