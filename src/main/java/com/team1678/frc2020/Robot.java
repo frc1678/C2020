@@ -42,6 +42,7 @@ import edu.wpi.cscore.MjpegServer;
 import edu.wpi.cscore.UsbCamera;
 import edu.wpi.cscore.VideoMode;
 import edu.wpi.first.cameraserver.CameraServer;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -79,7 +80,7 @@ public class Robot extends TimedRobot {
     private final Hood mHood = Hood.getInstance();
     private final Wrangler mWrangler = Wrangler.getInstance();
 
-    //private final Roller mRoller = Roller.getInstance();
+    private final Roller mRoller = Roller.getInstance();
     private final Canifier mCanifier = Canifier.getInstance();
     private final LEDs mLEDs = LEDs.getInstance();
 
@@ -145,6 +146,8 @@ public class Robot extends TimedRobot {
             mDrive.setHeading(Rotation2d.identity());
 
             mLimelight.setLed(Limelight.LedMode.OFF);
+
+            mRoller.setGameData(DriverStation.getInstance().getGameSpecificMessage());
 
             mTrajectoryGenerator.generateTrajectories();
         } catch (Throwable t) {
@@ -446,6 +449,7 @@ public class Robot extends TimedRobot {
         try {
             mLimelight.setLed(Limelight.LedMode.OFF);
             mLimelight.writePeriodicOutputs();
+            mRoller.setGameData(DriverStation.getInstance().getGameSpecificMessage());
 
             if (!mLimelight.limelightOK()) {
                 mLEDs.conformToState(LEDs.State.EMERGENCY);

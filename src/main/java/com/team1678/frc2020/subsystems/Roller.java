@@ -94,6 +94,10 @@ public class Roller extends Subsystem {
         return mInstance;
     }
 
+    public synchronized void setGameData(String data) {
+        gameData = data;
+    }
+
     // Optional design pattern for caching periodic reads to avoid hammering the HAL/CAN.
     public synchronized void readPeriodicInputs() {
         mPeriodicIO.detected_color = mColorSensor.getColor();
@@ -111,7 +115,6 @@ public class Roller extends Subsystem {
             colorString = "Unknown";
         }
 
-        gameData = DriverStation.getInstance().getGameSpecificMessage();
         boolean solenoid_ret = mSolenoidTimer.update(mPeriodicIO.pop_out_solenoid, 0.5);
         if (solenoid_ret == true && !mSolenoidOut) {
             mInitialColor = mOneColorAgo = mTwoColorsAgo = mMatch.color;
