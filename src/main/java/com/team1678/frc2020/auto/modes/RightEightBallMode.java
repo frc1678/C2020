@@ -50,7 +50,7 @@ public class RightEightBallMode extends AutoModeBase {
          runAction(new WaitForIndexerSpinAction(720.0));
  
          System.out.println("Wait Complete");
-         runAction(new LambdaAction(() -> Superstructure.getInstance().setWantShoot(false)));
+         runAction(new LambdaAction(() -> Superstructure.getInstance().setWantSpinUp(true)));
          runAction(new LambdaAction(() -> Intake.getInstance().setState(Intake.WantedAction.INTAKE)));
  
         runAction(mShotToTrenchEnd);
@@ -66,7 +66,6 @@ public class RightEightBallMode extends AutoModeBase {
         runAction(new WaitForIndexerSpinAction(720.0));
 
         System.out.println("Wait Complete");
-        runAction(new LambdaAction(() -> Superstructure.getInstance().setWantShoot(false)));
 
         System.out.println("Auto Complete");
     }

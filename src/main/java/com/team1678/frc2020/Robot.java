@@ -134,7 +134,7 @@ public class Robot extends TimedRobot {
                 mTurret,
                 mInfrastructure,
                 mClimber,
-               // mRoller,
+                mRoller,
                 mLEDs
             );
 

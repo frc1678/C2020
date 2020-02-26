@@ -43,6 +43,8 @@ public class LeftEightBallMode extends AutoModeBase {
 
         runAction(mStartToSteal);
 
+        runAction(new LambdaAction(() -> Superstructure.getInstance().setWantPreShot(true)));
+
         runAction(mStealToFirstShot);
 
         
@@ -52,19 +54,18 @@ public class LeftEightBallMode extends AutoModeBase {
         runAction(new WaitUntilOnTargetAction());
         runAction(new LambdaAction(() -> Superstructure.getInstance().setWantShoot(true)));
         runAction(new WaitForSpinupAction());
-        runAction(new WaitForIndexerSpinAction(720.0));
+        runAction(new WaitForIndexerSpinAction(740.0));
 
         System.out.println("Wait Complete");
-        runAction(new LambdaAction(() -> Superstructure.getInstance().setWantShoot(false)));
+        runAction(new LambdaAction(() -> Superstructure.getInstance().setWantSpinUp(true)));
         runAction(new LambdaAction(() -> Intake.getInstance().setState(Intake.WantedAction.INTAKE)));
 
         runAction(mOffsetShotToFirstBarIntake);
 
         runAction(mFirstToPreSecondBarIntake);
+        runAction(new LambdaAction(() -> Superstructure.getInstance().setWantPreShot(true)));
 
         runAction(mSecondBarIntake);
-
-        runAction(new LambdaAction(() -> Superstructure.getInstance().setWantSpinUp(true)));
 
         runAction(mSecondBarIntakeToShot);
 
@@ -77,7 +78,6 @@ public class LeftEightBallMode extends AutoModeBase {
         runAction(new WaitForIndexerSpinAction(720.0));
 
         System.out.println("Wait Complete");
-        runAction(new LambdaAction(() -> Superstructure.getInstance().setWantShoot(false)));
         
         System.out.println("Auto Complete");
     }
