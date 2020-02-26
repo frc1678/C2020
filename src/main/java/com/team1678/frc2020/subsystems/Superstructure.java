@@ -19,7 +19,7 @@ import com.team254.lib.vision.AimingParameters;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Superstructure extends Subsystem {
-    private static final double kZoomedOutRange = 170.0;
+    private static final double kZoomedOutRange = 190.0;
     private static final double kZoomedInRange = 220.0;
 
     // Instances
@@ -52,6 +52,7 @@ public class Superstructure extends Subsystem {
     private boolean mWantsShoot = false;
     private boolean mWantsSpinUp = false;
     private boolean mWantsTuck = false;
+    private boolean mWantsFendor = false;
     private boolean mWantsTestSpit = false;
     private boolean mSettled = false;
     private boolean mUseInnerTarget = false;
@@ -324,22 +325,23 @@ public class Superstructure extends Subsystem {
     }
 
     public synchronized void followSetpoint() {
-  
+
         if (SuperstructureConstants.kUseSmartdashboard) {
             mShooterSetpoint = getShootingSetpointRpm(0);
             mHoodSetpoint = getHoodSetpointAngle(0);
-        } else if (mWantsTestSpit) {
-            mShooterSetpoint = 1500;
-            mHoodSetpoint = Constants.kHoodConstants.kMinUnitsLimit;
         }
 
         if (mWantsTuck || !mEnableIndexer) {
             mHood.setSetpointPositionPID(Constants.kHoodConstants.kMinUnitsLimit, 0);
+        } else if (mWantsFendor) {
+            mHood.setSetpointMotionMagic(30.0);
+        } else if (mWantsTestSpit) {
+            mHood.setSetpointMotionMagic(Constants.kHoodConstants.kMinUnitsLimit);
         } else {
             mHood.setSetpointMotionMagic(mHoodSetpoint);
         }
 
-        Indexer.WantedAction indexerAction = Indexer.WantedAction.PASSIVE_INDEX ;
+        Indexer.WantedAction indexerAction = Indexer.WantedAction.PASSIVE_INDEX;
         double real_trigger = 0.0;
         double real_shooter = 0.0;
         boolean real_popout = false;
@@ -395,15 +397,19 @@ public class Superstructure extends Subsystem {
         mTrigger.setVelocity(real_trigger);
         if (Math.abs(real_shooter) < Util.kEpsilon) {
             mShooter.setOpenLoop(0);
+        } else if (mWantsFendor) {
+            mShooter.setVelocity(1750);
+        } else if (mWantsTestSpit) {
+            mShooter.setVelocity(1200);
         } else {
             mShooter.setVelocity(real_shooter);
         }
 
         if (mLatestAimingParameters.isPresent()) {
-            if (mLatestAimingParameters.get().getRange() > kZoomedInRange 
+            if (mLatestAimingParameters.get().getRange() > kZoomedInRange
                     && Limelight.getInstance().getPipeline() == Limelight.kDefaultPipeline) {
                 Limelight.getInstance().setPipeline(Limelight.kZoomedInPipeline);
-            } else if (mLatestAimingParameters.get().getRange() < kZoomedOutRange 
+            } else if (mLatestAimingParameters.get().getRange() < kZoomedOutRange
                     && Limelight.getInstance().getPipeline() == Limelight.kZoomedInPipeline) {
                 Limelight.getInstance().setPipeline(Limelight.kDefaultPipeline);
             }
@@ -411,13 +417,13 @@ public class Superstructure extends Subsystem {
 
         if (mTurretMode == TurretControlModes.OPEN_LOOP || !mEnableIndexer) {
             mTurret.setOpenLoop(0);
-        //} else  if (mTurretMode == TurretControlModes.VISION_AIMED) {
-         //   mTurret.setSetpointPositionPID(mTurretSetpoint, mTurretFeedforwardV);
+            // } else if (mTurretMode == TurretControlModes.VISION_AIMED) {
+            // mTurret.setSetpointPositionPID(mTurretSetpoint, mTurretFeedforwardV);
         } else {
             mTurret.setSetpointMotionMagic(mTurretSetpoint);
         }
-        //mTurret.setOpenLoop(0);
-        //mHood.setOpenLoop(0);
+        // mTurret.setOpenLoop(0);
+        // mHood.setOpenLoop(0);
         estim_popout = trigger_popout.update(real_popout, 0.2);
     }
 
@@ -428,7 +434,7 @@ public class Superstructure extends Subsystem {
     public synchronized boolean isOnTarget() {
         return mOnTarget;
     }
-    
+
     public synchronized void setWantAutoAim(Rotation2d field_to_turret_hint, boolean enforce_min_distance,
             double min_distance) {
         mTurretMode = TurretControlModes.VISION_AIMED;
@@ -481,6 +487,18 @@ public class Superstructure extends Subsystem {
 
     public synchronized void setWantTuck(boolean tuck) {
         mWantsTuck = tuck;
+    }
+
+    public synchronized void setWantFendor() {
+        mWantsFendor = !mWantsFendor;
+    }
+
+    public synchronized boolean getWantFendor() {
+        return mWantsFendor;
+    }
+
+    public synchronized boolean getWantSpit() {
+        return mWantsTestSpit;
     }
 
     public synchronized boolean getTucked() {

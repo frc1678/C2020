@@ -79,7 +79,7 @@ public class Robot extends TimedRobot {
     private final Hood mHood = Hood.getInstance();
     private final Wrangler mWrangler = Wrangler.getInstance();
 
-    private final Roller mRoller = Roller.getInstance();
+    //private final Roller mRoller = Roller.getInstance();
     private final Canifier mCanifier = Canifier.getInstance();
     private final LEDs mLEDs = LEDs.getInstance();
 
@@ -133,7 +133,7 @@ public class Robot extends TimedRobot {
                 mTurret,
                 mInfrastructure,
                 mClimber,
-                mRoller,
+               // mRoller,
                 mLEDs
             );
 
@@ -265,7 +265,8 @@ public class Robot extends TimedRobot {
 
                 mSuperstructure.jogTurret(turret_jog * 3);
             } else if (mControlBoard.getFendorShot()) {
-                mSuperstructure.setGoal(1000, 35, 180);
+                mSuperstructure.setWantFendor();
+                mSuperstructure.setWantFieldRelativeTurret(Rotation2d.fromDegrees(180.));
             } else if (cardinal == TurretCardinal.NONE) {
                 mSuperstructure.setWantAutoAim(Rotation2d.fromDegrees(180.0));
             } else {
@@ -288,7 +289,7 @@ public class Robot extends TimedRobot {
                 }
 
                 if (mControlBoard.getShoot()) {
-                    if (mSuperstructure.isAimed()) {
+                    if (mSuperstructure.isAimed() || mSuperstructure.getWantFendor() || mSuperstructure.getWantSpit()) {
                         mSuperstructure.setWantShoot();
                     }
                 } else if (mControlBoard.getPreShot()) {
@@ -313,13 +314,13 @@ public class Robot extends TimedRobot {
                 } else if (mControlBoard.getRetractIntake()) {
                     mIntake.setState(Intake.WantedAction.RETRACT);
                 } else if (mControlBoard.getControlPanelRotation()) {
-                    mRoller.setState(Roller.WantedAction.ACHIEVE_ROTATION_CONTROL);
+                   // mRoller.setState(Roller.WantedAction.ACHIEVE_ROTATION_CONTROL);
                 } else if (mControlBoard.getControlPanelPosition()) {
-                    mRoller.setState(Roller.WantedAction.ACHIEVE_POSITION_CONTROL);
+                   // mRoller.setState(Roller.WantedAction.ACHIEVE_POSITION_CONTROL);
                 } else if (mControlBoard.getManualRoller()) {
-                    mRoller.runManual(-3.0);
+                  //  mRoller.runManual(-3.0);
                 } else if (mControlBoard.getStopManualRoller()) {
-                    mRoller.stop();
+                  //  mRoller.stop();
                 } else {
                     mIntake.setState(Intake.WantedAction.NONE);
                 }
@@ -327,7 +328,11 @@ public class Robot extends TimedRobot {
                 mSuperstructure.enableIndexer(false);
                 mIntake.setState(Intake.WantedAction.NONE);
                 buddy_climb = mWrangler.getWranglerOut();
-                mRoller.setState(Roller.WantedAction.NONE);
+                mSuperstructure.setWantSpinUp(false);
+                mSuperstructure.setWantShoot(false);
+                mSuperstructure.setWantPreShot(false);
+
+            //    mRoller.setState(Roller.WantedAction.NONE);
                 if (mControlBoard.getArmExtend()) { // Press A
                     mClimber.setState(Climber.WantedAction.PIVOT);
                 } else if (mControlBoard.getStopExtend()) {
