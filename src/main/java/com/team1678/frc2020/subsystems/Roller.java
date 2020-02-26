@@ -1,14 +1,11 @@
 package com.team1678.frc2020.subsystems;
 
-import java.util.stream.Stream;
-
 import com.team1678.frc2020.Constants;
 import com.team1678.frc2020.loops.ILooper;
 import com.team1678.frc2020.loops.Loop;
 import com.team254.lib.util.TimeDelayedBoolean;
 
 import edu.wpi.first.wpilibj.Solenoid;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.I2C;
 import edu.wpi.first.wpilibj.PWMSparkMax;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -17,9 +14,7 @@ import edu.wpi.first.wpilibj.util.Color;
 
 import com.revrobotics.ColorSensorV3;
 import com.revrobotics.ColorMatchResult;
-import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.revrobotics.ColorMatch;
-import com.revrobotics.ControlType;
 
 // Control panel manipulator
 public class Roller extends Subsystem {
@@ -96,30 +91,6 @@ public class Roller extends Subsystem {
 
     public synchronized void setGameData(String data) {
         gameData = data;
-    }
-
-    // Optional design pattern for caching periodic reads to avoid hammering the HAL/CAN.
-    public synchronized void readPeriodicInputs() {
-        mPeriodicIO.detected_color = mColorSensor.getColor();
-        mMatch = mColorMatcher.matchClosestColor(mPeriodicIO.detected_color);
-
-        if (mMatch.color == kBlueTarget) {
-            colorString = "Blue";
-        } else if (mMatch.color == kRedTarget) {
-            colorString = "Red";
-        } else if (mMatch.color == kGreenTarget) {
-            colorString = "Green";
-        } else if (mMatch.color == kYellowTarget) {
-            colorString = "Yellow";
-        } else {
-            colorString = "Unknown";
-        }
-
-        boolean solenoid_ret = mSolenoidTimer.update(mPeriodicIO.pop_out_solenoid, 0.5);
-        if (solenoid_ret == true && !mSolenoidOut) {
-            mInitialColor = mOneColorAgo = mTwoColorsAgo = mMatch.color;
-        }
-        mSolenoidOut = solenoid_ret;
 
         if(gameData.length() > 0) {
             // Accounts for the FMS detecting the color two wedges down
@@ -147,6 +118,30 @@ public class Roller extends Subsystem {
         } else {
             // No data has been recieved
         }
+    }
+
+    // Optional design pattern for caching periodic reads to avoid hammering the HAL/CAN.
+    public synchronized void readPeriodicInputs() {
+        mPeriodicIO.detected_color = mColorSensor.getColor();
+        mMatch = mColorMatcher.matchClosestColor(mPeriodicIO.detected_color);
+
+        if (mMatch.color == kBlueTarget) {
+            colorString = "Blue";
+        } else if (mMatch.color == kRedTarget) {
+            colorString = "Red";
+        } else if (mMatch.color == kGreenTarget) {
+            colorString = "Green";
+        } else if (mMatch.color == kYellowTarget) {
+            colorString = "Yellow";
+        } else {
+            colorString = "Unknown";
+        }
+
+        boolean solenoid_ret = mSolenoidTimer.update(mPeriodicIO.pop_out_solenoid, 0.5);
+        if (solenoid_ret == true && !mSolenoidOut) {
+            mInitialColor = mOneColorAgo = mTwoColorsAgo = mMatch.color;
+        }
+        mSolenoidOut = solenoid_ret;
     }
 
     // Optional design pattern for caching periodic writes to avoid hammering the HAL/CAN.
