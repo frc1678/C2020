@@ -293,13 +293,13 @@ public class Roller extends Subsystem {
 
     @Override
     public synchronized void outputTelemetry() {
-        SmartDashboard.putNumber("Red", mPeriodicIO.detected_color.red);
-        SmartDashboard.putNumber("Green", mPeriodicIO.detected_color.green);
-        SmartDashboard.putNumber("Blue", mPeriodicIO.detected_color.blue);
+        //SmartDashboard.putNumber("Red", mPeriodicIO.detected_color.red);
+        //SmartDashboard.putNumber("Green", mPeriodicIO.detected_color.green);
+        //SmartDashboard.putNumber("Blue", mPeriodicIO.detected_color.blue);
         SmartDashboard.putString("Color", colorString);
         SmartDashboard.putNumber("Color Counter", mColorCounter);
         SmartDashboard.putString("State", mState.toString());
-        SmartDashboard.putNumber("Conf", mMatch.confidence);
+        //SmartDashboard.putNumber("Conf", mMatch.confidence);
     }
 
     public void setState(WantedAction action) {
