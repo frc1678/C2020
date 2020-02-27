@@ -112,6 +112,8 @@ public class Roller extends Subsystem {
                     mSlowDownTarget = kBlueTarget;
                     break;
                 default :
+                    mColorPositionTarget = kRedTarget;
+                    mSlowDownTarget = kGreenTarget;
                     System.out.println("Invalid color from FMS!");
                     break;
             }

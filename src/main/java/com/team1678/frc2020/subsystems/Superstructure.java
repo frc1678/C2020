@@ -357,7 +357,7 @@ public class Superstructure extends Subsystem {
             real_trigger = -600.0;
         } else if (mWantsPreShot) {
             real_shooter = mShooterSetpoint;
-            indexerAction = Indexer.WantedAction.ZOOM;
+            indexerAction = Indexer.WantedAction.HELLA_ZOOM;
             real_trigger = Constants.kTriggerRPM;
             real_popout = false;
         } else if (mWantsShoot) {

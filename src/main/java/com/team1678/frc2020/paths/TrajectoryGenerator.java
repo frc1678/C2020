@@ -115,7 +115,7 @@ public class TrajectoryGenerator {
     public static final Pose2d kShotPoseWaypoint2 = new Pose2d(220.0, -20.0, Rotation2d.fromDegrees(-60.0));
     public static final Pose2d kSecondShotPose = new Pose2d(180.0, 75.0, Rotation2d.fromDegrees(-65.0));
 
-    public static final Pose2d kBarIntakePose = new Pose2d(237., 63.0, Rotation2d.fromDegrees(-65.0));
+    public static final Pose2d kBarIntakePose = new Pose2d(240., 63.0, Rotation2d.fromDegrees(-65.0));
     public static final Pose2d kPreTrenchPose = new Pose2d(210.0, 70.0, Rotation2d.fromDegrees(40.0));
     public static final Pose2d kPreEnterTrenchPose = new Pose2d(235.0, 100.0, Rotation2d.fromDegrees(60.0));
     public static final Pose2d kSecondTrenchIntakePose = new Pose2d(285.0, 128.0, Rotation2d.fromDegrees(0.0));

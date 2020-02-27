@@ -100,7 +100,7 @@ public class Wrangler extends Subsystem {
     }
 
     public synchronized boolean getWranglerOut() {
-        return mDeployer.get() && mPeriodicOutputs.deployer_solenoid;
+        return mPeriodicOutputs.deployer_solenoid;
     }
 
     public void runStateMachine() {
@@ -170,7 +170,7 @@ public class Wrangler extends Subsystem {
 
     public static class PeriodicOutputs {
         // OUTPUTS
-        public static double demand;
-        public static boolean deployer_solenoid;
+        public double demand;
+        public boolean deployer_solenoid;
     }
 }

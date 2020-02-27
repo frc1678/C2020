@@ -59,8 +59,6 @@ public class Constants {
     // climber
     public static final int kWinchMasterId = 11;
     public static final int kWinchSlaveId = 12;
-    public static final int kArmSolenoidId = 1;
-    public static final int kBrakeSolenoidId = 5;
 
     // wrangler
     public static final int kWranglerId = 13;
@@ -245,7 +243,7 @@ public class Constants {
     public static final double kMinStability = 0.5;
     public static final int kPortPipeline = 0;
     public static final int kBallPipeline = 2;
-    public static final double kGoalHeight = 81.0;
+    public static final double kGoalHeight = 90.0;
 
     public static final int kCanifierId = 0;
 
@@ -253,7 +251,7 @@ public class Constants {
     public static final int kMasterFlywheelID = 9;
     public static final int kSlaveFlywheelID = 10;
     public static final int kTriggerWheelID = 6;
-    public static final int kTriggerPopoutSolenoidID = 4;
+    public static final int kTriggerPopoutSolenoidID = 1;
     public static final double kShooterP = 0.2;
     public static final double kShooterI = 0.00004;
     public static final double kShooterD = 0.0;
@@ -262,7 +260,6 @@ public class Constants {
     public static final double kTriggerI = 0.0;
     public static final double kTriggerD = 0.0;
     public static final double kTriggerF = 0.05;
-    public static final int kPopoutSolenoidId = 4; // TODO 
 
     public static final double kTriggerRPM = 5000.0;
 

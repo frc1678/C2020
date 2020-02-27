@@ -63,6 +63,7 @@ public class Robot extends TimedRobot {
     private final Looper mDisabledLooper = new Looper();
 
     private final ControlBoard mControlBoard = ControlBoard.getInstance();
+    private CheesyDriveHelper mCheesyDriveHelper = new CheesyDriveHelper();
     private TrajectoryGenerator mTrajectoryGenerator = TrajectoryGenerator.getInstance();
 
     private final SubsystemManager mSubsystemManager = SubsystemManager.getInstance();
@@ -147,7 +148,7 @@ public class Robot extends TimedRobot {
 
             mLimelight.setLed(Limelight.LedMode.OFF);
 
-            mRoller.setGameData(DriverStation.getInstance().getGameSpecificMessage());
+           mRoller.setGameData(DriverStation.getInstance().getGameSpecificMessage());
 
             mTrajectoryGenerator.generateTrajectories();
         } catch (Throwable t) {
@@ -256,7 +257,8 @@ public class Robot extends TimedRobot {
                 }
             }
 
-            mDrive.setCheesyishDrive(throttle, turn, mControlBoard.getQuickTurn());
+            mDrive.setOpenLoop(mCheesyDriveHelper.cheesyDrive(throttle, turn, mControlBoard.getQuickTurn()));
+            //setCheesyishDrive(throttle, turn, mControlBoard.getQuickTurn());
 
             mLimelight.setLed(Limelight.LedMode.ON);
             TurretCardinal cardinal = mControlBoard.getTurretCardinal();
@@ -285,8 +287,8 @@ public class Robot extends TimedRobot {
                 mSuperstructure.enableIndexer(true);
                 mWrangler.setState(Wrangler.WantedAction.RETRACT);
 
-                if (mIndexer.slotsFilled()) {
-                    mControlBoard.setRumble(false);
+                if (mSuperstructure.getWantShoot()) {
+                    mControlBoard.setRumble(true);
                 } else {
                     mControlBoard.setRumble(false);
                 }
@@ -317,13 +319,13 @@ public class Robot extends TimedRobot {
                 } else if (mControlBoard.getRetractIntake()) {
                     mIntake.setState(Intake.WantedAction.RETRACT);
                 } else if (mControlBoard.getControlPanelRotation()) {
-                   // mRoller.setState(Roller.WantedAction.ACHIEVE_ROTATION_CONTROL);
+                    mRoller.setState(Roller.WantedAction.ACHIEVE_ROTATION_CONTROL);
                 } else if (mControlBoard.getControlPanelPosition()) {
-                   // mRoller.setState(Roller.WantedAction.ACHIEVE_POSITION_CONTROL);
+                    mRoller.setState(Roller.WantedAction.ACHIEVE_POSITION_CONTROL);
                 } else if (mControlBoard.getManualRoller()) {
-                  //  mRoller.runManual(-3.0);
+                    mRoller.runManual(-3.0);
                 } else if (mControlBoard.getStopManualRoller()) {
-                  //  mRoller.stop();
+                    mRoller.stop();
                 } else {
                     mIntake.setState(Intake.WantedAction.NONE);
                 }
@@ -335,7 +337,7 @@ public class Robot extends TimedRobot {
                 mSuperstructure.setWantShoot(false);
                 mSuperstructure.setWantPreShot(false);
 
-            //    mRoller.setState(Roller.WantedAction.NONE);
+                mRoller.setState(Roller.WantedAction.NONE);
                 if (mControlBoard.getArmExtend()) { // Press A
                     mClimber.setState(Climber.WantedAction.PIVOT);
                 } else if (mControlBoard.getStopExtend()) {
@@ -449,7 +451,7 @@ public class Robot extends TimedRobot {
         try {
             mLimelight.setLed(Limelight.LedMode.OFF);
             mLimelight.writePeriodicOutputs();
-            mRoller.setGameData(DriverStation.getInstance().getGameSpecificMessage());
+           mRoller.setGameData(DriverStation.getInstance().getGameSpecificMessage());
 
             if (!mLimelight.limelightOK()) {
                 mLEDs.conformToState(LEDs.State.EMERGENCY);

@@ -52,8 +52,6 @@ public class Climber extends Subsystem  {
 
     private final TalonFX mMaster;
     private final TalonFX mSlave;
-    private final Solenoid mArmSolenoid;
-    private Solenoid mBrakeSolenoid;
     private double mHoldingPos = 0.0;
     private double mZeroPos;
     private boolean mPivoted = false;
@@ -65,9 +63,6 @@ public class Climber extends Subsystem  {
 
 
     private Climber() {
-        mArmSolenoid = Constants.makeSolenoidForId(Constants.kArmSolenoidId);
-        mBrakeSolenoid = Constants.makeSolenoidForId(Constants.kBrakeSolenoidId);
-
         mMaster = TalonFXFactory.createDefaultTalon(Constants.kWinchMasterId);
         mMaster.set(ControlMode.PercentOutput, 0);
         mMaster.setInverted(true);
@@ -115,8 +110,6 @@ public class Climber extends Subsystem  {
     @Override
     public void outputTelemetry() {
         SmartDashboard.putString("ClimberState", mState.name());
-        SmartDashboard.putBoolean("ArmExtended", mPeriodicIO.arm_solenoid);
-        SmartDashboard.putBoolean("BrakeEngaged", mPeriodicIO.brake_solenoid);
         SmartDashboard.putNumber("ClimbVoltage", mPeriodicIO.demand);
         SmartDashboard.putNumber("ClimberPosition", mPeriodicIO.position);
         SmartDashboard.putNumber("ClimberVelocity", mPeriodicIO.velocity);
@@ -141,7 +134,7 @@ public class Climber extends Subsystem  {
             @Override
             public void onStart(double timestamp) {
                 mState = State.IDLE;
-               // startLogging();
+                startLogging();
             }
 
             @Override
@@ -174,10 +167,6 @@ public class Climber extends Subsystem  {
 
     public synchronized State getState() {
         return mState;
-    }
-
-    public synchronized boolean getArmExtended() {
-        return mArmSolenoid.get() && mPeriodicIO.arm_solenoid;
     }
 
     public void setBrake(boolean brake) {
@@ -276,13 +265,9 @@ public class Climber extends Subsystem  {
         case NONE:
             break;
         case PIVOT:
-            if (!mPivoted) {
-                mState = State.PIVOTING;
-            }
-            mPivoted = true;
+            mState = State.PIVOTING;
             break;
         case EXTEND:
-            mExtended = false;
             mState = State.EXTENDING;
             break;
         case MANUAL_EXTEND:
@@ -312,7 +297,6 @@ public class Climber extends Subsystem  {
     public synchronized void readPeriodicInputs() {
         mPeriodicIO.position = mMaster.getSelectedSensorPosition(0);
         mPeriodicIO.velocity = mMaster.getSelectedSensorVelocity(0);
-        mPeriodicIO.braked = brake_activation.update(mBrakeSolenoid.get(), 0.5);
         
         if (mCSVWriter != null) {
             mCSVWriter.add(mPeriodicIO);
@@ -329,9 +313,6 @@ public class Climber extends Subsystem  {
         } else {
             mMaster.set(ControlMode.PercentOutput, mPeriodicIO.demand / 12.0);
         }
-
-        mArmSolenoid.set(!mPeriodicIO.arm_solenoid);
-        mBrakeSolenoid.set(!mPeriodicIO.brake_solenoid);
     }
 
     public static class PeriodicIO {
