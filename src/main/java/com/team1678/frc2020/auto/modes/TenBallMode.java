@@ -70,7 +70,7 @@ public class TenBallMode extends AutoModeBase {
         runAction(new LambdaAction(() -> Intake.getInstance().setState(Intake.WantedAction.INTAKE)));
 
         runAction(mIntakeCells);
-        runAction(mBackOut);
+      /*  runAction(mBackOut);
 
         runAction(new ParallelAction(Arrays.asList(
             mIntakeToSecondShot,
@@ -85,7 +85,7 @@ public class TenBallMode extends AutoModeBase {
 
         System.out.println("Wait Complete");
         runAction(new LambdaAction(() -> Superstructure.getInstance().setWantShoot(false)));
-
+*/
 
         System.out.println("Auto Complete");
 

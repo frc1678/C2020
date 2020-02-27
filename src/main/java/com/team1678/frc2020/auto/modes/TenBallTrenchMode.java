@@ -51,7 +51,6 @@ public class TenBallTrenchMode extends AutoModeBase {
             
         runAction(new LambdaAction(() -> Superstructure.getInstance().setWantAutoAim(Rotation2d.fromDegrees(180.))));
         runAction(new LambdaAction(() -> Intake.getInstance().setState(Intake.WantedAction.NONE)));
-        runAction(new LambdaAction(() -> Superstructure.getInstance().setWantSpinUp(true)));
         runAction(new TurnToHeadingAction(Rotation2d.fromDegrees(0), 1.5));
         System.out.println("Turn Complete");
 
@@ -68,7 +67,7 @@ public class TenBallTrenchMode extends AutoModeBase {
         runAction(mBarIntake);
 
         runAction(mBarToOutsideTrench);
-        runAction(new LambdaAction(() -> Superstructure.getInstance().setWantSpinUp(true)));
+        runAction(new LambdaAction(() -> Superstructure.getInstance().setWantPreShot(true)));
         runAction(mTrenchIntake);
 
         runAction(mTrenchToShot);
