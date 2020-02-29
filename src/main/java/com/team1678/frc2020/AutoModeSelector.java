@@ -11,7 +11,7 @@ public class AutoModeSelector {
     enum DesiredMode {
         DO_NOTHING, 
         TEST_PATH, 
-        TEN_BALL_AUTO, 
+        //TEN_BALL_AUTO, 
         TEN_BALL_TRENCH_AUTO, 
         LEFT_EIGHT_BALL_AUTO, 
         LEFT_NEAR_EIGHT_BALL_AUTO,
@@ -31,7 +31,7 @@ public class AutoModeSelector {
         mModeChooser = new SendableChooser<>();
         mModeChooser.setDefaultOption("Do Nothing", DesiredMode.DO_NOTHING);
         mModeChooser.addOption("Test Path", DesiredMode.TEST_PATH);
-        mModeChooser.addOption("Ten Ball Auto", DesiredMode.TEN_BALL_AUTO);
+        //mModeChooser.addOption("Ten Ball Auto", DesiredMode.TEN_BALL_AUTO);
         mModeChooser.addOption("Ten Ball Trench Auto", DesiredMode.TEN_BALL_TRENCH_AUTO);
         mModeChooser.addOption("Left Eight Ball Auto", DesiredMode.LEFT_EIGHT_BALL_AUTO);
         mModeChooser.addOption("Left Near Eight Ball Auto", DesiredMode.LEFT_NEAR_EIGHT_BALL_AUTO);
@@ -61,8 +61,8 @@ public class AutoModeSelector {
             return Optional.of(new CharacterizeDrivebaseMode(false, false));
         case TEST_PATH:
             return Optional.of(new TestPath());
-        case TEN_BALL_AUTO:
-            return Optional.of(new TenBallMode());
+        //case TEN_BALL_AUTO:
+        //    return Optional.of(new TenBallMode());
         case TEN_BALL_TRENCH_AUTO:
             return Optional.of(new TenBallTrenchMode());
         case LEFT_EIGHT_BALL_AUTO:

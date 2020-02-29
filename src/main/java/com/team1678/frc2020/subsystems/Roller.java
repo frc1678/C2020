@@ -280,7 +280,7 @@ public class Roller extends Subsystem {
     public void stop() {
         mPeriodicIO.roller_demand = 0.0;
         mPeriodicIO.pop_out_solenoid = false;
-        setState(WantedAction.NONE);
+        //setState(WantedAction.NONE);
     }
 
     @Override
@@ -296,7 +296,7 @@ public class Roller extends Subsystem {
         SmartDashboard.putString("Color", colorString);
         SmartDashboard.putNumber("Color Counter", mColorCounter);
         SmartDashboard.putString("State", mState.toString());
-        //SmartDashboard.putNumber("Conf", mMatch.confidence);
+        SmartDashboard.putString("Game Data", gameData);
     }
 
     public void setState(WantedAction action) {

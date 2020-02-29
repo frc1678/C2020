@@ -131,8 +131,8 @@ public class LEDs extends Subsystem{
 		//B: Red
         //C: Blue
 		canifier.setLEDOutput(r, LEDChannel.LEDChannelB);
-		canifier.setLEDOutput(g, LEDChannel.LEDChannelA);
-		canifier.setLEDOutput(b, LEDChannel.LEDChannelC);
+		canifier.setLEDOutput(b, LEDChannel.LEDChannelA);
+		canifier.setLEDOutput(g, LEDChannel.LEDChannelC);
     }
 
     public void conformToState(State state){

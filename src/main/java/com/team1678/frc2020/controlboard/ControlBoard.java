@@ -32,7 +32,22 @@ public class ControlBoard {
     public double getThrottle() {
         return mDriveControlBoard.getThrottle();
     }
+    
+    public boolean getManualZoom() {
+        return mDriveControlBoard.getManualZoom();
+    }
 
+    public boolean getWantUnjam() {
+        return mButtonControlBoard.getWantUnjam();
+    }
+
+    public boolean getShotUp() {
+        return mDriveControlBoard.getShotUp();
+    }
+    
+    public boolean getShotDown() {
+        return mDriveControlBoard.getShotDown();
+    }
     public double getTurn() {
         return mDriveControlBoard.getTurn();
     }
@@ -121,6 +136,10 @@ public class ControlBoard {
 
     public boolean getStopExtend() {
         return mButtonControlBoard.getStopExtend();
+    }
+
+    public boolean getStopClimb() {
+        return mButtonControlBoard.getStopClimb();
     }
 
     public boolean getBuddyDeploy() {

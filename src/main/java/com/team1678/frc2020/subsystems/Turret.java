@@ -82,6 +82,13 @@ public class Turret extends ServoMotorSubsystem {
         return mHoming;
     }
 
+    public synchronized void cancelHoming() {
+        if (mHoming) {
+            mMaster.setSelectedSensorPosition(0);
+        }
+        mHoming = false;
+    }
+
     @Override
     public synchronized void writePeriodicOutputs() {
         if (mHoming) {

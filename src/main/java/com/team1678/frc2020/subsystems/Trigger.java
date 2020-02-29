@@ -144,6 +144,7 @@ public class Trigger extends Subsystem {
             mCurrentLimitTimer = now;
         } else if (mCurrentLimitTriggered && now - mCurrentLimitTimer < kUnjamTime) {
             mPeriodicIO.trigger_demand = kUnjamSpeed;
+            mPeriodicIO.popout_solenoid = true;
         } else if (now - mCurrentLimitTimer > kUnjamTime){
             mCurrentLimitTriggered = false;
         }

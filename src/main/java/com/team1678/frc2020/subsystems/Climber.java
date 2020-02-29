@@ -263,6 +263,9 @@ public class Climber extends Subsystem  {
         }
         switch (wanted_state) {
         case NONE:
+            if (mState == State.MANUAL_CLIMBING || mState == State.MANUAL_EXTENDING) {
+                mState = State.IDLE;
+            }
             break;
         case PIVOT:
             mState = State.PIVOTING;

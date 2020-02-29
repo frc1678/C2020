@@ -66,6 +66,11 @@ public class Superstructure extends Subsystem {
     private double mShooterSetpoint = 4000.0;
     private boolean mGotSpunUp = false;
     private boolean mEnableIndexer = true;
+    private boolean mManualZoom = false;
+    private boolean mWantsUnjam = false;
+    private boolean mDisableLimelight = false;
+
+    private double mAngleAdd = 0.0;
 
     public synchronized void enableIndexer(boolean indexer) {
         mEnableIndexer = indexer;
@@ -136,6 +141,12 @@ public class Superstructure extends Subsystem {
         SmartDashboard.putBoolean("Shooting", mWantsShoot);
         SmartDashboard.putBoolean("Spinning Up", mWantsSpinUp);
         SmartDashboard.putBoolean("Pre Shot", mWantsPreShot);
+
+        SmartDashboard.putBoolean("Test Spit", mWantsTestSpit);
+        SmartDashboard.putBoolean("Fendor Shot", mWantsFendor);
+        SmartDashboard.putBoolean("Tuck", mWantsTuck);
+
+        SmartDashboard.putNumber("Angle Add", -mAngleAdd);
     }
 
     @Override
@@ -167,7 +178,7 @@ public class Superstructure extends Subsystem {
         } else if (SuperstructureConstants.kUseHoodAutoAimPolynomial) {
             return SuperstructureConstants.kHoodAutoAimPolynomial.predict(range);
         } else {
-            return SuperstructureConstants.kHoodAutoAimMap.getInterpolated(new InterpolatingDouble(range)).value;
+            return SuperstructureConstants.kHoodAutoAimMap.getInterpolated(new InterpolatingDouble(range)).value + mAngleAdd;
         }
     }
 
@@ -194,6 +205,14 @@ public class Superstructure extends Subsystem {
         mHoodFeedforwardV = 0.0;
     }
 
+    public synchronized double getAngleAdd() {
+        return mAngleAdd;
+    }
+    
+    public synchronized void setAngleAdd(double add) {
+        mAngleAdd -= add;
+    }
+
     public synchronized void setGoal(double shooter, double hood, double turret) {
         if ((mTurretMode == TurretControlModes.VISION_AIMED && mHasTarget)) {
             // Keep current setpoints
@@ -217,12 +236,22 @@ public class Superstructure extends Subsystem {
         mLatestAimingParameters = Optional.empty();
     }
 
+    public synchronized boolean getDisableLimelight() {
+        return mDisableLimelight;
+    }
+
     public void safetyReset() {
         if (mTurretSetpoint < Constants.kTurretConstants.kMinUnitsLimit) {
             mTurretSetpoint += SuperstructureConstants.kTurretDOF;
-        }
-        if (mTurretSetpoint > Constants.kTurretConstants.kMaxUnitsLimit) {
+            Limelight.getInstance().setLed(Limelight.LedMode.OFF);
+            mDisableLimelight = true;
+        } else if (mTurretSetpoint > Constants.kTurretConstants.kMaxUnitsLimit) {
             mTurretSetpoint -= SuperstructureConstants.kTurretDOF;
+            Limelight.getInstance().setLed(Limelight.LedMode.OFF);
+            mDisableLimelight = true;
+        } else {
+            mDisableLimelight = false;
+            Limelight.getInstance().setLed(Limelight.LedMode.ON);
         }
 
         if (mHoodSetpoint < Constants.kHoodConstants.kMinUnitsLimit) {
@@ -334,7 +363,8 @@ public class Superstructure extends Subsystem {
         if (mWantsTuck || !mEnableIndexer) {
             mHood.setSetpointPositionPID(Constants.kHoodConstants.kMinUnitsLimit, 0);
         } else if (mWantsFendor) {
-            mHood.setSetpointMotionMagic(30.0);
+            mHood.setSetpointMotionMagic(39.5);
+            mTurretSetpoint = 180.0;
         } else if (mWantsTestSpit) {
             mHood.setSetpointMotionMagic(Constants.kHoodConstants.kMinUnitsLimit);
         } else {
@@ -388,24 +418,32 @@ public class Superstructure extends Subsystem {
             }
         }
 
+        
+        if (mWantsUnjam) {
+            indexerAction = Indexer.WantedAction.PREP;
+            real_popout = true;
+            real_trigger = -5000;
+        }
+
         if (mEnableIndexer) {
             mIndexer.setState(indexerAction);
         } else {
             mIndexer.setState(Indexer.WantedAction.PREP);
         }
+
         mTrigger.setPopoutSolenoid(real_popout);
         mTrigger.setVelocity(real_trigger);
         if (Math.abs(real_shooter) < Util.kEpsilon) {
             mShooter.setOpenLoop(0);
         } else if (mWantsFendor) {
-            mShooter.setVelocity(1750);
+            mShooter.setVelocity(1500);
         } else if (mWantsTestSpit) {
             mShooter.setVelocity(1200);
         } else {
             mShooter.setVelocity(real_shooter);
         }
 
-        if (mLatestAimingParameters.isPresent()) {
+        /*if (mLatestAimingParameters.isPresent()) {
             if (mLatestAimingParameters.get().getRange() > kZoomedInRange
                     && Limelight.getInstance().getPipeline() == Limelight.kDefaultPipeline) {
                 Limelight.getInstance().setPipeline(Limelight.kZoomedInPipeline);
@@ -413,7 +451,13 @@ public class Superstructure extends Subsystem {
                     && Limelight.getInstance().getPipeline() == Limelight.kZoomedInPipeline) {
                 Limelight.getInstance().setPipeline(Limelight.kDefaultPipeline);
             }
-        }
+        } else if (mManualZoom) {
+            Limelight.getInstance().setPipeline(Limelight.kZoomedInPipeline);
+        } else {
+            Limelight.getInstance().setPipeline(Limelight.kDefaultPipeline);
+        }*/
+
+        Limelight.getInstance().setPipeline(Limelight.kDefaultPipeline);
 
         if (mTurretMode == TurretControlModes.OPEN_LOOP || !mEnableIndexer) {
             mTurret.setOpenLoop(0);
@@ -433,6 +477,10 @@ public class Superstructure extends Subsystem {
 
     public synchronized boolean isOnTarget() {
         return mOnTarget;
+    }
+
+    public synchronized void setWantUnjam(boolean unjam) {
+        mWantsUnjam = unjam;
     }
 
     public synchronized void setWantAutoAim(Rotation2d field_to_turret_hint, boolean enforce_min_distance,
@@ -469,6 +517,10 @@ public class Superstructure extends Subsystem {
         mSettled = false;
         mGotSpunUp = false;
         mWantsPreShot = false;
+    }
+
+    public synchronized void setManualZoom(boolean zoom) {
+        mManualZoom = zoom;
     }
 
     public synchronized void setWantShoot(boolean shoot) {

@@ -52,13 +52,15 @@ public class Shooter extends Subsystem {
         mMaster.config_IntegralZone(0, (int) (200.0 / kFlywheelVelocityConversion));
         mMaster.selectProfileSlot(0, 0);
 
-        SupplyCurrentLimitConfiguration curr_lim = new SupplyCurrentLimitConfiguration(true, 40, 100, 0.5);
+        SupplyCurrentLimitConfiguration curr_lim = new SupplyCurrentLimitConfiguration(true, 40, 100, 0.02);
         mMaster.configSupplyCurrentLimit(curr_lim);
 
         mSlave.setInverted(false); //TODO: check value
         
         mMaster.set(ControlMode.PercentOutput, 0);
         mMaster.configSelectedFeedbackSensor(TalonFXFeedbackDevice.IntegratedSensor, 0, Constants.kLongCANTimeoutMs);
+
+        mMaster.configClosedloopRamp(0.2);
     }
 
     public synchronized static Shooter mInstance() {

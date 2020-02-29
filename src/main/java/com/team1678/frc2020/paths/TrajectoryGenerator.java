@@ -127,9 +127,9 @@ public class TrajectoryGenerator {
 
 
     public static final Pose2d kLEBOffsetShotPose = new Pose2d(180.0, 25.0, Rotation2d.fromDegrees(-90.0));
-    public static final Pose2d kLEBFirstBarIntakePose = new Pose2d(220.0, -9.0, Rotation2d.fromDegrees(20.0));
-    public static final Pose2d kLEBPreSecondBarIntakePose = new Pose2d(180.0, 0.0, Rotation2d.fromDegrees(20.0));
-    public static final Pose2d kLEBSecondBarIntakePose = new Pose2d(205.0, 10.0, Rotation2d.fromDegrees(20.0));
+    public static final Pose2d kLEBFirstBarIntakePose = new Pose2d(220.0, -17.0, Rotation2d.fromDegrees(20.0));
+    public static final Pose2d kLEBPreSecondBarIntakePose = new Pose2d(180.0, -8.0, Rotation2d.fromDegrees(20.0));
+    public static final Pose2d kLEBSecondBarIntakePose = new Pose2d(205.0, 2.0, Rotation2d.fromDegrees(20.0));
     public static final Pose2d kLEBSecondShotPose = new Pose2d(180.0, 85.0, Rotation2d.fromDegrees(-100.0));
 
     public static final Pose2d kLEBNearShotPose = new Pose2d(70.0, 55.0, Rotation2d.fromDegrees(-70.0));
@@ -137,7 +137,7 @@ public class TrajectoryGenerator {
 
 
     public static final Pose2d kTestPoint1 = new Pose2d(265, 80, Rotation2d.fromDegrees(-110));
-    public static final Pose2d kLNEBFirstBarIntakePose = new Pose2d(220.0, -25.0, Rotation2d.fromDegrees(20.0));
+    public static final Pose2d kLNEBFirstBarIntakePose = new Pose2d(224.0, -25.0, Rotation2d.fromDegrees(20.0));
     public static final Pose2d kLNEBNearShotPose = new Pose2d(60.0, 75.0, Rotation2d.fromDegrees(-70.0));
 
 

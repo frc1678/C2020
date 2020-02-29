@@ -136,7 +136,7 @@ public class GamepadButtonControlBoard {
     }
 
     public boolean getPreShot() {
-        return mController.getButton(Button.B);
+        return mController.getController().getBButtonReleased();
     }
     
     public boolean getIntake() {
@@ -151,6 +151,10 @@ public class GamepadButtonControlBoard {
         return mController.getController().getBumperReleased(Hand.kRight);
     }
 
+    public boolean getWantUnjam() {
+        return mController.getController().getBumper(Hand.kRight);
+    }
+
     public boolean getControlPanelPosition() {
         return mController.getController().getBumperReleased(Hand.kLeft);
     }
@@ -161,31 +165,38 @@ public class GamepadButtonControlBoard {
     }
 
     public boolean getArmExtend() {
-        return mController.getController().getAButtonPressed();
+        return mController.getController().getAButtonReleased();
+    }
+
+    public boolean getStopClimb() {
+        return mController.getController().getStickButtonReleased(Hand.kRight); 
     }
 
     public boolean getStopExtend() {
-        return mController.getController().getStickButtonReleased(Hand.kRight) || mController.getController().getStickButtonReleased(Hand.kLeft);
+        System.out.println(mController.getController().getStickButton(Hand.kLeft));
+        return mController.getController().getStickButtonReleased(Hand.kLeft);
     }
 
     public boolean getBuddyDeploy() {
-        return mController.getController().getBackButtonPressed();
+        return mController.getController().getBackButtonReleased();
     }
 
     public boolean getArmHug() {
-        return mController.getController().getBButtonPressed();
+        return mController.getController().getBButtonReleased();
     }
 
     public boolean getManualArmExtend() {
-        return mController.getButton(CustomXboxController.Button.L_JOYSTICK);
+        return //mController.getController().getStickButton(Hand.kLeft);
+        mController.getButton(CustomXboxController.Button.L_JOYSTICK);
     }
 
     public boolean getManualArmRetract() {
-        return mController.getButton(CustomXboxController.Button.R_JOYSTICK);
+        return //mController.getController().getStickButton(Hand.kRight);
+        mController.getButton(CustomXboxController.Button.R_JOYSTICK);
     }
 
     public boolean getClimb() {
-        return mController.getController().getYButtonPressed();
+        return mController.getController().getYButtonReleased();
     }
 
     public boolean getBrake() {
