@@ -65,8 +65,8 @@ public class Constants {
     public static final int kWranglerSolenoidId = 3;
 
     // drive
-    public static final int kRightDriveMasterId = 4;
-    public static final int kRightDriveSlaveId = 3;
+    public static final int kRightDriveMasterId = 3;
+    public static final int kRightDriveSlaveId = 4;
 
     public static final int kLeftDriveMasterId = 1;
     public static final int kLeftDriveSlaveId = 2;

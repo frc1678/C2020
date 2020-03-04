@@ -116,6 +116,8 @@ public class Drive extends Subsystem {
         talon.configNeutralDeadband(0.04, 0);
         talon.configMotionCruiseVelocity(20000, Constants.kLongCANTimeoutMs);
         talon.configMotionAcceleration(40000, Constants.kLongCANTimeoutMs);
+
+        talon.configOpenloopRamp(0.25);
     }
 
     private Drive() {
@@ -353,6 +355,9 @@ public class Drive extends Subsystem {
 
             mLeftMaster.setNeutralMode(mode);
             mLeftSlave.setNeutralMode(mode);
+
+            mLeftMaster.configSupplyCurrentLimit(new SupplyCurrentLimitConfiguration(!mIsBrakeMode, 50.0, 100.0, 0.1));
+            mRightMaster.configSupplyCurrentLimit(new SupplyCurrentLimitConfiguration(!mIsBrakeMode, 50.0, 100.0, 0.1));
         }
     }
 

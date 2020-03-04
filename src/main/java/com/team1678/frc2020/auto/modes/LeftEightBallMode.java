@@ -39,16 +39,17 @@ public class LeftEightBallMode extends AutoModeBase {
         runAction(new ParallelAction(Arrays.asList(
             new LambdaAction(() -> Superstructure.getInstance().setWantSpinUp(true)),       
             new LambdaAction(() -> Intake.getInstance().setState(Intake.WantedAction.INTAKE)),
-            new LambdaAction(() -> Superstructure.getInstance().setWantAutoAim(Rotation2d.fromDegrees(150.))))));
+            new LambdaAction(() -> Superstructure.getInstance().setWantFieldRelativeTurret(Rotation2d.fromDegrees(150.))))));
 
         runAction(mStartToSteal);
 
         runAction(new LambdaAction(() -> Superstructure.getInstance().setWantPreShot(true)));
+        runAction(new LambdaAction(() -> Superstructure.getInstance().setWantAutoAim(Rotation2d.fromDegrees(150.))));
 
         runAction(mStealToFirstShot);
 
         
-        // runAction(new LambdaAction(() -> Superstructure.getInstance().setWantAutoAim(Rotation2d.fromDegrees(180.))));
+        runAction(new LambdaAction(() -> Superstructure.getInstance().setWantAutoAim(Rotation2d.fromDegrees(180.))));
         runAction(new LambdaAction(() -> Intake.getInstance().setState(Intake.WantedAction.NONE)));
 
         runAction(new WaitUntilOnTargetAction());

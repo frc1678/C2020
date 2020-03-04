@@ -155,6 +155,10 @@ public class GamepadButtonControlBoard {
         return mController.getController().getBumper(Hand.kRight);
     }
 
+    public boolean getManualZoom() {
+        return mController.getController().getBumper(Hand.kLeft);
+    }
+
     public boolean getControlPanelPosition() {
         return mController.getController().getBumperReleased(Hand.kLeft);
     }

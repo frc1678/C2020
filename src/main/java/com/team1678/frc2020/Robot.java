@@ -169,6 +169,8 @@ public class Robot extends TimedRobot {
             mDisabledLooper.stop();
             mLimelight.setLed(Limelight.LedMode.ON);
 
+            mLimelight.setPipeline(Constants.kPortPipeline);
+
             RobotState.getInstance().reset(Timer.getFPGATimestamp(), Pose2d.identity());
 
             Drive.getInstance().zeroSensors();
@@ -289,6 +291,8 @@ public class Robot extends TimedRobot {
                 mSuperstructure.setWantUnjam(mControlBoard.getWantUnjam());
                 mWrangler.setState(Wrangler.WantedAction.RETRACT);
 
+                mSuperstructure.setManualZoom(mControlBoard.getManualZoom());
+
                 if (mSuperstructure.getWantShoot()) {
                     mControlBoard.setRumble(true);
                 } else {
@@ -340,7 +344,7 @@ public class Robot extends TimedRobot {
                 //    mRoller.setState(Roller.WantedAction.ACHIEVE_POSITION_CONTROL);
                 } else if (mControlBoard.getManualRoller()) {
                     mRoller.runManual(-5.0);
-                } else if (mControlBoard.getManualZoom()) {
+                } else if (mControlBoard.getManualSlowRoll()) {
                     mRoller.runManual(-2.0);
                 } else {
                     mIntake.setState(Intake.WantedAction.NONE);

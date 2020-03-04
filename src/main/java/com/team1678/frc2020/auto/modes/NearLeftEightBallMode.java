@@ -38,9 +38,11 @@ public class NearLeftEightBallMode extends AutoModeBase {
         runAction(new ParallelAction(Arrays.asList(
             new LambdaAction(() -> Superstructure.getInstance().setWantSpinUp(true)),       
             new LambdaAction(() -> Intake.getInstance().setState(Intake.WantedAction.INTAKE)),
-            new LambdaAction(() -> Superstructure.getInstance().setWantAutoAim(Rotation2d.fromDegrees(150.))))));
+            new LambdaAction(() -> Superstructure.getInstance().setWantFieldRelativeTurret(Rotation2d.fromDegrees(150.))))));
 
         runAction(mStartToSteal);
+
+        runAction(new LambdaAction(() -> Superstructure.getInstance().setWantAutoAim(Rotation2d.fromDegrees(150.))));
 
         runAction(new LambdaAction(() -> Superstructure.getInstance().setWantPreShot(true)));
 
@@ -64,9 +66,18 @@ public class NearLeftEightBallMode extends AutoModeBase {
 
         runAction(mSecondBarIntake);
 
-        runAction(new LambdaAction(() -> Superstructure.getInstance().setWantPreShot(true)));
 
-        runAction(mSecondBarIntakeToNearShot);
+        //runAction(mSecondBarIntakeToNearShot);
+
+        runAction(
+            new ParallelAction(Arrays.asList(
+                mSecondBarIntakeToNearShot,
+                new SeriesAction(Arrays.asList(
+                    new WaitAction(1.5),
+                    new LambdaAction(() -> Superstructure.getInstance().setWantPreShot(true))
+                ))
+            ))
+        );
 
         // runAction(new LambdaAction(() -> Superstructure.getInstance().setWantAutoAim(Rotation2d.fromDegrees(180.))));
         runAction(new LambdaAction(() -> Intake.getInstance().setState(Intake.WantedAction.NONE)));

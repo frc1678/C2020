@@ -62,7 +62,7 @@ public class Superstructure extends Subsystem {
     private double mCurrentHood = 0.0;
 
     private double mTurretSetpoint = 0.0;
-    private double mHoodSetpoint = 82.5;
+    private double mHoodSetpoint = 70.5;
     private double mShooterSetpoint = 4000.0;
     private boolean mGotSpunUp = false;
     private boolean mEnableIndexer = true;
@@ -443,8 +443,10 @@ public class Superstructure extends Subsystem {
             mShooter.setVelocity(real_shooter);
         }
 
-        /*if (mLatestAimingParameters.isPresent()) {
-            if (mLatestAimingParameters.get().getRange() > kZoomedInRange
+        if (mLatestAimingParameters.isPresent()) {
+            if (!Limelight.getInstance().seesTarget() && mManualZoom) {
+                Limelight.getInstance().setPipeline(Limelight.kZoomedInPipeline);
+            } else if (mLatestAimingParameters.get().getRange() > kZoomedInRange
                     && Limelight.getInstance().getPipeline() == Limelight.kDefaultPipeline) {
                 Limelight.getInstance().setPipeline(Limelight.kZoomedInPipeline);
             } else if (mLatestAimingParameters.get().getRange() < kZoomedOutRange
@@ -455,9 +457,9 @@ public class Superstructure extends Subsystem {
             Limelight.getInstance().setPipeline(Limelight.kZoomedInPipeline);
         } else {
             Limelight.getInstance().setPipeline(Limelight.kDefaultPipeline);
-        }*/
+        }
 
-        Limelight.getInstance().setPipeline(Limelight.kDefaultPipeline);
+//        Limelight.getInstance().setPipeline(Limelight.kDefaultPipeline);
 
         if (mTurretMode == TurretControlModes.OPEN_LOOP || !mEnableIndexer) {
             mTurret.setOpenLoop(0);
@@ -543,6 +545,9 @@ public class Superstructure extends Subsystem {
 
     public synchronized void setWantFendor() {
         mWantsFendor = !mWantsFendor;
+        if (mWantsFendor) {
+            mRobotState.resetVision();
+        }
     }
 
     public synchronized boolean getWantFendor() {

@@ -33,8 +33,12 @@ public class ControlBoard {
         return mDriveControlBoard.getThrottle();
     }
     
-    public boolean getManualZoom() {
+    public boolean getManualSlowRoll() {
         return mDriveControlBoard.getManualZoom();
+    }
+
+    public boolean getManualZoom() {
+        return mButtonControlBoard.getManualZoom();
     }
 
     public boolean getWantUnjam() {

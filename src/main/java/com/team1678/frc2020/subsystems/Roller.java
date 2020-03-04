@@ -22,8 +22,8 @@ public class Roller extends Subsystem {
     public static double kRotateVoltage = -6.0; // Positive value rotates the control panel counter-clockwise
 
     // Motors, solenoids and sensors
-    public I2C.Port i2cPort;
-    public ColorSensorV3 mColorSensor;
+    //public I2C.Port i2cPort;
+    //public ColorSensorV3 mColorSensor;
     private final PWMSparkMax mRollerMotor;
     public Solenoid mPopoutSolenoid;
 
@@ -72,8 +72,8 @@ public class Roller extends Subsystem {
         mRollerMotor = new PWMSparkMax(Constants.kRollerId);
         mPopoutSolenoid = Constants.makeSolenoidForId(Constants.kRollerSolenoid);
 
-        i2cPort = I2C.Port.kOnboard;
-        mColorSensor = new ColorSensorV3(i2cPort);
+        //i2cPort = I2C.Port.kOnboard;
+        //mColorSensor = new ColorSensorV3(i2cPort);
 
         mColorMatcher.addColorMatch(kBlueTarget);
         mColorMatcher.addColorMatch(kGreenTarget);
@@ -124,7 +124,7 @@ public class Roller extends Subsystem {
 
     // Optional design pattern for caching periodic reads to avoid hammering the HAL/CAN.
     public synchronized void readPeriodicInputs() {
-        mPeriodicIO.detected_color = mColorSensor.getColor();
+        mPeriodicIO.detected_color = Color.kBlue;
         mMatch = mColorMatcher.matchClosestColor(mPeriodicIO.detected_color);
 
         if (mMatch.color == kBlueTarget) {
