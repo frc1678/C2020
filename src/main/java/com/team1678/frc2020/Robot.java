@@ -14,14 +14,12 @@ import com.team1678.frc2020.auto.modes.AutoModeBase;
 import com.team1678.frc2020.controlboard.ControlBoard;
 import com.team1678.frc2020.loops.Looper;
 import com.team1678.frc2020.paths.TrajectoryGenerator;
-import com.team1678.frc2020.subsystems.Drive;
-import com.team1678.frc2020.subsystems.Infrastructure;
-import com.team1678.frc2020.subsystems.Intake;
-import com.team1678.frc2020.subsystems.Limelight;
 import com.team1678.frc2020.controlboard.ControlBoard;
 import com.team1678.frc2020.controlboard.GamepadButtonControlBoard;
+import com.team1678.frc2020.controlboard.GamepadButtonControlBoard.TurretCardinal;
 import com.team1678.frc2020.logger.LoggingSystem;
 import com.team254.lib.wpilib.TimedRobot;
+import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.team1678.frc2020.SubsystemManager;
 import com.team1678.frc2020.subsystems.*;
 import com.team254.lib.util.*;
@@ -34,13 +32,17 @@ import com.team1678.frc2020.subsystems.*;
 import com.team254.lib.util.*;
 import com.team254.lib.vision.AimingParameters;
 import com.team254.lib.geometry.Rotation2d;
-import com.team1678.frc2020.subsystems.RobotStateEstimator;
 import com.team1678.frc2020.subsystems.Indexer.WantedAction;
 import com.team254.lib.geometry.Pose2d;
 import com.team254.lib.geometry.Rotation2d;
 import com.team254.lib.util.CrashTracker;
 import com.team254.lib.wpilib.TimedRobot;
 
+import edu.wpi.cscore.MjpegServer;
+import edu.wpi.cscore.UsbCamera;
+import edu.wpi.cscore.VideoMode;
+import edu.wpi.first.cameraserver.CameraServer;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -59,10 +61,9 @@ public class Robot extends TimedRobot {
 
     private final Looper mEnabledLooper = new Looper();
     private final Looper mDisabledLooper = new Looper();
-    private final Looper mLoggingLooper = new Looper();
-
 
     private final ControlBoard mControlBoard = ControlBoard.getInstance();
+    private CheesyDriveHelper mCheesyDriveHelper = new CheesyDriveHelper();
     private TrajectoryGenerator mTrajectoryGenerator = TrajectoryGenerator.getInstance();
 
     private final SubsystemManager mSubsystemManager = SubsystemManager.getInstance();
@@ -70,6 +71,7 @@ public class Robot extends TimedRobot {
     private final Indexer mIndexer = Indexer.getInstance();
     private final Infrastructure mInfrastructure = Infrastructure.getInstance();
     private final Limelight mLimelight = Limelight.getInstance();
+
     private final Intake mIntake = Intake.getInstance();
     private final Superstructure mSuperstructure = Superstructure.getInstance();
     private final Turret mTurret = Turret.getInstance();
@@ -78,15 +80,21 @@ public class Robot extends TimedRobot {
     private final Climber mClimber = Climber.getInstance();
     private final Hood mHood = Hood.getInstance();
     private final Wrangler mWrangler = Wrangler.getInstance();
+
+    private final Roller mRoller = Roller.getInstance();
     private final Canifier mCanifier = Canifier.getInstance();
+    private final LEDs mLEDs = LEDs.getInstance();
 
     private final RobotState mRobotState = RobotState.getInstance();
     private final RobotStateEstimator mRobotStateEstimator = RobotStateEstimator.getInstance();
     private boolean climb_mode = false;
+    private boolean buddy_climb = false;
     private AutoModeExecutor mAutoModeExecutor;
     private AutoModeSelector mAutoModeSelector = new AutoModeSelector();
 
-    private LoggingSystem mLogger = LoggingSystem.getInstance();
+    private boolean mPivoted = false;
+
+    // private LoggingSystem mLogger = LoggingSystem.getInstance();
 
     public Robot() {
         CrashTracker.logRobotConstruction();
@@ -99,17 +107,27 @@ public class Robot extends TimedRobot {
         mSubsystemManager.outputToSmartDashboard();
         mAutoModeSelector.outputToSmartDashboard();
         mEnabledLooper.outputToSmartDashboard();
+
+        SmartDashboard.putBoolean("Climb Mode", climb_mode);
+        SmartDashboard.putBoolean("Pivoted", mPivoted);
+        SmartDashboard.putString("LEDs State", mLEDs.getState().name());
     }
 
     @Override
     public void robotInit() {
         try {
+            UsbCamera camera = CameraServer.getInstance().startAutomaticCapture();
+            camera.setVideoMode(VideoMode.PixelFormat.kMJPEG, 320, 240, 15);
+            MjpegServer cameraServer = new MjpegServer("serve_USB Camera 0", Constants.kCameraStreamPort);
+            cameraServer.setSource(camera);
+
             CrashTracker.logRobotInit();
 
             mSubsystemManager.setSubsystems(
                 mRobotStateEstimator,
-                mCanifier, 
+                mCanifier,
                 mDrive, 
+                mHood,
                 mLimelight, 
                 mIntake, 
                 mIndexer, 
@@ -117,10 +135,11 @@ public class Robot extends TimedRobot {
                 mShooter,
                 mTrigger,
                 mSuperstructure,
-                mHood,
                 mTurret,
                 mInfrastructure,
-                mCanifier
+                mClimber,
+                mRoller,
+                mLEDs
             );
 
             mSubsystemManager.registerEnabledLoops(mEnabledLooper);
@@ -130,9 +149,9 @@ public class Robot extends TimedRobot {
             mRobotState.reset(Timer.getFPGATimestamp(), Pose2d.identity());
             mDrive.setHeading(Rotation2d.identity());
 
-            mLimelight.setLed(Limelight.LedMode.ON);
-            mSubsystemManager.registerLoggingSystems(mLogger);
-            mLogger.registerLoops(mLoggingLooper);
+            mLimelight.setLed(Limelight.LedMode.OFF);
+
+           mRoller.setGameData(DriverStation.getInstance().getGameSpecificMessage());
 
             mTrajectoryGenerator.generateTrajectories();
         } catch (Throwable t) {
@@ -148,16 +167,22 @@ public class Robot extends TimedRobot {
         try {
             CrashTracker.logAutoInit();
             mDisabledLooper.stop();
+            mLimelight.setLed(Limelight.LedMode.ON);
+
+            mLimelight.setPipeline(Constants.kPortPipeline);
 
             RobotState.getInstance().reset(Timer.getFPGATimestamp(), Pose2d.identity());
 
             Drive.getInstance().zeroSensors();
+            mTurret.setNeutralMode(NeutralMode.Brake);
+            mHood.setNeutralMode(NeutralMode.Brake);
             mInfrastructure.setIsDuringAuto(true);
 
             mAutoModeExecutor.start();
 
             mEnabledLooper.start();
-            mLoggingLooper.start();
+
+            mTurret.cancelHoming();
         } catch (Throwable t) {
             CrashTracker.logThrowableCrash(t);
             throw t;
@@ -167,6 +192,17 @@ public class Robot extends TimedRobot {
     @Override
     public void autonomousPeriodic() {
         SmartDashboard.putString("Match Cycle", "AUTONOMOUS");
+        //mLimelight.setLed(Limelight.LedMode.ON);
+
+        if (!mLimelight.limelightOK()) {
+            mLEDs.conformToState(LEDs.State.EMERGENCY);
+        } else if (mSuperstructure.isOnTarget()) {
+            mLEDs.conformToState(LEDs.State.TARGET_TRACKING);
+        } else if (mSuperstructure.getLatestAimingParameters().isPresent()) {
+            mLEDs.conformToState(LEDs.State.TARGET_VISIBLE);
+        } else {
+            mLEDs.conformToState(LEDs.State.ENABLED);
+        }
 
         try {
 
@@ -175,12 +211,14 @@ public class Robot extends TimedRobot {
             throw t;
         }
     }
-    
+
     @Override
     public void teleopInit() {
         try {
             CrashTracker.logTeleopInit();
             mDisabledLooper.stop();
+            mClimber.setBrakeMode(true);
+
 
             if (mAutoModeExecutor != null) {
                 mAutoModeExecutor.stop();
@@ -188,83 +226,191 @@ public class Robot extends TimedRobot {
 
             mInfrastructure.setIsDuringAuto(false);
 
-            RobotState.getInstance().reset(Timer.getFPGATimestamp(), Pose2d.identity());
+            //mRobotState.reset(Timer.getFPGATimestamp(), Pose2d.identity());
             mEnabledLooper.start();
-            mLoggingLooper.start();
+            mLimelight.setLed(Limelight.LedMode.ON);
             mLimelight.setPipeline(Constants.kPortPipeline);
-
+            mTurret.setNeutralMode(NeutralMode.Brake);
+            mHood.setNeutralMode(NeutralMode.Brake);
+            mLEDs.conformToState(LEDs.State.ENABLED);
+            mTurret.cancelHoming();
+            
             mControlBoard.reset();
         } catch (Throwable t) {
             CrashTracker.logThrowableCrash(t);
             throw t;
         }
     }
-
+    
     @Override
     public void teleopPeriodic() {
         try {
             double timestamp = Timer.getFPGATimestamp();
             double throttle = mControlBoard.getThrottle();
             double turn = mControlBoard.getTurn();
+            double hood_jog = mControlBoard.getJogHood();
+            double turret_jog = mControlBoard.getJogTurret();
 
-            mDrive.setCheesyishDrive(throttle, turn, mControlBoard.getQuickTurn());
+            if (!climb_mode) {
+                if (!mLimelight.limelightOK()) {
+                    mLEDs.conformToState(LEDs.State.EMERGENCY);
+                } else if (mSuperstructure.getTucked()) {
+                    mLEDs.conformToState(LEDs.State.HOOD_TUCKED);
+                } else if (mSuperstructure.isOnTarget()) {
+                    mLEDs.conformToState(LEDs.State.TARGET_TRACKING);
+                } else if (mSuperstructure.getLatestAimingParameters().isPresent()) {
+                    mLEDs.conformToState(LEDs.State.TARGET_VISIBLE);
+                } else {
+                    mLEDs.conformToState(LEDs.State.ENABLED);
+                }
+            }
 
-            //mSuperstructure.setWantAutoAim(mControlBoard.getTurretCardinal().rotation);
-            mSuperstructure.setWantAutoAim(mControlBoard.getTurretCardinal().rotation);//setWantFieldRelativeTurret(mControlBoard.getTurretCardinal().rotation);
+            if (mControlBoard.getShotUp()) {
+                mSuperstructure.setAngleAdd(1.0);
+            } else if (mControlBoard.getShotDown()) {
+                mSuperstructure.setAngleAdd(-1.0);
+            }
+
+            mDrive.//setOpenLoop(mCheesyDriveHelper.cheesyDrive(throttle, turn, mControlBoard.getQuickTurn()));
+                setCheesyishDrive(throttle, turn, mControlBoard.getQuickTurn());
+
+            //mLimelight.setLed(Limelight.LedMode.ON);
+            TurretCardinal cardinal = mControlBoard.getTurretCardinal();
+            
+            
+
+            // mSuperstructure.setWantFieldRelativeTurret(Rotation2d.fromDegrees(180.0));//mControlBoard.getTurretCardinal().rotation);
 
             if (mControlBoard.climbMode()) {
                 climb_mode = true;
-                System.out.println("climb mode");
+                mPivoted = false;
             }
 
             if (!climb_mode){ //TODO: turret preset stuff and jog turret and rumbles
-                if (mIndexer.slotsFilled()) {
-                    mControlBoard.setRumble(false);
+                mSuperstructure.enableIndexer(true);
+                mSuperstructure.setWantUnjam(mControlBoard.getWantUnjam());
+                mWrangler.setState(Wrangler.WantedAction.RETRACT);
+
+                mSuperstructure.setManualZoom(mControlBoard.getManualZoom());
+
+                if (mSuperstructure.getWantShoot()) {
+                    mControlBoard.setRumble(true);
                 } else {
                     mControlBoard.setRumble(false);
                 }
-                
-                if (mControlBoard.getShoot()){
-                    mSuperstructure.setWantShoot();    
+
+                if (Math.abs(turret_jog) > Constants.kJoystickJogThreshold) {
+                    turret_jog = (turret_jog - Math.signum(turret_jog) * Constants.kJoystickJogThreshold)
+                            / (1.0 - Constants.kJoystickJogThreshold);
+    
+                    mSuperstructure.jogTurret(turret_jog * 3);
+                } else if (mControlBoard.getFendorShot()) {
+                    mSuperstructure.setWantFendor();
+                    //mSuperstructure.setWantFieldRelativeTurret(Rotation2d.fromDegrees(180.));
+                } else if (cardinal == TurretCardinal.NONE) {
+                    mSuperstructure.setWantAutoAim(Rotation2d.fromDegrees(180.0));
+                } else {
+                    mSuperstructure.setWantFieldRelativeTurret(cardinal.rotation);
+                }
+
+                if (mControlBoard.getShoot()) {
+                    if (mSuperstructure.isAimed() || mSuperstructure.getWantFendor() || mSuperstructure.getWantSpit() || mSuperstructure.getLatestAimingParameters().isEmpty()) {
+                        mSuperstructure.setWantShoot();
+                    }
+                } else if (mControlBoard.getPreShot()) {
+                    mSuperstructure.setWantPreShot(true);
                 } else if (mControlBoard.getSpinUp()) {
                     mSuperstructure.setWantSpinUp();
+                } else if (mControlBoard.getTuck()) {
+                    mSuperstructure.setWantTuck(true);
+                } else if (mControlBoard.getUntuck()) {
+                    mSuperstructure.setWantTuck(false);
+                } else if (mControlBoard.getTurretReset()) {
+                    mRobotState.resetVision();
+                } else if (mControlBoard.getTestSpit()) {
+                    mSuperstructure.setWantTestSpit();
                 } else if (mControlBoard.getRunIntake()) {
-                    mIntake.setState(Intake.WantedAction.INTAKE);
-                    mSuperstructure.setAutoIndex(true);
+                    if (!mSuperstructure.getWantShoot()) {
+                        mIntake.setState(Intake.WantedAction.INTAKE);
+                    } else {
+                        mIntake.setState(Intake.WantedAction.STAY_OUT);
+                    }
+                    mSuperstructure.setAutoIndex(false);
                 } else if (mControlBoard.getRetractIntake()) {
                     mIntake.setState(Intake.WantedAction.RETRACT);
-                } else if (mControlBoard.getControlPanelRotation()) {
-                    mIntake.setState(Intake.WantedAction.INTAKE);
-                    mSuperstructure.setAutoIndex(false);
-                    mIndexer.setBackwardsMode(false);
-                } else if (mControlBoard.getControlPanelPosition()) {
-                    // mRoller.setState(Roller.WantedAction.ACHIEVE_POSITION_CONTROL);
-                    mIntake.setState(Intake.WantedAction.INTAKE);
-                    mSuperstructure.setAutoIndex(false);
-                    mIndexer.setBackwardsMode(true);
+                //} else if (mControlBoard.getControlPanelRotation()) {
+                //    mRoller.setState(Roller.WantedAction.ACHIEVE_ROTATION_CONTROL);
+                //} else if (mControlBoard.getControlPanelPosition()) {
+                //    mRoller.setState(Roller.WantedAction.ACHIEVE_POSITION_CONTROL);
+                } else if (mControlBoard.getManualRoller()) {
+                    mRoller.runManual(-5.0);
+                } else if (mControlBoard.getManualSlowRoll()) {
+                    mRoller.runManual(-2.0);
                 } else {
                     mIntake.setState(Intake.WantedAction.NONE);
-                } 
+                    mRoller.stop();
+                }
             } else {
-                mIndexer.setState(WantedAction.PREP);
+                Climber.WantedAction climber_action = Climber.WantedAction.NONE;
+                mSuperstructure.enableIndexer(false);
                 mIntake.setState(Intake.WantedAction.NONE);
-                if (mControlBoard.getArmDeploy()) {
-                    mClimber.setState(Climber.WantedAction.EXTEND);
-                } else if (mControlBoard.getBuddyDeploy()) {
+                buddy_climb = mWrangler.getWranglerOut();
+                mSuperstructure.setWantSpinUp(false);
+                mSuperstructure.setWantShoot(false);
+                mSuperstructure.setWantPreShot(false);
+                mSuperstructure.setWantUnjam(false);
+
+
+                mRoller.stop();//setState(Roller.WantedAction.NONE);
+                if (mControlBoard.getArmExtend()) { // Press A
+                    if (!mPivoted) {
+                        System.out.println("PIVOTING");
+                        climber_action = (Climber.WantedAction.PIVOT);
+                    } else if (mClimber.getState() != Climber.State.PIVOTING) {
+                        System.out.println("SKIPPING PIVOT");
+                        climber_action = (Climber.WantedAction.EXTEND);
+                    }   
+
+                    mPivoted = true;
+                } else if (mControlBoard.getArmHug()) { // Press B
+                    climber_action = (Climber.WantedAction.HUG); // hook onto the rung
+                } else if (mControlBoard.getBuddyDeploy()) { // Press Back
                     mWrangler.setState(Wrangler.WantedAction.DEPLOY);
-                } else if (mControlBoard.getWrangle()) {
+                } else if (mControlBoard.getWrangle()) { // Press and hold X
                     mWrangler.setState(Wrangler.WantedAction.WRANGLE);
-                } else if (mControlBoard.getClimb()) {
-                    mClimber.setState(Climber.WantedAction.CLIMB);
-                } else if (mControlBoard.getSlowClimb()) {
-                    mClimber.setState(Climber.WantedAction.SLOW_CLIMB);
+                    buddy_climb = true;
+                } else if (mControlBoard.getClimb()) { // Press Y
+                    climber_action = (Climber.WantedAction.CLIMB);
+                } else if (mControlBoard.getManualArmExtend()) { // Press and hold left joystick
+                    climber_action = (Climber.WantedAction.MANUAL_EXTEND);
+                } else if (mControlBoard.getManualArmRetract()) { // Press and hold right joystick
+                    climber_action = (Climber.WantedAction.MANUAL_CLIMB);
+                } else if (mControlBoard.getBrake()) { // Release Y
+                    climber_action = (Climber.WantedAction.BRAKE);
                 } else if (mControlBoard.getLeaveClimbMode()) {
                     climb_mode = false;
+                    buddy_climb = false;
                 } else {
                     mWrangler.setState(Wrangler.WantedAction.NONE);
-                    mClimber.setState(Climber.WantedAction.NONE);
                 }
+
+                if (mClimber.getState() == Climber.State.PIVOTING || mClimber.getState() == Climber.State.EXTENDING) {
+                    mLEDs.conformToState(buddy_climb ? LEDs.State.EXTENDING_BUDDY : LEDs.State.EXTENDING);
+                } else if (mClimber.getState() == Climber.State.HUGGING) {
+                    mLEDs.conformToState(buddy_climb ? LEDs.State.HUGGING_BUDDY : LEDs.State.HUGGING);
+                } else if (mClimber.getState() == Climber.State.CLIMBING) {
+                    mLEDs.conformToState(buddy_climb ? LEDs.State.CLIMBING_BUDDY : LEDs.State.CLIMBING);
+                } else {
+                    mLEDs.conformToState(buddy_climb ? LEDs.State.CLIMB_MODE_BUDDY : LEDs.State.CLIMB_MODE);
+                }
+
+//                if (mControlBoard.getStopExtend() || mControlBoard.getStopClimb()) {
+//                    climber_action = Climber.WantedAction.STOP;
+//                }
+
+                mClimber.setState(climber_action);
             }
+            mLEDs.writePeriodicOutputs();
         } catch (Throwable t) {
             CrashTracker.logThrowableCrash(t);
             throw t;
@@ -280,12 +426,8 @@ public class Robot extends TimedRobot {
 
             mDisabledLooper.stop();
             mEnabledLooper.stop();
-            mLoggingLooper.stop();
 
             mDrive.checkSystem();
-            // mCargoIntake.checkSystem();
-            // mWrist.checkSystem();
-            // mElevator.checkSystem();
 
         } catch (Throwable t) {
             CrashTracker.logThrowableCrash(t);
@@ -302,10 +444,12 @@ public class Robot extends TimedRobot {
         try {
             CrashTracker.logDisabledInit();
             mEnabledLooper.stop();
-            mLoggingLooper.stop();
+            mClimber.setBrakeMode(true);
             if (mAutoModeExecutor != null) {
                 mAutoModeExecutor.stop();
             }
+
+          //  mRobotState.resetVision();
 
             mInfrastructure.setIsDuringAuto(true);
 
@@ -322,8 +466,11 @@ public class Robot extends TimedRobot {
             mLimelight.setLed(Limelight.LedMode.ON);
             mLimelight.triggerOutputs();
 
+            mTurret.setNeutralMode(NeutralMode.Coast);
+            mHood.setNeutralMode(NeutralMode.Coast);
             mDrive.setBrakeMode(false);
             mLimelight.writePeriodicOutputs();
+            mLEDs.conformToState(LEDs.State.RAINBOW);
         } catch (Throwable t) {
             CrashTracker.logThrowableCrash(t);
             throw t;
@@ -337,7 +484,17 @@ public class Robot extends TimedRobot {
         // mLimelight.setStream(2);
 
         try {
-            mLimelight.setLed(Limelight.LedMode.ON);
+            mLimelight.setLed(Limelight.LedMode.OFF);
+            mLimelight.writePeriodicOutputs();
+           mRoller.setGameData(DriverStation.getInstance().getGameSpecificMessage());
+
+            if (!mLimelight.limelightOK()) {
+                mLEDs.conformToState(LEDs.State.EMERGENCY);
+            } else if (mTurret.isHoming() || mHood.isHoming()) {
+                mLEDs.conformToState(LEDs.State.RAINBOW);
+            } else {
+                mLEDs.conformToState(LEDs.State.BREATHING_PINK);
+            }
 
             mAutoModeSelector.updateModeCreator();
 
@@ -346,6 +503,8 @@ public class Robot extends TimedRobot {
                 System.out.println("Set auto mode to: " + autoMode.get().getClass().toString());
                 mAutoModeExecutor.setAutoMode(autoMode.get());
             }
+
+            mLEDs.writePeriodicOutputs();
 
         } catch (Throwable t) {
             CrashTracker.logThrowableCrash(t);

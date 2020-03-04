@@ -19,10 +19,14 @@ public class TestPath extends AutoModeBase {
 
     @Override
     protected void routine() throws AutoModeEndedException {
-        System.out.println("Running Cross auto line");
-        runAction(mTestPath);
-        runAction(new TurnToHeadingAction(Rotation2d.fromDegrees(180)));
-        runAction(mTestPath);
+        System.out.println("Running testing auto");
+       // runAction(mTestPath);
+        runAction(new TurnToHeadingAction(Rotation2d.fromDegrees(90), 3.5));
+        System.out.println("Point Turn complete");
+
+        runAction(new DriveOpenLoopAction(0, 0, .1));
+
+       // runAction(mTestPath);
 
 
 /*

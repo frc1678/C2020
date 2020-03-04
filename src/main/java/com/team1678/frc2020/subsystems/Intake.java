@@ -1,13 +1,13 @@
 package com.team1678.frc2020.subsystems;
 
-import com.team1678.frc2020.logger.*;
-import com.team1678.frc2020.logger.LogStorage;
+import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.team1678.frc2020.Constants;
 import com.team1678.frc2020.loops.ILooper;
 import com.team1678.frc2020.loops.Loop;
 
-import com.team254.lib.drivers.SparkMaxFactory;
-import com.team254.lib.drivers.LazySparkMax;
+import com.team254.lib.drivers.TalonFXFactory;
+import com.team254.lib.util.TimeDelayedBoolean;
 
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.Solenoid;
@@ -16,48 +16,42 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import java.util.ArrayList;
 
 public class Intake extends Subsystem {
-    private static double kIntakingVoltage = -12.0;
+    private static double kIntakingVoltage = 9.0;
     private static double kIdleVoltage = 0;
 
     private static Intake mInstance;
+    private TimeDelayedBoolean mIntakeSolenoidTimer = new TimeDelayedBoolean();
 
     private Solenoid mDeploySolenoid;
 
     public enum WantedAction {
-        NONE, INTAKE, RETRACT,
+        NONE, INTAKE, RETRACT, STAY_OUT,
     }
 
     public enum State {
-        IDLE, INTAKING, RETRACTING,
+        IDLE, INTAKING, RETRACTING, STAYING_OUT,
     }
 
     private State mState = State.IDLE;
 
     private static PeriodicIO mPeriodicIO = new PeriodicIO();
 
-    private final LazySparkMax mMaster;
+    private final TalonFX mMaster;
 
     public static class PeriodicIO {
         // INPUTS
         public double timestamp;
         public double current;
+        public boolean intake_out;
 
         // OUTPUTS
         public double demand;
         public boolean deploy;
     }
-    LogStorage<PeriodicIO> mStorage = null;
-
 
     private Intake() {
-        mMaster = SparkMaxFactory.createDefaultSparkMax(Constants.kIntakeRollerId);
+        mMaster = TalonFXFactory.createDefaultTalon(Constants.kIntakeRollerId);
         mDeploySolenoid = Constants.makeSolenoidForId(Constants.kDeploySolenoidId);
-    }
-
-    @Override
-    public void registerLogger(LoggingSystem LS) {
-        LogSetup();
-        LS.register(mStorage, "intake.csv");
     }
 
     public synchronized static Intake getInstance() {
@@ -75,7 +69,7 @@ public class Intake extends Subsystem {
 
     @Override
     public void stop() {
-        mMaster.set(0);
+        mMaster.set(ControlMode.PercentOutput, 0);
     }
 
     @Override
@@ -114,15 +108,29 @@ public class Intake extends Subsystem {
     public void runStateMachine() {
         switch (mState) {
         case INTAKING:
+            if (mPeriodicIO.intake_out) {    
                 mPeriodicIO.demand = kIntakingVoltage;
-                mPeriodicIO.deploy = true;
+            } else {
+                mPeriodicIO.demand = 0.0;
+            }
+            mPeriodicIO.deploy = true;
             break;
         case RETRACTING:
-                mPeriodicIO.demand = 12;
-                mPeriodicIO.deploy = false;
+            if (mPeriodicIO.intake_out) {    
+                mPeriodicIO.demand = -kIntakingVoltage;
+            } else {
+                mPeriodicIO.demand = 0.0;
+            }
+            mPeriodicIO.deploy = true;
             break;
         case IDLE:
-                mPeriodicIO.demand = kIdleVoltage;
+            mPeriodicIO.demand = kIdleVoltage;
+            mPeriodicIO.deploy = false;
+            break;
+        case STAYING_OUT:
+            mPeriodicIO.demand = 0;
+            mPeriodicIO.deploy = true;
+            break;
         }
     }
 
@@ -145,35 +153,25 @@ public class Intake extends Subsystem {
         case RETRACT:
             mState = State.RETRACTING;
             break;
+        case STAY_OUT:
+            mState = State.STAYING_OUT;
         }
 
     }
 
     @Override
     public synchronized void readPeriodicInputs() {
-        LogSend();
+        mPeriodicIO.intake_out = mIntakeSolenoidTimer.update(mPeriodicIO.deploy, 0.2);
     }
 
     @Override
     public void writePeriodicOutputs() {
-        mMaster.set(mPeriodicIO.demand / 12.0);
+        mMaster.set(ControlMode.PercentOutput, mPeriodicIO.demand / 12.0);
         mDeploySolenoid.set(mPeriodicIO.deploy);
     }
 
     @Override
     public boolean checkSystem() {
         return true;
-    }
-
-    public void LogSetup() {
-        mStorage = new LogStorage<PeriodicIO>();
-        mStorage.setHeadersFromClass(PeriodicIO.class);
-    }
-    public void LogSend() {
-        ArrayList<Double> items = new ArrayList<Double>();
-        items.add(Timer.getFPGATimestamp());
-        items.add(mPeriodicIO.current);
-        items.add(mPeriodicIO.demand);  
-        mStorage.addData(items);
     }
 }

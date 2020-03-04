@@ -29,8 +29,6 @@ public abstract class ServoMotorSubsystem extends Subsystem {
     private static final int kMotionProfileSlot = 0;
     private static final int kPositionPIDSlot = 1;
 
-    LogStorage<PeriodicIO> mStorage = null;
-
     // Recommend initializing in a static block!
     public static class TalonFXConstants {
         public int id = -1;
@@ -197,7 +195,7 @@ public abstract class ServoMotorSubsystem extends Subsystem {
 
         mMaster.setInverted(mConstants.kMasterConstants.invert_motor);
         mMaster.setSensorPhase(mConstants.kMasterConstants.invert_sensor_phase);
-        mMaster.setNeutralMode(NeutralMode.Coast);
+        mMaster.setNeutralMode(NeutralMode.Brake);
         mMaster.setStatusFramePeriod(StatusFrameEnhanced.Status_2_Feedback0, 10, 20);
         mMaster.setStatusFramePeriod(StatusFrameEnhanced.Status_10_MotionMagic, 10, 20);
         mMaster.setStatusFramePeriod(StatusFrameEnhanced.Status_8_PulseWidth, mConstants.kStastusFrame8UpdateRate, 20);
@@ -209,7 +207,7 @@ public abstract class ServoMotorSubsystem extends Subsystem {
             mSlaves[i] = TalonFXFactory.createPermanentSlaveTalon(mConstants.kSlaveConstants[i].id,
                     mConstants.kMasterConstants.id);
             mSlaves[i].setInverted(mConstants.kSlaveConstants[i].invert_motor);
-            mSlaves[i].setNeutralMode(NeutralMode.Coast);
+            mSlaves[i].setNeutralMode(NeutralMode.Brake);
             mSlaves[i].follow(mMaster);
         }
 
@@ -218,12 +216,6 @@ public abstract class ServoMotorSubsystem extends Subsystem {
 
         // Send a neutral command.
         stop();
-    }
-    
-    @Override
-    public void registerLogger(LoggingSystem LS) {
-        LogSetup();
-        LS.register(mStorage, mConstants.kName.replaceAll("[^A-Za-z0-9]+", "").toUpperCase() + ".csv");
     }
 
     public static class PeriodicIO {
@@ -262,9 +254,15 @@ public abstract class ServoMotorSubsystem extends Subsystem {
     protected SetpointGenerator mSetpointGenerator = new SetpointGenerator();
     protected MotionProfileConstraints mMotionProfileConstraints;
 
+    public synchronized void setNeutralMode(NeutralMode mode) {
+        mMaster.setNeutralMode(mode);
+        for (int i = 0; i < mSlaves.length; ++i) {
+            mSlaves[i].setNeutralMode(mode);
+        }
+    }
+
     @Override
     public synchronized void readPeriodicInputs() {
-        LogSend();
         mPeriodicIO.timestamp = Timer.getFPGATimestamp();
 
         if (mMaster.hasResetOccurred()) {
@@ -360,6 +358,11 @@ public abstract class ServoMotorSubsystem extends Subsystem {
         mEnabledLooper.register(new Loop() {
             @Override
             public void onStart(double timestamp) {
+                /*if (mCSVWriter == null) {
+                    mCSVWriter = new ReflectingCSVWriter<>("/home/lvuser/"
+                            + mConstants.kName.replaceAll("[^A-Za-z0-9]+", "").toUpperCase() + "-LOGS.csv",
+                            PeriodicIO.class);
+                }*/
             }
 
             @Override
@@ -548,36 +551,5 @@ public abstract class ServoMotorSubsystem extends Subsystem {
     public void outputTelemetry() {
         SmartDashboard.putNumber(mConstants.kName + ": Position (units)", mPeriodicIO.position_units);
         SmartDashboard.putBoolean(mConstants.kName + ": Homing Location", atHomingLocation());
-    }
-
-    public void LogSetup() {
-        mStorage = new LogStorage();
-        mStorage.setHeadersFromClass(PeriodicIO.class);
-    }
-
-    public void LogSend() {
-        ArrayList<Double> items = new ArrayList<Double>();
-
-        items.add(Timer.getFPGATimestamp());
-        items.add(mPeriodicIO.position_units);
-        items.add((double) mPeriodicIO.position_ticks);
-        items.add((double) mPeriodicIO.velocity_ticks_per_100ms);
-        items.add((double) mPeriodicIO.active_trajectory_position); // ticks
-        items.add((double) mPeriodicIO.active_trajectory_velocity); // ticks/100ms
-        items.add(mPeriodicIO.active_trajectory_acceleration); // ticks/100ms/s
-        items.add(mPeriodicIO.output_percent);
-        items.add(mPeriodicIO.output_voltage);
-        items.add(mPeriodicIO.master_supply_current);
-        items.add(mPeriodicIO.master_stator_current);
-        items.add(mPeriodicIO.error_ticks);
-        items.add((double) mPeriodicIO.encoder_wraps);
-        items.add(mPeriodicIO.absolute_pulse_offset);
-        items.add(mPeriodicIO.absolute_pulse_position);
-        items.add(mPeriodicIO.absolute_pulse_position_modded);
-        items.add(mPeriodicIO.reset_occured? 0.0 : 1.0);
-        items.add(mPeriodicIO.demand);
-        items.add(mPeriodicIO.feedforward);
-
-        mStorage.addData(items);
     }
 }

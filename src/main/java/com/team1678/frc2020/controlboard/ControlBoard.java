@@ -32,7 +32,26 @@ public class ControlBoard {
     public double getThrottle() {
         return mDriveControlBoard.getThrottle();
     }
+    
+    public boolean getManualSlowRoll() {
+        return mDriveControlBoard.getManualZoom();
+    }
 
+    public boolean getManualZoom() {
+        return mButtonControlBoard.getManualZoom();
+    }
+
+    public boolean getWantUnjam() {
+        return mButtonControlBoard.getWantUnjam();
+    }
+
+    public boolean getShotUp() {
+        return mDriveControlBoard.getShotUp();
+    }
+    
+    public boolean getShotDown() {
+        return mDriveControlBoard.getShotDown();
+    }
     public double getTurn() {
         return mDriveControlBoard.getTurn();
     }
@@ -53,10 +72,18 @@ public class ControlBoard {
         return mButtonControlBoard.getJogTurret();
     }
 
+    public double getJogHood() {
+        return mButtonControlBoard.getJogHood();
+    }
+
     // Intake
 
     public boolean getShoot() {
         return mButtonControlBoard.getShoot();
+    }
+
+    public boolean getPreShot() {
+        return mButtonControlBoard.getPreShot();
     }
 
     public boolean getRevolve() {
@@ -67,6 +94,30 @@ public class ControlBoard {
         return mButtonControlBoard.getSpinUp();
     }
 
+    public boolean getTuck() {
+        return mButtonControlBoard.getTuck() || mDriveControlBoard.getTuck();
+    }
+
+    public boolean getUntuck() {
+        return mButtonControlBoard.getUntuck();
+    }
+
+    public boolean getFendorShot() {
+        return mButtonControlBoard.getFendorShot();
+    }
+
+    public boolean getTestSpit() {
+        return mButtonControlBoard.getTestSpit();
+    }
+
+    public boolean getManualRoller() {
+        return mDriveControlBoard.getManualRoller();
+    }
+
+    public boolean getStopManualRoller() {
+        return mDriveControlBoard.getStopManualRoller();
+    }
+
     public boolean getControlPanelRotation() {
         return mButtonControlBoard.getControlPanelRotation();
     }
@@ -75,24 +126,48 @@ public class ControlBoard {
         return mButtonControlBoard.getControlPanelPosition();
     }
 
+    public boolean getTurretReset() {
+        return mButtonControlBoard.getTurretReset();
+    }
+
     public void setRumble(boolean on) {
         mButtonControlBoard.setRumble(on);
     }
 
-    public boolean getArmDeploy() {
-        return mButtonControlBoard.getArmDeploy();
-    } 
+    public boolean getArmExtend() {
+        return mButtonControlBoard.getArmExtend();
+    }
+
+    public boolean getStopExtend() {
+        return mButtonControlBoard.getStopExtend();
+    }
+
+    public boolean getStopClimb() {
+        return mButtonControlBoard.getStopClimb();
+    }
 
     public boolean getBuddyDeploy() {
         return mButtonControlBoard.getBuddyDeploy();
+    }
+
+    public boolean getArmHug() {
+        return mButtonControlBoard.getArmHug();
+    }
+
+    public boolean getManualArmExtend() {
+        return mButtonControlBoard.getManualArmExtend();
+    }
+
+    public boolean getManualArmRetract() {
+        return mButtonControlBoard.getManualArmRetract();
     }
 
     public boolean getClimb() {
         return mButtonControlBoard.getClimb();
     }
 
-    public boolean getSlowClimb() {
-        return mButtonControlBoard.getSlowClimb();
+    public boolean getBrake() {
+        return mButtonControlBoard.getBrake();
     }
 
     public boolean getWrangle() {

@@ -11,80 +11,75 @@ import java.util.Arrays;
 import com.team1678.frc2020.auto.AutoModeEndedException;
 import com.team1678.frc2020.auto.actions.*;
 
-public class TenBallMode extends AutoModeBase {
+public class LeftEightBallMode extends AutoModeBase {
     private static final TrajectoryGenerator mTrajectoryGenerator = TrajectoryGenerator.getInstance();
 
     private DriveTrajectoryAction mStartToSteal;
     private DriveTrajectoryAction mStealToFirstShot;
-    private DriveTrajectoryAction mIntakeCells;
-    private DriveTrajectoryAction mBackOut;
-    private DriveTrajectoryAction mIntakeToSecondShot;
-    private DriveTrajectoryAction mIntakeToStraight;
+    private DriveTrajectoryAction mOffsetShotToFirstBarIntake;
+    private DriveTrajectoryAction mFirstToPreSecondBarIntake;
+    private DriveTrajectoryAction mSecondBarIntake;
+    private DriveTrajectoryAction mSecondBarIntakeToShot;
 
-
-    public TenBallMode() {
+    public LeftEightBallMode() {
         mStartToSteal = new DriveTrajectoryAction(mTrajectoryGenerator.getTrajectorySet().startToSteal, true);
-        mStealToFirstShot = new DriveTrajectoryAction(mTrajectoryGenerator.getTrajectorySet().stealToFirstShot, false);
-        mIntakeCells = new DriveTrajectoryAction(mTrajectoryGenerator.getTrajectorySet().intakeCells, false);
-        mBackOut = new DriveTrajectoryAction(mTrajectoryGenerator.getTrajectorySet().barBackOut, false);
-        mIntakeToSecondShot = new DriveTrajectoryAction(mTrajectoryGenerator.getTrajectorySet().RVCenterToShot, false);
-        mIntakeToStraight = new DriveTrajectoryAction(mTrajectoryGenerator.getTrajectorySet().intakeToStraight, false);
+        mStealToFirstShot =  new DriveTrajectoryAction(mTrajectoryGenerator.getTrajectorySet().stealToFirstShot, false);
+        //mStealToOffsetFirstShot = new DriveTrajectoryAction(mTrajectoryGenerator.getTrajectorySet().stealToOffsetFirstShot, false);
+        mOffsetShotToFirstBarIntake = new DriveTrajectoryAction(mTrajectoryGenerator.getTrajectorySet().offsetShotToFirstBarIntake, false);
+        mFirstToPreSecondBarIntake = new DriveTrajectoryAction(mTrajectoryGenerator.getTrajectorySet().firstToPreSecondBarIntake, false);
+        mSecondBarIntake = new DriveTrajectoryAction(mTrajectoryGenerator.getTrajectorySet().secondBarIntake, false);
+        mSecondBarIntakeToShot = new DriveTrajectoryAction(mTrajectoryGenerator.getTrajectorySet().secondBarIntakeToShot, false);
     }
 
     @Override
     protected void routine() throws AutoModeEndedException {
-        System.out.println("Running 10 ball auto");
+        System.out.println("Running left side 8 ball auto");
 
         // Prep for intake
         runAction(new ParallelAction(Arrays.asList(
             new LambdaAction(() -> Superstructure.getInstance().setWantSpinUp(true)),       
             new LambdaAction(() -> Intake.getInstance().setState(Intake.WantedAction.INTAKE)),
-            new LambdaAction(() -> Superstructure.getInstance().setWantAutoAim(Rotation2d.fromDegrees(150.))))));
+            new LambdaAction(() -> Superstructure.getInstance().setWantFieldRelativeTurret(Rotation2d.fromDegrees(150.))))));
 
-        // Drive to intake balls
         runAction(mStartToSteal);
 
-        new LambdaAction(() -> Superstructure.getInstance().setWantPreShot(true));
+        runAction(new LambdaAction(() -> Superstructure.getInstance().setWantPreShot(true)));
+        runAction(new LambdaAction(() -> Superstructure.getInstance().setWantAutoAim(Rotation2d.fromDegrees(150.))));
 
         runAction(mStealToFirstShot);
-            
+
+        
         runAction(new LambdaAction(() -> Superstructure.getInstance().setWantAutoAim(Rotation2d.fromDegrees(180.))));
         runAction(new LambdaAction(() -> Intake.getInstance().setState(Intake.WantedAction.NONE)));
-        //runAction(new LambdaAction(() -> Superstructure.getInstance().setWantPreShot(true)));
-        runAction(new TurnToHeadingAction(Rotation2d.fromDegrees(0), 1.5));
-
-        System.out.println("Turn Complete");
 
         runAction(new WaitUntilOnTargetAction());
         runAction(new LambdaAction(() -> Superstructure.getInstance().setWantShoot(true)));
         runAction(new WaitForSpinupAction());
-        //runAction(new WaitForSlotsAction(false, 2.0));
-        runAction(new WaitForIndexerSpinAction(720.0));
+        runAction(new WaitForIndexerSpinAction(740.0));
 
         System.out.println("Wait Complete");
-        runAction(new LambdaAction(() -> Superstructure.getInstance().setWantShoot(false)));
         runAction(new LambdaAction(() -> Superstructure.getInstance().setWantSpinUp(true)));
         runAction(new LambdaAction(() -> Intake.getInstance().setState(Intake.WantedAction.INTAKE)));
 
-        runAction(mIntakeCells);
-      /*  runAction(mBackOut);
+        runAction(mOffsetShotToFirstBarIntake);
 
-        runAction(new ParallelAction(Arrays.asList(
-            mIntakeToSecondShot,
-            new LambdaAction(() -> Superstructure.getInstance().setWantPreShot(true))
-        )));
+        runAction(mFirstToPreSecondBarIntake);
+        runAction(new LambdaAction(() -> Superstructure.getInstance().setWantPreShot(true)));
 
+        runAction(mSecondBarIntake);
 
+        runAction(mSecondBarIntakeToShot);
+
+        // runAction(new LambdaAction(() -> Superstructure.getInstance().setWantAutoAim(Rotation2d.fromDegrees(180.))));
         runAction(new LambdaAction(() -> Intake.getInstance().setState(Intake.WantedAction.NONE)));
+
         runAction(new WaitUntilOnTargetAction());
         runAction(new LambdaAction(() -> Superstructure.getInstance().setWantShoot(true)));
+        runAction(new WaitForSpinupAction());
         runAction(new WaitForIndexerSpinAction(720.0));
 
         System.out.println("Wait Complete");
-        runAction(new LambdaAction(() -> Superstructure.getInstance().setWantShoot(false)));
-*/
-
+        
         System.out.println("Auto Complete");
-
     }
 }

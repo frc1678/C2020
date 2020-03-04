@@ -24,8 +24,6 @@ public abstract class Subsystem {
 
     public void registerEnabledLoops(ILooper mEnabledLooper) {}
 
-    public void registerLogger(LoggingSystem LS) {}
-
     public void zeroSensors() {}
 
     public abstract void stop();

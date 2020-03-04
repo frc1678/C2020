@@ -19,6 +19,9 @@ import com.team254.lib.vision.AimingParameters;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Superstructure extends Subsystem {
+    private static final double kZoomedOutRange = 190.0;
+    private static final double kZoomedInRange = 220.0;
+
     // Instances
     private static Superstructure mInstance;
 
@@ -49,16 +52,29 @@ public class Superstructure extends Subsystem {
     private boolean mWantsShoot = false;
     private boolean mWantsSpinUp = false;
     private boolean mWantsTuck = false;
+    private boolean mWantsFendor = false;
+    private boolean mWantsTestSpit = false;
     private boolean mSettled = false;
     private boolean mUseInnerTarget = false;
+    private boolean mWantsPreShot = false;
 
     private double mCurrentTurret = 0.0;
     private double mCurrentHood = 0.0;
 
     private double mTurretSetpoint = 0.0;
-    private double mHoodSetpoint = 63;
+    private double mHoodSetpoint = 70.5;
     private double mShooterSetpoint = 4000.0;
     private boolean mGotSpunUp = false;
+    private boolean mEnableIndexer = true;
+    private boolean mManualZoom = false;
+    private boolean mWantsUnjam = false;
+    private boolean mDisableLimelight = false;
+
+    private double mAngleAdd = 0.0;
+
+    public synchronized void enableIndexer(boolean indexer) {
+        mEnableIndexer = indexer;
+    }
 
     private TurretControlModes mTurretMode = TurretControlModes.FIELD_RELATIVE;
 
@@ -122,9 +138,15 @@ public class Superstructure extends Subsystem {
 
     @Override
     public void outputTelemetry() {
-        SmartDashboard.putString("Turret Control State", mTurretMode.toString());
-        SmartDashboard.putNumber("Turret Goal", mTurretSetpoint);
-        SmartDashboard.putNumber("Hood Goal", mHoodSetpoint);
+        SmartDashboard.putBoolean("Shooting", mWantsShoot);
+        SmartDashboard.putBoolean("Spinning Up", mWantsSpinUp);
+        SmartDashboard.putBoolean("Pre Shot", mWantsPreShot);
+
+        SmartDashboard.putBoolean("Test Spit", mWantsTestSpit);
+        SmartDashboard.putBoolean("Fendor Shot", mWantsFendor);
+        SmartDashboard.putBoolean("Tuck", mWantsTuck);
+
+        SmartDashboard.putNumber("Angle Add", -mAngleAdd);
     }
 
     @Override
@@ -156,7 +178,7 @@ public class Superstructure extends Subsystem {
         } else if (SuperstructureConstants.kUseHoodAutoAimPolynomial) {
             return SuperstructureConstants.kHoodAutoAimPolynomial.predict(range);
         } else {
-            return SuperstructureConstants.kHoodAutoAimMap.getInterpolated(new InterpolatingDouble(range)).value;
+            return SuperstructureConstants.kHoodAutoAimMap.getInterpolated(new InterpolatingDouble(range)).value + mAngleAdd;
         }
     }
 
@@ -171,8 +193,8 @@ public class Superstructure extends Subsystem {
     // Jog Turret
     public synchronized void jogTurret(double delta) {
         mTurretMode = TurretControlModes.JOGGING;
-        double prev_delta = mTurret.getAngle();
-        mTurretSetpoint = (prev_delta + delta);
+        mTurretSetpoint += delta;
+        System.out.println(mTurretSetpoint);
         mTurretFeedforwardV = 0.0;
     }
 
@@ -181,6 +203,14 @@ public class Superstructure extends Subsystem {
         double prev_delta = mHood.getAngle();
         mHoodSetpoint = (prev_delta + delta);
         mHoodFeedforwardV = 0.0;
+    }
+
+    public synchronized double getAngleAdd() {
+        return mAngleAdd;
+    }
+    
+    public synchronized void setAngleAdd(double add) {
+        mAngleAdd -= add;
     }
 
     public synchronized void setGoal(double shooter, double hood, double turret) {
@@ -206,12 +236,22 @@ public class Superstructure extends Subsystem {
         mLatestAimingParameters = Optional.empty();
     }
 
+    public synchronized boolean getDisableLimelight() {
+        return mDisableLimelight;
+    }
+
     public void safetyReset() {
         if (mTurretSetpoint < Constants.kTurretConstants.kMinUnitsLimit) {
             mTurretSetpoint += SuperstructureConstants.kTurretDOF;
-        }
-        if (mTurretSetpoint > Constants.kTurretConstants.kMaxUnitsLimit) {
+            Limelight.getInstance().setLed(Limelight.LedMode.OFF);
+            mDisableLimelight = true;
+        } else if (mTurretSetpoint > Constants.kTurretConstants.kMaxUnitsLimit) {
             mTurretSetpoint -= SuperstructureConstants.kTurretDOF;
+            Limelight.getInstance().setLed(Limelight.LedMode.OFF);
+            mDisableLimelight = true;
+        } else {
+            mDisableLimelight = false;
+            Limelight.getInstance().setLed(Limelight.LedMode.ON);
         }
 
         if (mHoodSetpoint < Constants.kHoodConstants.kMinUnitsLimit) {
@@ -231,16 +271,20 @@ public class Superstructure extends Subsystem {
             return;
         }
 
-        mLatestAimingParameters = mRobotState.getAimingParameters(mUseInnerTarget, -1, Constants.kMaxGoalTrackAge);
+        if (mWantsShoot) {
+            mLatestAimingParameters = mRobotState.getAimingParameters(mUseInnerTarget, mTrackId, Constants.kMaxGoalTrackAge);
+        } else {
+            mLatestAimingParameters = mRobotState.getAimingParameters(mUseInnerTarget, -1, Constants.kMaxGoalTrackAge);
+        }
+
         if (mLatestAimingParameters.isPresent()) {
             mTrackId = mLatestAimingParameters.get().getTrackId();
 
-            final double kLookaheadTime = 0.7;
             Pose2d robot_to_predicted_robot = mRobotState.getLatestFieldToVehicle().getValue().inverse()
-                    .transformBy(mRobotState.getPredictedFieldToVehicle(kLookaheadTime));
-            Pose2d predicted_robot_to_goal = robot_to_predicted_robot.inverse()
-                    .transformBy(mLatestAimingParameters.get().getRobotToGoal());
-            mCorrectedRangeToTarget = predicted_robot_to_goal.getTranslation().norm();
+                    .transformBy(mRobotState.getPredictedFieldToVehicle(Constants.kAutoAimPredictionTime));
+            Pose2d predicted_turret_to_goal = robot_to_predicted_robot.inverse()
+                    .transformBy(mLatestAimingParameters.get().getTurretToGoal());
+            mCorrectedRangeToTarget = predicted_turret_to_goal.getTranslation().norm();
 
             // Don't aim if not in min distance
             if (mEnforceAutoAimMinDistance && mCorrectedRangeToTarget > mAutoAimMinDistance) {
@@ -253,20 +297,18 @@ public class Superstructure extends Subsystem {
             final double aiming_setpoint = getHoodSetpointAngle(mCorrectedRangeToTarget);
             mHoodSetpoint = aiming_setpoint;
 
-            final Rotation2d turret_error = /*Rotation2d.fromDegrees(Limelight.getInstance().getTx());*/mRobotState.getVehicleToTurret(timestamp).getRotation().inverse()
-                    .rotateBy(mLatestAimingParameters.get().getRobotToGoalRotation());
+            final Rotation2d turret_error = mRobotState.getVehicleToTurret(timestamp).getRotation().inverse()
+                    .rotateBy(mLatestAimingParameters.get().getTurretToGoalRotation());
             
             mTurretSetpoint = mCurrentTurret + turret_error.getDegrees();
             final Twist2d velocity = mRobotState.getMeasuredVelocity();
             // Angular velocity component from tangential robot motion about the goal.
-            final double tangential_component = mLatestAimingParameters.get().getRobotToGoalRotation().sin()
+            final double tangential_component = mLatestAimingParameters.get().getTurretToGoalRotation().sin()
                     * velocity.dx / mLatestAimingParameters.get().getRange();
             final double angular_component = Units.radians_to_degrees(velocity.dtheta);
             // Add (opposite) of tangential velocity about goal + angular velocity in local
             // frame.
             mTurretFeedforwardV = -(angular_component + tangential_component);
-
-            System.out.println(mCorrectedRangeToTarget);
 
             safetyReset();
 
@@ -297,12 +339,11 @@ public class Superstructure extends Subsystem {
         if (mFieldRelativeTurretGoal == null) {
             return;
         }
-        final double kLookaheadTime = 0.7;
+        final double kLookaheadTime = 6.0;
         Rotation2d turret_error = mRobotState.getPredictedFieldToVehicle(kLookaheadTime)
-                .transformBy(Pose2d.fromRotation(mRobotState.getVehicleToTurret(timestamp))).getRotation().inverse()
+                .transformBy(mRobotState.getVehicleToTurret(timestamp)).getRotation().inverse()
                 .rotateBy(mFieldRelativeTurretGoal);
         mTurretSetpoint = mCurrentTurret + turret_error.getDegrees();
-
         safetyReset();
     }
 
@@ -313,85 +354,122 @@ public class Superstructure extends Subsystem {
     }
 
     public synchronized void followSetpoint() {
-  
+
         if (SuperstructureConstants.kUseSmartdashboard) {
             mShooterSetpoint = getShootingSetpointRpm(0);
             mHoodSetpoint = getHoodSetpointAngle(0);
         }
 
-        if (mWantsTuck) {
-            mHood.setSetpointMotionMagic(0.0);
+        if (mWantsTuck || !mEnableIndexer) {
+            mHood.setSetpointPositionPID(Constants.kHoodConstants.kMinUnitsLimit, 0);
+        } else if (mWantsFendor) {
+            mHood.setSetpointMotionMagic(39.5);
+            mTurretSetpoint = 180.0;
+        } else if (mWantsTestSpit) {
+            mHood.setSetpointMotionMagic(Constants.kHoodConstants.kMinUnitsLimit);
         } else {
             mHood.setSetpointMotionMagic(mHoodSetpoint);
         }
 
-        Indexer.WantedAction indexerAction = Indexer.WantedAction.PREP;
+        Indexer.WantedAction indexerAction = Indexer.WantedAction.PASSIVE_INDEX;
         double real_trigger = 0.0;
         double real_shooter = 0.0;
         boolean real_popout = false;
 
         if (Intake.getInstance().getState() == Intake.State.INTAKING) {
-            if (mAutoIndex) {
-                indexerAction = Indexer.WantedAction.INDEX;
-            } else {
-                indexerAction = Indexer.WantedAction.PASSIVE_INDEX;
-            }
+            indexerAction = Indexer.WantedAction.PASSIVE_INDEX;
+            real_trigger = -600.0;
         }
 
         if (mWantsSpinUp) {
             real_shooter = mShooterSetpoint;
             indexerAction = Indexer.WantedAction.PASSIVE_INDEX;
+            real_trigger = -600.0;
+        } else if (mWantsPreShot) {
+            real_shooter = mShooterSetpoint;
+            indexerAction = Indexer.WantedAction.HELLA_ZOOM;
             real_trigger = Constants.kTriggerRPM;
+            real_popout = false;
         } else if (mWantsShoot) {
             real_shooter = mShooterSetpoint;
-            indexerAction = Indexer.WantedAction.PREP;
-            real_trigger = Constants.kTriggerRPM;
-            
-            if (mSettled) {
-                real_popout = true;
-            }
 
-            if (mIndexer.isAtDeadSpot() && Math.abs(mIndexer.getIndexerVelocity()) < 5) {
+            if (mLatestAimingParameters.isPresent()) {
+                if (mLatestAimingParameters.get().getRange() > 240.) {
+                    System.out.println("SLOW ZOOM");
+                    indexerAction = Indexer.WantedAction.SLOW_ZOOM;
+                } else {
+                    indexerAction = Indexer.WantedAction.ZOOM;
+                }
+            } else {
+                indexerAction = Indexer.WantedAction.ZOOM;
+            }
+            real_trigger = Constants.kTriggerRPM;
+
+            if (mIndexer.isAtDeadSpot()) {
                 mSettled = true;
             }
 
-            /*if (mSettled) {
+            if (mGotSpunUp) {
                 real_popout = true;
-                real_trigger = Constants.kTriggerRPM;
-                if (mShooter.spunUp() && mTrigger.spunUp()) {
-                    mGotSpunUp = true;
-                }
-            }*/
+            }
 
             if (mShooter.spunUp() && mTrigger.spunUp()) {
                 mGotSpunUp = true;
             }
-
-            if (mGotSpunUp && estim_popout) {
-                //real_popout = true;
-                //real_trigger = Constants.kTriggerRPM;
-                indexerAction = Indexer.WantedAction.ZOOM;
-            }
         }
 
-        mIndexer.setState(indexerAction);
+        
+        if (mWantsUnjam) {
+            indexerAction = Indexer.WantedAction.PREP;
+            real_popout = true;
+            real_trigger = -5000;
+        }
+
+        if (mEnableIndexer) {
+            mIndexer.setState(indexerAction);
+        } else {
+            mIndexer.setState(Indexer.WantedAction.PREP);
+        }
+
         mTrigger.setPopoutSolenoid(real_popout);
         mTrigger.setVelocity(real_trigger);
-        if (real_shooter < Util.kEpsilon) {
+        if (Math.abs(real_shooter) < Util.kEpsilon) {
             mShooter.setOpenLoop(0);
+        } else if (mWantsFendor) {
+            mShooter.setVelocity(1500);
+        } else if (mWantsTestSpit) {
+            mShooter.setVelocity(1200);
         } else {
             mShooter.setVelocity(real_shooter);
         }
 
-        if (mTurretMode == TurretControlModes.OPEN_LOOP) {
-            mTurret.setOpenLoop(mTurretThrottle);
-        } else  if (mTurretMode == TurretControlModes.VISION_AIMED) {
-            mTurret.setSetpointPositionPID(mTurretSetpoint, 0);
+        if (mLatestAimingParameters.isPresent()) {
+            if (!Limelight.getInstance().seesTarget() && mManualZoom) {
+                Limelight.getInstance().setPipeline(Limelight.kZoomedInPipeline);
+            } else if (mLatestAimingParameters.get().getRange() > kZoomedInRange
+                    && Limelight.getInstance().getPipeline() == Limelight.kDefaultPipeline) {
+                Limelight.getInstance().setPipeline(Limelight.kZoomedInPipeline);
+            } else if (mLatestAimingParameters.get().getRange() < kZoomedOutRange
+                    && Limelight.getInstance().getPipeline() == Limelight.kZoomedInPipeline) {
+                Limelight.getInstance().setPipeline(Limelight.kDefaultPipeline);
+            }
+        } else if (mManualZoom) {
+            Limelight.getInstance().setPipeline(Limelight.kZoomedInPipeline);
         } else {
-            mTurret.setSetpointMotionMagic(mTurretSetpoint, 0);
+            Limelight.getInstance().setPipeline(Limelight.kDefaultPipeline);
         }
-        //mTurret.setOpenLoop(0);
-        //mHood.setOpenLoop(0);
+
+//        Limelight.getInstance().setPipeline(Limelight.kDefaultPipeline);
+
+        if (mTurretMode == TurretControlModes.OPEN_LOOP || !mEnableIndexer) {
+            mTurret.setOpenLoop(0);
+            // } else if (mTurretMode == TurretControlModes.VISION_AIMED) {
+            // mTurret.setSetpointPositionPID(mTurretSetpoint, mTurretFeedforwardV);
+        } else {
+            mTurret.setSetpointMotionMagic(mTurretSetpoint);
+        }
+        // mTurret.setOpenLoop(0);
+        // mHood.setOpenLoop(0);
         estim_popout = trigger_popout.update(real_popout, 0.2);
     }
 
@@ -402,7 +480,11 @@ public class Superstructure extends Subsystem {
     public synchronized boolean isOnTarget() {
         return mOnTarget;
     }
-    
+
+    public synchronized void setWantUnjam(boolean unjam) {
+        mWantsUnjam = unjam;
+    }
+
     public synchronized void setWantAutoAim(Rotation2d field_to_turret_hint, boolean enforce_min_distance,
             double min_distance) {
         mTurretMode = TurretControlModes.VISION_AIMED;
@@ -420,12 +502,27 @@ public class Superstructure extends Subsystem {
         mWantsShoot = !mWantsShoot;
         mSettled = false;
         mGotSpunUp = false;
+        mWantsPreShot = false;
+    }
+
+    public synchronized void setWantPreShot(boolean pre_shot) {
+        mWantsSpinUp = false;
+        mWantsShoot = false;
+        mSettled = false;
+        mGotSpunUp = false;
+        mWantsPreShot = pre_shot;
     }
 
     public synchronized void setWantSpinUp() {
         mWantsSpinUp = !mWantsSpinUp;
         mWantsShoot = false;
+        mSettled = false;
         mGotSpunUp = false;
+        mWantsPreShot = false;
+    }
+
+    public synchronized void setManualZoom(boolean zoom) {
+        mManualZoom = zoom;
     }
 
     public synchronized void setWantShoot(boolean shoot) {
@@ -433,15 +530,40 @@ public class Superstructure extends Subsystem {
         mWantsShoot = shoot;
         mSettled = false;
         mGotSpunUp = false;
+        mWantsPreShot = false;
     }
 
     public synchronized void setWantSpinUp(boolean spin_up) {
         mWantsSpinUp = spin_up;
         mWantsShoot = false;
+        mWantsPreShot = false;
     }
 
-    public synchronized void setWantTuck() {
-        mWantsTuck = !mWantsTuck;
+    public synchronized void setWantTuck(boolean tuck) {
+        mWantsTuck = tuck;
+    }
+
+    public synchronized void setWantFendor() {
+        mWantsFendor = !mWantsFendor;
+        if (mWantsFendor) {
+            mRobotState.resetVision();
+        }
+    }
+
+    public synchronized boolean getWantFendor() {
+        return mWantsFendor;
+    }
+
+    public synchronized boolean getWantSpit() {
+        return mWantsTestSpit;
+    }
+
+    public synchronized boolean getTucked() {
+        return mWantsTuck;
+    }
+
+    public synchronized void setWantTestSpit() {
+        mWantsTestSpit = !mWantsTestSpit;
     }
 
     public synchronized void setWantInnerTarget(boolean inner) {

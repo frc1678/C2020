@@ -4,11 +4,13 @@ import java.util.ArrayList;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.DemandType;
+import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.can.BaseTalon;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 
 import com.team1678.frc2020.Constants;
 import com.team254.lib.drivers.TalonUtil;
+import com.team254.lib.geometry.Rotation2d;
 import com.team254.lib.util.LatchedBoolean;
 
 import edu.wpi.first.wpilibj.DigitalInput;
@@ -20,13 +22,14 @@ import com.team1678.lib.util.HallCalibration;
 public class Turret extends ServoMotorSubsystem {
     private static Turret mInstance;
     private LatchedBoolean mJustReset = new LatchedBoolean();
-    private boolean mHoming = false;
+    private boolean mHoming = true;
     public static final boolean kUseManualHomingRoutine = false;
     private HallCalibration calibration = new HallCalibration(0);
     private double mOffset = 0;
     private DigitalInput mLimitSwitch = new DigitalInput(0);
 
     private static Canifier mCanifier = Canifier.getInstance();
+    private static final SupplyCurrentLimitConfiguration CURR_LIM = new SupplyCurrentLimitConfiguration(true, 40, 60, 0.01);
 
     public synchronized static Turret getInstance() {
         if (mInstance == null) {
@@ -39,6 +42,7 @@ public class Turret extends ServoMotorSubsystem {
         super(constants);
 
         mMaster.setSelectedSensorPosition(0);   
+        mMaster.configSupplyCurrentLimit(CURR_LIM);
     }
 
     // Syntactic sugar.
@@ -66,8 +70,23 @@ public class Turret extends ServoMotorSubsystem {
         }
     }
 
+    public synchronized boolean safeToIntake() {
+        Rotation2d angle = Rotation2d.fromDegrees(getAngle());
+        if (angle.getDegrees() < 55 && angle.getDegrees() > -55) {
+            return false;
+        }
+        return true;
+    }
+
     public synchronized boolean isHoming() {
         return mHoming;
+    }
+
+    public synchronized void cancelHoming() {
+        if (mHoming) {
+            mMaster.setSelectedSensorPosition(0);
+        }
+        mHoming = false;
     }
 
     @Override

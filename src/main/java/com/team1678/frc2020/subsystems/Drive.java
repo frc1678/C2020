@@ -40,7 +40,7 @@ public class Drive extends Subsystem {
 
     private static final int kVelocityControlSlot = 0;
     private static final int kPositionControlSlot = 1;
-    private static final double DRIVE_ENCODER_PPR = 2048. * 10.;
+    private static final double DRIVE_ENCODER_PPR = 2048. * 8.33;
     private static Drive mInstance = new Drive();
     // Hardware
     private final TalonFX mLeftMaster, mRightMaster, mLeftSlave, mRightSlave;
@@ -60,15 +60,6 @@ public class Drive extends Subsystem {
     private boolean mStartedResetTimer = false;
     private Rotation2d mTargetHeading = new Rotation2d();
     private boolean mIsOnTarget = false;
-
-    LogStorage<PeriodicIO> mStorage = null;
-
-    @Override
-    public void registerLogger(LoggingSystem LS) {
-        logSetup();
-        LS.register(mStorage, "drive.csv");
-    }
-
 
     private final Loop mLoop = new Loop() {
         @Override
@@ -124,7 +115,9 @@ public class Drive extends Subsystem {
         talon.configClosedloopRamp(Constants.kDriveVoltageRampRate, Constants.kLongCANTimeoutMs);
         talon.configNeutralDeadband(0.04, 0);
         talon.configMotionCruiseVelocity(20000, Constants.kLongCANTimeoutMs);
-        talon.configMotionAcceleration(20000, Constants.kLongCANTimeoutMs);
+        talon.configMotionAcceleration(40000, Constants.kLongCANTimeoutMs);
+
+        talon.configOpenloopRamp(0.25);
     }
 
     private Drive() {
@@ -216,7 +209,10 @@ public class Drive extends Subsystem {
     }    
     
     public synchronized void setCheesyishDrive(double throttle, double wheel, boolean quickTurn) {
-        if (Util.epsilonEquals(throttle, 0.0, 0.04)) {
+        if (Math.abs(throttle) > Constants.kJoystickJogThreshold) {
+            throttle = (throttle - Math.signum(throttle) * Constants.kJoystickJogThreshold)
+                    / (1.0 - Constants.kJoystickJogThreshold);
+        } else {
             throttle = 0.0;
         }
 
@@ -359,6 +355,9 @@ public class Drive extends Subsystem {
 
             mLeftMaster.setNeutralMode(mode);
             mLeftSlave.setNeutralMode(mode);
+
+            mLeftMaster.configSupplyCurrentLimit(new SupplyCurrentLimitConfiguration(!mIsBrakeMode, 50.0, 100.0, 0.1));
+            mRightMaster.configSupplyCurrentLimit(new SupplyCurrentLimitConfiguration(!mIsBrakeMode, 50.0, 100.0, 0.1));
         }
     }
 
@@ -486,7 +485,7 @@ public class Drive extends Subsystem {
         final Rotation2d robot_to_target = field_to_robot.inverse().rotateBy(mTargetHeading);
 
         // Check if we are on target
-        final double kGoalPosTolerance = 6.0; // degrees
+        final double kGoalPosTolerance = 5.0; // degrees
         final double kGoalVelTolerance = 5.0; // inches per second
         if (Math.abs(robot_to_target.getDegrees()) < kGoalPosTolerance
                 && Math.abs(getLeftLinearVelocity()) < kGoalVelTolerance
@@ -562,7 +561,6 @@ public class Drive extends Subsystem {
 
     @Override
     public synchronized void readPeriodicInputs() {
-        LogSend();
         mPeriodicIO.timestamp = Timer.getFPGATimestamp();
 
         double prevLeftTicks = mPeriodicIO.left_position_ticks;
@@ -692,36 +690,4 @@ public class Drive extends Subsystem {
         public double right_feedforward;
         public TimedState<Pose2dWithCurvature> path_setpoint = new TimedState<Pose2dWithCurvature>(Pose2dWithCurvature.identity());
     }
-
-    public void logSetup() {
-        mStorage = new LogStorage<PeriodicIO>();
-        mStorage.setHeadersFromClass(PeriodicIO.class);
-    }
-
-    public void LogSend() {
-        ArrayList<Double> items = new ArrayList<Double>();
-        items.add(Timer.getFPGATimestamp());
-
-        // INPUTS
-        items.add((double) mPeriodicIO.left_position_ticks);
-        items.add((double) mPeriodicIO.right_position_ticks);
-        items.add(mPeriodicIO.left_distance);
-        items.add(mPeriodicIO.right_distance);
-        items.add(mPeriodicIO.left_current);
-        items.add(mPeriodicIO.right_current);
-        items.add((double) mPeriodicIO.left_velocity_ticks_per_100ms);
-        items.add((double) mPeriodicIO.right_velocity_ticks_per_100ms);
-        items.add(Double.valueOf(mPeriodicIO.gyro_heading.getDegrees()));
-
-        // OUTPUTS
-        items.add(mPeriodicIO.left_demand);
-        items.add(mPeriodicIO.right_demand);
-        items.add(mPeriodicIO.left_accel);
-        items.add(mPeriodicIO.right_accel);
-        items.add(mPeriodicIO.left_feedforward);
-        items.add(mPeriodicIO.right_feedforward);
-
-        mStorage.addData(items);
-    }
-  
 }

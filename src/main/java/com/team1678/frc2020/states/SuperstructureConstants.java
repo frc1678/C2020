@@ -23,14 +23,23 @@ public class SuperstructureConstants {
     public static double kDefaultHoodAngle = Math.toRadians(0);
     public static boolean kUseHoodAutoAimPolynomial = false;
 
-    public static boolean kUseSmartdashboard = true;
+    public static boolean kUseSmartdashboard = false;
 
     public static InterpolatingTreeMap<InterpolatingDouble, InterpolatingDouble> kHoodAutoAimMap = new InterpolatingTreeMap<>();
     public static PolynomialRegression kHoodAutoAimPolynomial;
 
     public static double[][] kHoodManualAngle = {
-        { 100.0, 40.0 }, // TODO: Fill in with values
-        { 200.0, 60.0 },
+        { 39.2, 39.5},
+        { 74.3, 55.},
+        { 105.9, 68.},
+        { 131.2, 70.0 },
+        { 150., 70.0 },
+        { 180.0, 77.0 },
+        { 243., 83.0 },
+        { 248.0, 83.0 },
+        { 257.0, 83.0 },
+        //{ 318.0, 89.0 },
+        { 330.0, 88.5 },
         
     };
 
@@ -51,7 +60,19 @@ public class SuperstructureConstants {
     public static PolynomialRegression kFlywheelAutoAimPolynomial;
 
     public static double[][] kFlywheelManualRPM = {
-        { 90.0, 2890.0 }, // TODO: Fill in with values
+        { 39.2, 1500},
+        { 74.3, 1800},
+        { 105.9, 2300},
+        { 131.2, 2300 },
+        { 150., 2400 },
+        { 180.0, 2700 },
+        { 243., 3000 },
+        { 248.0, 3000 },
+        { 265.0, 3300 },
+        { 318.0, 3600 },
+        { 330.0, 3700 },
+        
+        // TODO: Fill in with values
     };
 
     static {

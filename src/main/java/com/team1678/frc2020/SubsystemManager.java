@@ -96,10 +96,6 @@ public class SubsystemManager implements ILooper {
         disabledLooper.register(new DisabledLoop());
     }
 
-    public void registerLoggingSystems(LoggingSystem LS) {
-        mAllSubsystems.forEach(s -> s.registerLogger(LS));
-    }
-
     @Override
     public void register(Loop loop) {
         mLoops.add(loop);

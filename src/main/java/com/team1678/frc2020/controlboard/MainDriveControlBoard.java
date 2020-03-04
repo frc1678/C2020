@@ -38,15 +38,27 @@ public class MainDriveControlBoard {
         return mTurnStick.getRawButton(2);
     }
 
-    public boolean getWantsLowGear() {
+    public boolean getTuck() {
         return mThrottleStick.getRawButton(2);
     }
 
-    public boolean getThrust() {
+    public boolean getManualZoom() {
         return mThrottleStick.getRawButton(1);
     }
 
-    public boolean getInterruptAuto() {
+    public boolean getManualRoller() {
         return mThrottleStick.getRawButton(3);
+    }
+
+    public boolean getStopManualRoller() {
+        return mThrottleStick.getRawButtonReleased(3);
+    }
+
+    public boolean getShotUp() {
+        return mThrottleStick.getRawButtonReleased(5);
+    }
+    
+    public boolean getShotDown() {
+        return mThrottleStick.getRawButtonReleased(4);
     }
 }

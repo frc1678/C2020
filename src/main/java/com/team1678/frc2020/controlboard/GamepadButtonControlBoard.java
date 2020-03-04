@@ -1,6 +1,5 @@
 package com.team1678.frc2020.controlboard;
 
-import com.team1678.frc2020.Robot;
 import com.team1678.frc2020.Constants;
 import com.team1678.frc2020.controlboard.CustomXboxController.Button;
 import com.team1678.frc2020.controlboard.CustomXboxController.Side;
@@ -92,6 +91,14 @@ public class GamepadButtonControlBoard {
         return (jog - kDeadband * Math.signum(jog));
     }
 
+    public double getJogHood() {
+        double jog = mController.getJoystick(CustomXboxController.Side.LEFT, CustomXboxController.Axis.Y);
+        if (Deadband.inDeadband(jog, kDeadband)) {
+            return 0.0;
+        }
+        return (jog - kDeadband * Math.signum(jog));
+    }
+
     public void setRumble(boolean on) { //TODO: all 5 power cells indexed
         mController.setRumble(on);
     }
@@ -100,11 +107,35 @@ public class GamepadButtonControlBoard {
         return mController.getController().getAButtonReleased();
     }
 
+    public boolean getTuck() {
+        return mController.getButton(Button.X);
+    }
+
+    public boolean getFendorShot() {
+        return mController.getController().getStickButtonReleased(Hand.kLeft);
+    }
+
+    public boolean getUntuck() {
+        return mController.getButton(Button.START);
+    }
+
+    public boolean getTurretReset() {
+        return mController.getController().getBackButtonReleased();
+    }
+
+    public boolean getTestSpit() {
+        return mController.getController().getStickButtonReleased(Hand.kRight);
+    }
+
     public boolean getRevolve() {
         return mController.getButton(CustomXboxController.Button.X);
     }
 
     public boolean getShoot() {
+        return mController.getController().getYButtonReleased();
+    }
+
+    public boolean getPreShot() {
         return mController.getController().getBButtonReleased();
     }
     
@@ -117,11 +148,19 @@ public class GamepadButtonControlBoard {
     }
 
     public boolean getControlPanelRotation() {
-        return mController.getButton(CustomXboxController.Button.LB);
+        return mController.getController().getBumperReleased(Hand.kRight);
+    }
+
+    public boolean getWantUnjam() {
+        return mController.getController().getBumper(Hand.kRight);
+    }
+
+    public boolean getManualZoom() {
+        return mController.getController().getBumper(Hand.kLeft);
     }
 
     public boolean getControlPanelPosition() {
-        return mController.getButton(CustomXboxController.Button.RB);
+        return mController.getController().getBumperReleased(Hand.kLeft);
     }
 
     public boolean climbMode() {
@@ -129,20 +168,43 @@ public class GamepadButtonControlBoard {
         mController.getTrigger(CustomXboxController.Side.LEFT) &&  mController.getTrigger(CustomXboxController.Side.RIGHT);
     }
 
-    public boolean getArmDeploy() {
-        return mController.getButton(CustomXboxController.Button.A);
+    public boolean getArmExtend() {
+        return mController.getController().getAButtonReleased();
+    }
+
+    public boolean getStopClimb() {
+        return mController.getController().getStickButtonReleased(Hand.kRight); 
+    }
+
+    public boolean getStopExtend() {
+        System.out.println(mController.getController().getStickButton(Hand.kLeft));
+        return mController.getController().getStickButtonReleased(Hand.kLeft);
     }
 
     public boolean getBuddyDeploy() {
-        return mController.getButton(CustomXboxController.Button.B);
+        return mController.getController().getBackButtonReleased();
+    }
+
+    public boolean getArmHug() {
+        return mController.getController().getBButtonReleased();
+    }
+
+    public boolean getManualArmExtend() {
+        return //mController.getController().getStickButton(Hand.kLeft);
+        mController.getButton(CustomXboxController.Button.L_JOYSTICK);
+    }
+
+    public boolean getManualArmRetract() {
+        return //mController.getController().getStickButton(Hand.kRight);
+        mController.getButton(CustomXboxController.Button.R_JOYSTICK);
     }
 
     public boolean getClimb() {
-        return mController.getButton(CustomXboxController.Button.Y);
+        return mController.getController().getYButtonReleased();
     }
 
-    public boolean getSlowClimb() {
-        return mController.getButton(CustomXboxController.Button.RB);
+    public boolean getBrake() {
+        return false; // mController.getController().getYButtonReleased();
     }
 
     public boolean getWrangle() {
@@ -161,7 +223,7 @@ public class GamepadButtonControlBoard {
     public TurretCardinal getTurretCardinal() {
         int dPad = mController.getDPad();
         TurretCardinal newCardinal = dPad == -1 ? TurretCardinal.NONE
-                : TurretCardinal.findClosest(Rotation2d.fromDegrees(-dPad));
+                : TurretCardinal.findClosest(Rotation2d.fromDegrees(-dPad - 180.0));
         if (newCardinal != TurretCardinal.NONE && TurretCardinal.isDiagonal(newCardinal)) {
             // Latch previous direction on diagonal presses, because the D-pad sucks at
             // diagonals.

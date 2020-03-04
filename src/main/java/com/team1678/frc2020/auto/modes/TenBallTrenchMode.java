@@ -44,40 +44,40 @@ public class TenBallTrenchMode extends AutoModeBase {
         // Drive to intake balls
         runAction(mStartToSteal);
 
-        runAction(new ParallelAction(Arrays.asList(
-            mStealToFirstShot,
-            new LambdaAction(() -> Indexer.getInstance().setState(Indexer.WantedAction.PASSIVE_INDEX))
-            )));
+        runAction(new LambdaAction(() -> Superstructure.getInstance().setWantPreShot(true)));
+
+        runAction(mStealToFirstShot);
             
         runAction(new LambdaAction(() -> Superstructure.getInstance().setWantAutoAim(Rotation2d.fromDegrees(180.))));
         runAction(new LambdaAction(() -> Intake.getInstance().setState(Intake.WantedAction.NONE)));
-        runAction(new LambdaAction(() -> Superstructure.getInstance().setWantSpinUp(true)));
-        runAction(new TurnToHeadingAction(Rotation2d.fromDegrees(0)));
+        runAction(new TurnToHeadingAction(Rotation2d.fromDegrees(0), 1.5));
         System.out.println("Turn Complete");
 
+        runAction(new WaitUntilOnTargetAction());
         runAction(new LambdaAction(() -> Superstructure.getInstance().setWantShoot(true)));
         runAction(new WaitForSpinupAction());
 
-        runAction(new WaitForIndexerSpinAction(360.0));
+        runAction(new WaitForIndexerSpinAction(720.0));
 
         System.out.println("Wait Complete");
-        runAction(new LambdaAction(() -> Superstructure.getInstance().setWantShoot(false)));
+        runAction(new LambdaAction(() -> Superstructure.getInstance().setWantSpinUp(true)));
         runAction(new LambdaAction(() -> Intake.getInstance().setState(Intake.WantedAction.INTAKE)));
 
         runAction(mBarIntake);
-        runAction(new LambdaAction(() -> Superstructure.getInstance().setWantSpinUp(true)));
 
         runAction(mBarToOutsideTrench);
+        runAction(new LambdaAction(() -> Superstructure.getInstance().setWantPreShot(true)));
         runAction(mTrenchIntake);
 
         runAction(mTrenchToShot);
         runAction(new LambdaAction(() -> Superstructure.getInstance().setWantAutoAim(Rotation2d.fromDegrees(180.))));
         runAction(new LambdaAction(() -> Intake.getInstance().setState(Intake.WantedAction.NONE)));
 
+        runAction(new WaitUntilOnTargetAction());
         runAction(new LambdaAction(() -> Superstructure.getInstance().setWantShoot(true)));
         runAction(new WaitForSpinupAction());
 
-        runAction(new WaitForIndexerSpinAction(360.0));
+        runAction(new WaitForIndexerSpinAction(720.0));
 
         System.out.println("Wait Complete");
         runAction(new LambdaAction(() -> Superstructure.getInstance().setWantShoot(false)));

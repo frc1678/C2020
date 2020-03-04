@@ -30,6 +30,7 @@ public class Hood extends ServoMotorSubsystem {
 
     private Hood(final ServoMotorSubsystemConstants constants) {
         super(constants);
+        mMaster.setSelectedSensorPosition((int) unitsToTicks(17.66));
     }
 
     @Override
@@ -37,12 +38,20 @@ public class Hood extends ServoMotorSubsystem {
         return Canifier.getInstance().getHoodLimit();
     }
 
+    public synchronized boolean isHoming() {
+        return mHoming;
+    }
+    
     public synchronized double getAngle() {
         return getPosition();
     }
 
     public synchronized boolean getAtGoal() {
-        return Util.epsilonEquals(getAngle(), getSetpoint(), 0.5);
+        return Util.epsilonEquals(getAngle(), getSetpoint(), 5.0);
+    }
+
+    public synchronized boolean getTucked() {
+        return Util.epsilonEquals(getAngle(), Constants.kHoodConstants.kMinUnitsLimit, 5.0); 
     }
 
     @Override
@@ -61,7 +70,7 @@ public class Hood extends ServoMotorSubsystem {
     @Override
     public synchronized void readPeriodicInputs() {
         if (mHoming && atHomingLocation()) {
-            mMaster.setSelectedSensorPosition((int) unitsToTicks(12.875));
+            mMaster.setSelectedSensorPosition((int) unitsToTicks(17.66));
             mMaster.overrideSoftLimitsEnable(true);
             System.out.println("Homed!!!");
             mHoming = false;
