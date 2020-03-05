@@ -3,6 +3,7 @@ package com.team1678.frc2020.subsystems;
 import com.team1678.frc2020.Constants;
 import com.team1678.frc2020.loops.ILooper;
 import com.team1678.frc2020.loops.Loop;
+import com.team1678.lib.drivers.REVColorSensorV3Wrapper;
 import com.team254.lib.util.TimeDelayedBoolean;
 
 import edu.wpi.first.wpilibj.Solenoid;
@@ -24,6 +25,7 @@ public class Roller extends Subsystem {
     // Motors, solenoids and sensors
     //public I2C.Port i2cPort;
     //public ColorSensorV3 mColorSensor;
+    public REVColorSensorV3Wrapper mColorSensor;
     private final PWMSparkMax mRollerMotor;
     public Solenoid mPopoutSolenoid;
 
@@ -73,7 +75,7 @@ public class Roller extends Subsystem {
         mPopoutSolenoid = Constants.makeSolenoidForId(Constants.kRollerSolenoid);
 
         //i2cPort = I2C.Port.kOnboard;
-        //mColorSensor = new ColorSensorV3(i2cPort);
+        mColorSensor = new REVColorSensorV3Wrapper(I2C.Port.kOnboard);
 
         mColorMatcher.addColorMatch(kBlueTarget);
         mColorMatcher.addColorMatch(kGreenTarget);
@@ -124,7 +126,7 @@ public class Roller extends Subsystem {
 
     // Optional design pattern for caching periodic reads to avoid hammering the HAL/CAN.
     public synchronized void readPeriodicInputs() {
-        mPeriodicIO.detected_color = Color.kBlue;
+        mPeriodicIO.detected_color = mColorSensor.getLatestReading().color;
         mMatch = mColorMatcher.matchClosestColor(mPeriodicIO.detected_color);
 
         if (mMatch.color == kBlueTarget) {
@@ -159,6 +161,7 @@ public class Roller extends Subsystem {
             @Override
             public void onStart(double timestamp) {
                 mState = State.IDLE;
+                mColorSensor.start();
             } 
 
             @Override 
@@ -171,6 +174,7 @@ public class Roller extends Subsystem {
             @Override
             public void onStop(double timestamp) {
                 mState = State.IDLE;
+                mColorSensor.stop();
             }
 
         });
@@ -297,6 +301,8 @@ public class Roller extends Subsystem {
         SmartDashboard.putNumber("Color Counter", mColorCounter);
         SmartDashboard.putString("State", mState.toString());
         SmartDashboard.putString("Game Data", gameData);
+
+        mColorSensor.outputToSmartDashboard();
     }
 
     public void setState(WantedAction action) {
