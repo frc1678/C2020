@@ -91,7 +91,7 @@ public class GamepadButtonControlBoard {
         Translation2d mag = new Translation2d(jogX, jogY);
         Rotation2d turret = mag.direction();
 
-        if (Deadband.inDeadband(mag.norm(), kDeadband)) {
+        if (Deadband.inDeadband(mag.norm(), 0.5)) {
             return null;
         }
         return turret;
@@ -118,7 +118,8 @@ public class GamepadButtonControlBoard {
     }
 
     public boolean getFendorShot() {
-        return mController.getController().getStickButtonReleased(Hand.kLeft);
+        return false;
+        //return mController.getController().getStickButtonReleased(Hand.kLeft);
     }
 
     public boolean getUntuck() {
@@ -158,11 +159,11 @@ public class GamepadButtonControlBoard {
     }
 
     public boolean getWantUnjam() {
-        return mController.getController().getBumper(Hand.kRight);
+        return mController.getController().getBumper(Hand.kLeft);
     }
 
     public boolean getManualZoom() {
-        return mController.getController().getBumper(Hand.kLeft);
+        return mController.getController().getBumper(Hand.kRight);
     }
 
     public boolean getControlPanelPosition() {

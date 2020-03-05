@@ -256,10 +256,14 @@ public class Robot extends TimedRobot {
                     mLEDs.conformToState(LEDs.State.EMERGENCY);
                 } else if (mSuperstructure.getTucked()) {
                     mLEDs.conformToState(LEDs.State.HOOD_TUCKED);
-                } else if (mSuperstructure.isOnTarget()) {
+                } else if (mSuperstructure.isOnTarget() && mLimelight.seesTarget()) {
                     mLEDs.conformToState(LEDs.State.TARGET_TRACKING);
-                } else if (mSuperstructure.getLatestAimingParameters().isPresent()) {
+                } else if (mSuperstructure.isOnTarget()) {
+                    mLEDs.conformToState(LEDs.State.INVISIBLE_TARGET_TRACKING);
+                } else if (mSuperstructure.getLatestAimingParameters().isPresent() && !mLimelight.seesTarget() && !mSuperstructure.getScanningHood()) {
                     mLEDs.conformToState(LEDs.State.TARGET_VISIBLE);
+                } else if (mLimelight.seesTarget()) {
+                    mLEDs.conformToState(LEDs.State.LIMELIGHT_SEES_ONLY);
                 } else {
                     mLEDs.conformToState(LEDs.State.ENABLED);
                 }
@@ -303,7 +307,9 @@ public class Robot extends TimedRobot {
 
                 if (turret_jog != null) {
                     mSuperstructure.setWantFieldRelativeTurret(
-                        turret_jog.rotateBy(Rotation2d.fromDegrees(180.0)));
+                       turret_jog.rotateBy(Rotation2d.fromDegrees(90.0)));
+
+                    System.out.println(turret_jog.rotateBy(Rotation2d.fromDegrees(90.0)).getDegrees());
                 } else if (mControlBoard.getFendorShot()) {
                     mSuperstructure.setWantFendor();
                     //mSuperstructure.setWantFieldRelativeTurret(Rotation2d.fromDegrees(180.));

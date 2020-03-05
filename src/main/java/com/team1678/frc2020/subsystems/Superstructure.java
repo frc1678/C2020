@@ -122,6 +122,7 @@ public class Superstructure extends Subsystem {
                     updateCurrentState();
                     maybeUpdateGoalFromVision(timestamp);
                     maybeUpdateGoalFromFieldRelativeGoal(timestamp);
+                    maybeUpdateGoalFromHoodScan(timestamp);
                     followSetpoint();
                 }
             }
@@ -148,6 +149,9 @@ public class Superstructure extends Subsystem {
         SmartDashboard.putBoolean("Tuck", mWantsTuck);
 
         SmartDashboard.putNumber("Angle Add", -mAngleAdd);
+
+        SmartDashboard.putNumber("Turret Goal", mTurretSetpoint);
+        SmartDashboard.putNumber("Hood Goal", mHoodSetpoint);
     }
 
     @Override
@@ -203,7 +207,7 @@ public class Superstructure extends Subsystem {
     public synchronized void setWantHoodScan(boolean scan) {
         if (scan != mWantsHoodScan) {
             if (scan) {
-                mHoodSetpoint = Constants.kHoodConstants.kMinUnitsLimit;
+                mHoodSetpoint = Constants.kHoodConstants.kMinUnitsLimit + 10;
             } else {
                 mHoodSetpoint = mHood.getAngle();
             }
@@ -279,10 +283,12 @@ public class Superstructure extends Subsystem {
             return;
         }
 
-        if (Util.epsilonEquals(mHood.getAngle(), Constants.kHoodConstants.kMinUnitsLimit, 2.0)) {
-            mHoodSetpoint = Constants.kHoodConstants.kMaxUnitsLimit;
-        } else if (Util.epsilonEquals(mHood.getAngle(), Constants.kHoodConstants.kMaxUnitsLimit, 2.0)) {
-            mHoodSetpoint = Constants.kHoodConstants.kMinUnitsLimit;
+        if (Util.epsilonEquals(mHood.getAngle(), Constants.kHoodConstants.kMinUnitsLimit + 10, 10.0)) {
+            System.out.println("Commanding Hood Up");
+            mHoodSetpoint = Constants.kHoodConstants.kMaxUnitsLimit - 10;
+        } else if (Util.epsilonEquals(mHood.getAngle(), Constants.kHoodConstants.kMaxUnitsLimit - 10, 10.0)) {
+            System.out.println("Commanding Hood Down");
+            mHoodSetpoint = Constants.kHoodConstants.kMinUnitsLimit + 10;
         }
     }
 
@@ -317,7 +323,10 @@ public class Superstructure extends Subsystem {
             mShooterSetpoint = shooting_setpoint;
 
             final double aiming_setpoint = getHoodSetpointAngle(mCorrectedRangeToTarget);
-            mHoodSetpoint = aiming_setpoint;
+           
+            if (!mWantsHoodScan) {
+                mHoodSetpoint = aiming_setpoint;
+            }
 
             final Rotation2d turret_error = mRobotState.getVehicleToTurret(timestamp).getRotation().inverse()
                     .rotateBy(mLatestAimingParameters.get().getTurretToGoalRotation());

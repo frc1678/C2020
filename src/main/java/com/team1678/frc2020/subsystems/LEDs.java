@@ -52,6 +52,8 @@ public class LEDs extends Subsystem{
         HOOD_TUCKED(255.0, 20.0, 0.0, Double.POSITIVE_INFINITY, 0.0, false), // solid pink
         TARGET_VISIBLE(0.0, 255.0, 0.0, Double.POSITIVE_INFINITY, 0.0, false), // solid green
         TARGET_TRACKING(0.0, 255.0, 0.0, 0.0625, 0.0625, false), // flashing green
+        INVISIBLE_TARGET_TRACKING(255.0, 255.0, 0.0, 0.0625, 0.0625, false), // flashing green
+        LIMELIGHT_SEES_ONLY(0.0, 255.0, 0.0, Double.POSITIVE_INFINITY, 0.0, false), // solid green
         CLIMB_MODE(255.0, 0.0, 255.0, Double.POSITIVE_INFINITY, 0.0, false), // solid purple
         CLIMB_MODE_BUDDY(255.0, 0.0, 255.0, 0.125, 0.125, false), // flashing purple
         EXTENDING(255.0, 165.0, 0.0, Double.POSITIVE_INFINITY, 0.0, false), // solid orange
@@ -141,7 +143,7 @@ public class LEDs extends Subsystem{
 
     public double stateHue = State.RAINBOW.startingHue;
     public float saturation = 1.0f; // Ensures that the colors are on the outside of the color wheel
-    public float value = 0.5f; // Hardcoded brightness
+    public float value = 0.3f; // Hardcoded brightness
     public double startingTransTime = 0.0;
     public boolean resetBreath = false;
 
@@ -200,7 +202,7 @@ public class LEDs extends Subsystem{
 
             double valueBasedOnTime = currentState.transitionTime - startingTransTime;
             
-            rgb = HSVtoRGB.convert(State.BREATHING_PINK.startingHue, 0.922f, valueBasedOnTime);
+            rgb = HSVtoRGB.convert(State.BREATHING_PINK.startingHue, 0.922f, valueBasedOnTime * 0.6);
 
             rgb[0] = averageR.process(rgb[0]);
             rgb[1] = averageG.process(rgb[1]);
