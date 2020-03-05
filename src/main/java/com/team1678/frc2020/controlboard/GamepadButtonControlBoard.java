@@ -4,6 +4,7 @@ import com.team1678.frc2020.Constants;
 import com.team1678.frc2020.controlboard.CustomXboxController.Button;
 import com.team1678.frc2020.controlboard.CustomXboxController.Side;
 import com.team254.lib.geometry.Rotation2d;
+import com.team254.lib.geometry.Translation2d;
 import com.team254.lib.util.Deadband;
 import com.team254.lib.util.DelayedBoolean;
 
@@ -83,12 +84,17 @@ public class GamepadButtonControlBoard {
         reset();
     }
 
-    public double getJogTurret() {
-        double jog = mController.getJoystick(CustomXboxController.Side.LEFT, CustomXboxController.Axis.X);
-        if (Deadband.inDeadband(jog, kDeadband)) {
-            return 0.0;
+    public Rotation2d getJogTurret() {
+        double jogX = mController.getJoystick(CustomXboxController.Side.LEFT, CustomXboxController.Axis.X);
+        double jogY = mController.getJoystick(CustomXboxController.Side.LEFT, CustomXboxController.Axis.Y);
+        
+        Translation2d mag = new Translation2d(jogX, jogY);
+        Rotation2d turret = mag.direction();
+
+        if (Deadband.inDeadband(mag.norm(), kDeadband)) {
+            return null;
         }
-        return (jog - kDeadband * Math.signum(jog));
+        return turret;
     }
 
     public double getJogHood() {
@@ -192,6 +198,10 @@ public class GamepadButtonControlBoard {
     public boolean getManualArmExtend() {
         return //mController.getController().getStickButton(Hand.kLeft);
         mController.getButton(CustomXboxController.Button.L_JOYSTICK);
+    }
+
+    public boolean getWantHoodScan() {
+        return mController.getButton(CustomXboxController.Button.L_JOYSTICK);
     }
 
     public boolean getManualArmRetract() {

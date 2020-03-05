@@ -249,7 +249,7 @@ public class Robot extends TimedRobot {
             double throttle = mControlBoard.getThrottle();
             double turn = mControlBoard.getTurn();
             double hood_jog = mControlBoard.getJogHood();
-            double turret_jog = mControlBoard.getJogTurret();
+            Rotation2d turret_jog = mControlBoard.getJogTurret();
 
             if (!climb_mode) {
                 if (!mLimelight.limelightOK()) {
@@ -299,11 +299,11 @@ public class Robot extends TimedRobot {
                     mControlBoard.setRumble(false);
                 }
 
-                if (Math.abs(turret_jog) > Constants.kJoystickJogThreshold) {
-                    turret_jog = (turret_jog - Math.signum(turret_jog) * Constants.kJoystickJogThreshold)
-                            / (1.0 - Constants.kJoystickJogThreshold);
-    
-                    mSuperstructure.jogTurret(turret_jog * 3);
+                mSuperstructure.setWantHoodScan(mControlBoard.getWantHoodScan());
+
+                if (turret_jog != null) {
+                    mSuperstructure.setWantFieldRelativeTurret(
+                        turret_jog.rotateBy(Rotation2d.fromDegrees(180.0)));
                 } else if (mControlBoard.getFendorShot()) {
                     mSuperstructure.setWantFendor();
                     //mSuperstructure.setWantFieldRelativeTurret(Rotation2d.fromDegrees(180.));

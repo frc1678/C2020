@@ -49,14 +49,16 @@ public class Superstructure extends Subsystem {
     private double mCorrectedRangeToTarget = 0.0;
     private boolean mEnforceAutoAimMinDistance = false;
     private double mAutoAimMinDistance = 500;
+
     private boolean mWantsShoot = false;
     private boolean mWantsSpinUp = false;
     private boolean mWantsTuck = false;
     private boolean mWantsFendor = false;
     private boolean mWantsTestSpit = false;
-    private boolean mSettled = false;
     private boolean mUseInnerTarget = false;
     private boolean mWantsPreShot = false;
+    private boolean mWantsUnjam = false;
+    private boolean mWantsHoodScan = false;
 
     private double mCurrentTurret = 0.0;
     private double mCurrentHood = 0.0;
@@ -67,7 +69,6 @@ public class Superstructure extends Subsystem {
     private boolean mGotSpunUp = false;
     private boolean mEnableIndexer = true;
     private boolean mManualZoom = false;
-    private boolean mWantsUnjam = false;
     private boolean mDisableLimelight = false;
 
     private double mAngleAdd = 0.0;
@@ -199,10 +200,19 @@ public class Superstructure extends Subsystem {
     }
 
     // Jog Hood
-    public synchronized void JogHood(double delta) {
-        double prev_delta = mHood.getAngle();
-        mHoodSetpoint = (prev_delta + delta);
-        mHoodFeedforwardV = 0.0;
+    public synchronized void setWantHoodScan(boolean scan) {
+        if (scan != mWantsHoodScan) {
+            if (scan) {
+                mHoodSetpoint = Constants.kHoodConstants.kMinUnitsLimit;
+            } else {
+                mHoodSetpoint = mHood.getAngle();
+            }
+        }
+        mWantsHoodScan = scan;
+    }
+
+    public synchronized boolean getScanningHood() {
+        return mWantsHoodScan;
     }
 
     public synchronized double getAngleAdd() {
@@ -261,6 +271,18 @@ public class Superstructure extends Subsystem {
         if (mHoodSetpoint > Constants.kHoodConstants.kMaxUnitsLimit) {
             mHoodSetpoint = Constants.kHoodConstants.kMaxUnitsLimit;
             // logic for when hood fully extended
+        }
+    }
+
+    public synchronized void maybeUpdateGoalFromHoodScan(double timestamp) {
+        if (!mWantsHoodScan) {
+            return;
+        }
+
+        if (Util.epsilonEquals(mHood.getAngle(), Constants.kHoodConstants.kMinUnitsLimit, 2.0)) {
+            mHoodSetpoint = Constants.kHoodConstants.kMaxUnitsLimit;
+        } else if (Util.epsilonEquals(mHood.getAngle(), Constants.kHoodConstants.kMaxUnitsLimit, 2.0)) {
+            mHoodSetpoint = Constants.kHoodConstants.kMinUnitsLimit;
         }
     }
 
@@ -405,10 +427,6 @@ public class Superstructure extends Subsystem {
             }
             real_trigger = Constants.kTriggerRPM;
 
-            if (mIndexer.isAtDeadSpot()) {
-                mSettled = true;
-            }
-
             if (mGotSpunUp) {
                 real_popout = true;
             }
@@ -500,7 +518,6 @@ public class Superstructure extends Subsystem {
     public synchronized void setWantShoot() {
         mWantsSpinUp = false;
         mWantsShoot = !mWantsShoot;
-        mSettled = false;
         mGotSpunUp = false;
         mWantsPreShot = false;
     }
@@ -508,7 +525,6 @@ public class Superstructure extends Subsystem {
     public synchronized void setWantPreShot(boolean pre_shot) {
         mWantsSpinUp = false;
         mWantsShoot = false;
-        mSettled = false;
         mGotSpunUp = false;
         mWantsPreShot = pre_shot;
     }
@@ -516,7 +532,6 @@ public class Superstructure extends Subsystem {
     public synchronized void setWantSpinUp() {
         mWantsSpinUp = !mWantsSpinUp;
         mWantsShoot = false;
-        mSettled = false;
         mGotSpunUp = false;
         mWantsPreShot = false;
     }
@@ -528,7 +543,6 @@ public class Superstructure extends Subsystem {
     public synchronized void setWantShoot(boolean shoot) {
         mWantsSpinUp = false;
         mWantsShoot = shoot;
-        mSettled = false;
         mGotSpunUp = false;
         mWantsPreShot = false;
     }
