@@ -49,14 +49,16 @@ public class Superstructure extends Subsystem {
     private double mCorrectedRangeToTarget = 0.0;
     private boolean mEnforceAutoAimMinDistance = false;
     private double mAutoAimMinDistance = 500;
+
     private boolean mWantsShoot = false;
     private boolean mWantsSpinUp = false;
     private boolean mWantsTuck = false;
     private boolean mWantsFendor = false;
     private boolean mWantsTestSpit = false;
-    private boolean mSettled = false;
     private boolean mUseInnerTarget = false;
     private boolean mWantsPreShot = false;
+    private boolean mWantsUnjam = false;
+    private boolean mWantsHoodScan = false;
 
     private double mCurrentTurret = 0.0;
     private double mCurrentHood = 0.0;
@@ -67,7 +69,6 @@ public class Superstructure extends Subsystem {
     private boolean mGotSpunUp = false;
     private boolean mEnableIndexer = true;
     private boolean mManualZoom = false;
-    private boolean mWantsUnjam = false;
     private boolean mDisableLimelight = false;
 
     private double mAngleAdd = 0.0;
@@ -121,6 +122,7 @@ public class Superstructure extends Subsystem {
                     updateCurrentState();
                     maybeUpdateGoalFromVision(timestamp);
                     maybeUpdateGoalFromFieldRelativeGoal(timestamp);
+                    maybeUpdateGoalFromHoodScan(timestamp);
                     followSetpoint();
                 }
             }
@@ -147,6 +149,9 @@ public class Superstructure extends Subsystem {
         SmartDashboard.putBoolean("Tuck", mWantsTuck);
 
         SmartDashboard.putNumber("Angle Add", -mAngleAdd);
+
+        SmartDashboard.putNumber("Turret Goal", mTurretSetpoint);
+        SmartDashboard.putNumber("Hood Goal", mHoodSetpoint);
     }
 
     @Override
@@ -194,15 +199,23 @@ public class Superstructure extends Subsystem {
     public synchronized void jogTurret(double delta) {
         mTurretMode = TurretControlModes.JOGGING;
         mTurretSetpoint += delta;
-        System.out.println(mTurretSetpoint);
         mTurretFeedforwardV = 0.0;
     }
 
     // Jog Hood
-    public synchronized void JogHood(double delta) {
-        double prev_delta = mHood.getAngle();
-        mHoodSetpoint = (prev_delta + delta);
-        mHoodFeedforwardV = 0.0;
+    public synchronized void setWantHoodScan(boolean scan) {
+        if (scan != mWantsHoodScan) {
+            if (scan) {
+                mHoodSetpoint = Constants.kHoodConstants.kMinUnitsLimit + 10;
+            } else {
+                mHoodSetpoint = mHood.getAngle();
+            }
+        }
+        mWantsHoodScan = scan;
+    }
+
+    public synchronized boolean getScanningHood() {
+        return mWantsHoodScan;
     }
 
     public synchronized double getAngleAdd() {
@@ -264,6 +277,18 @@ public class Superstructure extends Subsystem {
         }
     }
 
+    public synchronized void maybeUpdateGoalFromHoodScan(double timestamp) {
+        if (!mWantsHoodScan) {
+            return;
+        }
+
+        if (Util.epsilonEquals(mHood.getAngle(), Constants.kHoodConstants.kMinUnitsLimit + 10, 10.0)) {
+            mHoodSetpoint = Constants.kHoodConstants.kMaxUnitsLimit - 10;
+        } else if (Util.epsilonEquals(mHood.getAngle(), Constants.kHoodConstants.kMaxUnitsLimit - 10, 10.0)) {
+            mHoodSetpoint = Constants.kHoodConstants.kMinUnitsLimit + 10;
+        }
+    }
+
     public synchronized void maybeUpdateGoalFromVision(double timestamp) {
 
         if (mTurretMode != TurretControlModes.VISION_AIMED) {
@@ -271,7 +296,7 @@ public class Superstructure extends Subsystem {
             return;
         }
 
-        if (mWantsShoot) {
+        if (mWantsShoot && mGotSpunUp) {
             mLatestAimingParameters = mRobotState.getAimingParameters(mUseInnerTarget, mTrackId, Constants.kMaxGoalTrackAge);
         } else {
             mLatestAimingParameters = mRobotState.getAimingParameters(mUseInnerTarget, -1, Constants.kMaxGoalTrackAge);
@@ -295,7 +320,10 @@ public class Superstructure extends Subsystem {
             mShooterSetpoint = shooting_setpoint;
 
             final double aiming_setpoint = getHoodSetpointAngle(mCorrectedRangeToTarget);
-            mHoodSetpoint = aiming_setpoint;
+           
+            if (!mWantsHoodScan) {
+                mHoodSetpoint = aiming_setpoint;
+            }
 
             final Rotation2d turret_error = mRobotState.getVehicleToTurret(timestamp).getRotation().inverse()
                     .rotateBy(mLatestAimingParameters.get().getTurretToGoalRotation());
@@ -395,7 +423,6 @@ public class Superstructure extends Subsystem {
 
             if (mLatestAimingParameters.isPresent()) {
                 if (mLatestAimingParameters.get().getRange() > 240.) {
-                    System.out.println("SLOW ZOOM");
                     indexerAction = Indexer.WantedAction.SLOW_ZOOM;
                 } else {
                     indexerAction = Indexer.WantedAction.ZOOM;
@@ -404,10 +431,6 @@ public class Superstructure extends Subsystem {
                 indexerAction = Indexer.WantedAction.ZOOM;
             }
             real_trigger = Constants.kTriggerRPM;
-
-            if (mIndexer.isAtDeadSpot()) {
-                mSettled = true;
-            }
 
             if (mGotSpunUp) {
                 real_popout = true;
@@ -443,8 +466,8 @@ public class Superstructure extends Subsystem {
             mShooter.setVelocity(real_shooter);
         }
 
-        if (mLatestAimingParameters.isPresent()) {
-            if (!Limelight.getInstance().seesTarget() && mManualZoom) {
+        if (mLatestAimingParameters.isPresent() && !mWantsHoodScan) {
+            if (mManualZoom) {
                 Limelight.getInstance().setPipeline(Limelight.kZoomedInPipeline);
             } else if (mLatestAimingParameters.get().getRange() > kZoomedInRange
                     && Limelight.getInstance().getPipeline() == Limelight.kDefaultPipeline) {
@@ -500,7 +523,6 @@ public class Superstructure extends Subsystem {
     public synchronized void setWantShoot() {
         mWantsSpinUp = false;
         mWantsShoot = !mWantsShoot;
-        mSettled = false;
         mGotSpunUp = false;
         mWantsPreShot = false;
     }
@@ -508,7 +530,6 @@ public class Superstructure extends Subsystem {
     public synchronized void setWantPreShot(boolean pre_shot) {
         mWantsSpinUp = false;
         mWantsShoot = false;
-        mSettled = false;
         mGotSpunUp = false;
         mWantsPreShot = pre_shot;
     }
@@ -516,7 +537,6 @@ public class Superstructure extends Subsystem {
     public synchronized void setWantSpinUp() {
         mWantsSpinUp = !mWantsSpinUp;
         mWantsShoot = false;
-        mSettled = false;
         mGotSpunUp = false;
         mWantsPreShot = false;
     }
@@ -528,7 +548,6 @@ public class Superstructure extends Subsystem {
     public synchronized void setWantShoot(boolean shoot) {
         mWantsSpinUp = false;
         mWantsShoot = shoot;
-        mSettled = false;
         mGotSpunUp = false;
         mWantsPreShot = false;
     }
