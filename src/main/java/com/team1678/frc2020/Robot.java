@@ -308,8 +308,6 @@ public class Robot extends TimedRobot {
                 if (turret_jog != null) {
                     mSuperstructure.setWantFieldRelativeTurret(
                        turret_jog.rotateBy(Rotation2d.fromDegrees(90.0)));
-
-                    System.out.println(turret_jog.rotateBy(Rotation2d.fromDegrees(90.0)).getDegrees());
                 } else if (mControlBoard.getFendorShot()) {
                     mSuperstructure.setWantFendor();
                     //mSuperstructure.setWantFieldRelativeTurret(Rotation2d.fromDegrees(180.));
@@ -348,9 +346,9 @@ public class Robot extends TimedRobot {
                 //    mRoller.setState(Roller.WantedAction.ACHIEVE_ROTATION_CONTROL);
                 //} else if (mControlBoard.getControlPanelPosition()) {
                 //    mRoller.setState(Roller.WantedAction.ACHIEVE_POSITION_CONTROL);
-                } else if (mControlBoard.getManualRoller()) {
+                } else if (mControlBoard.getManualFastRoller()) {
                     mRoller.runManual(-5.0);
-                } else if (mControlBoard.getManualSlowRoll()) {
+                } else if (mControlBoard.getManualSlowRoller()) {
                     mRoller.runManual(-2.0);
                 } else {
                     mIntake.setState(Intake.WantedAction.NONE);

@@ -199,7 +199,6 @@ public class Superstructure extends Subsystem {
     public synchronized void jogTurret(double delta) {
         mTurretMode = TurretControlModes.JOGGING;
         mTurretSetpoint += delta;
-        System.out.println(mTurretSetpoint);
         mTurretFeedforwardV = 0.0;
     }
 
@@ -284,10 +283,8 @@ public class Superstructure extends Subsystem {
         }
 
         if (Util.epsilonEquals(mHood.getAngle(), Constants.kHoodConstants.kMinUnitsLimit + 10, 10.0)) {
-            System.out.println("Commanding Hood Up");
             mHoodSetpoint = Constants.kHoodConstants.kMaxUnitsLimit - 10;
         } else if (Util.epsilonEquals(mHood.getAngle(), Constants.kHoodConstants.kMaxUnitsLimit - 10, 10.0)) {
-            System.out.println("Commanding Hood Down");
             mHoodSetpoint = Constants.kHoodConstants.kMinUnitsLimit + 10;
         }
     }
@@ -426,7 +423,6 @@ public class Superstructure extends Subsystem {
 
             if (mLatestAimingParameters.isPresent()) {
                 if (mLatestAimingParameters.get().getRange() > 240.) {
-                    System.out.println("SLOW ZOOM");
                     indexerAction = Indexer.WantedAction.SLOW_ZOOM;
                 } else {
                     indexerAction = Indexer.WantedAction.ZOOM;
