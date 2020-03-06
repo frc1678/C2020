@@ -299,7 +299,7 @@ public class Superstructure extends Subsystem {
             return;
         }
 
-        if (mWantsShoot) {
+        if (mWantsShoot && mGotSpunUp) {
             mLatestAimingParameters = mRobotState.getAimingParameters(mUseInnerTarget, mTrackId, Constants.kMaxGoalTrackAge);
         } else {
             mLatestAimingParameters = mRobotState.getAimingParameters(mUseInnerTarget, -1, Constants.kMaxGoalTrackAge);
@@ -470,8 +470,8 @@ public class Superstructure extends Subsystem {
             mShooter.setVelocity(real_shooter);
         }
 
-        if (mLatestAimingParameters.isPresent()) {
-            if (!Limelight.getInstance().seesTarget() && mManualZoom) {
+        if (mLatestAimingParameters.isPresent() && !mWantsHoodScan) {
+            if (mManualZoom) {
                 Limelight.getInstance().setPipeline(Limelight.kZoomedInPipeline);
             } else if (mLatestAimingParameters.get().getRange() > kZoomedInRange
                     && Limelight.getInstance().getPipeline() == Limelight.kDefaultPipeline) {
