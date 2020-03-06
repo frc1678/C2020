@@ -185,18 +185,20 @@ public class GamepadButtonControlBoard {
         return mController.getController().getBackButtonReleased();
     }
 
-    public boolean getArmHug() {
-        return mController.getController().getBButtonReleased();
+    public double getJogClimber() {
+        double jog = mController.getJoystick(CustomXboxController.Side.LEFT, CustomXboxController.Axis.Y);
+        if (Deadband.inDeadband(jog, kDeadband)) {
+            return 0.0;
+        }
+        return (jog - kDeadband * Math.signum(jog));
     }
 
-    public boolean getManualArmExtend() {
-        return //mController.getController().getStickButton(Hand.kLeft);
-        mController.getButton(CustomXboxController.Button.L_JOYSTICK);
-    }
-
-    public boolean getManualArmRetract() {
-        return //mController.getController().getStickButton(Hand.kRight);
-        mController.getButton(CustomXboxController.Button.R_JOYSTICK);
+    public double getStrafe() {
+        double jog = mController.getJoystick(CustomXboxController.Side.RIGHT, CustomXboxController.Axis.X);
+        if (Deadband.inDeadband(jog, kDeadband)) {
+            return 0.0;
+        }
+        return (jog - kDeadband * Math.signum(jog));
     }
 
     public boolean getClimb() {

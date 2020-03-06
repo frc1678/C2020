@@ -11,7 +11,6 @@ import com.team1678.frc2020.loops.ILooper;
 import com.team1678.frc2020.loops.Loop;
 import com.team1678.frc2020.logger.LogStorage;
 import com.team1678.frc2020.logger.LoggingSystem;
-import com.team1678.frc2020.subsystems.Wrangler;
 
 import com.team254.lib.drivers.TalonFXFactory;
 import com.team254.lib.util.ReflectingCSVWriter;
@@ -27,35 +26,29 @@ public class Climber extends Subsystem  {
     private static Climber mInstance = null;
 
     private static final double kIdleVoltage = 0.0;
-    private static final double kPivotVoltage = -8.0;
-    private static final double kExtendVoltage = 2.0;
-    private static final double kClimbVoltage = -4.0;
     private static final double kBrakeVelocity = 500.0;
-    private static final double kPivotWaitTime = 0.5;
-    private double mInitialTime;
 
-    private static final int kExtendDelta = (204000 - (-27600));
-    private static final int kHugDelta = (157000 - (-27600));
-    private static final int kClimbDelta = 10000;
+    private static final int kExtendDelta = (204000 - (-27600)); // needs update
+    private static final int kClimbDelta = 5000; // needs update
 
     private PeriodicIO mPeriodicIO = new PeriodicIO();
 
     public enum WantedAction {
-        NONE, PIVOT, EXTEND, MANUAL_EXTEND, HUG, CLIMB, MANUAL_CLIMB, BRAKE, STOP,
+        NONE, EXTEND, HUG, CLIMB, BRAKE, GODMODE, STRAFE, STOP,
     }
 
     public enum State {
-        IDLE, PIVOTING, EXTENDING, MANUAL_EXTENDING, HUGGING, CLIMBING, MANUAL_CLIMBING, BRAKING,
+        IDLE, EXTENDING, HUGGING, CLIMBING, BRAKING, GODMODING, STRAFING,
     }
 
     private State mState = State.IDLE;
 
-    private final TalonFX mMaster;
-    private final TalonFX mSlave;
+    private final TalonFX mElevator;
+    private final TalonFX mStrafer;
+    private final Solenoid mBrakeSolenoid;
     private double mHoldingPos = 0.0;
     private double mZeroPos;
-    private boolean mPivoted = false;
-    private boolean mExtended = false;
+    private boolean mIsAtGoal = false;
     private TimeDelayedBoolean brake_activation = new TimeDelayedBoolean();
 
     public StatorCurrentLimitConfiguration STATOR_CURRENT_LIMIT = new StatorCurrentLimitConfiguration(true, 40, 40, .2);
@@ -63,31 +56,38 @@ public class Climber extends Subsystem  {
 
 
     private Climber() {
-        mMaster = TalonFXFactory.createDefaultTalon(Constants.kWinchMasterId);
-        mMaster.set(ControlMode.PercentOutput, 0);
-        mMaster.setInverted(true);
-        mMaster.configVoltageCompSaturation(12.0, Constants.kLongCANTimeoutMs);
-        mMaster.enableVoltageCompensation(true);
+        mElevator = TalonFXFactory.createDefaultTalon(Constants.kWinchMasterId);
+        mElevator.set(ControlMode.PercentOutput, 0);
+        mElevator.setInverted(true);
+        mElevator.configVoltageCompSaturation(12.0, Constants.kLongCANTimeoutMs);
+        mElevator.enableVoltageCompensation(true);
 
-        mMaster.configSelectedFeedbackSensor(TalonFXFeedbackDevice.IntegratedSensor, 0, Constants.kLongCANTimeoutMs);
+        mElevator.configMotionAcceleration(40000, Constants.kLongCANTimeoutMs);
+        mElevator.configMotionCruiseVelocity(20000, Constants.kLongCANTimeoutMs);
+        mElevator.config_kP(0, 0.5);
+        mElevator.config_kI(0, 0);
+        mElevator.config_kD(0, 0);
+        mElevator.config_kF(0, 0.05);
 
-        mMaster.configMotionAcceleration(40000, Constants.kLongCANTimeoutMs);
-        mMaster.configMotionCruiseVelocity(20000, Constants.kLongCANTimeoutMs);
-        mMaster.config_kP(0, 0.5);
-        mMaster.config_kI(0, 0);
-        mMaster.config_kD(0, 0);
-        mMaster.config_kF(0, 0.05);
+        mStrafer = TalonFXFactory.createDefaultTalon(Constants.kWinchMasterId);
+        mStrafer.set(ControlMode.PercentOutput, 0);
+        mStrafer.setInverted(true);
+        mStrafer.configVoltageCompSaturation(12.0, Constants.kLongCANTimeoutMs);
+        mStrafer.enableVoltageCompensation(true);
 
-        mSlave = TalonFXFactory.createPermanentSlaveTalon(Constants.kWinchSlaveId, Constants.kWinchMasterId);
-        mSlave.setInverted(false);
-        mSlave.follow(mMaster);
+        mElevator.configSelectedFeedbackSensor(TalonFXFeedbackDevice.IntegratedSensor, 0, Constants.kLongCANTimeoutMs);
+        mStrafer.configSelectedFeedbackSensor(TalonFXFeedbackDevice.IntegratedSensor, 0, Constants.kLongCANTimeoutMs);
 
-        mMaster.setSelectedSensorPosition(0, 0, Constants.kLongCANTimeoutMs);
+        mElevator.setSelectedSensorPosition(0, 0, Constants.kLongCANTimeoutMs);
+        mStrafer.setSelectedSensorPosition(0, 0, Constants.kLongCANTimeoutMs);
 
-        mMaster.setNeutralMode(NeutralMode.Coast);
-        mSlave.setNeutralMode(NeutralMode.Coast);
+        mElevator.setNeutralMode(NeutralMode.Coast);
+        mStrafer.setNeutralMode(NeutralMode.Coast);
 
-        mMaster.configStatorCurrentLimit(STATOR_CURRENT_LIMIT);
+        mElevator.configStatorCurrentLimit(STATOR_CURRENT_LIMIT);
+        mStrafer.configStatorCurrentLimit(STATOR_CURRENT_LIMIT);
+
+        mBrakeSolenoid = new Solenoid(Constants.kBrakeSolenoid);
     }
 
     public synchronized static Climber getInstance() {
@@ -98,8 +98,7 @@ public class Climber extends Subsystem  {
     }
 
     public synchronized void setBrakeMode(boolean brake) {
-        mMaster.setNeutralMode(brake ? NeutralMode.Brake : NeutralMode.Coast);
-        mSlave.setNeutralMode(brake ? NeutralMode.Brake : NeutralMode.Coast);
+        mElevator.setNeutralMode(brake ? NeutralMode.Brake : NeutralMode.Coast);
     }
 
     @Override
@@ -110,9 +109,15 @@ public class Climber extends Subsystem  {
     @Override
     public void outputTelemetry() {
         SmartDashboard.putString("ClimberState", mState.name());
-        SmartDashboard.putNumber("ClimbVoltage", mPeriodicIO.demand);
-        SmartDashboard.putNumber("ClimberPosition", mPeriodicIO.position);
-        SmartDashboard.putNumber("ClimberVelocity", mPeriodicIO.velocity);
+        SmartDashboard.putNumber("ElevatorDemand", mPeriodicIO.elevator_demand);
+        SmartDashboard.putNumber("ElevatorPosition", mPeriodicIO.elevator_position);
+        SmartDashboard.putNumber("ElevatorCurrent", mPeriodicIO.elevator_current);
+        SmartDashboard.putNumber("ElevatorVoltage", mPeriodicIO.elevator_voltage);
+        SmartDashboard.putNumber("ElevatorVelocity", mPeriodicIO.velocity);
+        SmartDashboard.putNumber("StraferDemand", mPeriodicIO.strafer_demand);
+        SmartDashboard.putNumber("StraferPosition", mPeriodicIO.strafer_position);
+        SmartDashboard.putNumber("StraferCurrent", mPeriodicIO.strafer_current);
+        SmartDashboard.putNumber("StraferVoltage", mPeriodicIO.strafer_voltage);
 
         if (mCSVWriter != null) {
             mCSVWriter.write();
@@ -174,79 +179,65 @@ public class Climber extends Subsystem  {
     } 
 
     public synchronized void setOpenLoop(double percentage) {
-        mPeriodicIO.demand = percentage;
+        mPeriodicIO.elevator_demand = percentage;
     }
 
     public void setZeroPosition() {
-        mZeroPos = mPeriodicIO.position;
+        mZeroPos = mPeriodicIO.elevator_position;
+    }
+
+    public boolean isAtGoal() {
+        return mIsAtGoal;
+    }
+
+    public void godmode(double delta) {
+        mPeriodicIO.elevator_demand = mPeriodicIO.elevator_position;
+        mPeriodicIO.elevator_demand += delta;
+    }
+
+    public void strafe(double delta) {
+        mPeriodicIO.strafer_demand = mPeriodicIO.strafer_position;
+        mPeriodicIO.strafer_demand += delta;
     }
 
     public void runStateMachine() {
         final double now = Timer.getFPGATimestamp();
         switch (mState) {
         case IDLE:
-            mPeriodicIO.demand = kIdleVoltage;
-            mPeriodicIO.arm_solenoid = true;
-            break;
-        case PIVOTING:
-            mPeriodicIO.arm_solenoid = false;
-            mPeriodicIO.demand = kPivotVoltage;
-
-            if (now - mInitialTime > kPivotWaitTime) {
-                if ((Math.abs(mPeriodicIO.velocity) < kBrakeVelocity)) {
-                    mPeriodicIO.demand = kIdleVoltage;
-                    mZeroPos = mPeriodicIO.position;
-                    mState = State.EXTENDING;
-                }
-            }
-
-            mPeriodicIO.brake_solenoid = false;
-            mZeroPos = mPeriodicIO.position;
+            mIsAtGoal = true;
+            mPeriodicIO.elevator_demand = kIdleVoltage;
             break;
         case EXTENDING:
-            mPeriodicIO.demand = mZeroPos + kExtendDelta;
-            if ((mPeriodicIO.position - mZeroPos) > kExtendDelta - 2000) {
-                mExtended = true;
-            }
-            mPeriodicIO.arm_solenoid = true;
+            mPeriodicIO.elevator_demand = mZeroPos + kExtendDelta;
             mPeriodicIO.brake_solenoid = false;
-            break;
-        case MANUAL_EXTENDING:
-            mPeriodicIO.demand = kExtendVoltage;
-            mPeriodicIO.arm_solenoid = true;
-            mPeriodicIO.brake_solenoid = false;
-            break;
-        case HUGGING:
-            if (mExtended) {
-                mPeriodicIO.demand = mZeroPos + kHugDelta;
-            }
-            mPeriodicIO.arm_solenoid = true;
-            mPeriodicIO.brake_solenoid = false;
+            mIsAtGoal = (mPeriodicIO.elevator_position - mZeroPos) > kExtendDelta - 2000;
             break;
         case CLIMBING:
-            mPeriodicIO.demand = mZeroPos + kClimbDelta;
-            mPeriodicIO.arm_solenoid = true;
+            mPeriodicIO.elevator_demand = mZeroPos + kClimbDelta;
             mPeriodicIO.brake_solenoid = false;
+            mIsAtGoal = false;
 
-            if ((Math.abs(mPeriodicIO.position - (mZeroPos + kClimbDelta)) < 5000 && Math.abs(mPeriodicIO.velocity) < kBrakeVelocity)) {
-                mHoldingPos = mPeriodicIO.position;
+            if ((Math.abs(mPeriodicIO.elevator_position - (mZeroPos + kClimbDelta)) < 5000 && Math.abs(mPeriodicIO.velocity) < kBrakeVelocity)) {
+                mHoldingPos = mPeriodicIO.elevator_position;
+                mIsAtGoal = true;
                 mState = State.BRAKING;
             }
             mPeriodicIO.brake_solenoid = false;
             break;
-        case MANUAL_CLIMBING:
-            mPeriodicIO.demand = kClimbVoltage;
-            mPeriodicIO.arm_solenoid = true;
-            mPeriodicIO.brake_solenoid = false;
-            break;
         case BRAKING:
-            mPeriodicIO.demand = mHoldingPos;
-            mPeriodicIO.arm_solenoid = true;
+            mPeriodicIO.elevator_demand = mHoldingPos;
+            mIsAtGoal = false;
             if (!mPeriodicIO.brake_solenoid) {
                 if (mPeriodicIO.velocity < kBrakeVelocity) {
                     mPeriodicIO.brake_solenoid = true;
+                    mIsAtGoal = true;
                 }
             }
+            break;
+        case GODMODING:
+            mPeriodicIO.brake_solenoid = false;
+            break;
+        case STRAFING:
             break;
         default:
             System.out.println("Fell through on Climber states!");
@@ -255,38 +246,26 @@ public class Climber extends Subsystem  {
 
     public void setState(WantedAction wanted_state) {
         if (wanted_state == WantedAction.BRAKE && mState != State.BRAKING) {
-            mHoldingPos = mPeriodicIO.position;
+            mHoldingPos = mPeriodicIO.elevator_position;
         }
 
-        if (wanted_state == WantedAction.PIVOT && mState != State.PIVOTING) {
-            mInitialTime = Timer.getFPGATimestamp();
-        }
         switch (wanted_state) {
         case NONE:
-            if (mState == State.MANUAL_CLIMBING || mState == State.MANUAL_EXTENDING) {
-                mState = State.IDLE;
-            }
-            break;
-        case PIVOT:
-            mState = State.PIVOTING;
             break;
         case EXTEND:
             mState = State.EXTENDING;
             break;
-        case MANUAL_EXTEND:
-            mState = State.MANUAL_EXTENDING;
-            break;
-        case HUG:
-            mState = State.HUGGING;
-            break;
         case CLIMB:
             mState = State.CLIMBING;
             break;
-        case MANUAL_CLIMB:
-            mState = State.MANUAL_CLIMBING;
-            break;
         case BRAKE:
             mState = State.BRAKING;
+            break;
+        case GODMODE:
+            mState = State.GODMODING;
+            break;
+        case STRAFE:
+            mState = State.STRAFING;
             break;
         case STOP:
             mState = State.IDLE;
@@ -298,37 +277,46 @@ public class Climber extends Subsystem  {
 
     @Override
     public synchronized void readPeriodicInputs() {
-        mPeriodicIO.position = mMaster.getSelectedSensorPosition(0);
-        mPeriodicIO.velocity = mMaster.getSelectedSensorVelocity(0);
-        
+        mPeriodicIO.elevator_position = mElevator.getSelectedSensorPosition(0);
+        mPeriodicIO.strafer_position = mStrafer.getSelectedSensorPosition(0);
+        mPeriodicIO.velocity = mElevator.getSelectedSensorVelocity(0);
+        mPeriodicIO.elevator_current = mElevator.getSupplyCurrent();
+        mPeriodicIO.elevator_voltage = mElevator.getMotorOutputVoltage();
+        mPeriodicIO.strafer_current = mStrafer.getSupplyCurrent();
+        mPeriodicIO.strafer_voltage = mStrafer.getMotorOutputVoltage();
+
         if (mCSVWriter != null) {
             mCSVWriter.add(mPeriodicIO);
         }
-        mPeriodicIO.current = mMaster.getSupplyCurrent();
-        mPeriodicIO.voltage = mMaster.getMotorOutputVoltage();
         //LogSend();  
     }
 
     @Override
     public synchronized void writePeriodicOutputs() {
-        if (mState == State.BRAKING || mState == State.EXTENDING || mState == State.HUGGING || mState == State.CLIMBING) {
-            mMaster.set(ControlMode.MotionMagic, mPeriodicIO.demand);
+        if (mState == State.BRAKING || mState == State.EXTENDING || mState == State.CLIMBING || mState == State.GODMODING) {
+            mElevator.set(ControlMode.MotionMagic, mPeriodicIO.elevator_demand);
         } else {
-            mMaster.set(ControlMode.PercentOutput, mPeriodicIO.demand / 12.0);
+            mElevator.set(ControlMode.PercentOutput, mPeriodicIO.elevator_demand / 12.0);
         }
+        mStrafer.set(ControlMode.Position, mPeriodicIO.strafer_demand);
+
+        mBrakeSolenoid.set(mPeriodicIO.brake_solenoid);
     }
 
     public static class PeriodicIO {
         // INPUTS
-        public double position;
+        public double elevator_position;
+        public double strafer_position;
         public double velocity;
         public boolean braked;
-        public double current;
-        public double voltage;
+        public double elevator_current;
+        public double elevator_voltage;
+        public double strafer_current;
+        public double strafer_voltage;
 
         // OUTPUTS
-        public double demand;
-        public boolean arm_solenoid;
+        public double elevator_demand;
+        public double strafer_demand;
         public boolean brake_solenoid;
     }
 }

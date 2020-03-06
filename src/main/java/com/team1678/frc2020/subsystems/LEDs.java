@@ -53,14 +53,8 @@ public class LEDs extends Subsystem{
         TARGET_VISIBLE(0.0, 255.0, 0.0, Double.POSITIVE_INFINITY, 0.0, false), // solid green
         TARGET_TRACKING(0.0, 255.0, 0.0, 0.0625, 0.0625, false), // flashing green
         CLIMB_MODE(255.0, 0.0, 255.0, Double.POSITIVE_INFINITY, 0.0, false), // solid purple
-        CLIMB_MODE_BUDDY(255.0, 0.0, 255.0, 0.125, 0.125, false), // flashing purple
-        EXTENDING(255.0, 165.0, 0.0, Double.POSITIVE_INFINITY, 0.0, false), // solid orange
-        EXTENDING_BUDDY(255.0, 165.0, 0.0, 0.125, 0.125, false), // flashing orange
-        HUGGING(255.0, 255.0, 0.0, Double.POSITIVE_INFINITY, 0.0, false), // solid yellow
-        HUGGING_BUDDY(255.0, 255.0, 0.0, 0.125, 0.125, false), // flashing yellow
-        WRANGLING(0.0, 255.0, 255.0, 0.0625, 0.0625, false), // flashing cyan
-        CLIMBING(0.0, 255.0, 0.0, Double.POSITIVE_INFINITY, 0.0, false), // solid green
-        CLIMBING_BUDDY(0.0, 255.0, 0.0, 0.125, 0.125, false), // flashing green
+        CLIMB_MOTOR_RUNNING(0.0, 255.0, 255.0, 0.0625, 0.0625, false), // flashing cyan
+        STRAFING(255.0, 255.0, 0.0, 0.0625, 0.0625, false), // flashing yellow
         RAINBOW(0, true),
         BREATHING_PINK(357, 10.0, true);
 

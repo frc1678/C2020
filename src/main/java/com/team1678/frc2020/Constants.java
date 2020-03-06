@@ -59,6 +59,7 @@ public class Constants {
     // climber
     public static final int kWinchMasterId = 11;
     public static final int kWinchSlaveId = 12;
+    public static final int kBrakeSolenoid = 2;
 
     // wrangler
     public static final int kWranglerId = 13;

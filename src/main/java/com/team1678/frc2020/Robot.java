@@ -33,6 +33,7 @@ import com.team254.lib.util.*;
 import com.team254.lib.vision.AimingParameters;
 import com.team254.lib.geometry.Rotation2d;
 import com.team1678.frc2020.subsystems.Indexer.WantedAction;
+import com.team1678.frc2020.subsystems.LEDs.State;
 import com.team254.lib.geometry.Pose2d;
 import com.team254.lib.geometry.Rotation2d;
 import com.team254.lib.util.CrashTracker;
@@ -88,7 +89,6 @@ public class Robot extends TimedRobot {
     private final RobotState mRobotState = RobotState.getInstance();
     private final RobotStateEstimator mRobotStateEstimator = RobotStateEstimator.getInstance();
     private boolean climb_mode = false;
-    private boolean buddy_climb = false;
     private AutoModeExecutor mAutoModeExecutor;
     private AutoModeSelector mAutoModeSelector = new AutoModeSelector();
 
@@ -250,6 +250,8 @@ public class Robot extends TimedRobot {
             double turn = mControlBoard.getTurn();
             double hood_jog = mControlBoard.getJogHood();
             double turret_jog = mControlBoard.getJogTurret();
+            double climber_jog = mControlBoard.getJogClimber();
+            double strafe = mControlBoard.getStrafe();
 
             if (!climb_mode) {
                 if (!mLimelight.limelightOK()) {
@@ -302,7 +304,6 @@ public class Robot extends TimedRobot {
                 if (Math.abs(turret_jog) > Constants.kJoystickJogThreshold) {
                     turret_jog = (turret_jog - Math.signum(turret_jog) * Constants.kJoystickJogThreshold)
                             / (1.0 - Constants.kJoystickJogThreshold);
-    
                     mSuperstructure.jogTurret(turret_jog * 3);
                 } else if (mControlBoard.getFendorShot()) {
                     mSuperstructure.setWantFendor();
@@ -354,54 +355,40 @@ public class Robot extends TimedRobot {
                 Climber.WantedAction climber_action = Climber.WantedAction.NONE;
                 mSuperstructure.enableIndexer(false);
                 mIntake.setState(Intake.WantedAction.NONE);
-                buddy_climb = mWrangler.getWranglerOut();
                 mSuperstructure.setWantSpinUp(false);
                 mSuperstructure.setWantShoot(false);
                 mSuperstructure.setWantPreShot(false);
                 mSuperstructure.setWantUnjam(false);
+                mRoller.stop();
 
-
-                mRoller.stop();//setState(Roller.WantedAction.NONE);
                 if (mControlBoard.getArmExtend()) { // Press A
-                    if (!mPivoted) {
-                        System.out.println("PIVOTING");
-                        climber_action = (Climber.WantedAction.PIVOT);
-                    } else if (mClimber.getState() != Climber.State.PIVOTING) {
-                        System.out.println("SKIPPING PIVOT");
-                        climber_action = (Climber.WantedAction.EXTEND);
-                    }   
-
-                    mPivoted = true;
-                } else if (mControlBoard.getArmHug()) { // Press B
-                    climber_action = (Climber.WantedAction.HUG); // hook onto the rung
-                } else if (mControlBoard.getBuddyDeploy()) { // Press Back
-                    mWrangler.setState(Wrangler.WantedAction.DEPLOY);
-                } else if (mControlBoard.getWrangle()) { // Press and hold X
-                    mWrangler.setState(Wrangler.WantedAction.WRANGLE);
-                    buddy_climb = true;
+                    climber_action = (Climber.WantedAction.EXTEND);
                 } else if (mControlBoard.getClimb()) { // Press Y
                     climber_action = (Climber.WantedAction.CLIMB);
-                } else if (mControlBoard.getManualArmExtend()) { // Press and hold left joystick
-                    climber_action = (Climber.WantedAction.MANUAL_EXTEND);
-                } else if (mControlBoard.getManualArmRetract()) { // Press and hold right joystick
-                    climber_action = (Climber.WantedAction.MANUAL_CLIMB);
                 } else if (mControlBoard.getBrake()) { // Release Y
                     climber_action = (Climber.WantedAction.BRAKE);
+                } else if (Math.abs(climber_jog) > Constants.kJoystickJogThreshold) { // Left joystick up/down
+                    climber_jog = (turret_jog - Math.signum(turret_jog) * Constants.kJoystickJogThreshold)
+                            / (1.0 - Constants.kJoystickJogThreshold);
+                    climber_action = (Climber.WantedAction.GODMODE);
+                    mClimber.godmode(climber_jog * 3); // probably needs tuning
+                } else if (Math.abs(strafe) > Constants.kJoystickJogThreshold) { // Right joystick left/right
+                    strafe = (strafe - Math.signum(strafe) * Constants.kJoystickJogThreshold)
+                            / (1.0 - Constants.kJoystickJogThreshold);
+                    climber_action = (Climber.WantedAction.STRAFE);
+                    mClimber.strafe(strafe * 3); // probably needs tuning
                 } else if (mControlBoard.getLeaveClimbMode()) {
                     climb_mode = false;
-                    buddy_climb = false;
-                } else {
-                    mWrangler.setState(Wrangler.WantedAction.NONE);
                 }
 
-                if (mClimber.getState() == Climber.State.PIVOTING || mClimber.getState() == Climber.State.EXTENDING) {
-                    mLEDs.conformToState(buddy_climb ? LEDs.State.EXTENDING_BUDDY : LEDs.State.EXTENDING);
-                } else if (mClimber.getState() == Climber.State.HUGGING) {
-                    mLEDs.conformToState(buddy_climb ? LEDs.State.HUGGING_BUDDY : LEDs.State.HUGGING);
-                } else if (mClimber.getState() == Climber.State.CLIMBING) {
-                    mLEDs.conformToState(buddy_climb ? LEDs.State.CLIMBING_BUDDY : LEDs.State.CLIMBING);
+                if (mClimber.getState() == Climber.State.EXTENDING || mClimber.getState() == Climber.State.CLIMBING) {
+                    mLEDs.conformToState(mClimber.isAtGoal() ? LEDs.State.CLIMB_MODE : LEDs.State.CLIMB_MOTOR_RUNNING);
+                } else if (mClimber.getState() == Climber.State.GODMODING && Math.abs(climber_jog) > Constants.kJoystickJogThreshold) {
+                    mLEDs.conformToState(LEDs.State.CLIMB_MOTOR_RUNNING);
+                } else if (mClimber.getState() == Climber.State.STRAFING && Math.abs(strafe) > Constants.kJoystickJogThreshold) {
+                    mLEDs.conformToState(LEDs.State.STRAFING);
                 } else {
-                    mLEDs.conformToState(buddy_climb ? LEDs.State.CLIMB_MODE_BUDDY : LEDs.State.CLIMB_MODE);
+                    mLEDs.conformToState(LEDs.State.CLIMB_MODE);
                 }
 
 //                if (mControlBoard.getStopExtend() || mControlBoard.getStopClimb()) {

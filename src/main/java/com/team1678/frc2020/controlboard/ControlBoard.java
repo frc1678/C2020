@@ -150,16 +150,12 @@ public class ControlBoard {
         return mButtonControlBoard.getBuddyDeploy();
     }
 
-    public boolean getArmHug() {
-        return mButtonControlBoard.getArmHug();
+    public double getJogClimber() {
+        return mButtonControlBoard.getJogClimber();
     }
 
-    public boolean getManualArmExtend() {
-        return mButtonControlBoard.getManualArmExtend();
-    }
-
-    public boolean getManualArmRetract() {
-        return mButtonControlBoard.getManualArmRetract();
+    public double getStrafe() {
+        return mButtonControlBoard.getStrafe();
     }
 
     public boolean getClimb() {
