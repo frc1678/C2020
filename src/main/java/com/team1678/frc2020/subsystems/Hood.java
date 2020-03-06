@@ -98,4 +98,11 @@ public class Hood extends ServoMotorSubsystem {
             }
         });
     }
+
+    @Override
+    public void outputTelemetry() {
+        super.outputTelemetry();
+
+        SmartDashboard.putBoolean(mConstants.kName + " Calibrated", !mHoming);
+    }
 }

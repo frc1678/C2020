@@ -4,6 +4,7 @@ import com.team1678.frc2020.Constants;
 import com.team1678.frc2020.loops.ILooper;
 import com.team1678.frc2020.loops.Loop;
 import com.team1678.lib.drivers.REVColorSensorV3Wrapper;
+import com.team1678.lib.drivers.REVColorSensorV3Wrapper.ColorSensorData;
 import com.team254.lib.util.TimeDelayedBoolean;
 
 import edu.wpi.first.wpilibj.Solenoid;
@@ -126,8 +127,14 @@ public class Roller extends Subsystem {
 
     // Optional design pattern for caching periodic reads to avoid hammering the HAL/CAN.
     public synchronized void readPeriodicInputs() {
-        mPeriodicIO.detected_color = mColorSensor.getLatestReading().color;
-        mMatch = mColorMatcher.matchClosestColor(mPeriodicIO.detected_color);
+        ColorSensorData reading = mColorSensor.getLatestReading();
+        mPeriodicIO.detected_color = reading.color;
+        mPeriodicIO.timestamp = reading.timestamp;
+        mPeriodicIO.distance = reading.distance;
+        
+        if (reading.color != null) {
+            mMatch = mColorMatcher.matchClosestColor(mPeriodicIO.detected_color);
+        }
 
         if (mMatch.color == kBlueTarget) {
             colorString = "Blue";
@@ -298,6 +305,11 @@ public class Roller extends Subsystem {
         //SmartDashboard.putNumber("Green", mPeriodicIO.detected_color.green);
         //SmartDashboard.putNumber("Blue", mPeriodicIO.detected_color.blue);
         SmartDashboard.putString("Color", colorString);
+
+        SmartDashboard.putNumber("Color Data t", mPeriodicIO.timestamp);
+        SmartDashboard.putNumber("Color Data distance", mPeriodicIO.distance);
+
+        
         SmartDashboard.putNumber("Color Counter", mColorCounter);
         SmartDashboard.putString("State", mState.toString());
         SmartDashboard.putString("Game Data", gameData);
@@ -345,7 +357,10 @@ public class Roller extends Subsystem {
 
     public static class PeriodicIO {
         // INPUTS
+        private double timestamp;
+
         public Color detected_color;
+        private int distance;
 
         // OUTPUTS
         public double roller_demand;

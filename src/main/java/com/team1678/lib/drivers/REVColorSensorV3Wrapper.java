@@ -51,6 +51,7 @@ public class REVColorSensorV3Wrapper {
 
         mNotifier = new Notifier(runnable_);
         mRunning = false;
+        mData = new ColorSensorData();
     }
 
     public ColorSensorData getLatestReading() {
@@ -85,6 +86,6 @@ public class REVColorSensorV3Wrapper {
     }
     
     public void outputToSmartDashboard() {
-        SmartDashboard.putNumber("looper_dt", mDT);
+        SmartDashboard.putNumber("Color sensor read rate (Hz)", 1.0 / mDT);
     }
 }
