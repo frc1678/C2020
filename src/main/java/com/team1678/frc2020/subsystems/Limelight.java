@@ -68,7 +68,9 @@ public class Limelight extends Subsystem {
             @Override
             public void onLoop(double timestamp) {
                 synchronized (this) {
-                    if (Hood.getInstance().getAtGoal() && !Superstructure.getInstance().getTucked() /*&& !Superstructure.getInstance().getWantFendor()*/  && !Superstructure.getInstance().getWantSpit() && mPeriodicIO.has_comms && !Superstructure.getInstance().getDisableLimelight()) {
+                    if ((Hood.getInstance().getAtGoal() || Superstructure.getInstance().getScanningHood())
+                            && !Superstructure.getInstance().getTucked() && !Superstructure.getInstance().getWantSpit()
+                            && mPeriodicIO.has_comms && !Superstructure.getInstance().getDisableLimelight()) {
                         RobotState.getInstance().addVisionUpdate(timestamp - getLatency(), getTarget());
                     } else {
                         RobotState.getInstance().addVisionUpdate(timestamp - getLatency(), null);

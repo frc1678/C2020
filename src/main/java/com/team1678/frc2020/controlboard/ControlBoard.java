@@ -3,6 +3,7 @@ package com.team1678.frc2020.controlboard;
 import com.team1678.frc2020.Constants;
 import com.team1678.frc2020.controlboard.GamepadButtonControlBoard;
 import com.team1678.frc2020.controlboard.GamepadButtonControlBoard.TurretCardinal;
+import com.team254.lib.geometry.Rotation2d;
 import com.team1678.frc2020.controlboard.CustomXboxController.Side;
 
 public class ControlBoard {
@@ -68,12 +69,16 @@ public class ControlBoard {
         return mButtonControlBoard.getRetractIntake();
     }
 
-    public double getJogTurret() {
+    public Rotation2d getJogTurret() {
         return mButtonControlBoard.getJogTurret();
     }
 
     public double getJogHood() {
         return mButtonControlBoard.getJogHood();
+    }
+
+    public boolean getWantHoodScan() {
+        return mButtonControlBoard.getWantHoodScan();
     }
 
     // Intake
