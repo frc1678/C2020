@@ -209,11 +209,8 @@ public class Drive extends Subsystem {
     }    
     
     public synchronized void setCheesyishDrive(double throttle, double wheel, boolean quickTurn) {
-        if (Math.abs(throttle) > Constants.kJoystickJogThreshold) {
-            throttle = (throttle - Math.signum(throttle) * Constants.kJoystickJogThreshold)
-                    / (1.0 - Constants.kJoystickJogThreshold);
-        } else {
-            throttle = 0.0;
+        if (Util.epsilonEquals(throttle, 0.0, 0.04)) {
+            throttle = 0;
         }
 
         if (Util.epsilonEquals(wheel, 0.0, 0.035)) {
