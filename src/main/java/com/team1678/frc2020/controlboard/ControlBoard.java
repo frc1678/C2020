@@ -34,8 +34,8 @@ public class ControlBoard {
         return mDriveControlBoard.getThrottle();
     }
     
-    public boolean getManualSlowRoll() {
-        return mDriveControlBoard.getManualZoom();
+    public boolean getManualSlowRoller() {
+        return mDriveControlBoard.getManualSlowRoller();
     }
 
     public boolean getManualZoom() {
@@ -115,8 +115,8 @@ public class ControlBoard {
         return mButtonControlBoard.getTestSpit();
     }
 
-    public boolean getManualRoller() {
-        return mDriveControlBoard.getManualRoller();
+    public boolean getManualFastRoller() {
+        return mDriveControlBoard.getManualFastRoller();
     }
 
     public boolean getStopManualRoller() {

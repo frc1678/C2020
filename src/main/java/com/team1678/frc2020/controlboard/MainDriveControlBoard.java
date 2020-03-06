@@ -17,6 +17,9 @@ public class MainDriveControlBoard {
     private final Joystick mThrottleStick;
     private final Joystick mTurnStick;
 
+    private int mDPadUp = -1;
+    private int mDPadDown = -1;
+
     private MainDriveControlBoard() {
         mThrottleStick = new Joystick(Constants.kMainThrottleJoystickPort);
         mTurnStick = new Joystick(Constants.kMainTurnJoystickPort);
@@ -42,23 +45,35 @@ public class MainDriveControlBoard {
         return mThrottleStick.getRawButton(2);
     }
 
-    public boolean getManualZoom() {
-        return mThrottleStick.getRawButton(1);
+    public boolean getManualFastRoller() {
+        return mThrottleStick.getRawButton(4);
     }
 
-    public boolean getManualRoller() {
+    public boolean getManualSlowRoller() {
         return mThrottleStick.getRawButton(3);
     }
 
     public boolean getStopManualRoller() {
-        return mThrottleStick.getRawButtonReleased(3);
+        return mThrottleStick.getRawButtonReleased(3) || mThrottleStick.getRawButtonReleased(4);
     }
 
     public boolean getShotUp() {
-        return mThrottleStick.getRawButtonReleased(5);
+        int pov = mThrottleStick.getPOV();
+
+        if (pov != mDPadUp) {
+            mDPadUp = pov;
+            return pov == 0;
+        }
+        return false;
     }
     
     public boolean getShotDown() {
-        return mThrottleStick.getRawButtonReleased(4);
+        int pov = mThrottleStick.getPOV();
+
+        if (pov != mDPadDown) {
+            mDPadDown = pov;
+            return pov == 180;
+        }
+        return false;
     }
 }
