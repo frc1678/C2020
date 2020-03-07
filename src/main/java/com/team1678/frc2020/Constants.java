@@ -36,7 +36,7 @@ public class Constants {
     public static final double kRobotAngularInertia = 25.0; // kg m^2 TODO tune
     public static final double kRobotAngularDrag = 30.0; // N*m / (rad/sec) TODO tune
     public static final double kDriveVIntercept = 0.8; // V
-    public static final double kDriveKv = 0.15; // V per rad/s
+    public static final double kDriveKv = 0.18; // V per rad/s
     public static final double kDriveKa = 0.01; // V per rad/s^2
     public static final double kPathKX = 4.0; // units/s per unit of error
     public static final double kPathLookaheadTime = 0.4; // seconds to look ahead along the path for steering
@@ -164,7 +164,7 @@ public class Constants {
 
         // Unit == Degrees
         kHoodConstants.kHomePosition = 0.0; // Degrees
-        kHoodConstants.kTicksPerUnitDistance = (2048.0 * 93.8) / 360.0;
+        kHoodConstants.kTicksPerUnitDistance = (2048.0 * 70.0) / 360.0;
         kHoodConstants.kKp = 0.5;
         kHoodConstants.kKi = 0;
         kHoodConstants.kKd = 0;
