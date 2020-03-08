@@ -34,11 +34,11 @@ public class Climber extends Subsystem  {
     private PeriodicIO mPeriodicIO = new PeriodicIO();
 
     public enum WantedAction {
-        NONE, EXTEND, HUG, CLIMB, BRAKE, GODMODE, STRAFE, STOP,
+        NONE, EXTEND, CLIMB, BRAKE, GODMODE, STRAFE, STOP,
     }
 
     public enum State {
-        IDLE, EXTENDING, HUGGING, CLIMBING, BRAKING, GODMODING, STRAFING,
+        IDLE, EXTENDING, CLIMBING, BRAKING, GODMODING, STRAFING,
     }
 
     private State mState = State.IDLE;
