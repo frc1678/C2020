@@ -118,7 +118,7 @@ public class Constants {
 
         // Unit == Degrees
         kTurretConstants.kHomePosition = 0.0; // CCW degrees from forward
-        kTurretConstants.kTicksPerUnitDistance = (2048.0 * 36.0) / 360.0;
+        kTurretConstants.kTicksPerUnitDistance = (2048.0 * 48.0) / 360.0;
         kTurretConstants.kKp = 0.5;
         kTurretConstants.kKi = 0;
         kTurretConstants.kKd = 0.0;
@@ -140,7 +140,7 @@ public class Constants {
         kTurretConstants.kMaxUnitsLimit = 315.0;
 
         kTurretConstants.kCruiseVelocity = 20000; // Ticks / 100ms
-        kTurretConstants.kAcceleration = 30000; // Ticks / 100ms / s
+        kTurretConstants.kAcceleration = 40000; // Ticks / 100ms / s
         kTurretConstants.kRampRate = 0.0; // s
         kTurretConstants.kContinuousCurrentLimit = 20; // amps
         kTurretConstants.kPeakCurrentLimit = 40; // amps
@@ -164,7 +164,7 @@ public class Constants {
 
         // Unit == Degrees
         kHoodConstants.kHomePosition = 0.0; // Degrees
-        kHoodConstants.kTicksPerUnitDistance = (2048.0 * 70.0) / 360.0;
+        kHoodConstants.kTicksPerUnitDistance = (2048.0 * 93.8) / 360.0;
         kHoodConstants.kKp = 0.5;
         kHoodConstants.kKi = 0;
         kHoodConstants.kKd = 0;
@@ -276,8 +276,8 @@ public class Constants {
     public static final double kInnerGoalDepth = 0;
 	public static final double kHoodToTurret = 4.25; // center of the turret to the axis of rotation of the hood
 	public static final double kLimelightPitchOffset = 17.66; // limelight pitch at hood 0
-	public static final double kAutoAimPredictionTime = 6.0; // lookahead for robot state during aiming
-	public static final double kJoystickJogThreshold = 0.1;
+	public static final double kAutoAimPredictionTime = 4.0; // lookahead for robot state during aiming
+	public static final double kJoystickJogThreshold = 0.1;     
 	public static final int kCameraStreamPort = 5810;
 
     public static Solenoid makeSolenoidForId(int solenoidId) {

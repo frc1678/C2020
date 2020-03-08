@@ -367,7 +367,7 @@ public class Superstructure extends Subsystem {
         if (mFieldRelativeTurretGoal == null) {
             return;
         }
-        final double kLookaheadTime = 6.0;
+        final double kLookaheadTime = 4.0;
         Rotation2d turret_error = mRobotState.getPredictedFieldToVehicle(kLookaheadTime)
                 .transformBy(mRobotState.getVehicleToTurret(timestamp)).getRotation().inverse()
                 .rotateBy(mFieldRelativeTurretGoal);
