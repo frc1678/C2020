@@ -14,6 +14,10 @@ import edu.wpi.first.wpilibj.GenericHID.Hand;
 public class GamepadButtonControlBoard {
     private final double kDeadband = 0.15;
 
+
+    private int mDPadRight = -1;
+    private int mDPadLeft = -1;
+
     private final double kDPadDelay = 0.02;
     private DelayedBoolean mDPadValid;
     private TurretCardinal mLastCardinal;
@@ -155,7 +159,13 @@ public class GamepadButtonControlBoard {
     }
 
     public boolean getControlPanelRotation() {
-        return mController.getController().getBumperReleased(Hand.kRight);
+        int pov = mController.getDPad();
+
+        if (pov != mDPadRight) {
+            mDPadRight = pov;
+            return pov == 90;
+        }
+        return false;
     }
 
     public boolean getWantUnjam() {
@@ -167,7 +177,13 @@ public class GamepadButtonControlBoard {
     }
 
     public boolean getControlPanelPosition() {
-        return mController.getController().getBumperReleased(Hand.kLeft);
+        int pov = mController.getDPad();
+
+        if (pov != mDPadLeft) {
+            mDPadLeft = pov;
+            return pov == 270;
+        }
+        return false;
     }
 
     public boolean climbMode() {

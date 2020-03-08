@@ -3,6 +3,8 @@ package com.team1678.frc2020.subsystems;
 import com.team1678.frc2020.Constants;
 import com.team1678.frc2020.loops.ILooper;
 import com.team1678.frc2020.loops.Loop;
+import com.team1678.lib.drivers.REVColorSensorV3Wrapper;
+import com.team1678.lib.drivers.REVColorSensorV3Wrapper.ColorSensorData;
 import com.team254.lib.util.TimeDelayedBoolean;
 
 import edu.wpi.first.wpilibj.Solenoid;
@@ -24,6 +26,7 @@ public class Roller extends Subsystem {
     // Motors, solenoids and sensors
     //public I2C.Port i2cPort;
     //public ColorSensorV3 mColorSensor;
+    public REVColorSensorV3Wrapper mColorSensor;
     private final PWMSparkMax mRollerMotor;
     public Solenoid mPopoutSolenoid;
 
@@ -48,9 +51,10 @@ public class Roller extends Subsystem {
 
     // Game data
     private String gameData;
-    private String colorString = "UNSET";
+    private String colorString = "Unknown";
     private boolean mSolenoidOut = false;
     private TimeDelayedBoolean mSolenoidTimer = new TimeDelayedBoolean();
+    private TimeDelayedBoolean mPositionalTimer = new TimeDelayedBoolean();
 
     // State management
     public enum WantedAction {
@@ -73,12 +77,14 @@ public class Roller extends Subsystem {
         mPopoutSolenoid = Constants.makeSolenoidForId(Constants.kRollerSolenoid);
 
         //i2cPort = I2C.Port.kOnboard;
-        //mColorSensor = new ColorSensorV3(i2cPort);
+        mColorSensor = new REVColorSensorV3Wrapper(I2C.Port.kOnboard);
 
         mColorMatcher.addColorMatch(kBlueTarget);
         mColorMatcher.addColorMatch(kGreenTarget);
         mColorMatcher.addColorMatch(kRedTarget);
-        mColorMatcher.addColorMatch(kYellowTarget);   
+        mColorMatcher.addColorMatch(kYellowTarget); 
+        
+        mColorSensor.start();
     }
 
     public synchronized static Roller getInstance() {
@@ -124,17 +130,27 @@ public class Roller extends Subsystem {
 
     // Optional design pattern for caching periodic reads to avoid hammering the HAL/CAN.
     public synchronized void readPeriodicInputs() {
-        mPeriodicIO.detected_color = Color.kBlue;
-        mMatch = mColorMatcher.matchClosestColor(mPeriodicIO.detected_color);
+        ColorSensorData reading = mColorSensor.getLatestReading();
+        mPeriodicIO.timestamp = reading.timestamp;
+        mPeriodicIO.distance = reading.distance;
+        
+        if (reading.color != null) {
+            mPeriodicIO.detected_color = reading.color;
+            mMatch = mColorMatcher.matchClosestColor(mPeriodicIO.detected_color);
+        }
 
-        if (mMatch.color == kBlueTarget) {
-            colorString = "Blue";
-        } else if (mMatch.color == kRedTarget) {
-            colorString = "Red";
-        } else if (mMatch.color == kGreenTarget) {
-            colorString = "Green";
-        } else if (mMatch.color == kYellowTarget) {
-            colorString = "Yellow";
+        if (mMatch != null) {
+            if (mMatch.color == kBlueTarget) {
+                colorString = "Blue";
+            } else if (mMatch.color == kRedTarget) {
+                colorString = "Red";
+            } else if (mMatch.color == kGreenTarget) {
+                colorString = "Green";
+            } else if (mMatch.color == kYellowTarget) {
+                colorString = "Yellow";
+            } else {
+                colorString = "Unknown";
+            }
         } else {
             colorString = "Unknown";
         }
@@ -148,8 +164,12 @@ public class Roller extends Subsystem {
 
     // Optional design pattern for caching periodic writes to avoid hammering the HAL/CAN.
     public synchronized void writePeriodicOutputs() {
-        mRollerMotor.set(mPeriodicIO.roller_demand / 12.0);
         mPopoutSolenoid.set(mPeriodicIO.pop_out_solenoid);
+        if (mSolenoidOut) {
+            mRollerMotor.set(mPeriodicIO.roller_demand / 12.0);
+        } else {
+            mRollerMotor.set(0);
+        }
         //mRollerMotor.set(0.1);
         //mPopoutSolenoid.set(true);
     }
@@ -159,6 +179,7 @@ public class Roller extends Subsystem {
             @Override
             public void onStart(double timestamp) {
                 mState = State.IDLE;
+                mColorSensor.start();
             } 
 
             @Override 
@@ -171,6 +192,7 @@ public class Roller extends Subsystem {
             @Override
             public void onStop(double timestamp) {
                 mState = State.IDLE;
+                mColorSensor.stop();
             }
 
         });
@@ -198,8 +220,6 @@ public class Roller extends Subsystem {
                 if (!mSolenoidOut) {
                     return;
                 }
-
-                mMatch = mColorMatcher.matchClosestColor(mPeriodicIO.detected_color);
 
                 if (mColorCounter < 9) {
                     if (colorString != "Unknown") {
@@ -230,8 +250,6 @@ public class Roller extends Subsystem {
 
                 break;
             case ACHIEVING_POSITION_CONTROL:
-                mMatch = mColorMatcher.matchClosestColor(mPeriodicIO.detected_color);
-
                 if (gameData.length() > 0) {
                     mPeriodicIO.pop_out_solenoid = true;
 
@@ -239,7 +257,7 @@ public class Roller extends Subsystem {
                         return;
                     }
 
-                        if (mMatch.color != mColorPositionTarget) {
+                        if (mMatch.color != mColorPositionTarget || (!mPositionalTimer.update(mMatch.color == mColorPositionTarget, .8) && mMatch.color == mColorPositionTarget)) {
                             double adjustedRotateVoltage = kRotateVoltage;
                             double adjustedSlowRotateVoltage = kRotateVoltage * 0.25;
                             
@@ -290,13 +308,19 @@ public class Roller extends Subsystem {
 
     @Override
     public synchronized void outputTelemetry() {
-        //SmartDashboard.putNumber("Red", mPeriodicIO.detected_color.red);
-        //SmartDashboard.putNumber("Green", mPeriodicIO.detected_color.green);
-        //SmartDashboard.putNumber("Blue", mPeriodicIO.detected_color.blue);
         SmartDashboard.putString("Color", colorString);
+
+        SmartDashboard.putNumber("Color Data t", mPeriodicIO.timestamp);
+        SmartDashboard.putNumber("Color Data distance", mPeriodicIO.distance);
+
+        
         SmartDashboard.putNumber("Color Counter", mColorCounter);
-        SmartDashboard.putString("State", mState.toString());
+        SmartDashboard.putString("Roller State", mState.toString());
+        SmartDashboard.putNumber("Roller Demand", mPeriodicIO.roller_demand);
+        SmartDashboard.putBoolean("Roller Out", mPeriodicIO.pop_out_solenoid);
         SmartDashboard.putString("Game Data", gameData);
+
+        mColorSensor.outputToSmartDashboard();
     }
 
     public void setState(WantedAction action) {
@@ -339,7 +363,10 @@ public class Roller extends Subsystem {
 
     public static class PeriodicIO {
         // INPUTS
+        private double timestamp;
+
         public Color detected_color;
+        private int distance;
 
         // OUTPUTS
         public double roller_demand;

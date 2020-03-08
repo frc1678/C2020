@@ -14,6 +14,7 @@ import com.team254.lib.geometry.Rotation2d;
 import com.team254.lib.util.LatchedBoolean;
 
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import com.team254.lib.drivers.MotorChecker;
 import com.team254.lib.drivers.BaseTalonChecker;
@@ -135,5 +136,12 @@ public class Turret extends ServoMotorSubsystem {
                 mRPMSupplier = mMaster::getSelectedSensorVelocity;
             }
         });
+    }
+
+    @Override
+    public void outputTelemetry() {
+        super.outputTelemetry();
+
+        SmartDashboard.putBoolean(mConstants.kName + " Calibrated", !mHoming);
     }
 }

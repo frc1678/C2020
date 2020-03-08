@@ -14,6 +14,8 @@ import com.team254.lib.drivers.BaseTalonChecker;
 import com.team254.lib.drivers.TalonUtil;
 import com.team254.lib.util.Util;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
 import java.util.ArrayList;
 
 public class Hood extends ServoMotorSubsystem {
@@ -97,5 +99,12 @@ public class Hood extends ServoMotorSubsystem {
                 mRPMSupplier = () -> mMaster.getSelectedSensorVelocity();
             }
         });
+    }
+
+    @Override
+    public void outputTelemetry() {
+        super.outputTelemetry();
+
+        SmartDashboard.putBoolean(mConstants.kName + " Calibrated", !mHoming);
     }
 }
