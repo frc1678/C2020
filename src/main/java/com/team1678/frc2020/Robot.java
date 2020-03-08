@@ -16,7 +16,6 @@ import com.team1678.frc2020.loops.Looper;
 import com.team1678.frc2020.paths.TrajectoryGenerator;
 import com.team1678.frc2020.controlboard.ControlBoard;
 import com.team1678.frc2020.controlboard.GamepadButtonControlBoard;
-import com.team1678.frc2020.controlboard.GamepadButtonControlBoard.TurretCardinal;
 import com.team1678.frc2020.logger.LoggingSystem;
 import com.team254.lib.wpilib.TimedRobot;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
@@ -278,11 +277,8 @@ public class Robot extends TimedRobot {
             mDrive.//setOpenLoop(mCheesyDriveHelper.cheesyDrive(throttle, turn, mControlBoard.getQuickTurn()));
                 setCheesyishDrive(throttle, turn, mControlBoard.getQuickTurn());
 
-            //mLimelight.setLed(Limelight.LedMode.ON);
-            TurretCardinal cardinal = mControlBoard.getTurretCardinal();
+            //mLimelight.setLed(Limelight.LedMode.ON);        
             
-            
-
             // mSuperstructure.setWantFieldRelativeTurret(Rotation2d.fromDegrees(180.0));//mControlBoard.getTurretCardinal().rotation);
 
             if (mControlBoard.climbMode()) {
@@ -311,10 +307,8 @@ public class Robot extends TimedRobot {
                 } else if (mControlBoard.getFendorShot()) {
                     mSuperstructure.setWantFendor();
                     //mSuperstructure.setWantFieldRelativeTurret(Rotation2d.fromDegrees(180.));
-                } else if (cardinal == TurretCardinal.NONE) {
-                    mSuperstructure.setWantAutoAim(Rotation2d.fromDegrees(180.0));
                 } else {
-                    mSuperstructure.setWantFieldRelativeTurret(cardinal.rotation);
+                    mSuperstructure.setWantAutoAim(Rotation2d.fromDegrees(180.0));
                 }
 
                 if (mControlBoard.getShoot()) {
@@ -343,17 +337,19 @@ public class Robot extends TimedRobot {
                     mSuperstructure.setAutoIndex(false);
                 } else if (mControlBoard.getRetractIntake()) {
                     mIntake.setState(Intake.WantedAction.RETRACT);
-                //} else if (mControlBoard.getControlPanelRotation()) {
-                //    mRoller.setState(Roller.WantedAction.ACHIEVE_ROTATION_CONTROL);
-                //} else if (mControlBoard.getControlPanelPosition()) {
-                //    mRoller.setState(Roller.WantedAction.ACHIEVE_POSITION_CONTROL);
+                } else if (mControlBoard.getControlPanelRotation()) {
+                    mRoller.setState(Roller.WantedAction.ACHIEVE_ROTATION_CONTROL);
+                } else if (mControlBoard.getControlPanelPosition()) {
+                    mRoller.setState(Roller.WantedAction.ACHIEVE_POSITION_CONTROL);
                 } else if (mControlBoard.getManualFastRoller()) {
                     mRoller.runManual(-5.0);
                 } else if (mControlBoard.getManualSlowRoller()) {
                     mRoller.runManual(-2.0);
+                } else if (mControlBoard.getStopManualRoller()) {
+                    mRoller.stop();
                 } else {
                     mIntake.setState(Intake.WantedAction.NONE);
-                    mRoller.stop();
+                    //mRoller.stop();
                 }
             } else {
                 Climber.WantedAction climber_action = Climber.WantedAction.NONE;

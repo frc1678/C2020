@@ -54,6 +54,7 @@ public class Roller extends Subsystem {
     private String colorString = "Unknown";
     private boolean mSolenoidOut = false;
     private TimeDelayedBoolean mSolenoidTimer = new TimeDelayedBoolean();
+    private TimeDelayedBoolean mPositionalTimer = new TimeDelayedBoolean();
 
     // State management
     public enum WantedAction {
@@ -163,8 +164,12 @@ public class Roller extends Subsystem {
 
     // Optional design pattern for caching periodic writes to avoid hammering the HAL/CAN.
     public synchronized void writePeriodicOutputs() {
-        mRollerMotor.set(mPeriodicIO.roller_demand / 12.0);
         mPopoutSolenoid.set(mPeriodicIO.pop_out_solenoid);
+        if (mSolenoidOut) {
+            mRollerMotor.set(mPeriodicIO.roller_demand / 12.0);
+        } else {
+            mRollerMotor.set(0);
+        }
         //mRollerMotor.set(0.1);
         //mPopoutSolenoid.set(true);
     }
@@ -252,7 +257,7 @@ public class Roller extends Subsystem {
                         return;
                     }
 
-                        if (mMatch.color != mColorPositionTarget) {
+                        if (mMatch.color != mColorPositionTarget || (!mPositionalTimer.update(mMatch.color == mColorPositionTarget, .8) && mMatch.color == mColorPositionTarget)) {
                             double adjustedRotateVoltage = kRotateVoltage;
                             double adjustedSlowRotateVoltage = kRotateVoltage * 0.25;
                             
@@ -310,7 +315,9 @@ public class Roller extends Subsystem {
 
         
         SmartDashboard.putNumber("Color Counter", mColorCounter);
-        SmartDashboard.putString("State", mState.toString());
+        SmartDashboard.putString("Roller State", mState.toString());
+        SmartDashboard.putNumber("Roller Demand", mPeriodicIO.roller_demand);
+        SmartDashboard.putBoolean("Roller Out", mPeriodicIO.pop_out_solenoid);
         SmartDashboard.putString("Game Data", gameData);
 
         mColorSensor.outputToSmartDashboard();
