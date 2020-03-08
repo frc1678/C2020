@@ -51,7 +51,7 @@ public class Roller extends Subsystem {
 
     // Game data
     private String gameData;
-    private String colorString = "UNSET";
+    private String colorString = "Unknown";
     private boolean mSolenoidOut = false;
     private TimeDelayedBoolean mSolenoidTimer = new TimeDelayedBoolean();
 
@@ -81,7 +81,9 @@ public class Roller extends Subsystem {
         mColorMatcher.addColorMatch(kBlueTarget);
         mColorMatcher.addColorMatch(kGreenTarget);
         mColorMatcher.addColorMatch(kRedTarget);
-        mColorMatcher.addColorMatch(kYellowTarget);   
+        mColorMatcher.addColorMatch(kYellowTarget); 
+        
+        mColorSensor.start();
     }
 
     public synchronized static Roller getInstance() {
@@ -128,22 +130,26 @@ public class Roller extends Subsystem {
     // Optional design pattern for caching periodic reads to avoid hammering the HAL/CAN.
     public synchronized void readPeriodicInputs() {
         ColorSensorData reading = mColorSensor.getLatestReading();
-        mPeriodicIO.detected_color = reading.color;
         mPeriodicIO.timestamp = reading.timestamp;
         mPeriodicIO.distance = reading.distance;
         
         if (reading.color != null) {
+            mPeriodicIO.detected_color = reading.color;
             mMatch = mColorMatcher.matchClosestColor(mPeriodicIO.detected_color);
         }
 
-        if (mMatch.color == kBlueTarget) {
-            colorString = "Blue";
-        } else if (mMatch.color == kRedTarget) {
-            colorString = "Red";
-        } else if (mMatch.color == kGreenTarget) {
-            colorString = "Green";
-        } else if (mMatch.color == kYellowTarget) {
-            colorString = "Yellow";
+        if (mMatch != null) {
+            if (mMatch.color == kBlueTarget) {
+                colorString = "Blue";
+            } else if (mMatch.color == kRedTarget) {
+                colorString = "Red";
+            } else if (mMatch.color == kGreenTarget) {
+                colorString = "Green";
+            } else if (mMatch.color == kYellowTarget) {
+                colorString = "Yellow";
+            } else {
+                colorString = "Unknown";
+            }
         } else {
             colorString = "Unknown";
         }
@@ -210,8 +216,6 @@ public class Roller extends Subsystem {
                     return;
                 }
 
-                mMatch = mColorMatcher.matchClosestColor(mPeriodicIO.detected_color);
-
                 if (mColorCounter < 9) {
                     if (colorString != "Unknown") {
                         mPeriodicIO.roller_demand = kRotateVoltage;
@@ -241,8 +245,6 @@ public class Roller extends Subsystem {
 
                 break;
             case ACHIEVING_POSITION_CONTROL:
-                mMatch = mColorMatcher.matchClosestColor(mPeriodicIO.detected_color);
-
                 if (gameData.length() > 0) {
                     mPeriodicIO.pop_out_solenoid = true;
 
@@ -301,9 +303,6 @@ public class Roller extends Subsystem {
 
     @Override
     public synchronized void outputTelemetry() {
-        //SmartDashboard.putNumber("Red", mPeriodicIO.detected_color.red);
-        //SmartDashboard.putNumber("Green", mPeriodicIO.detected_color.green);
-        //SmartDashboard.putNumber("Blue", mPeriodicIO.detected_color.blue);
         SmartDashboard.putString("Color", colorString);
 
         SmartDashboard.putNumber("Color Data t", mPeriodicIO.timestamp);
