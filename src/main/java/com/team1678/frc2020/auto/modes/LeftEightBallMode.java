@@ -56,7 +56,7 @@ public class LeftEightBallMode extends AutoModeBase {
         runAction(new LambdaAction(() -> Superstructure.getInstance().setWantShoot(true)));
         runAction(new WaitForSpinupAction());
         runAction(new WaitForIndexerSpinAction(740.0));
-/*
+
         System.out.println("Wait Complete");
         runAction(new LambdaAction(() -> Superstructure.getInstance().setWantSpinUp(true)));
         runAction(new LambdaAction(() -> Intake.getInstance().setState(Intake.WantedAction.INTAKE)));
@@ -81,6 +81,5 @@ public class LeftEightBallMode extends AutoModeBase {
         System.out.println("Wait Complete");
         
         System.out.println("Auto Complete");
-    */
     }
 }
