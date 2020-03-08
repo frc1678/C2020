@@ -116,8 +116,6 @@ public class Drive extends Subsystem {
         talon.configNeutralDeadband(0.04, 0);
         talon.configMotionCruiseVelocity(20000, Constants.kLongCANTimeoutMs);
         talon.configMotionAcceleration(40000, Constants.kLongCANTimeoutMs);
-
-        talon.configOpenloopRamp(0.25);
     }
 
     private Drive() {
