@@ -249,17 +249,21 @@ public class Robot extends TimedRobot {
             double throttle = mControlBoard.getThrottle();
             double turn = mControlBoard.getTurn();
             double hood_jog = mControlBoard.getJogHood();
-            double turret_jog = mControlBoard.getJogTurret();
+            Rotation2d turret_jog = mControlBoard.getJogTurret();
 
             if (!climb_mode) {
                 if (!mLimelight.limelightOK()) {
                     mLEDs.conformToState(LEDs.State.EMERGENCY);
                 } else if (mSuperstructure.getTucked()) {
                     mLEDs.conformToState(LEDs.State.HOOD_TUCKED);
-                } else if (mSuperstructure.isOnTarget()) {
+                } else if (mSuperstructure.isOnTarget() && mLimelight.seesTarget()) {
                     mLEDs.conformToState(LEDs.State.TARGET_TRACKING);
-                } else if (mSuperstructure.getLatestAimingParameters().isPresent()) {
+                } else if (mSuperstructure.isOnTarget()) {
+                    mLEDs.conformToState(LEDs.State.INVISIBLE_TARGET_TRACKING);
+                } else if (mSuperstructure.getLatestAimingParameters().isPresent() && !mLimelight.seesTarget() && !mSuperstructure.getScanningHood()) {
                     mLEDs.conformToState(LEDs.State.TARGET_VISIBLE);
+                } else if (mLimelight.seesTarget()) {
+                    mLEDs.conformToState(LEDs.State.LIMELIGHT_SEES_ONLY);
                 } else {
                     mLEDs.conformToState(LEDs.State.ENABLED);
                 }
@@ -299,11 +303,11 @@ public class Robot extends TimedRobot {
                     mControlBoard.setRumble(false);
                 }
 
-                if (Math.abs(turret_jog) > Constants.kJoystickJogThreshold) {
-                    turret_jog = (turret_jog - Math.signum(turret_jog) * Constants.kJoystickJogThreshold)
-                            / (1.0 - Constants.kJoystickJogThreshold);
-    
-                    mSuperstructure.jogTurret(turret_jog * 3);
+                mSuperstructure.setWantHoodScan(mControlBoard.getWantHoodScan());
+
+                if (turret_jog != null) {
+                    mSuperstructure.setWantFieldRelativeTurret(
+                       turret_jog.rotateBy(Rotation2d.fromDegrees(90.0)));
                 } else if (mControlBoard.getFendorShot()) {
                     mSuperstructure.setWantFendor();
                     //mSuperstructure.setWantFieldRelativeTurret(Rotation2d.fromDegrees(180.));
@@ -327,6 +331,7 @@ public class Robot extends TimedRobot {
                     mSuperstructure.setWantTuck(false);
                 } else if (mControlBoard.getTurretReset()) {
                     mRobotState.resetVision();
+                    mRobotState.reset(Timer.getFPGATimestamp(), Pose2d.identity());
                 } else if (mControlBoard.getTestSpit()) {
                     mSuperstructure.setWantTestSpit();
                 } else if (mControlBoard.getRunIntake()) {
@@ -342,9 +347,9 @@ public class Robot extends TimedRobot {
                 //    mRoller.setState(Roller.WantedAction.ACHIEVE_ROTATION_CONTROL);
                 //} else if (mControlBoard.getControlPanelPosition()) {
                 //    mRoller.setState(Roller.WantedAction.ACHIEVE_POSITION_CONTROL);
-                } else if (mControlBoard.getManualRoller()) {
+                } else if (mControlBoard.getManualFastRoller()) {
                     mRoller.runManual(-5.0);
-                } else if (mControlBoard.getManualSlowRoll()) {
+                } else if (mControlBoard.getManualSlowRoller()) {
                     mRoller.runManual(-2.0);
                 } else {
                     mIntake.setState(Intake.WantedAction.NONE);
