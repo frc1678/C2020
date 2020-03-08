@@ -36,8 +36,8 @@ public class Constants {
     public static final double kRobotAngularInertia = 25.0; // kg m^2 TODO tune
     public static final double kRobotAngularDrag = 30.0; // N*m / (rad/sec) TODO tune
     public static final double kDriveVIntercept = 0.8; // V
-    public static final double kDriveKv = 0.15; // V per rad/s
-    public static final double kDriveKa = 0.01; // V per rad/s^2
+    public static final double kDriveKv = 0.19; // V per rad/s
+    public static final double kDriveKa = 0.012; // V per rad/s^2
     public static final double kPathKX = 4.0; // units/s per unit of error
     public static final double kPathLookaheadTime = 0.4; // seconds to look ahead along the path for steering
     public static final double kPathMinLookaheadDistance = 24.0; // inches
@@ -119,7 +119,7 @@ public class Constants {
 
         // Unit == Degrees
         kTurretConstants.kHomePosition = 0.0; // CCW degrees from forward
-        kTurretConstants.kTicksPerUnitDistance = (2048.0 * 36.0) / 360.0;
+        kTurretConstants.kTicksPerUnitDistance = (2048.0 * 48.0) / 360.0;
         kTurretConstants.kKp = 0.5;
         kTurretConstants.kKi = 0;
         kTurretConstants.kKd = 0.0;
@@ -141,7 +141,7 @@ public class Constants {
         kTurretConstants.kMaxUnitsLimit = 315.0;
 
         kTurretConstants.kCruiseVelocity = 20000; // Ticks / 100ms
-        kTurretConstants.kAcceleration = 30000; // Ticks / 100ms / s
+        kTurretConstants.kAcceleration = 40000; // Ticks / 100ms / s
         kTurretConstants.kRampRate = 0.0; // s
         kTurretConstants.kContinuousCurrentLimit = 20; // amps
         kTurretConstants.kPeakCurrentLimit = 40; // amps
@@ -277,8 +277,8 @@ public class Constants {
     public static final double kInnerGoalDepth = 0;
 	public static final double kHoodToTurret = 4.25; // center of the turret to the axis of rotation of the hood
 	public static final double kLimelightPitchOffset = 17.66; // limelight pitch at hood 0
-	public static final double kAutoAimPredictionTime = 6.0; // lookahead for robot state during aiming
-	public static final double kJoystickJogThreshold = 0.1;
+	public static final double kAutoAimPredictionTime = 4.0; // lookahead for robot state during aiming
+	public static final double kJoystickJogThreshold = 0.1;     
 	public static final int kCameraStreamPort = 5810;
 
     public static Solenoid makeSolenoidForId(int solenoidId) {

@@ -333,6 +333,7 @@ public class Robot extends TimedRobot {
                     mSuperstructure.setWantTuck(false);
                 } else if (mControlBoard.getTurretReset()) {
                     mRobotState.resetVision();
+                    mRobotState.reset(Timer.getFPGATimestamp(), Pose2d.identity());
                 } else if (mControlBoard.getTestSpit()) {
                     mSuperstructure.setWantTestSpit();
                 } else if (mControlBoard.getRunIntake()) {

@@ -40,7 +40,7 @@ public class Drive extends Subsystem {
 
     private static final int kVelocityControlSlot = 0;
     private static final int kPositionControlSlot = 1;
-    private static final double DRIVE_ENCODER_PPR = 2048. * 8.33;
+    private static final double DRIVE_ENCODER_PPR = 2048. * 10.;
     private static Drive mInstance = new Drive();
     // Hardware
     private final TalonFX mLeftMaster, mRightMaster, mLeftSlave, mRightSlave;
@@ -116,8 +116,6 @@ public class Drive extends Subsystem {
         talon.configNeutralDeadband(0.04, 0);
         talon.configMotionCruiseVelocity(20000, Constants.kLongCANTimeoutMs);
         talon.configMotionAcceleration(40000, Constants.kLongCANTimeoutMs);
-
-        talon.configOpenloopRamp(0.25);
     }
 
     private Drive() {
