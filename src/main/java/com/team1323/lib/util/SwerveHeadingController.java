@@ -1,6 +1,6 @@
 package com.team1323.lib.util;
 
-import com.team1323.frc2020.Settings;
+import com.team1678.frc2020.Settings;
 
 import edu.wpi.first.wpilibj.Timer;
 

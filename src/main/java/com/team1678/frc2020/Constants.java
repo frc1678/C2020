@@ -9,7 +9,9 @@ import com.team254.lib.geometry.Translation2d;
 import edu.wpi.first.wpilibj.Solenoid;
 import java.net.NetworkInterface;
 import java.net.SocketException;
+import java.util.Arrays;
 import java.util.Enumeration;
+import java.util.List;
 
 /**
  * A list of constants used by the rest of the robot code. This includes physics
@@ -238,7 +240,7 @@ public class Constants {
     public static final double kTrackAgeWeight = 10.0;
     public static final double kTrackSwitchingWeight = 100.0;
     public static final boolean kEnableCachedGoal = true;
-    
+
     public static final double kCameraFrameRate = 90.0;
     public static final double kMinStability = 0.5;
     public static final int kPortPipeline = 0;
@@ -274,11 +276,44 @@ public class Constants {
     public static final double kStingerForwardPower = 0.8;
 
     public static final double kInnerGoalDepth = 0;
-	public static final double kHoodToTurret = 4.25; // center of the turret to the axis of rotation of the hood
-	public static final double kLimelightPitchOffset = 17.66; // limelight pitch at hood 0
-	public static final double kAutoAimPredictionTime = 4.0; // lookahead for robot state during aiming
-	public static final double kJoystickJogThreshold = 0.1;     
-	public static final int kCameraStreamPort = 5810;
+    public static final double kHoodToTurret = 4.25; // center of the turret to the axis of rotation of the hood
+    public static final double kLimelightPitchOffset = 17.66; // limelight pitch at hood 0
+    public static final double kAutoAimPredictionTime = 4.0; // lookahead for robot state during aiming
+    public static final double kJoystickJogThreshold = 0.1;
+    public static final int kCameraStreamPort = 5810;
+
+    // Swerve Calculations Constants (measurements are in inches)
+    public static final double kWheelbaseLength = 21.0;
+    public static final double kWheelbaseWidth = 21.0;
+    public static final double kSwerveDiagonal = Math.hypot(kWheelbaseLength, kWheelbaseWidth);
+
+    // Swerve Speed Constants
+    public static final double kSwerveDriveMaxSpeed = 28000.0;
+    public static final double kSwerveMaxSpeedInchesPerSecond = 12.5 * 12.0;
+    public static final double kSwerveRotationMaxSpeed = 1250.0 * 0.8; // The 0.8 is to request a speed that is always
+                                                                       // achievable
+    public static final double kSwerveRotation10VoltMaxSpeed = 1350.0;
+    public static final double kSwerveRotationSpeedScalar = ((1.0 / 0.125) - 1.0) / kSwerveMaxSpeedInchesPerSecond;
+
+    // Swerve Module Wheel Offsets (Rotation encoder values when the wheels are
+    // facing 0 degrees)
+    public static final int kFrontRightEncoderStartingPos = Settings.kIsUsingCompBot ? -1403 - 1024 : 1740 - 1024;
+    public static final int kFrontLeftEncoderStartingPos = Settings.kIsUsingCompBot ? -2171 - 1024 : -2895 - 1024;
+    public static final int kRearLeftEncoderStartingPos = Settings.kIsUsingCompBot ? -1327 - 1024 : 1055 - 1024;
+    public static final int kRearRightEncoderStartingPos = Settings.kIsUsingCompBot ? -5953 - 1024 : 975 - 1024;
+
+    // Swerve Module Positions (relative to the center of the drive base)
+    public static final Translation2d kVehicleToModuleZero = new Translation2d(kWheelbaseLength / 2,
+            kWheelbaseWidth / 2);
+    public static final Translation2d kVehicleToModuleOne = new Translation2d(kWheelbaseLength / 2,
+            -kWheelbaseWidth / 2);
+    public static final Translation2d kVehicleToModuleTwo = new Translation2d(-kWheelbaseLength / 2,
+            -kWheelbaseWidth / 2);
+    public static final Translation2d kVehicleToModuleThree = new Translation2d(-kWheelbaseLength / 2,
+            kWheelbaseWidth / 2);
+
+    public static final List<Translation2d> kModulePositions = Arrays.asList(kVehicleToModuleZero, kVehicleToModuleOne,
+            kVehicleToModuleTwo, kVehicleToModuleThree);
 
     public static Solenoid makeSolenoidForId(int solenoidId) {
         if (solenoidId < 8) {

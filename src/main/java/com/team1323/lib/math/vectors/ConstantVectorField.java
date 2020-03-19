@@ -1,16 +1,15 @@
 package com.team1323.lib.math.vectors;
 
-import com.team254.lib.geometry.Translation2d;
-
+import com.team1323.lib.geometry.UnwrappableTranslation2d;
 
 public class ConstantVectorField extends VectorField {
-	public ConstantVectorField(Translation2d whichWay) {
+	public ConstantVectorField(UnwrappableTranslation2d whichWay) {
 		thatWay = whichWay.normalize();
 	}
 	
-	protected Translation2d thatWay;
+	protected UnwrappableTranslation2d thatWay;
 	
-	public Translation2d getVector(Translation2d here) {
+	public UnwrappableTranslation2d getVector(UnwrappableTranslation2d here) {
 		return thatWay;
 	}
 }
