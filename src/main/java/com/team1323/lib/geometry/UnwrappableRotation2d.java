@@ -65,7 +65,6 @@ public class UnwrappableRotation2d implements IRotation2d<UnwrappableRotation2d>
     }
 
     public Rotation2d wrap() {
-        new Rotation2d();
         return Rotation2d.fromDegrees(this.theta_degrees);
     }
 
