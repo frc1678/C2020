@@ -1,5 +1,6 @@
 package com.team1323.lib.geometry;
 
+import com.team254.lib.geometry.Translation2d;
 import com.team254.lib.util.Util;
 
 import java.text.DecimalFormat;
@@ -39,6 +40,10 @@ public class UnwrappableTranslation2d implements ITranslation2d<UnwrappableTrans
 
     public static UnwrappableTranslation2d fromPolar(UnwrappableRotation2d direction, double magnitude) {
         return new UnwrappableTranslation2d(direction.cos() * magnitude, direction.sin() * magnitude);
+    }
+
+    public Translation2d wrap() {
+        return new Translation2d(x_, y_);
     }
 
     /**

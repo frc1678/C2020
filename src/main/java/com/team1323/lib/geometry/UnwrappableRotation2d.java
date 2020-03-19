@@ -1,5 +1,6 @@
 package com.team1323.lib.geometry;
 
+import com.team254.lib.geometry.Rotation2d;
 import com.team254.lib.util.Util;
 
 import java.text.DecimalFormat;
@@ -61,6 +62,11 @@ public class UnwrappableRotation2d implements IRotation2d<UnwrappableRotation2d>
 
     public UnwrappableRotation2d(final UnwrappableTranslation2d direction, boolean normalize) {
         this(direction.x(), direction.y(), normalize);
+    }
+
+    public Rotation2d wrap() {
+        new Rotation2d();
+        return Rotation2d.fromDegrees(this.theta_degrees);
     }
 
     public static UnwrappableRotation2d fromRadians(double angle_radians) {

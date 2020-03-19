@@ -1,5 +1,7 @@
 package com.team1323.lib.geometry;
 
+import com.team254.lib.geometry.Pose2d;
+import com.team254.lib.geometry.Pose2dWithCurvature;
 import com.team254.lib.util.Util;
 
 /**
@@ -45,6 +47,10 @@ public class UnwrappablePose2d implements IPose2d<UnwrappablePose2d> {
 
     public static UnwrappablePose2d fromRotation(final UnwrappableRotation2d rotation) {
         return new UnwrappablePose2d(new UnwrappableTranslation2d(), rotation);
+    }
+
+    public Pose2d wrap() {
+        return new Pose2d(translation_.wrap(), rotation_.wrap());
     }
 
     /**
