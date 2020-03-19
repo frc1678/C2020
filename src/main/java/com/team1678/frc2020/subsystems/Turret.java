@@ -11,11 +11,11 @@ import com.team1678.frc2020.Constants;
 import com.team254.lib.drivers.TalonUtil;
 import com.team254.lib.util.LatchedBoolean;
 import com.team254.lib.drivers.MotorChecker;
-import com.team254.lib.drivers.BaseTalonChecker;;
+import com.team254.lib.drivers.BaseTalonChecker;
 
 public class Turret extends ServoMotorSubsystem {
-    private static Turret mInstance;
-    private LatchedBoolean mJustReset = new LatchedBoolean();
+    private static Turret mInstance; 
+    private LatchedBoolean mJustReset = new LatchedBoolean(); 
     private boolean mHoming = true;
     public static final boolean kUseManualHomingRoutine = false;
     
