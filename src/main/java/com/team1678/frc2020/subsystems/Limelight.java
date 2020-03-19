@@ -190,7 +190,7 @@ public class Limelight extends Subsystem {
     }
 
     /**
-     * @return two targets that make up one hatch/port or null if less than two targets are found
+     * @ return two targets that make up one hatch/port or null if less than two targets are found
      */
     public synchronized List<TargetInfo> getTarget() {
         List<TargetInfo> targets = getRawTargetInfos();
@@ -237,7 +237,7 @@ public class Limelight extends Subsystem {
     /**
      * Returns raw top-left and top-right corners
      *
-     * @return list of corners: index 0 - top left, index 1 - top right
+     * @ return list of corners: index 0 - top left, index 1 - top right
      */
     private List<double[]> getTopCorners() {
         double[] xCorners = mNetworkTable.getEntry("tcornx").getDoubleArray(mZeroArray);
@@ -260,7 +260,7 @@ public class Limelight extends Subsystem {
     /**
      * Returns raw top-left and top-right corners
      *
-     * @return list of corners: index 0 - top left, index 1 - top right
+     * @ return list of corners: index 0 - top left, index 1 - top right
      */
     public static List<double[]> extractTopCornersFromBoundingBoxes(double[] xCorners, double[] yCorners) {
         List<Translation2d> corners = new ArrayList<>();
