@@ -108,8 +108,14 @@ public class Intake extends Subsystem {
     public void runStateMachine() {
         switch (mState) {
         case INTAKING:
-            if (mPeriodicIO.intake_out) {    
-                mPeriodicIO.demand = kIntakingVoltage;
+            if (mPeriodicIO.intake_out) {
+                if(Timer.getFPGATimestamp() % 1 < 0.2){
+                    //It is within the first 0.2 seconds of a second x.0 inclusive to x.2 exclusive; run the motor backwards
+                    mPeriodicIO.demand = -kIntakingVoltage;
+                }else{
+                    //It is within the last 0.8 seconds of a second; run the motor forwards
+                    mPeriodicIO.demand = kIntakingVoltage;
+                }
             } else {
                 mPeriodicIO.demand = 0.0;
             }
