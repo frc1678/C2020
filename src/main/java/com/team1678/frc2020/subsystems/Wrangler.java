@@ -10,6 +10,7 @@ import com.team1678.frc2020.loops.ILooper;
 import com.team1678.frc2020.loops.Loop;
 import com.team1678.frc2020.logger.LoggingSystem;
 import com.team1678.frc2020.logger.LogStorage;
+import com.team254.lib.util.ReflectingCSVWriter;
 
 import com.team254.lib.drivers.TalonFXFactory;
 
@@ -25,6 +26,9 @@ public class Wrangler extends Subsystem {
     
     private static Wrangler mInstance;
     private PeriodicOutputs mPeriodicOutputs = new PeriodicOutputs();
+    
+    private ReflectingCSVWriter<PeriodicOutputs> mCSVWriter = null;
+
     private final TalonFX mMaster;
     private final Solenoid mDeployer;
 
@@ -83,6 +87,7 @@ public class Wrangler extends Subsystem {
             @Override
             public void onStart(double timestamp) {
                 mState = State.IDLE;
+                //startLogging();
             }
 
             @Override
@@ -95,6 +100,7 @@ public class Wrangler extends Subsystem {
             @Override
             public void onStop(double timestamp) {
                 mState = State.IDLE;
+                stopLogging();
             }
         });
     }
@@ -166,6 +172,19 @@ public class Wrangler extends Subsystem {
     @Override
     public boolean checkSystem() {
         return true;
+    }
+    
+    public synchronized void startLogging() {
+        if (mCSVWriter == null) {
+            mCSVWriter = new ReflectingCSVWriter<>("/home/lvuser/DRIVE-LOGS.csv", PeriodicOutputs.class);
+        }
+    }
+
+    public synchronized void stopLogging() {
+        if (mCSVWriter != null) {
+            mCSVWriter.flush();
+            mCSVWriter = null;
+        }
     }
 
     public static class PeriodicOutputs {

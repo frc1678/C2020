@@ -27,6 +27,7 @@ import com.team254.lib.geometry.Twist2d;
 import com.team254.lib.trajectory.TrajectoryIterator;
 import com.team254.lib.trajectory.timing.TimedState;
 import com.team254.lib.util.DriveSignal;
+import com.team254.lib.util.ReflectingCSVWriter;
 import com.team254.lib.util.Util;
 
 import edu.wpi.first.wpilibj.DriverStation;
@@ -49,6 +50,8 @@ public class Drive extends Subsystem {
     private PigeonIMU mPigeon;
     // Hardware states
     private PeriodicIO mPeriodicIO;
+    private ReflectingCSVWriter<PeriodicIO> mCSVWriter = null;
+    
     private boolean mIsBrakeMode;
     private DriveMotionPlanner mMotionPlanner;
     private Rotation2d mGyroOffset = Rotation2d.identity();
@@ -69,6 +72,7 @@ public class Drive extends Subsystem {
                 setBrakeMode(false);
                 mStartedResetTimer = false;
                 mHasResetSteering = false;
+                //startLogging();
             }
         }
 
@@ -96,6 +100,7 @@ public class Drive extends Subsystem {
         @Override
         public void onStop(double timestamp) {
             stop();
+            stopLogging();
         }
     };
 
@@ -651,6 +656,19 @@ public class Drive extends Subsystem {
                     }
                 });
         return leftSide && rightSide;
+    }
+
+    public synchronized void startLogging() {
+        if (mCSVWriter == null) {
+            mCSVWriter = new ReflectingCSVWriter<>("/home/lvuser/DRIVE-LOGS.csv", PeriodicIO.class);
+        }
+    }
+
+    public synchronized void stopLogging() {
+        if (mCSVWriter != null) {
+            mCSVWriter.flush();
+            mCSVWriter = null;
+        }
     }
 
     // The robot drivetrain's various states.

@@ -10,6 +10,7 @@ import com.team1678.frc2020.loops.ILooper;
 import com.team254.lib.geometry.Pose2d;
 import com.team254.lib.geometry.Rotation2d;
 import com.team254.lib.geometry.Translation2d;
+import com.team254.lib.util.ReflectingCSVWriter;
 import com.team254.lib.util.Util;
 import com.team254.lib.vision.TargetInfo;
 
@@ -31,6 +32,8 @@ public class Limelight extends Subsystem {
     public final static int kZoomedInPipeline = 1;
 
     private static Limelight mInstance = null;
+
+    private ReflectingCSVWriter<PeriodicIO> mCSVWriter = null;
 
     private int mLatencyCounter = 0;
 
@@ -75,6 +78,7 @@ public class Limelight extends Subsystem {
                     } else {
                         RobotState.getInstance().addVisionUpdate(timestamp - getLatency(), null);
                     }
+                    //startLogging();
                 }
 
             }
@@ -82,6 +86,7 @@ public class Limelight extends Subsystem {
             @Override
             public void onStop(double timestamp) {
                 stop();
+                stopLogging();
             }
         };
         mEnabledLooper.register(mLoop);
@@ -174,6 +179,19 @@ public class Limelight extends Subsystem {
     @Override
     public boolean checkSystem() {
         return true;
+    }
+
+    public synchronized void startLogging() {
+        if (mCSVWriter == null) {
+            mCSVWriter = new ReflectingCSVWriter<>("/home/lvuser/DRIVE-LOGS.csv", PeriodicIO.class);
+        }
+    }
+
+    public synchronized void stopLogging() {
+        if (mCSVWriter != null) {
+            mCSVWriter.flush();
+            mCSVWriter = null;
+        }
     }
 
     @Override

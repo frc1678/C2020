@@ -9,6 +9,8 @@ import com.team1678.frc2020.loops.Loop;
 import com.team254.lib.drivers.TalonFXFactory;
 import com.team254.lib.util.TimeDelayedBoolean;
 
+import com.team254.lib.util.ReflectingCSVWriter;
+
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -35,6 +37,7 @@ public class Intake extends Subsystem {
     private State mState = State.IDLE;
 
     private static PeriodicIO mPeriodicIO = new PeriodicIO();
+    private ReflectingCSVWriter<PeriodicIO> mCSVWriter = null;
 
     private final TalonFX mMaster;
 
@@ -97,6 +100,7 @@ public class Intake extends Subsystem {
             public void onStop(double timestamp) {
                 mState = State.IDLE;
                 stop();
+                stopLogging();
             }
         });
     }
@@ -173,5 +177,18 @@ public class Intake extends Subsystem {
     @Override
     public boolean checkSystem() {
         return true;
+    }
+     
+    public synchronized void startLogging() {
+        if (mCSVWriter == null) {
+            mCSVWriter = new ReflectingCSVWriter<>("/home/lvuser/DRIVE-LOGS.csv", PeriodicIO.class);
+        }
+    }
+
+    public synchronized void stopLogging() {
+        if (mCSVWriter != null) {
+            mCSVWriter.flush();
+            mCSVWriter = null;
+        }
     }
 }

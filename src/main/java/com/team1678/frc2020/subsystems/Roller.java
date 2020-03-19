@@ -6,6 +6,7 @@ import com.team1678.frc2020.loops.Loop;
 import com.team1678.lib.drivers.REVColorSensorV3Wrapper;
 import com.team1678.lib.drivers.REVColorSensorV3Wrapper.ColorSensorData;
 import com.team254.lib.util.TimeDelayedBoolean;
+import com.team254.lib.util.ReflectingCSVWriter;
 
 import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.I2C;
@@ -71,6 +72,8 @@ public class Roller extends Subsystem {
     private static Roller mInstance;
 
     private PeriodicIO mPeriodicIO = new PeriodicIO();
+
+    private ReflectingCSVWriter<PeriodicIO> mCSVWriter = null;
 
     private Roller() {
         mRollerMotor = new PWMSparkMax(Constants.kRollerId);
@@ -180,6 +183,7 @@ public class Roller extends Subsystem {
             public void onStart(double timestamp) {
                 mState = State.IDLE;
                 mColorSensor.start();
+                //startLogging();
             } 
 
             @Override 
@@ -193,6 +197,7 @@ public class Roller extends Subsystem {
             public void onStop(double timestamp) {
                 mState = State.IDLE;
                 mColorSensor.stop();
+                stopLogging();
             }
 
         });
@@ -304,6 +309,19 @@ public class Roller extends Subsystem {
     @Override
     public boolean checkSystem() {
         return true;
+    }
+
+    public synchronized void startLogging() {
+        if (mCSVWriter == null) {
+            mCSVWriter = new ReflectingCSVWriter<>("/home/lvuser/DRIVE-LOGS.csv", PeriodicIO.class);
+        }
+    }
+
+    public synchronized void stopLogging() {
+        if (mCSVWriter != null) {
+            mCSVWriter.flush();
+            mCSVWriter = null;
+        }
     }
 
     @Override
