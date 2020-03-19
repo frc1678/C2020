@@ -10,10 +10,13 @@ package com.wpilib;
 import java.util.Arrays;
 import java.util.Collections;
 
-import com.team254.lib.geometry.Translation2d;
-import com.team254.lib.geometry.Rotation2d;
-
 import org.ejml.simple.SimpleMatrix;
+
+import edu.wpi.first.hal.FRCNetComm.tInstances;
+import edu.wpi.first.hal.FRCNetComm.tResourceType;
+import edu.wpi.first.hal.HAL;
+import com.team1323.lib.geometry.UnwrappableRotation2d;
+import com.team1323.lib.geometry.UnwrappableTranslation2d;
 
 /**
  * Helper class that converts a chassis velocity (dx, dy, and dtheta components)
@@ -42,12 +45,12 @@ public class SwerveDriveKinematics {
   private final SimpleMatrix m_forwardKinematics;
 
   private final int m_numModules;
-  private final Translation2d[] m_modules;
-  private Translation2d m_prevCoR = new Translation2d();
+  private final UnwrappableTranslation2d[] m_modules;
+  private UnwrappableTranslation2d m_prevCoR = new UnwrappableTranslation2d();
 
   /**
    * Constructs a swerve drive kinematics object. This takes in a variable
-   * number of wheel locations as Translation2ds. The order in which you pass in
+   * number of wheel locations as UnwrappableTranslation2ds. The order in which you pass in
    * the wheel locations is the same order that you will recieve the module
    * states when performing inverse kinematics. It is also expected that you
    * pass in the module states in the same order when calling the forward
@@ -56,7 +59,7 @@ public class SwerveDriveKinematics {
    * @param wheelsMeters The locations of the wheels relative to the physical center
    *                     of the robot.
    */
-  public SwerveDriveKinematics(Translation2d... wheelsMeters) {
+  public SwerveDriveKinematics(UnwrappableTranslation2d... wheelsMeters) {
     if (wheelsMeters.length < 2) {
       throw new IllegalArgumentException("A swerve drive requires at least two modules");
     }
@@ -69,6 +72,8 @@ public class SwerveDriveKinematics {
       m_inverseKinematics.setRow(i * 2 + 1, 0, /* Start Data */ 0, 1, +m_modules[i].x());
     }
     m_forwardKinematics = m_inverseKinematics.pseudoInverse();
+
+    HAL.report(tResourceType.kResourceType_Kinematics, tInstances.kKinematics_SwerveDrive);
   }
 
   /**
@@ -95,7 +100,7 @@ public class SwerveDriveKinematics {
    */
   @SuppressWarnings({"LocalVariableName", "PMD.AvoidInstantiatingObjectsInLoops"})
   public SwerveModuleState[] toSwerveModuleStates(ChassisSpeeds chassisSpeeds,
-                                                  Translation2d centerOfRotationMeters) {
+                                                  UnwrappableTranslation2d centerOfRotationMeters) {
     if (!centerOfRotationMeters.equals(m_prevCoR)) {
       for (int i = 0; i < m_numModules; i++) {
         m_inverseKinematics.setRow(i * 2 + 0, 0, /* Start Data */ 1, 0,
@@ -119,7 +124,7 @@ public class SwerveDriveKinematics {
       double y = moduleStatesMatrix.get(i * 2 + 1, 0);
 
       double speed = Math.hypot(x, y);
-      Rotation2d angle = new Rotation2d(x, y, true);
+      UnwrappableRotation2d angle = new UnwrappableRotation2d(x, y, false);
 
       moduleStates[i] = new SwerveModuleState(speed, angle);
     }
@@ -128,14 +133,14 @@ public class SwerveDriveKinematics {
   }
 
   /**
-   * Performs inverse kinematics. See {@link #toSwerveModuleStates(ChassisSpeeds, Translation2d)}
+   * Performs inverse kinematics. See {@link #toSwerveModuleStates(ChassisSpeeds, UnwrappableTranslation2d)}
    * toSwerveModuleStates for more information.
    *
    * @param chassisSpeeds The desired chassis speed.
    * @return An array containing the module states.
    */
   public SwerveModuleState[] toSwerveModuleStates(ChassisSpeeds chassisSpeeds) {
-    return toSwerveModuleStates(chassisSpeeds, new Translation2d());
+    return toSwerveModuleStates(chassisSpeeds, new UnwrappableTranslation2d());
   }
 
   /**

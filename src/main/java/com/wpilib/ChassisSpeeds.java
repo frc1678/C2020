@@ -7,7 +7,8 @@
 
 package com.wpilib;
 
-import com.team254.lib.geometry.Rotation2d;
+
+import com.team1323.lib.geometry.UnwrappableRotation2d;
 
 /**
  * Represents the speed of a robot chassis. Although this struct contains
@@ -74,11 +75,17 @@ public class ChassisSpeeds {
    */
   public static ChassisSpeeds fromFieldRelativeSpeeds(
       double vxMetersPerSecond, double vyMetersPerSecond,
-      double omegaRadiansPerSecond, Rotation2d robotAngle) {
+      double omegaRadiansPerSecond, UnwrappableRotation2d robotAngle) {
     return new ChassisSpeeds(
         vxMetersPerSecond * robotAngle.cos() + vyMetersPerSecond * robotAngle.sin(),
         -vxMetersPerSecond * robotAngle.sin() + vyMetersPerSecond * robotAngle.cos(),
         omegaRadiansPerSecond
     );
+  }
+
+  @Override
+  public String toString() {
+    return String.format("ChassisSpeeds(Vx: %.2f m/s, Vy: %.2f m/s, Omega: %.2f rad/s)",
+        vxMetersPerSecond, vyMetersPerSecond, omegaRadiansPerSecond);
   }
 }
