@@ -113,4 +113,11 @@ public class Util {
     public static double deadBand(double val, double deadband){
         return (Math.abs(val) > Math.abs(deadband)) ? val : 0.0;
     }
+
+    public static double scaledDeadband(double value, double maxValue, double deadband){
+        double deadbandedValue = deadBand(value, deadband);
+        if(epsilonEquals(deadbandedValue, 0.0))
+            return 0.0;
+        return Math.signum(deadbandedValue) * ((Math.abs(deadbandedValue) - deadband) / (maxValue - deadband));
+    }
 }
