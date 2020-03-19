@@ -5,15 +5,15 @@ import com.team254.lib.util.Util;
 
 import java.text.DecimalFormat;
 
-public class Displacement1d implements State<Displacement1d> {
+public class UnwrappableDisplacement1d implements State<UnwrappableDisplacement1d> {
 
     protected final double displacement_;
 
-    public Displacement1d() {
+    public UnwrappableDisplacement1d() {
         displacement_ = 0.0;
     }
 
-    public Displacement1d(double displacement) {
+    public UnwrappableDisplacement1d(double displacement) {
         displacement_ = displacement;
     }
 
@@ -22,19 +22,20 @@ public class Displacement1d implements State<Displacement1d> {
     }
 
     @Override
-    public Displacement1d interpolate(final Displacement1d other, double x) {
-        return new Displacement1d(Util.interpolate(displacement_, other.displacement_, x));
+    public UnwrappableDisplacement1d interpolate(final UnwrappableDisplacement1d other, double x) {
+        return new UnwrappableDisplacement1d(Util.interpolate(displacement_, other.displacement_, x));
     }
 
     @Override
-    public double distance(final Displacement1d other) {
+    public double distance(final UnwrappableDisplacement1d other) {
         return Math.abs(x() - other.x());
     }
 
     @Override
     public boolean equals(final Object other) {
-        if (other == null || !(other instanceof Displacement1d)) return false;
-        return Util.epsilonEquals(x(), ((Displacement1d)other).x());
+        if (other == null || !(other instanceof UnwrappableDisplacement1d))
+            return false;
+        return Util.epsilonEquals(x(), ((UnwrappableDisplacement1d) other).x());
     }
 
     @Override

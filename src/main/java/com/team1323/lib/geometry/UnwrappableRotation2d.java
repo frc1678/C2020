@@ -12,7 +12,7 @@ import static com.team254.lib.util.Util.kEpsilon;
  * <p>
  * Inspired by Sophus (https://github.com/strasdat/Sophus/tree/master/sophus)
  */
-public class UnwrappableRotation2d implements IRotation2d<UnwrappableRotation2d> {
+public class UnwrappableRotation2d implements IUnwrappableRotation2d<UnwrappableRotation2d> {
     protected static final UnwrappableRotation2d kIdentity = new UnwrappableRotation2d();
 
     public static final UnwrappableRotation2d identity() {

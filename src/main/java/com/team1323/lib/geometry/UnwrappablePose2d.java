@@ -9,7 +9,7 @@ import com.team254.lib.util.Util;
  * <p>
  * Inspired by Sophus (https://github.com/strasdat/Sophus/tree/master/sophus)
  */
-public class UnwrappablePose2d implements IPose2d<UnwrappablePose2d> {
+public class UnwrappablePose2d implements IUnwrappablePose2d<UnwrappablePose2d> {
     protected static final UnwrappablePose2d kIdentity = new UnwrappablePose2d();
 
     public static final UnwrappablePose2d identity() {

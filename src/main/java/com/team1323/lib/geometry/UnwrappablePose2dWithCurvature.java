@@ -5,7 +5,7 @@ import com.team254.lib.util.Util;
 import java.text.DecimalFormat;
 
 public class UnwrappablePose2dWithCurvature
-        implements IPose2d<UnwrappablePose2dWithCurvature>, ICurvature<UnwrappablePose2dWithCurvature> {
+        implements IUnwrappablePose2d<UnwrappablePose2dWithCurvature>, IUnwrappableCurvature<UnwrappablePose2dWithCurvature> {
     protected static final UnwrappablePose2dWithCurvature kIdentity = new UnwrappablePose2dWithCurvature();
 
     public static final UnwrappablePose2dWithCurvature identity() {
