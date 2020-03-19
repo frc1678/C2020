@@ -2,7 +2,7 @@ package com.team1323.lib.util;
 
 import java.util.List;
 
-import com.team254.lib.geometry.Rotation2d;
+import com.team1323.lib.geometry.UnwrappableRotation2d;
 
 /**
  * Contains basic functions that are used often.
@@ -104,9 +104,9 @@ public class Util {
         return newAngle;
     }
 
-    public static boolean shouldReverse(Rotation2d goalAngle, Rotation2d currentAngle) {
+    public static boolean shouldReverse(UnwrappableRotation2d goalAngle, UnwrappableRotation2d currentAngle) {
         double angleDifference = Math.abs(goalAngle.distance(currentAngle));
-        double reversedAngleDifference = Math.abs(goalAngle.distance(currentAngle.rotateBy(Rotation2d.fromDegrees(180.0))));
+        double reversedAngleDifference = Math.abs(goalAngle.distance(currentAngle.rotateBy(UnwrappableRotation2d.fromDegrees(180.0))));
         return reversedAngleDifference < angleDifference;
     }
     

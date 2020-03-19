@@ -151,6 +151,10 @@ public class UnwrappableRotation2d implements IUnwrappableRotation2d<Unwrappable
         return new UnwrappableTranslation2d(cos_angle_, sin_angle_);
     }
 
+    public UnwrappableRotation2d toNegative() {
+        return UnwrappableRotation2d.fromDegrees(-theta_degrees);
+    }
+
     /**
      * @return The pole nearest to this rotation.
      */
