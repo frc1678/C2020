@@ -3,11 +3,12 @@ package com.team1323.lib.trajectory;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.team1323.lib.trajectory.timing.TimedState;
-import com.team1323.lib.geometry.IUnwrappablePose2d;
-import com.team1323.lib.geometry.UnwrappablePose2d;
-import com.team1323.lib.geometry.UnwrappablePose2dWithCurvature;
 import com.team1323.lib.geometry.UnwrappableTwist2d;
+import com.team1323.lib.trajectory.timing.TimedState;
+import com.team254.lib.geometry.IPose2d;
+import com.team254.lib.geometry.Pose2d;
+import com.team254.lib.geometry.Pose2dWithCurvature;
+import com.team254.lib.geometry.Twist2d;
 import com.team254.lib.geometry.State;
 import com.team254.lib.spline.QuinticHermiteSpline;
 import com.team254.lib.spline.Spline;
@@ -17,7 +18,7 @@ import com.team254.lib.spline.SplineGenerator;
 import com.team1323.lib.util.Util;
 
 public class TrajectoryUtil {
-    public static <S extends IUnwrappablePose2d<S>> Trajectory<S> mirror(final Trajectory<S> trajectory) {
+    public static <S extends IPose2d<S>> Trajectory<S> mirror(final Trajectory<S> trajectory) {
         List<S> waypoints = new ArrayList<>(trajectory.length());
         for (int i = 0; i < trajectory.length(); ++i) {
             waypoints.add(trajectory.getState(i).mirror());
@@ -25,7 +26,7 @@ public class TrajectoryUtil {
         return new Trajectory<>(waypoints);
     }
 
-    public static <S extends IUnwrappablePose2d<S>> Trajectory<TimedState<S>> mirrorTimed(
+    public static <S extends IPose2d<S>> Trajectory<TimedState<S>> mirrorTimed(
             final Trajectory<TimedState<S>> trajectory, double defaultVelocity) {
         List<TimedState<S>> waypoints = new ArrayList<>(trajectory.length());
         for (int i = 0; i < trajectory.length(); ++i) {
@@ -38,8 +39,8 @@ public class TrajectoryUtil {
         return traj;
     }
 
-    public static <S extends IUnwrappablePose2d<S>> Trajectory<S> transform(final Trajectory<S> trajectory,
-            UnwrappablePose2d transform) {
+    public static <S extends IPose2d<S>> Trajectory<S> transform(final Trajectory<S> trajectory,
+            Pose2d transform) {
         List<S> waypoints = new ArrayList<>(trajectory.length());
         for (int i = 0; i < trajectory.length(); ++i) {
             waypoints.add(trajectory.getState(i).transformBy(transform));
@@ -69,17 +70,17 @@ public class TrajectoryUtil {
         return new Trajectory<S>(states);
     }
 
-    public static Trajectory<UnwrappablePose2dWithCurvature> trajectoryFromPathFollower(IPathFollower path_follower,
-            UnwrappablePose2dWithCurvature start_state, double step_size, double dcurvature_limit) {
-        List<UnwrappablePose2dWithCurvature> samples = new ArrayList<UnwrappablePose2dWithCurvature>();
+    public static Trajectory<Pose2dWithCurvature> trajectoryFromPathFollower(IPathFollower path_follower,
+            Pose2dWithCurvature start_state, double step_size, double dcurvature_limit) {
+        List<Pose2dWithCurvature> samples = new ArrayList<Pose2dWithCurvature>();
         samples.add(start_state);
-        UnwrappablePose2dWithCurvature current_state = start_state;
+        Pose2dWithCurvature current_state = start_state;
         while (!path_follower.isDone()) {
             // Get the desired steering command.
-            final UnwrappableTwist2d raw_steering_command = path_follower.steer(current_state.getPose());
+            final Twist2d raw_steering_command = path_follower.steer(current_state.getPose());
 
             // Truncate to the step size.
-            UnwrappableTwist2d steering_command = raw_steering_command;
+            Twist2d steering_command = raw_steering_command;
             if (steering_command.norm() > step_size) {
                 steering_command = steering_command.scaled(step_size / steering_command.norm());
             }
@@ -90,43 +91,43 @@ public class TrajectoryUtil {
             final boolean curvature_valid = !Double.isNaN(dcurvature) && !Double.isInfinite(dcurvature)
                     && !Double.isNaN(current_state.getCurvature()) && !Double.isInfinite(current_state.getCurvature());
             if (dcurvature > dcurvature_limit && curvature_valid) {
-                steering_command = new UnwrappableTwist2d(steering_command.dx, steering_command.dy,
+                steering_command = new Twist2d(steering_command.dx, steering_command.dy,
                         (dcurvature_limit * steering_command.norm() + current_state.getCurvature())
                                 * steering_command.norm());
             } else if (dcurvature < -dcurvature_limit && curvature_valid) {
-                steering_command = new UnwrappableTwist2d(steering_command.dx, steering_command.dy,
+                steering_command = new Twist2d(steering_command.dx, steering_command.dy,
                         (-dcurvature_limit * steering_command.norm() + current_state.getCurvature())
                                 * steering_command.norm());
             }
 
             // Calculate the new state.
             // Use the average curvature over the interval to compute the next state.
-            final UnwrappableTwist2d average_steering_command = !curvature_valid ? steering_command
-                    : new UnwrappableTwist2d(steering_command.dx, steering_command.dy,
+            final Twist2d average_steering_command = !curvature_valid ? steering_command
+                    : new Twist2d(steering_command.dx, steering_command.dy,
                             (current_state.getCurvature() + 0.5 * dcurvature * steering_command.norm())
                                     * steering_command.norm());
-            current_state = new UnwrappablePose2dWithCurvature(
-                    current_state.getPose().transformBy(UnwrappablePose2d.exp(average_steering_command)),
+            current_state = new Pose2dWithCurvature(
+                    current_state.getPose().transformBy(Pose2d.exp(average_steering_command)),
                     steering_command.curvature());
             if (!path_follower.isDone()) {
                 samples.add(current_state);
             }
         }
 
-        return new Trajectory<UnwrappablePose2dWithCurvature>(samples);
+        return new Trajectory<Pose2dWithCurvature>(samples);
     }
 
-    public static Trajectory<UnwrappablePose2dWithCurvature> trajectoryFromSplineWaypoints(
-            final List<UnwrappablePose2d> waypoints, double maxDx, double maxDy, double maxDTheta) {
+    public static Trajectory<Pose2dWithCurvature> trajectoryFromSplineWaypoints(
+            final List<Pose2d> waypoints, double maxDx, double maxDy, double maxDTheta) {
         List<QuinticHermiteSpline> splines = new ArrayList<>(waypoints.size() - 1);
         for (int i = 1; i < waypoints.size(); ++i) {
-            splines.add(new QuinticHermiteSpline(waypoints.get(i - 1).wrap(), waypoints.get(i).wrap()));
+            splines.add(new QuinticHermiteSpline(waypoints.get(i - 1), waypoints.get(i)));
         }
         QuinticHermiteSpline.optimizeSpline(splines);
         return trajectoryFromSplines(splines, maxDx, maxDy, maxDTheta);
     }
 
-    public static Trajectory<UnwrappablePose2dWithCurvature> trajectoryFromSplines(final List<? extends Spline> splines,
+    public static Trajectory<Pose2dWithCurvature> trajectoryFromSplines(final List<? extends Spline> splines,
             double maxDx, double maxDy, double maxDTheta) {
         return new Trajectory<>(SplineGenerator.parameterizeSplines(splines, maxDx, maxDy, maxDTheta));
     }

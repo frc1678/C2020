@@ -1,5 +1,6 @@
 package com.team1323.lib.geometry;
 
+import com.team254.lib.geometry.Twist2d;
 import com.team254.lib.util.Util;
 
 import java.text.DecimalFormat;
@@ -44,6 +45,10 @@ public class UnwrappableTwist2d {
         return dtheta / norm();
     }
 
+    public Twist2d wrap() {
+        return new Twist2d(dx, dy, dtheta);
+    }
+    
     @Override
     public String toString() {
         final DecimalFormat fmt = new DecimalFormat("#0.000");

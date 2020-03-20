@@ -7,7 +7,7 @@
 
 package com.wpilib;
 
-import com.team1323.lib.geometry.UnwrappableRotation2d;
+import com.team254.lib.geometry.Rotation2d;
 
 /**
  * Represents the state of one swerve module.
@@ -23,7 +23,7 @@ public class SwerveModuleState implements Comparable<SwerveModuleState> {
   /**
    * Angle of the module.
    */
-  public UnwrappableRotation2d angle = UnwrappableRotation2d.fromDegrees(0);
+  public Rotation2d angle = Rotation2d.fromDegrees(0);
 
   /**
    * Constructs a SwerveModuleState with zeros for speed and angle.
@@ -37,7 +37,7 @@ public class SwerveModuleState implements Comparable<SwerveModuleState> {
    * @param speedMetersPerSecond The speed of the wheel of the module.
    * @param angle The angle of the module.
    */
-  public SwerveModuleState(double speedMetersPerSecond, UnwrappableRotation2d angle) {
+  public SwerveModuleState(double speedMetersPerSecond, Rotation2d angle) {
     this.speedMetersPerSecond = speedMetersPerSecond;
     this.angle = angle;
   }

@@ -8,9 +8,9 @@ import com.ctre.phoenix.motorcontrol.VelocityMeasPeriod;
 import com.team1678.frc2020.Constants;
 import com.team1678.frc2020.Settings;
 import com.team1678.frc2020.loops.ILooper;
-import com.team1323.lib.geometry.UnwrappablePose2d;
-import com.team1323.lib.geometry.UnwrappableRotation2d;
-import com.team1323.lib.geometry.UnwrappableTranslation2d;
+import com.team254.lib.geometry.Pose2d;
+import com.team254.lib.geometry.Rotation2d;
+import com.team254.lib.geometry.Translation2d;
 import com.team1323.lib.util.Util;
 import com.team254.lib.drivers.LazyTalonFX;
 import com.wpilib.SwerveModuleState;
@@ -29,9 +29,9 @@ public class SwerveDriveModule extends Subsystem {
 	boolean useDriveEncoder = true;
 	boolean tenVoltRotationMode = false;
 	private double previousEncDistance = 0;
-	private UnwrappableTranslation2d position;
-	private UnwrappableTranslation2d startingPosition;
-	private UnwrappablePose2d estimatedRobotPose = new UnwrappablePose2d();
+	private Translation2d position;
+	private Translation2d startingPosition;
+	private Pose2d estimatedRobotPose = new Pose2d();
 	boolean standardCarpetDirection = true;
 	public void setCarpetDirection(boolean standardDirection){
 		standardCarpetDirection = standardDirection;
@@ -40,7 +40,7 @@ public class SwerveDriveModule extends Subsystem {
 	PeriodicIO periodicIO = new PeriodicIO();
 	
 	public SwerveDriveModule(int rotationSlot, int driveSlot, int moduleID, 
-			int encoderOffset, UnwrappableTranslation2d startingPose){
+			int encoderOffset, Translation2d startingPose){
 		name += (moduleID + " ");
 		rotationMotor = new LazyTalonFX(rotationSlot);
 		driveMotor = new LazyTalonFX(driveSlot);
@@ -163,12 +163,12 @@ public class SwerveDriveModule extends Subsystem {
 		return encUnitsToDegrees(periodicIO.rotationPosition);
 	}
 	
-	public UnwrappableRotation2d getModuleAngle(){
-		return UnwrappableRotation2d.fromDegrees(getRawAngle() - encUnitsToDegrees(encoderOffset));
+	public Rotation2d getModuleAngle(){
+		return Rotation2d.fromDegrees(getRawAngle() - encUnitsToDegrees(encoderOffset));
 	}
 	
-	public UnwrappableRotation2d getFieldCentricAngle(UnwrappableRotation2d robotHeading){
-		UnwrappableRotation2d normalizedAngle = getModuleAngle();
+	public Rotation2d getFieldCentricAngle(Rotation2d robotHeading){
+		Rotation2d normalizedAngle = getModuleAngle();
 		return normalizedAngle.rotateBy(robotHeading);
 	}
 	
@@ -255,19 +255,19 @@ public class SwerveDriveModule extends Subsystem {
 		return encUnits/Constants.kSwerveRotationEncoderResolution*360.0;
 	}
 	
-	public UnwrappableTranslation2d getPosition(){
+	public Translation2d getPosition(){
 		return position;
 	}
 	
-	public UnwrappablePose2d getEstimatedRobotPose(){
+	public Pose2d getEstimatedRobotPose(){
 		return estimatedRobotPose;
 	}
 	
-	public synchronized void updatePose(UnwrappableRotation2d robotHeading){
+	public synchronized void updatePose(Rotation2d robotHeading){
 		double currentEncDistance = getDriveDistanceInches();
 		double deltaEncDistance = (currentEncDistance - previousEncDistance) * Constants.kWheelScrubFactors[moduleID];
-		UnwrappableRotation2d currentWheelAngle = getFieldCentricAngle(robotHeading);
-		UnwrappableTranslation2d deltaPosition = new UnwrappableTranslation2d(currentWheelAngle.cos()*deltaEncDistance, 
+		Rotation2d currentWheelAngle = getFieldCentricAngle(robotHeading);
+		Translation2d deltaPosition = new Translation2d(currentWheelAngle.cos()*deltaEncDistance, 
 				currentWheelAngle.sin()*deltaEncDistance);
 
 		double xScrubFactor = Constants.kXScrubFactor;
@@ -328,18 +328,18 @@ public class SwerveDriveModule extends Subsystem {
 			}
 		}
 
-		deltaPosition = new UnwrappableTranslation2d(deltaPosition.x() * xScrubFactor,
+		deltaPosition = new Translation2d(deltaPosition.x() * xScrubFactor,
 			deltaPosition.y() * yScrubFactor);
-		UnwrappableTranslation2d updatedPosition = position.translateBy(deltaPosition);
-		UnwrappablePose2d staticWheelPose = new UnwrappablePose2d(updatedPosition, robotHeading);
-		UnwrappablePose2d robotPose = staticWheelPose.transformBy(UnwrappablePose2d.fromTranslation(startingPosition).inverse());
+		Translation2d updatedPosition = position.translateBy(deltaPosition);
+		Pose2d staticWheelPose = new Pose2d(updatedPosition, robotHeading);
+		Pose2d robotPose = staticWheelPose.transformBy(Pose2d.fromTranslation(startingPosition).inverse());
 		position = updatedPosition;
 		estimatedRobotPose =  robotPose;
 		previousEncDistance = currentEncDistance;
 	}
 	
-	public synchronized void resetPose(UnwrappablePose2d robotPose){
-		UnwrappableTranslation2d modulePosition = robotPose.transformBy(UnwrappablePose2d.fromTranslation(startingPosition)).getTranslation();
+	public synchronized void resetPose(Pose2d robotPose){
+		Translation2d modulePosition = robotPose.transformBy(Pose2d.fromTranslation(startingPosition)).getTranslation();
 		position = modulePosition;
 	}
 	
@@ -385,10 +385,10 @@ public class SwerveDriveModule extends Subsystem {
 
 	@Override
 	public synchronized void zeroSensors() {
-		zeroSensors(new UnwrappablePose2d());
+		zeroSensors(new Pose2d());
 	}
 	
-	public synchronized void zeroSensors(UnwrappablePose2d robotPose) {
+	public synchronized void zeroSensors(Pose2d robotPose) {
 		//driveMotor.setSelectedSensorPosition(0, 0, 100); TODO check if this is necessary
 		resetPose(robotPose);
 		estimatedRobotPose = robotPose;

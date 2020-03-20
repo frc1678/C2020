@@ -21,9 +21,11 @@ import com.team1323.lib.util.Util;
 import com.team1323.lib.util.VisionCriteria;
 import com.team1323.lib.vision.ShooterAimingParameters;
 import com.team1323.lib.geometry.UnwrappablePose2d;
-import com.team1323.lib.geometry.UnwrappablePose2dWithCurvature;
-import com.team1323.lib.geometry.UnwrappableRotation2d;
 import com.team1323.lib.geometry.UnwrappableTranslation2d;
+import com.team254.lib.geometry.Pose2d;
+import com.team254.lib.geometry.Pose2dWithCurvature;
+import com.team254.lib.geometry.Rotation2d;
+import com.team254.lib.geometry.Translation2d;
 import com.team1323.lib.trajectory.TimedView;
 import com.team1323.lib.trajectory.Trajectory;
 import com.team1323.lib.trajectory.TrajectoryIterator;
@@ -54,8 +56,8 @@ public class Swerve extends Subsystem{
 	List<SwerveDriveModule> positionModules;
 	
 	//Evade maneuver variables
-	UnwrappableTranslation2d clockwiseCenter = new UnwrappableTranslation2d();
-	UnwrappableTranslation2d counterClockwiseCenter = new UnwrappableTranslation2d();
+	Translation2d clockwiseCenter = new Translation2d();
+	Translation2d counterClockwiseCenter = new Translation2d();
 	boolean evading = false;
 	boolean evadingToggled = false;
 	public void toggleEvade(){
@@ -75,7 +77,7 @@ public class Swerve extends Subsystem{
 
 	//Vision dependencies
 	RobotState robotState;
-	UnwrappableRotation2d visionTargetHeading = new UnwrappableRotation2d();
+	Rotation2d visionTargetHeading = new Rotation2d();
 	boolean visionUpdatesAllowed = true;
 	public void resetVisionUpdates(){
 		visionUpdatesAllowed = true;
@@ -85,8 +87,8 @@ public class Swerve extends Subsystem{
 		firstVisionCyclePassed = false;
 		visionCriteria.reset();
 	}
-	UnwrappableTranslation2d visionTargetPosition = new UnwrappableTranslation2d();
-	public UnwrappableTranslation2d getVisionTargetPosition(){ return visionTargetPosition; }
+	Translation2d visionTargetPosition = new Translation2d();
+	public Translation2d getVisionTargetPosition(){ return visionTargetPosition; }
 	int visionUpdateCount = 0;
 	int attemptedVisionUpdates = 0;
 	int visionVisibleCycles = 0;
@@ -94,10 +96,10 @@ public class Swerve extends Subsystem{
 	VisionCriteria visionCriteria = new VisionCriteria();
 	double initialVisionDistance = 0.0;
 	ShooterAimingParameters latestAim = new ShooterAimingParameters(100.0, new Rotation2d(), 0.0, 0.0);
-	UnwrappableTranslation2d latestTargetPosition = new UnwrappableTranslation2d();
-	UnwrappableTranslation2d lastVisionEndTranslation = new UnwrappableTranslation2d(-Constants.kRobotProbeExtrusion, 0.0);
+	Translation2d latestTargetPosition = new Translation2d();
+	Translation2d lastVisionEndTranslation = new Translation2d(-Constants.kRobotProbeExtrusion, 0.0);
 	boolean useFixedVisionOrientation = false;
-	UnwrappableRotation2d fixedVisionOrientation = UnwrappableRotation2d.fromDegrees(180.0);
+	Rotation2d fixedVisionOrientation = Rotation2d.fromDegrees(180.0);
 	double visionCutoffDistance = Constants.kClosestVisionDistance;
 
 	SynchronousPIDF lateralPID = new SynchronousPIDF(0.05, 0.0, 0.0);
@@ -155,8 +157,8 @@ public class Swerve extends Subsystem{
 	}
 	double rotationScalar;
 	double trajectoryStartTime = 0;
-	UnwrappableTranslation2d lastTrajectoryVector = new UnwrappableTranslation2d();
-	public UnwrappableTranslation2d getLastTrajectoryVector(){ return lastTrajectoryVector; }
+	Translation2d lastTrajectoryVector = new Translation2d();
+	public Translation2d getLastTrajectoryVector(){ return lastTrajectoryVector; }
 	boolean hasStartedFollowing = false;
 	boolean hasFinishedPath = false;
 	public boolean hasFinishedPath(){
@@ -168,13 +170,13 @@ public class Swerve extends Subsystem{
 	
 	private Swerve(){
 		frontRight = new SwerveDriveModule(Constants.FRONT_RIGHT_ROTATION, Constants.FRONT_RIGHT_DRIVE,
-				0, Constants.kFrontRightEncoderStartingPos, Constants.kVehicleToModuleZero.unwrap());
+				0, Constants.kFrontRightEncoderStartingPos, Constants.kVehicleToModuleZero);
 		frontLeft = new SwerveDriveModule(Constants.FRONT_LEFT_ROTATION, Constants.FRONT_LEFT_DRIVE,
-				1, Constants.kFrontLeftEncoderStartingPos, Constants.kVehicleToModuleOne.unwrap());
+				1, Constants.kFrontLeftEncoderStartingPos, Constants.kVehicleToModuleOne);
 		rearLeft = new SwerveDriveModule(Constants.REAR_LEFT_ROTATION, Constants.REAR_LEFT_DRIVE,
-				2, Constants.kRearLeftEncoderStartingPos, Constants.kVehicleToModuleTwo.unwrap());
+				2, Constants.kRearLeftEncoderStartingPos, Constants.kVehicleToModuleTwo);
 		rearRight = new SwerveDriveModule(Constants.REAR_RIGHT_ROTATION, Constants.REAR_RIGHT_DRIVE,
-				3, Constants.kRearRightEncoderStartingPos, Constants.kVehicleToModuleThree.unwrap());
+				3, Constants.kRearRightEncoderStartingPos, Constants.kVehicleToModuleThree);
 		
 		modules = Arrays.asList(frontRight, frontLeft, rearLeft, rearRight);
 		positionModules = Arrays.asList(frontRight, frontLeft, rearLeft, rearRight);
@@ -195,9 +197,9 @@ public class Swerve extends Subsystem{
 
 		robotState = RobotState.getInstance();
 
-		odometry = new SwerveDriveOdometry(new SwerveDriveKinematics(Constants.kVehicleToModuleZero.unwrap(), 
-Constants.kVehicleToModuleOne.unwrap(), Constants.kVehicleToModuleTwo.unwrap(), Constants.kVehicleToModuleThree.unwrap()), 
-			UnwrappableRotation2d.identity());
+		odometry = new SwerveDriveOdometry(new SwerveDriveKinematics(Constants.kVehicleToModuleZero, 
+Constants.kVehicleToModuleOne, Constants.kVehicleToModuleTwo, Constants.kVehicleToModuleThree), 
+			Rotation2d.identity());
 
 		generator = TrajectoryGenerator.getInstance();
 
@@ -211,10 +213,10 @@ Constants.kVehicleToModuleOne.unwrap(), Constants.kVehicleToModuleTwo.unwrap(), 
 	}
 	
 	//Teleop driving variables
-	private UnwrappableTranslation2d translationalVector = new UnwrappableTranslation2d();
+	private Translation2d translationalVector = new Translation2d();
 	private double rotationalInput = 0;
-	private UnwrappableTranslation2d lastDriveVector = new UnwrappableTranslation2d();
-	private final UnwrappableTranslation2d rotationalVector = UnwrappableTranslation2d.identity();
+	private Translation2d lastDriveVector = new Translation2d();
+	private final Translation2d rotationalVector = Translation2d.identity();
 	private double lowPowerScalar = 0.6;
 	public void setLowPowerScalar(double scalar){
 		lowPowerScalar = scalar;
@@ -227,8 +229,8 @@ Constants.kVehicleToModuleOne.unwrap(), Constants.kVehicleToModuleTwo.unwrap(), 
 	
 	//Swerve kinematics (exists in a separate class)
 	private SwerveInverseKinematics inverseKinematics = new SwerveInverseKinematics();
-	public void setCenterOfRotation(UnwrappableTranslation2d center){
-		inverseKinematics.setCenterOfRotation(center);
+	public void setCenterOfRotation(Translation2d center){
+		inverseKinematics.setCenterOfRotation(center.unwrap());
 	}
 	
 	//The swerve's various control states
@@ -253,14 +255,14 @@ Constants.kVehicleToModuleOne.unwrap(), Constants.kVehicleToModuleTwo.unwrap(), 
 	 * @param lowPower scaled down output
 	 */
 	public void sendInput(double x, double y, double rotate, boolean robotCentric, boolean lowPower){
-		UnwrappableTranslation2d translationalInput = new UnwrappableTranslation2d(x, y);
+		Translation2d translationalInput = new Translation2d(x, y);
 		double inputMagnitude = translationalInput.norm();
 		
 		/* Snap the translational input to its nearest pole, if it is within a certain threshold 
 		  of it. */
 		double threshold = Math.toRadians(10.0);
-		if(Math.abs(translationalInput.direction().distance(translationalInput.direction().nearestPole())) < threshold){
-			translationalInput = translationalInput.direction().nearestPole().toTranslation().scale(inputMagnitude);
+		if(Math.abs(translationalInput.direction().distance(translationalInput.direction().unwrap().nearestPole().wrap())) < threshold){
+			translationalInput = translationalInput.direction().unwrap().nearestPole().wrap().toTranslation().scale(inputMagnitude);
 		}
 		
 		/* Scale x and y by applying a power to the magnitude of the vector they create, in order
@@ -269,7 +271,7 @@ Constants.kVehicleToModuleOne.unwrap(), Constants.kVehicleToModuleTwo.unwrap(), 
 		inputMagnitude = Util.scaledDeadband(inputMagnitude, 1.0, deadband);
 		final double power = (lowPower) ? 1.75 : 1.5;
 		inputMagnitude = Math.pow(inputMagnitude, power);
-		translationalInput = UnwrappableTranslation2d.fromPolar(translationalInput.direction(), inputMagnitude);
+		translationalInput = UnwrappableTranslation2d.fromPolar(translationalInput.direction().unwrap(), inputMagnitude).wrap();
 		
 		rotate = Util.scaledDeadband(rotate, 1.0, deadband);
 		rotate = Math.pow(Math.abs(rotate), 1.75)*Math.signum(rotate);
@@ -309,7 +311,7 @@ Constants.kVehicleToModuleOne.unwrap(), Constants.kVehicleToModuleTwo.unwrap(), 
 		}
 
 		if(inputMagnitude > 0.3)
-			lastDriveVector = new UnwrappableTranslation2d(x, y);
+			lastDriveVector = new Translation2d(x, y);
 		else if(translationalVector.x() == 0.0 && translationalVector.y() == 0.0 && rotate != 0.0){
 			lastDriveVector = rotationalVector;
 		}
@@ -318,16 +320,16 @@ Constants.kVehicleToModuleOne.unwrap(), Constants.kVehicleToModuleTwo.unwrap(), 
 	}
 
 	//Possible new control method for rotation
-	public UnwrappableRotation2d averagedDirection = UnwrappableRotation2d.identity();
-	public void resetAveragedDirection(){ averagedDirection = pose.getRotation(); }
-	public void setAveragedDirection(double degrees){ averagedDirection = UnwrappableRotation2d.fromDegrees(degrees); }
+	public Rotation2d averagedDirection = Rotation2d.identity();
+	public void resetAveragedDirection(){ averagedDirection = pose.getRotation().wrap(); }
+	public void setAveragedDirection(double degrees){ averagedDirection = Rotation2d.fromDegrees(degrees); }
 	public final double rotationDirectionThreshold = Math.toRadians(5.0);
 	public final double rotationDivision = 1.0;
-	public synchronized void updateControllerDirection(UnwrappableTranslation2d input){
+	public synchronized void updateControllerDirection(Translation2d input){
 		if(Util.epsilonEquals(input.norm(), 1.0, 0.1)){
-			UnwrappableRotation2d direction = input.direction();
+			Rotation2d direction = input.direction();
 			double roundedDirection = Math.round(direction.getDegrees() / rotationDivision) * rotationDivision;
-			averagedDirection = UnwrappableRotation2d.fromDegrees(roundedDirection);
+			averagedDirection = Rotation2d.fromDegrees(roundedDirection);
 		}
 	}
 	
@@ -374,16 +376,16 @@ Constants.kVehicleToModuleOne.unwrap(), Constants.kVehicleToModuleTwo.unwrap(), 
 	}
 
 	/** Puts drive motors into closed-loop velocity mode */
-	public void setVelocity(UnwrappableRotation2d direction, double velocityInchesPerSecond){
+	public void setVelocity(Rotation2d direction, double velocityInchesPerSecond){
 		setState(ControlState.VELOCITY);
 		modules.forEach((m) -> m.setModuleAngle(direction.getDegrees()));
 		modules.forEach((m) -> m.setVelocitySetpoint(velocityInchesPerSecond));
 	}
 	
 	/** Configures each module to match its assigned vector */
-	public void setDriveOutput(List<UnwrappableTranslation2d> driveVectors){
+	public void setDriveOutput(List<Translation2d> driveVectors){
 		for(int i=0; i<modules.size(); i++){
-    		if(Util.shouldReverse(driveVectors.get(i).direction(), modules.get(i).getModuleAngle())){
+    		if(Util.shouldReverse(driveVectors.get(i).direction().unwrap(), modules.get(i).getModuleAngle().unwrap())){
     			modules.get(i).setModuleAngle(driveVectors.get(i).direction().getDegrees() + 180.0);
     			modules.get(i).setDriveOpenLoop(-driveVectors.get(i).norm());
     		}else{
@@ -393,9 +395,9 @@ Constants.kVehicleToModuleOne.unwrap(), Constants.kVehicleToModuleTwo.unwrap(), 
     	}
 	}
 
-	public void setDriveOutput(List<UnwrappableTranslation2d> driveVectors, double percentOutputOverride){
+	public void setDriveOutput(List<Translation2d> driveVectors, double percentOutputOverride){
 		for(int i=0; i<modules.size(); i++){
-    		if(Util.shouldReverse(driveVectors.get(i).direction(), modules.get(i).getModuleAngle())){
+    		if(Util.shouldReverse(driveVectors.get(i).direction().unwrap(), modules.get(i).getModuleAngle().unwrap())){
     			modules.get(i).setModuleAngle(driveVectors.get(i).direction().getDegrees() + 180.0);
     			modules.get(i).setDriveOpenLoop(-percentOutputOverride);
     		}else{
@@ -407,9 +409,9 @@ Constants.kVehicleToModuleOne.unwrap(), Constants.kVehicleToModuleTwo.unwrap(), 
 
 
 	/** Configures each module to match its assigned vector, but puts the drive motors into closed-loop velocity mode */
-	public void setVelocityDriveOutput(List<UnwrappableTranslation2d> driveVectors){
+	public void setVelocityDriveOutput(List<Translation2d> driveVectors){
 		for(int i=0; i<modules.size(); i++){
-    		if(Util.shouldReverse(driveVectors.get(i).direction(), modules.get(i).getModuleAngle())){
+    		if(Util.shouldReverse(driveVectors.get(i).direction().unwrap(), modules.get(i).getModuleAngle().unwrap())){
     			modules.get(i).setModuleAngle(driveVectors.get(i).direction().getDegrees() + 180.0);
     			modules.get(i).setVelocitySetpoint(-driveVectors.get(i).norm() * Constants.kSwerveMaxSpeedInchesPerSecond);
     		}else{
@@ -419,9 +421,9 @@ Constants.kVehicleToModuleOne.unwrap(), Constants.kVehicleToModuleTwo.unwrap(), 
     	}
 	}
 
-	public void setVelocityDriveOutput(List<UnwrappableTranslation2d> driveVectors, double velocityOverride){
+	public void setVelocityDriveOutput(List<Translation2d> driveVectors, double velocityOverride){
 		for(int i=0; i<modules.size(); i++){
-    		if(Util.shouldReverse(driveVectors.get(i).direction(), modules.get(i).getModuleAngle())){
+    		if(Util.shouldReverse(driveVectors.get(i).direction().unwrap(), modules.get(i).getModuleAngle().unwrap())){
     			modules.get(i).setModuleAngle(driveVectors.get(i).direction().getDegrees() + 180.0);
     			modules.get(i).setVelocitySetpoint(-velocityOverride);
     		}else{
@@ -432,9 +434,9 @@ Constants.kVehicleToModuleOne.unwrap(), Constants.kVehicleToModuleTwo.unwrap(), 
 	}
 
 	/** Sets only module angles to match their assigned vectors */
-	public void setModuleAngles(List<UnwrappableTranslation2d> driveVectors){
+	public void setModuleAngles(List<Translation2d> driveVectors){
 		for(int i=0; i<modules.size(); i++){
-    		if(Util.shouldReverse(driveVectors.get(i).direction(), modules.get(i).getModuleAngle())){
+    		if(Util.shouldReverse(driveVectors.get(i).direction().unwrap(), modules.get(i).getModuleAngle().unwrap())){
     			modules.get(i).setModuleAngle(driveVectors.get(i).direction().getDegrees() + 180.0);
     		}else{
     			modules.get(i).setModuleAngle(driveVectors.get(i).direction().getDegrees());
@@ -477,37 +479,37 @@ Constants.kVehicleToModuleOne.unwrap(), Constants.kVehicleToModuleTwo.unwrap(), 
 	 * @param followingCenter The point (relative to the robot) that will follow the trajectory
 	 */
 	public synchronized void setTrajectory(Trajectory<TimedState<Pose2dWithCurvature>> trajectory, double targetHeading,
-		double rotationScalar, UnwrappableTranslation2d followingCenter){
+		double rotationScalar, Translation2d followingCenter){
 			hasStartedFollowing = false;
 			hasFinishedPath = false;
 			moduleConfigRequested = false;
 			motionPlanner.reset();
 			motionPlanner.setTrajectory(new TrajectoryIterator<>(new TimedView<>(trajectory)));
 			motionPlanner.setFollowingCenter(followingCenter);
-			inverseKinematics.setCenterOfRotation(followingCenter);
+			inverseKinematics.setCenterOfRotation(followingCenter.unwrap());
 			setAbsolutePathHeading(targetHeading);
 			this.rotationScalar = rotationScalar;
 			trajectoryStartTime = Timer.getFPGATimestamp();
 			setState(ControlState.TRAJECTORY);
 		}
 	
-	public synchronized void setTrajectory(Trajectory<TimedState<UnwrappablePose2dWithCurvature>> trajectory, double targetHeading,
+	public synchronized void setTrajectory(Trajectory<TimedState<Pose2dWithCurvature>> trajectory, double targetHeading,
 			double rotationScalar){
-		setTrajectory(trajectory, targetHeading, rotationScalar, UnwrappableTranslation2d.identity());
+		setTrajectory(trajectory, targetHeading, rotationScalar, Translation2d.identity());
 	}
 
-	public synchronized void setRobotCentricTrajectory(UnwrappableTranslation2d relativeEndPos, double targetHeading){
+	public synchronized void setRobotCentricTrajectory(Translation2d relativeEndPos, double targetHeading){
 		setRobotCentricTrajectory(relativeEndPos, targetHeading, 45.0);
 	}
 
-	public synchronized void setRobotCentricTrajectory(UnwrappableTranslation2d relativeEndPos, double targetHeading, double defaultVel){
+	public synchronized void setRobotCentricTrajectory(Translation2d relativeEndPos, double targetHeading, double defaultVel){
 		modulesReady = true;
-		UnwrappableTranslation2d endPos = pose.transformBy(UnwrappablePose2d.fromTranslation(relativeEndPos)).getTranslation();
-		UnwrappableRotation2d startHeading = endPos.translateBy(pose.getTranslation().inverse()).direction();
-		List<UnwrappablePose2d> waypoints = new ArrayList<>();
-		waypoints.add(new UnwrappablePose2d(pose.getTranslation(), startHeading));	
-		waypoints.add(new UnwrappablePose2d(pose.transformBy(UnwrappablePose2d.fromTranslation(relativeEndPos)).getTranslation(), startHeading));
-		Trajectory<TimedState<UnwrappablePose2dWithCurvature>> trajectory = generator.generateTrajectory(false, waypoints, Arrays.asList(), 96.0, 60.0, 60.0, 9.0, defaultVel, 1);
+		Translation2d endPos = pose.transformBy(UnwrappablePose2d.fromTranslation(relativeEndPos.unwrap())).getTranslation().wrap();
+		Rotation2d startHeading = endPos.translateBy(pose.wrap().getTranslation().inverse()).direction();
+		List<Pose2d> waypoints = new ArrayList<>();
+		waypoints.add(new Pose2d(pose.getTranslation().wrap(), startHeading));	
+		waypoints.add(new Pose2d(pose.transformBy(UnwrappablePose2d.fromTranslation(relativeEndPos.unwrap())).getTranslation().wrap(), startHeading));
+		Trajectory<TimedState<Pose2dWithCurvature>> trajectory = generator.generateTrajectory(false, waypoints, Arrays.asList(), 96.0, 60.0, 60.0, 9.0, defaultVel, 1);
 		double heading = Util.placeInAppropriate0To360Scope(pose.getRotation().getUnboundedDegrees(), targetHeading);
 		setTrajectory(trajectory, heading, 1.0);
 	}
@@ -522,14 +524,14 @@ Constants.kVehicleToModuleOne.unwrap(), Constants.kVehicleToModuleTwo.unwrap(), 
 	
 	/** Determines which wheels the robot should rotate about in order to perform an evasive maneuver */
 	public synchronized void determineEvasionWheels(){
-		UnwrappableTranslation2d here = lastDriveVector.rotateBy(pose.getRotation().inverse());
-		List<UnwrappableTranslation2d> wheels = Constants.kModulePositions.stream().map(Translation2d::unwrap).collect(Collectors.toList());;
+		Translation2d here = lastDriveVector.rotateBy(pose.getRotation().inverse().wrap());
+		List<Translation2d> wheels = Constants.kModulePositions;
 		clockwiseCenter = wheels.get(0);
 		counterClockwiseCenter = wheels.get(wheels.size()-1);
 		for(int i = 0; i < wheels.size()-1; i++) {
-			UnwrappableTranslation2d cw = wheels.get(i);
-			UnwrappableTranslation2d ccw = wheels.get(i+1);
-			if(here.isWithinAngle(cw,ccw)) {
+			Translation2d cw = wheels.get(i);
+			Translation2d ccw = wheels.get(i+1);
+			if(here.unwrap().isWithinAngle(cw.unwrap(),ccw.unwrap())) {
 				clockwiseCenter = ccw;
 				counterClockwiseCenter = cw;
 			}
@@ -540,13 +542,13 @@ Constants.kVehicleToModuleOne.unwrap(), Constants.kVehicleToModuleTwo.unwrap(), 
 	public synchronized void updatePose(double timestamp){
 		double x = 0.0;
 		double y = 0.0;
-		UnwrappableRotation2d heading = pigeon.getYaw().unwrap();
+		Rotation2d heading = pigeon.getYaw();
 		
 		double averageDistance = 0.0;
 		double[] distances = new double[4];
 		for(SwerveDriveModule m : positionModules){
 			m.updatePose(heading);
-			double distance = m.getEstimatedRobotPose().getTranslation().translateBy(pose.getTranslation().inverse()).norm();
+			double distance = m.getEstimatedRobotPose().getTranslation().translateBy(pose.wrap().getTranslation().inverse()).norm();
 			distances[m.moduleID] = distance;
 			averageDistance += distance;
 		}
@@ -576,24 +578,24 @@ Constants.kVehicleToModuleOne.unwrap(), Constants.kVehicleToModuleTwo.unwrap(), 
 			x += m.getEstimatedRobotPose().getTranslation().x();
 			y += m.getEstimatedRobotPose().getTranslation().y();
 		}
-		UnwrappablePose2d updatedPose = new UnwrappablePose2d(new UnwrappableTranslation2d(x / modulesToUse.size(), y / modulesToUse.size()), heading);
+		UnwrappablePose2d updatedPose = new UnwrappablePose2d(new Translation2d(x / modulesToUse.size(), y / modulesToUse.size()).unwrap(), heading.unwrap());
 		double deltaPos = updatedPose.getTranslation().translateBy(pose.getTranslation().inverse()).norm();
 		distanceTraveled += deltaPos;
 		currentVelocity = deltaPos / (timestamp - lastUpdateTimestamp);
 		pose = updatedPose;
-		modules.forEach((m) -> m.resetPose(pose));
+		modules.forEach((m) -> m.resetPose(pose.wrap()));
 	}
 
 	/** Playing around with different methods of odometry. This will require the use of all four modules, however. */
 	public synchronized void alternatePoseUpdate(){
 		double x = 0.0;
 		double y = 0.0;
-		UnwrappableRotation2d heading = pigeon.getYaw().unwrap();
+		Rotation2d heading = pigeon.getYaw();
 		
 		double[][] distances = new double[4][2];
 		for(SwerveDriveModule m : modules){
 			m.updatePose(heading);
-			double distance = m.getEstimatedRobotPose().getTranslation().distance(pose.getTranslation());
+			double distance = m.getEstimatedRobotPose().getTranslation().distance(pose.getTranslation().wrap());
 			distances[m.moduleID][0] = m.moduleID;
 			distances[m.moduleID][1] = distance;
 		}
@@ -628,11 +630,11 @@ Constants.kVehicleToModuleOne.unwrap(), Constants.kVehicleToModuleTwo.unwrap(), 
 			y += m.getEstimatedRobotPose().getTranslation().y();
 		}
 
-		UnwrappablePose2d updatedPose = new UnwrappablePose2d(new UnwrappableTranslation2d(x / modulesToUse.size(), y / modulesToUse.size()), heading);
+		UnwrappablePose2d updatedPose = new UnwrappablePose2d(new Translation2d(x / modulesToUse.size(), y / modulesToUse.size()).unwrap(), heading.unwrap());
 		double deltaPos = updatedPose.getTranslation().distance(pose.getTranslation());
 		distanceTraveled += deltaPos;
 		pose = updatedPose;
-		modules.forEach((m) -> m.resetPose(pose));
+		modules.forEach((m) -> m.resetPose(pose.wrap()));
 	}
 
 	/** Called every cycle to update the swerve based on its control state */
@@ -645,32 +647,32 @@ Constants.kVehicleToModuleOne.unwrap(), Constants.kVehicleToModuleTwo.unwrap(), 
 				determineEvasionWheels();
 				double sign = Math.signum(rotationalInput);
 				if(sign == 1.0){
-					inverseKinematics.setCenterOfRotation(clockwiseCenter);
+					inverseKinematics.setCenterOfRotation(clockwiseCenter.unwrap());
 				}else if(sign == -1.0){
-					inverseKinematics.setCenterOfRotation(counterClockwiseCenter);
+					inverseKinematics.setCenterOfRotation(counterClockwiseCenter.unwrap());
 				}
 				evadingToggled = false;
 			}else if(evading){
 				double sign = Math.signum(rotationalInput);
 				if(sign == 1.0){
-					inverseKinematics.setCenterOfRotation(clockwiseCenter);
+					inverseKinematics.setCenterOfRotation(clockwiseCenter.unwrap());
 				}else if(sign == -1.0){
-					inverseKinematics.setCenterOfRotation(counterClockwiseCenter);
+					inverseKinematics.setCenterOfRotation(counterClockwiseCenter.unwrap());
 				}
 			}else if(evadingToggled){
 				inverseKinematics.setCenterOfRotation(UnwrappableTranslation2d.identity());
 				evadingToggled = false;
 			}
-			if(translationalVector.equals(UnwrappableTranslation2d.identity()) && rotationalInput == 0.0){
+			if(translationalVector.equals(Translation2d.identity()) && rotationalInput == 0.0){
 				if(lastDriveVector.equals(rotationalVector)){
 					stop();
 				}else{
 					setDriveOutput(inverseKinematics.updateDriveVectors(lastDriveVector,
-					rotationCorrection, pose, robotCentric), 0.0);
+					rotationCorrection, pose.wrap(), robotCentric), 0.0);
 				}
 			}else{
 				setDriveOutput(inverseKinematics.updateDriveVectors(translationalVector,
-						rotationalInput + rotationCorrection, pose, robotCentric));
+						rotationalInput + rotationCorrection, pose.wrap(), robotCentric));
 			}
 			break;
 		case POSITION:
@@ -678,18 +680,18 @@ Constants.kVehicleToModuleOne.unwrap(), Constants.kVehicleToModuleTwo.unwrap(), 
 				rotate(headingController.getTargetHeading());
 			break;
 		case ROTATION:
-			setDriveOutput(inverseKinematics.updateDriveVectors(new UnwrappableTranslation2d(), Util.deadBand(rotationCorrection, 0.1), pose, false));
+			setDriveOutput(inverseKinematics.updateDriveVectors(new Translation2d(), Util.deadBand(rotationCorrection, 0.1), pose.wrap(), false));
 			break;
 		case VECTORIZED:
 			Translation2d outputVectorV = vf.getVector(pose.wrap().getTranslation()).scale(0.25);
 			SmartDashboard.putNumber("Vector Direction", outputVectorV.direction().getDegrees());
 			SmartDashboard.putNumber("Vector Magnitude", outputVectorV.norm());
 //			System.out.println(outputVector.x()+" "+outputVector.y());
-			setDriveOutput(inverseKinematics.updateDriveVectors(outputVectorV.unwrap(), rotationCorrection, getPose(), false));
+			setDriveOutput(inverseKinematics.updateDriveVectors(outputVectorV, rotationCorrection, getPose().wrap(), false));
 			break;
 		case TRAJECTORY:
 			if(!motionPlanner.isDone()){
-				UnwrappableTranslation2d driveVector = motionPlanner.update(timestamp, pose);
+				Translation2d driveVector = motionPlanner.update(timestamp, pose.wrap());
 
 				if(modulesReady){
 					if(!hasStartedFollowing){
@@ -703,17 +705,17 @@ Constants.kVehicleToModuleOne.unwrap(), Constants.kVehicleToModuleTwo.unwrap(), 
 					if(Util.epsilonEquals(driveVector.norm(), 0.0, Constants.kEpsilon)){
 						driveVector = lastTrajectoryVector;
 						setVelocityDriveOutput(inverseKinematics.updateDriveVectors(driveVector, 
-							rotationInput, pose, false), 0.0);
+							rotationInput, pose.wrap(), false), 0.0);
 						//System.out.println("Trajectory Vector set: " + driveVector.toString());
 					}else{
 						setVelocityDriveOutput(inverseKinematics.updateDriveVectors(driveVector, 
-							rotationInput, pose, false));
+							rotationInput, pose.wrap(), false));
 						//System.out.println("Trajectory Vector set: " + driveVector.toString());
 					}
 				}else if(!moduleConfigRequested){
 					//set10VoltRotationMode(true);
 					setModuleAngles(inverseKinematics.updateDriveVectors(driveVector, 
-						0.0, pose, false));
+						0.0, pose.wrap(), false));
 					moduleConfigRequested = true;
 				}
 
@@ -752,7 +754,7 @@ Constants.kVehicleToModuleOne.unwrap(), Constants.kVehicleToModuleTwo.unwrap(), 
 		@Override
 		public void onStart(double timestamp) {
 			synchronized(Swerve.this){
-				translationalVector = new UnwrappableTranslation2d();
+				translationalVector = new Translation2d();
 				lastDriveVector = rotationalVector;
 				rotationalInput = 0;
 				resetAveragedDirection();
@@ -769,7 +771,7 @@ Constants.kVehicleToModuleOne.unwrap(), Constants.kVehicleToModuleTwo.unwrap(), 
 				if(modulesReady || (getState() != ControlState.TRAJECTORY)){
 					//updatePose(timestamp);
 					//alternatePoseUpdate();
-					pose = odometry.update(pigeon.getYaw().unwrap(), getModuleStates());
+					pose = odometry.update(pigeon.getYaw(), getModuleStates());
 				}
 				updateControlCycle(timestamp);
 				lastUpdateTimestamp = timestamp;
@@ -779,7 +781,7 @@ Constants.kVehicleToModuleOne.unwrap(), Constants.kVehicleToModuleTwo.unwrap(), 
 		@Override
 		public void onStop(double timestamp) {
 			synchronized(Swerve.this){
-				translationalVector = new UnwrappableTranslation2d();
+				translationalVector = new Translation2d();
 				rotationalInput = 0;
 				outputWpiPose = false;
 				stop();
@@ -842,30 +844,30 @@ Constants.kVehicleToModuleOne.unwrap(), Constants.kVehicleToModuleTwo.unwrap(), 
 	/** Zeroes the drive motors, and sets the robot's internal position and heading to match that of the fed pose */
 	public synchronized void zeroSensors(UnwrappablePose2d startingPose){
 		pigeon.setAngle(startingPose.getRotation().getUnboundedDegrees());
-		modules.forEach((m) -> m.zeroSensors(startingPose));
+		modules.forEach((m) -> m.zeroSensors(startingPose.wrap()));
 		pose = startingPose;
-		odometry.resetPosition(startingPose, startingPose.getRotation());
+		odometry.resetPosition(startingPose, startingPose.getRotation().wrap());
 		distanceTraveled = 0;
 	}
 	
 	public synchronized void resetPosition(UnwrappablePose2d newPose){
 		pose = new UnwrappablePose2d(newPose.getTranslation(), pose.getRotation());
-		modules.forEach((m) -> m.zeroSensors(pose));
-		odometry.resetPosition(newPose, pose.getRotation());
+		modules.forEach((m) -> m.zeroSensors(pose.wrap()));
+		odometry.resetPosition(newPose, pose.getRotation().wrap());
 		distanceTraveled = 0;
 	}
 	
 	public synchronized void setXCoordinate(double x){
 		pose.getTranslation().setX(x);
-		modules.forEach((m) -> m.zeroSensors(pose));
-		odometry.resetPosition(pose, pose.getRotation());
+		modules.forEach((m) -> m.zeroSensors(pose.wrap()));
+		odometry.resetPosition(pose, pose.getRotation().wrap());
 		System.out.println("X coordinate reset to: " + pose.getTranslation().x());
 	}
 	
 	public synchronized void setYCoordinate(double y){
 		pose.getTranslation().setY(y);
-		modules.forEach((m) -> m.zeroSensors(pose));
-		odometry.resetPosition(pose, pose.getRotation());
+		modules.forEach((m) -> m.zeroSensors(pose.wrap()));
+		odometry.resetPosition(pose, pose.getRotation().wrap());
 		System.out.println("Y coordinate reset to: " + pose.getTranslation().y());
 	}
 

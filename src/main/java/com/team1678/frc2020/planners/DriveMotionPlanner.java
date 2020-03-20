@@ -4,9 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.team1678.frc2020.Constants;
-import com.team1323.lib.geometry.UnwrappablePose2d;
-import com.team1323.lib.geometry.UnwrappablePose2dWithCurvature;
-import com.team1323.lib.geometry.UnwrappableRotation2d;
+import com.team254.lib.geometry.Pose2d;
+import com.team254.lib.geometry.Pose2dWithCurvature;
+import com.team254.lib.geometry.Rotation2d;
+import com.team254.lib.geometry.Translation2d;
 import com.team1323.lib.geometry.UnwrappableTranslation2d;
 import com.team1323.lib.trajectory.DistanceView;
 import com.team1323.lib.trajectory.Trajectory;
@@ -29,7 +30,7 @@ public class DriveMotionPlanner implements CSVWritable {
     private double defaultCook = 0.5;
     private boolean useDefaultCook = true;
 
-    private UnwrappableTranslation2d followingCenter = UnwrappableTranslation2d.identity();
+    private Translation2d followingCenter = Translation2d.identity();
 
     public enum FollowerType {
         PURE_PURSUIT
@@ -41,9 +42,9 @@ public class DriveMotionPlanner implements CSVWritable {
         mFollowerType = type;
     }
 
-    TrajectoryIterator<TimedState<UnwrappablePose2dWithCurvature>> mCurrentTrajectory;
+    TrajectoryIterator<TimedState<Pose2dWithCurvature>> mCurrentTrajectory;
 
-    public Trajectory<TimedState<UnwrappablePose2dWithCurvature>> getTrajectory() {
+    public Trajectory<TimedState<Pose2dWithCurvature>> getTrajectory() {
         return mCurrentTrajectory.trajectory();
     }
 
@@ -56,10 +57,10 @@ public class DriveMotionPlanner implements CSVWritable {
 
     boolean mIsReversed = false;
     double mLastTime = Double.POSITIVE_INFINITY;
-    public TimedState<UnwrappablePose2dWithCurvature> mSetpoint = new TimedState<>(
-            UnwrappablePose2dWithCurvature.identity());
-    UnwrappablePose2d mError = UnwrappablePose2d.identity();
-    UnwrappableTranslation2d mOutput = UnwrappableTranslation2d.identity();
+    public TimedState<Pose2dWithCurvature> mSetpoint = new TimedState<>(
+            Pose2dWithCurvature.identity());
+    Pose2d mError = Pose2d.identity();
+    Translation2d mOutput = Translation2d.identity();
     double currentTrajectoryLength = 0.0;
 
     double mDt = 0.0;
@@ -85,7 +86,7 @@ public class DriveMotionPlanner implements CSVWritable {
     public DriveMotionPlanner() {
     }
 
-    public void setTrajectory(final TrajectoryIterator<TimedState<UnwrappablePose2dWithCurvature>> trajectory) {
+    public void setTrajectory(final TrajectoryIterator<TimedState<Pose2dWithCurvature>> trajectory) {
         mCurrentTrajectory = trajectory;
         mSetpoint = trajectory.getState();
         defaultCook = trajectory.trajectory().defaultVelocity();
@@ -102,29 +103,29 @@ public class DriveMotionPlanner implements CSVWritable {
     }
 
     public void reset() {
-        mError = UnwrappablePose2d.identity();
-        mOutput = UnwrappableTranslation2d.identity();
+        mError = Pose2d.identity();
+        mOutput = Translation2d.identity();
         mLastTime = Double.POSITIVE_INFINITY;
         useDefaultCook = true;
     }
 
-    public Trajectory<TimedState<UnwrappablePose2dWithCurvature>> generateTrajectory(boolean reversed,
-            final List<UnwrappablePose2d> waypoints,
-            final List<TimingConstraint<UnwrappablePose2dWithCurvature>> constraints, double max_vel, // inches/s
+    public Trajectory<TimedState<Pose2dWithCurvature>> generateTrajectory(boolean reversed,
+            final List<Pose2d> waypoints,
+            final List<TimingConstraint<Pose2dWithCurvature>> constraints, double max_vel, // inches/s
             double max_accel, // inches/s^2
             double max_decel, double max_voltage, double default_vel, int slowdown_chunks) {
         return generateTrajectory(reversed, waypoints, constraints, 0.0, 0.0, max_vel, max_accel, max_decel,
                 max_voltage, default_vel, slowdown_chunks);
     }
 
-    public Trajectory<TimedState<UnwrappablePose2dWithCurvature>> generateTrajectory(boolean reversed,
-            final List<UnwrappablePose2d> waypoints,
-            final List<TimingConstraint<UnwrappablePose2dWithCurvature>> constraints, double start_vel, double end_vel,
+    public Trajectory<TimedState<Pose2dWithCurvature>> generateTrajectory(boolean reversed,
+            final List<Pose2d> waypoints,
+            final List<TimingConstraint<Pose2dWithCurvature>> constraints, double start_vel, double end_vel,
             double max_vel, // inches/s
             double max_accel, // inches/s^2
             double max_decel, double max_voltage, double default_vel, int slowdown_chunks) {
-        List<UnwrappablePose2d> waypoints_maybe_flipped = waypoints;
-        final UnwrappablePose2d flip = UnwrappablePose2d.fromRotation(new UnwrappableRotation2d(-1, 0, false));
+        List<Pose2d> waypoints_maybe_flipped = waypoints;
+        final Pose2d flip = Pose2d.fromRotation(new Rotation2d(-1, 0, false));
         // TODO re-architect the spline generator to support reverse.
         if (reversed) {
             waypoints_maybe_flipped = new ArrayList<>(waypoints.size());
@@ -134,13 +135,13 @@ public class DriveMotionPlanner implements CSVWritable {
         }
 
         // Create a trajectory from splines.
-        Trajectory<UnwrappablePose2dWithCurvature> trajectory = TrajectoryUtil
+        Trajectory<Pose2dWithCurvature> trajectory = TrajectoryUtil
                 .trajectoryFromSplineWaypoints(waypoints_maybe_flipped, kMaxDx, kMaxDy, kMaxDTheta);
 
         if (reversed) {
-            List<UnwrappablePose2dWithCurvature> flipped = new ArrayList<>(trajectory.length());
+            List<Pose2dWithCurvature> flipped = new ArrayList<>(trajectory.length());
             for (int i = 0; i < trajectory.length(); ++i) {
-                flipped.add(new UnwrappablePose2dWithCurvature(trajectory.getState(i).getPose().transformBy(flip),
+                flipped.add(new Pose2dWithCurvature(trajectory.getState(i).getPose().transformBy(flip),
                         -trajectory.getState(i).getCurvature(), trajectory.getState(i).getDCurvatureDs()));
             }
             trajectory = new Trajectory<>(flipped);
@@ -150,13 +151,13 @@ public class DriveMotionPlanner implements CSVWritable {
         // than the specified voltage.
         // final CurvatureVelocityConstraint velocity_constraints = new
         // CurvatureVelocityConstraint();
-        List<TimingConstraint<UnwrappablePose2dWithCurvature>> all_constraints = new ArrayList<>();
+        List<TimingConstraint<Pose2dWithCurvature>> all_constraints = new ArrayList<>();
         // all_constraints.add(velocity_constraints);
         if (constraints != null) {
             all_constraints.addAll(constraints);
         }
         // Generate the timed trajectory.
-        Trajectory<TimedState<UnwrappablePose2dWithCurvature>> timed_trajectory = TimingUtil.timeParameterizeTrajectory(
+        Trajectory<TimedState<Pose2dWithCurvature>> timed_trajectory = TimingUtil.timeParameterizeTrajectory(
                 reversed, new DistanceView<>(trajectory), kMaxDx, all_constraints, start_vel, end_vel, max_vel,
                 max_accel, max_decel, slowdown_chunks);
         timed_trajectory.setDefaultVelocity(default_vel / Constants.kSwerveMaxSpeedInchesPerSecond);
@@ -167,7 +168,7 @@ public class DriveMotionPlanner implements CSVWritable {
      * @param followingCenter the followingCenter to set (relative to the robot's
      *                        center)
      */
-    public void setFollowingCenter(UnwrappableTranslation2d followingCenter) {
+    public void setFollowingCenter(Translation2d followingCenter) {
         this.followingCenter = followingCenter;
     }
 
@@ -176,10 +177,10 @@ public class DriveMotionPlanner implements CSVWritable {
         return mOutput.toCSV();
     }
 
-    protected UnwrappableTranslation2d updatePurePursuit(UnwrappablePose2d current_state) {
+    protected Translation2d updatePurePursuit(Pose2d current_state) {
         double lookahead_time = Constants.kPathLookaheadTime;
         final double kLookaheadSearchDt = 0.01;
-        TimedState<UnwrappablePose2dWithCurvature> lookahead_state = mCurrentTrajectory.preview(lookahead_time).state();
+        TimedState<Pose2dWithCurvature> lookahead_state = mCurrentTrajectory.preview(lookahead_time).state();
         double actual_lookahead_distance = mSetpoint.state().distance(lookahead_state.state());
         while (actual_lookahead_distance < Constants.kPathMinLookaheadDistance
                 && mCurrentTrajectory.getRemainingProgress() > lookahead_time) {
@@ -189,9 +190,9 @@ public class DriveMotionPlanner implements CSVWritable {
         }
         if (actual_lookahead_distance < Constants.kPathMinLookaheadDistance) {
             lookahead_state = new TimedState<>(
-                    new UnwrappablePose2dWithCurvature(
+                    new Pose2dWithCurvature(
                             lookahead_state.state().getPose()
-                                    .transformBy(UnwrappablePose2d.fromTranslation(new UnwrappableTranslation2d(
+                                    .transformBy(Pose2d.fromTranslation(new Translation2d(
                                             (mIsReversed ? -1.0 : 1.0)
                                                     * (Constants.kPathMinLookaheadDistance - actual_lookahead_distance),
                                             0.0))),
@@ -204,9 +205,9 @@ public class DriveMotionPlanner implements CSVWritable {
         SmartDashboard.putNumber("Path Velocity",
                 lookahead_state.velocity() / Constants.kSwerveMaxSpeedInchesPerSecond);
 
-        UnwrappableTranslation2d lookaheadTranslation = new UnwrappableTranslation2d(current_state.getTranslation(),
+        Translation2d lookaheadTranslation = new Translation2d(current_state.getTranslation(),
                 lookahead_state.state().getTranslation());
-        UnwrappableRotation2d steeringDirection = lookaheadTranslation.direction();
+        Rotation2d steeringDirection = lookaheadTranslation.direction();
         double normalizedSpeed = Math.abs(mSetpoint.velocity()) / Constants.kSwerveMaxSpeedInchesPerSecond;
 
         // System.out.println("Lookahead point: " +
@@ -227,18 +228,18 @@ public class DriveMotionPlanner implements CSVWritable {
         // System.out.println("Steering direction " + steeringDirection.getDegrees() + "
         // Speed: " + normalizedSpeed);
 
-        final UnwrappableTranslation2d steeringVector = UnwrappableTranslation2d.fromPolar(steeringDirection,
+        final UnwrappableTranslation2d steeringVector = UnwrappableTranslation2d.fromPolar(steeringDirection.unwrap(),
                 normalizedSpeed);
 
         // System.out.println("Pure pursuit updated, vector is: " +
         // steeringVector.toString());
-        return steeringVector;
+        return steeringVector.wrap();
     }
 
-    public UnwrappableTranslation2d update(double timestamp, UnwrappablePose2d current_state) {
+    public Translation2d update(double timestamp, Pose2d current_state) {
         if (mCurrentTrajectory == null) {
             // System.out.println("Trajectory is null, returning zero trajectory");
-            return UnwrappableTranslation2d.identity();
+            return Translation2d.identity();
         }
         if (mCurrentTrajectory.getProgress() == 0.0 && !Double.isFinite(mLastTime)) {
             mLastTime = timestamp;
@@ -247,7 +248,7 @@ public class DriveMotionPlanner implements CSVWritable {
         mDt = timestamp - mLastTime;
         mLastTime = timestamp;
 
-        current_state = current_state.transformBy(UnwrappablePose2d.fromTranslation(followingCenter));
+        current_state = current_state.transformBy(Pose2d.fromTranslation(followingCenter));
 
         double searchStepSize = 1.0;
         double previewQuantity = 0.0;
@@ -267,7 +268,7 @@ public class DriveMotionPlanner implements CSVWritable {
             searchDirection *= -1;
         }
 
-        TrajectorySamplePoint<TimedState<UnwrappablePose2dWithCurvature>> sample_point = mCurrentTrajectory
+        TrajectorySamplePoint<TimedState<Pose2dWithCurvature>> sample_point = mCurrentTrajectory
                 .advance(previewQuantity);
         mSetpoint = sample_point.state();
         /*
@@ -285,13 +286,13 @@ public class DriveMotionPlanner implements CSVWritable {
             }
         } else {
             // TODO Possibly switch to a pose stabilizing controller?
-            mOutput = UnwrappableTranslation2d.identity();
+            mOutput = Translation2d.identity();
             // System.out.println("Motion planner done, returning zero trajectory");
         }
         return mOutput;
     }
 
-    private double distance(UnwrappablePose2d current_state, double additional_progress) {
+    private double distance(Pose2d current_state, double additional_progress) {
         return mCurrentTrajectory.preview(additional_progress).state().state().getPose().distance(current_state);
     }
 
@@ -299,11 +300,11 @@ public class DriveMotionPlanner implements CSVWritable {
         return mCurrentTrajectory != null && mCurrentTrajectory.isDone();
     }
 
-    public UnwrappablePose2d error() {
+    public Pose2d error() {
         return mError;
     }
 
-    public TimedState<UnwrappablePose2dWithCurvature> setpoint() {
+    public TimedState<Pose2dWithCurvature> setpoint() {
         return mSetpoint;
     }
 }

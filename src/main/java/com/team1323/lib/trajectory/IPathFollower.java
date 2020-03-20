@@ -1,10 +1,10 @@
 package com.team1323.lib.trajectory;
 
-import com.team1323.lib.geometry.UnwrappablePose2d;
-import com.team1323.lib.geometry.UnwrappableTwist2d;
+import com.team254.lib.geometry.Pose2d;
+import com.team254.lib.geometry.Twist2d;
 
 public interface IPathFollower {
-    public UnwrappableTwist2d steer(UnwrappablePose2d current_pose);
+    public Twist2d steer(Pose2d current_pose);
 
     public boolean isDone();
 }
