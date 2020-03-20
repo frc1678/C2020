@@ -1,7 +1,7 @@
 package com.team1323.lib.trajectory.timing;
 
 import com.team254.lib.geometry.State;
-import com.team1323.lib.util.Util;
+import com.team254.lib.util.Util;
 
 import java.text.DecimalFormat;
 

@@ -1,14 +1,15 @@
 package com.team1323.lib.math.vectors;
 
 import java.util.function.Function;
-import com.team1323.lib.geometry.UnwrappableTranslation2d;
+
+import com.team254.lib.geometry.Translation2d;
 
 public class GeneralVectorField extends VectorField {
-  public GeneralVectorField(Function<UnwrappableTranslation2d,UnwrappableTranslation2d> field) {
+  public GeneralVectorField(Function<Translation2d,Translation2d> field) {
     field_ = field;
   }
-  protected Function<UnwrappableTranslation2d,UnwrappableTranslation2d> field_;
-  public UnwrappableTranslation2d getVector(UnwrappableTranslation2d here) {
-	  return field_.apply(here).normalize();
+  protected Function<Translation2d,Translation2d> field_;
+  public Translation2d getVector(Translation2d here) {
+	  return field_.apply(here).unwrap().normalize().wrap();
   }
 }

@@ -3,15 +3,17 @@ package com.team1323.lib.trajectory;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.team1323.lib.trajectory.timing.TimedState;
 import com.team1323.lib.geometry.IUnwrappablePose2d;
 import com.team1323.lib.geometry.UnwrappablePose2d;
 import com.team1323.lib.geometry.UnwrappablePose2dWithCurvature;
 import com.team1323.lib.geometry.UnwrappableTwist2d;
-import com.team1323.lib.trajectory.timing.TimedState;
 import com.team254.lib.geometry.State;
 import com.team254.lib.spline.QuinticHermiteSpline;
 import com.team254.lib.spline.Spline;
 import com.team254.lib.spline.SplineGenerator;
+
+
 import com.team1323.lib.util.Util;
 
 public class TrajectoryUtil {
@@ -23,18 +25,21 @@ public class TrajectoryUtil {
         return new Trajectory<>(waypoints);
     }
 
-    public static <S extends IUnwrappablePose2d<S>> Trajectory<TimedState<S>> mirrorTimed(final Trajectory<TimedState<S>> trajectory, double defaultVelocity) {
+    public static <S extends IUnwrappablePose2d<S>> Trajectory<TimedState<S>> mirrorTimed(
+            final Trajectory<TimedState<S>> trajectory, double defaultVelocity) {
         List<TimedState<S>> waypoints = new ArrayList<>(trajectory.length());
         for (int i = 0; i < trajectory.length(); ++i) {
             TimedState<S> timed_state = trajectory.getState(i);
-            waypoints.add(new TimedState<S>(timed_state.state().mirror(), timed_state.t(), timed_state.velocity(), timed_state.acceleration()));
+            waypoints.add(new TimedState<S>(timed_state.state().mirror(), timed_state.t(), timed_state.velocity(),
+                    timed_state.acceleration()));
         }
         Trajectory<TimedState<S>> traj = new Trajectory<TimedState<S>>(waypoints);
         traj.setDefaultVelocity(defaultVelocity);
         return traj;
     }
 
-    public static <S extends IUnwrappablePose2d<S>> Trajectory<S> transform(final Trajectory<S> trajectory, UnwrappablePose2d transform) {
+    public static <S extends IUnwrappablePose2d<S>> Trajectory<S> transform(final Trajectory<S> trajectory,
+            UnwrappablePose2d transform) {
         List<S> waypoints = new ArrayList<>(trajectory.length());
         for (int i = 0; i < trajectory.length(); ++i) {
             waypoints.add(trajectory.getState(i).transformBy(transform));
@@ -49,8 +54,8 @@ public class TrajectoryUtil {
      * @param interval
      * @return
      */
-    public static <S extends State<S>> Trajectory<S> resample(
-            final TrajectoryView<S> trajectory_view, double interval) {
+    public static <S extends State<S>> Trajectory<S> resample(final TrajectoryView<S> trajectory_view,
+            double interval) {
         if (interval <= Util.kEpsilon) {
             return new Trajectory<S>();
         }
@@ -65,9 +70,7 @@ public class TrajectoryUtil {
     }
 
     public static Trajectory<UnwrappablePose2dWithCurvature> trajectoryFromPathFollower(IPathFollower path_follower,
-                                                                             UnwrappablePose2dWithCurvature start_state, double
-                                                                                     step_size, double
-                                                                                     dcurvature_limit) {
+            UnwrappablePose2dWithCurvature start_state, double step_size, double dcurvature_limit) {
         List<UnwrappablePose2dWithCurvature> samples = new ArrayList<UnwrappablePose2dWithCurvature>();
         samples.add(start_state);
         UnwrappablePose2dWithCurvature current_state = start_state;
@@ -98,11 +101,10 @@ public class TrajectoryUtil {
 
             // Calculate the new state.
             // Use the average curvature over the interval to compute the next state.
-            final UnwrappableTwist2d average_steering_command = !curvature_valid
-                    ? steering_command
+            final UnwrappableTwist2d average_steering_command = !curvature_valid ? steering_command
                     : new UnwrappableTwist2d(steering_command.dx, steering_command.dy,
-                    (current_state.getCurvature() + 0.5 * dcurvature * steering_command.norm())
-                            * steering_command.norm());
+                            (current_state.getCurvature() + 0.5 * dcurvature * steering_command.norm())
+                                    * steering_command.norm());
             current_state = new UnwrappablePose2dWithCurvature(
                     current_state.getPose().transformBy(UnwrappablePose2d.exp(average_steering_command)),
                     steering_command.curvature());
@@ -114,21 +116,19 @@ public class TrajectoryUtil {
         return new Trajectory<UnwrappablePose2dWithCurvature>(samples);
     }
 
-    public static Trajectory<UnwrappablePose2dWithCurvature> trajectoryFromSplineWaypoints(final List<UnwrappablePose2d> waypoints, double
-            maxDx, double maxDy, double maxDTheta) {
+    public static Trajectory<UnwrappablePose2dWithCurvature> trajectoryFromSplineWaypoints(
+            final List<UnwrappablePose2d> waypoints, double maxDx, double maxDy, double maxDTheta) {
         List<QuinticHermiteSpline> splines = new ArrayList<>(waypoints.size() - 1);
         for (int i = 1; i < waypoints.size(); ++i) {
-            splines.add(new QuinticHermiteSpline(waypoints.get(i - 1), waypoints.get(i)));
+            splines.add(new QuinticHermiteSpline(waypoints.get(i - 1).wrap(), waypoints.get(i).wrap()));
         }
         QuinticHermiteSpline.optimizeSpline(splines);
         return trajectoryFromSplines(splines, maxDx, maxDy, maxDTheta);
     }
 
-    public static Trajectory<UnwrappablePose2dWithCurvature> trajectoryFromSplines(final List<? extends Spline> splines, double
-            maxDx,
-                                                                        double maxDy, double maxDTheta) {
-        return new Trajectory<>(SplineGenerator.parameterizeSplines(splines, maxDx, maxDy,
-                maxDTheta));
+    public static Trajectory<UnwrappablePose2dWithCurvature> trajectoryFromSplines(final List<? extends Spline> splines,
+            double maxDx, double maxDy, double maxDTheta) {
+        return new Trajectory<>(SplineGenerator.parameterizeSplines(splines, maxDx, maxDy, maxDTheta));
     }
 
     ;

@@ -42,44 +42,6 @@ public class AutoModeSelector {
         SmartDashboard.putData("Auto mode", mModeChooser);
     }
 
-    public void updateModeCreator() {
-        DesiredMode desiredMode = mModeChooser.getSelected();
-        if (mCachedDesiredMode != desiredMode) {
-            System.out.println("Auto selection changed, updating creator: desiredMode->" + desiredMode.name());
-            mAutoMode = getAutoModeForParams(desiredMode);
-        }
-        mCachedDesiredMode = desiredMode;
-    }
-
-    private Optional<AutoModeBase> getAutoModeForParams(DesiredMode mode) {
-        switch (mode) {
-        case DO_NOTHING:
-            return Optional.of(new DoNothingMode());
-        case CHARACTERIZE_DRIVE_TURN:
-            return Optional.of(new CharacterizeDrivebaseMode(false, true));
-        case CHARACTERIZE_DRIVE_STRAIGHT:
-            return Optional.of(new CharacterizeDrivebaseMode(false, false));
-        case TEST_PATH:
-            return Optional.of(new TestPath());
-        //case TEN_BALL_AUTO:
-        //    return Optional.of(new TenBallMode());
-        case TEN_BALL_TRENCH_AUTO:
-            return Optional.of(new TenBallTrenchMode());
-        case LEFT_EIGHT_BALL_AUTO:
-            return Optional.of(new LeftEightBallMode());
-        case LEFT_NEAR_EIGHT_BALL_AUTO:
-            return Optional.of(new NearLeftEightBallMode());
-        case RIGHT_EIGHT_BALL_AUTO:
-            return Optional.of(new RightEightBallMode());
-        case RIGHT_NEAR_EIGHT_BALL_AUTO:
-            return Optional.of(new RightEightBallNearMode());
-        default:
-            break;
-        }
-
-        System.err.println("No valid auto mode found for  " + mode);
-        return Optional.empty();
-    }
 
     public void reset() {
         mAutoMode = Optional.empty();

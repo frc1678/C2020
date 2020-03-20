@@ -2,6 +2,9 @@ package com.team1678.frc2020;
 
 import com.team1678.frc2020.subsystems.ServoMotorSubsystem.ServoMotorSubsystemConstants;
 import com.team1678.frc2020.subsystems.ServoMotorSubsystem.TalonFXConstants;
+import com.team254.lib.geometry.Pose2d;
+import com.team254.lib.geometry.Rotation2d;
+import com.team254.lib.geometry.Translation2d;
 import com.team1678.frc2020.subsystems.Limelight.LimelightConstants;
 import com.team254.lib.geometry.Pose2d;
 import com.team254.lib.geometry.Rotation2d;
@@ -19,6 +22,8 @@ import java.util.List;
  */
 public class Constants {
     public static final double kLooperDt = 0.01;
+    public static final double kEpsilon = 0.0001;
+
     public static final boolean kDebuggingOutput = false;
 
     /* I/O */
@@ -27,7 +32,35 @@ public class Constants {
     public static final int kCANTimeoutMs = 10; // use for on the fly updates
     public static final int kLongCANTimeoutMs = 100; // use for constructors
 
+    public static final Pose2d kRobotStartingPose = new Pose2d(new Translation2d(120.0 + 1.0, -(161.625 - 94.66)),
+    Rotation2d.fromDegrees(0.0));
+
     /* ROBOT PHYSICAL CONSTANTS */
+
+    // Physical Robot Dimensions (including bumpers)
+    public static final double kRobotWidth = 36.5;
+    public static final double kRobotLength = 36.5;
+
+    public static final double kRobotHalfWidth = kRobotWidth / 2.0;
+    public static final double kRobotHalfLength = kRobotLength / 2.0;
+    public static final double kRobotProbeExtrusion = 4.0;
+
+    // Swerve Odometry Constants
+    public static final double kSwerveWheelDiameter = 4.0901; // inches (actual diamter is closer to 3.87, but secondary
+                                                              // algorithm prefers 4.0901) 3.76
+    public static final double kSwerveDriveEncoderResolution = 2048.0; // 2048.0 for falcon 500
+    public static final double kSwerveRotationEncoderResolution = 4096.0;
+
+    // Scrub Factors
+    public static final boolean kSimulateReversedCarpet = false;
+    public static final double[] kWheelScrubFactors = new double[] { 1.0, 1.0, 1.0, 1.0 };
+    public static final double kXScrubFactor = 1.0;// 1.0 / (1.0 - (9549.0 / 293093.0));
+    public static final double kYScrubFactor = 1.0;// 1.0 / (1.0 - (4.4736 / 119.9336));
+
+    public static final double kSwerveEncoderToWheelRatio = 7.29;
+    public static final double kSwerveEncUnitsPerWheelRev = kSwerveDriveEncoderResolution * kSwerveEncoderToWheelRatio;
+    public static final double kSwerveEncUnitsPerInch = kSwerveEncUnitsPerWheelRev / (Math.PI * kSwerveWheelDiameter);
+
     // Wheels
     public static final double kDriveWheelTrackWidthInches = 31.170;
     public static final double kDriveWheelDiameterInches = 5.67;
@@ -57,6 +90,23 @@ public class Constants {
     public static final double kDrivePositionKf = 0.05;
     public static final int kDrivePositionIZone = 0;
     public static final double kDriveVoltageRampRate = 0.0;
+
+    // Falcons
+    public static final int FRONT_RIGHT_ROTATION = 7;
+    public static final int FRONT_RIGHT_DRIVE = 3;
+    public static final int FRONT_LEFT_ROTATION = 8;
+    public static final int FRONT_LEFT_DRIVE = 12;
+    public static final int REAR_LEFT_ROTATION = 11;
+    public static final int REAR_LEFT_DRIVE = 15;
+    public static final int REAR_RIGHT_ROTATION = 4;
+    public static final int REAR_RIGHT_DRIVE = 0;
+    // Analog In
+    public static final int FRONT_RIGHT_ENCODER = 0;
+    public static final int FRONT_LEFT_ENCODER = 1;
+    public static final int REAR_LEFT_ENCODER = 2;
+    public static final int REAR_RIGHT_ENCODER = 3;
+    public static final int[] kModuleEncoders = new int[] { FRONT_RIGHT_ENCODER, FRONT_LEFT_ENCODER, REAR_LEFT_ENCODER,
+            REAR_RIGHT_ENCODER };
 
     // climber
     public static final int kWinchMasterId = 11;
@@ -240,6 +290,9 @@ public class Constants {
     public static final double kTrackAgeWeight = 10.0;
     public static final double kTrackSwitchingWeight = 100.0;
     public static final boolean kEnableCachedGoal = true;
+    public static final double kClosestVisionDistance = 26.0;
+    /* The maximum normalized vision tracking robot velocity */
+    public static final double kMaxVisionTrackingSpeed = 0.25;
 
     public static final double kCameraFrameRate = 90.0;
     public static final double kMinStability = 0.5;
@@ -303,17 +356,43 @@ public class Constants {
     public static final int kRearRightEncoderStartingPos = Settings.kIsUsingCompBot ? -5953 - 1024 : 975 - 1024;
 
     // Swerve Module Positions (relative to the center of the drive base)
-    public static final Translation2d kVehicleToModuleZero = new Translation2d(kWheelbaseLength / 2,
-            kWheelbaseWidth / 2);
-    public static final Translation2d kVehicleToModuleOne = new Translation2d(kWheelbaseLength / 2,
-            -kWheelbaseWidth / 2);
-    public static final Translation2d kVehicleToModuleTwo = new Translation2d(-kWheelbaseLength / 2,
-            -kWheelbaseWidth / 2);
-    public static final Translation2d kVehicleToModuleThree = new Translation2d(-kWheelbaseLength / 2,
-            kWheelbaseWidth / 2);
+    public static final Translation2d kVehicleToModuleZero = new Translation2d(
+            kWheelbaseLength / 2, kWheelbaseWidth / 2);
+    public static final Translation2d kVehicleToModuleOne = new Translation2d(
+            kWheelbaseLength / 2, -kWheelbaseWidth / 2);
+    public static final Translation2d kVehicleToModuleTwo = new Translation2d(
+            -kWheelbaseLength / 2, -kWheelbaseWidth / 2);
+    public static final Translation2d kVehicleToModuleThree = new Translation2d(
+            -kWheelbaseLength / 2, kWheelbaseWidth / 2);
 
-    public static final List<Translation2d> kModulePositions = Arrays.asList(kVehicleToModuleZero, kVehicleToModuleOne,
-            kVehicleToModuleTwo, kVehicleToModuleThree);
+    public static final List<Translation2d> kModulePositions = Arrays.asList(kVehicleToModuleZero,
+            kVehicleToModuleOne, kVehicleToModuleTwo, kVehicleToModuleThree);
+
+    // Field Landmarks
+    public static final Pose2d kFirstTrenchBall = new Pose2d(
+            new Translation2d(120.0 + 122.63, -133.875), Rotation2d.fromDegrees(0.0));
+    public static final Pose2d kLastTrenchBall = new Pose2d(
+            new Translation2d(120.0 + 194.63, -133.875), Rotation2d.fromDegrees(0.0));
+    public static final Pose2d kTrenchBallSet = new Pose2d(
+            new Translation2d(120.0 + 258.90, -133.875), Rotation2d.fromDegrees(0.0));
+    public static final Pose2d kOppositeTrenchBalls = new Pose2d(
+            new Translation2d(120.0 + 130.36, 133.875), Rotation2d.fromDegrees(0.0));
+    // Ball 1 starts on 2 ball side and goes in order till last ball on 3 ball side
+    public static final Pose2d kGeneratorBall1 = new Pose2d(
+            new Translation2d(120.0 + 130.25, -(161.625 - 94.66 - 19.79)),
+            Rotation2d.fromDegrees(67.5));
+    public static final Pose2d kGeneratorBall2 = new Pose2d(
+            new Translation2d(120.0 + 114.94, -(161.625 - 94.66 - 26.16)),
+            Rotation2d.fromDegrees(67.5));
+    public static final Pose2d kGeneratorBall3 = new Pose2d(
+            new Translation2d(120.0 + 107.83, -(161.625 - 94.66 - 50.54)),
+            Rotation2d.fromDegrees(22.5));
+    public static final Pose2d kGeneratorBall4 = new Pose2d(
+            new Translation2d(120.0 + 114.17, -(161.625 - 94.66 - 65.84)),
+            Rotation2d.fromDegrees(22.5));
+    public static final Pose2d kGeneratorBall5 = new Pose2d(
+            new Translation2d(120.0 + 120.51, -(161.625 - 94.66 - 81.14)),
+            Rotation2d.fromDegrees(22.5));
 
     public static Solenoid makeSolenoidForId(int solenoidId) {
         if (solenoidId < 8) {

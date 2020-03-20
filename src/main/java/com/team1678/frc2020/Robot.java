@@ -66,7 +66,7 @@ public class Robot extends TimedRobot {
     private TrajectoryGenerator mTrajectoryGenerator = TrajectoryGenerator.getInstance();
 
     private final SubsystemManager mSubsystemManager = SubsystemManager.getInstance();
-    private final Drive mDrive = Drive.getInstance();
+    private final Swerve mDrive = Swerve.getInstance();
     private final Indexer mIndexer = Indexer.getInstance();
     private final Infrastructure mInfrastructure = Infrastructure.getInstance();
     private final Limelight mLimelight = Limelight.getInstance();
@@ -146,7 +146,6 @@ public class Robot extends TimedRobot {
 
             // Robot starts forwards.
             mRobotState.reset(Timer.getFPGATimestamp(), Pose2d.identity());
-            mDrive.setHeading(Rotation2d.identity());
 
             mLimelight.setLed(Limelight.LedMode.OFF);
 
@@ -172,7 +171,7 @@ public class Robot extends TimedRobot {
 
             RobotState.getInstance().reset(Timer.getFPGATimestamp(), Pose2d.identity());
 
-            Drive.getInstance().zeroSensors();
+            Swerve.getInstance().zeroSensors();
             mTurret.setNeutralMode(NeutralMode.Brake);
             mHood.setNeutralMode(NeutralMode.Brake);
             mInfrastructure.setIsDuringAuto(true);
@@ -274,8 +273,7 @@ public class Robot extends TimedRobot {
                 mSuperstructure.setAngleAdd(-1.0);
             }
 
-            mDrive.//setOpenLoop(mCheesyDriveHelper.cheesyDrive(throttle, turn, mControlBoard.getQuickTurn()));
-                setCheesyishDrive(throttle, turn, mControlBoard.getQuickTurn());
+
 
             //mLimelight.setLed(Limelight.LedMode.ON);        
             
@@ -454,12 +452,12 @@ public class Robot extends TimedRobot {
 
             mInfrastructure.setIsDuringAuto(true);
 
-            Drive.getInstance().zeroSensors();
+            Swerve.getInstance().zeroSensors();
             RobotState.getInstance().reset(Timer.getFPGATimestamp(), Pose2d.identity());
 
             // Reset all auto mode state.
             mAutoModeSelector.reset();
-            mAutoModeSelector.updateModeCreator();
+           // mAutoModeSelector.updateModeCreator();
             mAutoModeExecutor = new AutoModeExecutor();
 
             mDisabledLooper.start();
@@ -469,7 +467,6 @@ public class Robot extends TimedRobot {
 
             mTurret.setNeutralMode(NeutralMode.Coast);
             mHood.setNeutralMode(NeutralMode.Coast);
-            mDrive.setBrakeMode(false);
             mLimelight.writePeriodicOutputs();
             mLEDs.conformToState(LEDs.State.RAINBOW);
         } catch (Throwable t) {
@@ -497,7 +494,7 @@ public class Robot extends TimedRobot {
                 mLEDs.conformToState(LEDs.State.BREATHING_PINK);
             }
 
-            mAutoModeSelector.updateModeCreator();
+           // mAutoModeSelector.updateModeCreator();
 
             Optional<AutoModeBase> autoMode = mAutoModeSelector.getAutoMode();
             if (autoMode.isPresent() && autoMode.get() != mAutoModeExecutor.getAutoMode()) {

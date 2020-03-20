@@ -2,7 +2,7 @@ package com.team1323.lib.math.vectors;
 
 import java.util.List;
 
-import com.team1323.lib.geometry.UnwrappableTranslation2d;
+import com.team254.lib.geometry.Translation2d;
 
 /**
  * This class represents a vector field that moves around a given polygon.
@@ -14,13 +14,13 @@ import com.team1323.lib.geometry.UnwrappableTranslation2d;
  */
 public class PolyCirculationVectorField extends VectorField {
 	
-	public PolyCirculationVectorField(List<UnwrappableTranslation2d> vertices_) {
+	public PolyCirculationVectorField(List<Translation2d> vertices_) {
 		this(vertices_,Double.POSITIVE_INFINITY);
 	}
-	public PolyCirculationVectorField(List<UnwrappableTranslation2d> vertices_, double radius_) {
+	public PolyCirculationVectorField(List<Translation2d> vertices_, double radius_) {
 		radius = radius_;
-		center = new UnwrappableTranslation2d(0.0,0.0);
-		for(UnwrappableTranslation2d v : vertices_) {
+		center = new Translation2d(0.0,0.0);
+		for(Translation2d v : vertices_) {
 			vertices.add(v);
 			center = center.translateBy(v);
 		}
@@ -29,9 +29,9 @@ public class PolyCirculationVectorField extends VectorField {
 		vertices.add(vertices_.get(1)); // add second last so we can uhhh like use three points in our corner checking code
 	}
 	protected double radius;
-	protected UnwrappableTranslation2d center;
-	protected List<UnwrappableTranslation2d> vertices;
-	public UnwrappableTranslation2d getVector(UnwrappableTranslation2d here) {
+	protected Translation2d center;
+	protected List<Translation2d> vertices;
+	public Translation2d getVector(Translation2d here) {
 		// General approach:
 		// 1. Check whether here is in a corner region. If so, return <-y,x>.
 		// 2. Find the region containing here. Return a vector parallel to its defining side.
@@ -41,36 +41,36 @@ public class PolyCirculationVectorField extends VectorField {
 		// i = sz - 2 to check (sz-3, sz-2, sz-1), i.e., (-1,0,1)
 		for(int i = 1; i < vertices.size() - 1; i++) {
 			// Translate our angle to have its center at the origin
-			UnwrappableTranslation2d here_ = here.translateBy(vertices.get(i).inverse());
-			if(here.isWithinAngle(
-					vertices.get(i-1),
-					vertices.get(i),
-					vertices.get(i+1),
+			Translation2d here_ = here.translateBy(vertices.get(i).inverse());
+			if(here.unwrap().isWithinAngle(
+					vertices.get(i-1).unwrap(),
+					vertices.get(i).unwrap(),
+					vertices.get(i+1).unwrap(),
 					true // check within vertical angle
 				)) {
 				if(here_.norm() <= radius) {
-					return (new UnwrappableTranslation2d(-here_.y(),here_.x())).normalize(); // use translated position because it will rotate about the vertex
+					return (new Translation2d(-here_.y(),here_.x())).unwrap().normalize().wrap(); // use translated position because it will rotate about the vertex
 				} else {
-					return UnwrappableTranslation2d.identity();
+					return Translation2d.identity();
 				}
 			}
 		}
 		// If we get here, we ain't in a corner region
 		// Find the region containing here
 		for(int i = 0; i < vertices.size() - 1; i++) {
-			if(here.isWithinAngle(
-					vertices.get(i),
-					center,
-					vertices.get(i+1)
+			if(here.unwrap().isWithinAngle(
+					vertices.get(i).unwrap(),
+					center.unwrap(),
+					vertices.get(i+1).unwrap()
 				)) {
-				if(here.distanceToLine(vertices.get(i),vertices.get(i+1)) <= radius) {
-					return (new UnwrappableTranslation2d(vertices.get(i),vertices.get(i+1))).normalize();
+				if(here.unwrap().distanceToLine(vertices.get(i).unwrap(),vertices.get(i+1).unwrap()) <= radius) {
+					return (new Translation2d(vertices.get(i),vertices.get(i+1))).unwrap().normalize().wrap();
 				} else {
-					return UnwrappableTranslation2d.identity();
+					return Translation2d.identity();
 				}
 			}
 		}
 		// If we get here, something is horribly wrong
-		return UnwrappableTranslation2d.identity();
+		return Translation2d.identity();
 	}
 }

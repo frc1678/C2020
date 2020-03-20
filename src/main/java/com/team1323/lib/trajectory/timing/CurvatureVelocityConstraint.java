@@ -1,7 +1,7 @@
 package com.team1323.lib.trajectory.timing;
 
-import com.team1323.lib.geometry.UnwrappablePose2dWithCurvature;
 import com.team1678.frc2020.Constants;
+import com.team1323.lib.geometry.UnwrappablePose2dWithCurvature;
 
 public class CurvatureVelocityConstraint implements TimingConstraint<UnwrappablePose2dWithCurvature>{
 
