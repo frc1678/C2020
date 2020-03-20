@@ -25,6 +25,10 @@ public class Constants {
     public static final double kEpsilon = 0.0001;
 
     public static final boolean kDebuggingOutput = false;
+    public static final boolean kDebugSwerve = false;
+    public static final boolean kIsUsingTractionWheels = false;
+    
+    
 
     /* I/O */
     // (Note that if multiple talons are dedicated to a mechanism, any sensors
@@ -350,10 +354,10 @@ public class Constants {
 
     // Swerve Module Wheel Offsets (Rotation encoder values when the wheels are
     // facing 0 degrees)
-    public static final int kFrontRightEncoderStartingPos = Settings.kIsUsingCompBot ? -1403 - 1024 : 1740 - 1024;
-    public static final int kFrontLeftEncoderStartingPos = Settings.kIsUsingCompBot ? -2171 - 1024 : -2895 - 1024;
-    public static final int kRearLeftEncoderStartingPos = Settings.kIsUsingCompBot ? -1327 - 1024 : 1055 - 1024;
-    public static final int kRearRightEncoderStartingPos = Settings.kIsUsingCompBot ? -5953 - 1024 : 975 - 1024;
+    public static final int kFrontRightEncoderStartingPos = 0 - 1024;       // TODO: Update offsets
+    public static final int kFrontLeftEncoderStartingPos = 0 - 1024;        // TODO: Update offsets
+    public static final int kRearLeftEncoderStartingPos = 0 - 1024;         // TODO: Update offsets
+    public static final int kRearRightEncoderStartingPos = 0 - 1024;        // TODO: Update offsets
 
     // Swerve Module Positions (relative to the center of the drive base)
     public static final Translation2d kVehicleToModuleZero = new Translation2d(

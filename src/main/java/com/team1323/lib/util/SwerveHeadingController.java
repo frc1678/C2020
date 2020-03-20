@@ -1,6 +1,6 @@
 package com.team1323.lib.util;
 
-import com.team1678.frc2020.Settings;
+import com.team1678.frc2020.Constants;
 
 import edu.wpi.first.wpilibj.Timer;
 
@@ -25,7 +25,7 @@ public class SwerveHeadingController {
 	}
 	
 	public SwerveHeadingController(){
-		if(Settings.kIsUsingTractionWheels){
+		if(Constants.kIsUsingTractionWheels){
 			stabilizationPID = new SynchronousPIDF(0.005, 0.0, 0.0005, 0.0);
 			snapPID = new SynchronousPIDF(0.015, 0.0, 0.0, 0.0);
 			stationaryPID = new SynchronousPIDF(0.01, 0.0, 0.002, 0.0);

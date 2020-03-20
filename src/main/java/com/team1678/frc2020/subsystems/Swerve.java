@@ -9,7 +9,6 @@ import java.util.stream.Collectors;
 import com.team1678.frc2020.Constants;
 import com.team1678.frc2020.planners.DriveMotionPlanner;
 import com.team1678.frc2020.RobotState;
-import com.team1678.frc2020.Settings;
 import com.team1678.frc2020.loops.ILooper;
 import com.team1678.frc2020.loops.Loop;
 import com.team1678.frc2020.paths.TrajectoryGenerator;
@@ -878,7 +877,7 @@ Constants.kVehicleToModuleOne, Constants.kVehicleToModuleTwo, Constants.kVehicle
 		// testing the wpi odometry
 		if(outputWpiPose)
 			SmartDashboard.putNumberArray("Path Pose", new double[]{wpiPose.getTranslation().x(), wpiPose.getTranslation().y(), wpiPose.getRotation().getUnboundedDegrees()});
-		if(Settings.debugSwerve()){
+		if(Constants.kDebugSwerve){
 			SmartDashboard.putNumber("Robot X", pose.getTranslation().x());
 			SmartDashboard.putNumber("Robot Y", pose.getTranslation().y());
 			SmartDashboard.putNumber("Robot Heading", pose.getRotation().getUnboundedDegrees());
