@@ -88,8 +88,6 @@ public class Robot extends TimedRobot {
     private final RobotStateEstimator mRobotStateEstimator = RobotStateEstimator.getInstance();
     private boolean climb_mode = false;
     private boolean buddy_climb = false;
-    private AutoModeExecutor mAutoModeExecutor;
-    private AutoModeSelector mAutoModeSelector = new AutoModeSelector();
 
     private boolean mPivoted = false;
 
@@ -104,7 +102,6 @@ public class Robot extends TimedRobot {
     public void robotPeriodic() {
         RobotState.getInstance().outputToSmartDashboard();
         mSubsystemManager.outputToSmartDashboard();
-        mAutoModeSelector.outputToSmartDashboard();
         mEnabledLooper.outputToSmartDashboard();
 
         SmartDashboard.putBoolean("Climb Mode", climb_mode);
@@ -176,8 +173,6 @@ public class Robot extends TimedRobot {
             mHood.setNeutralMode(NeutralMode.Brake);
             mInfrastructure.setIsDuringAuto(true);
 
-            mAutoModeExecutor.start();
-
             mEnabledLooper.start();
 
             mTurret.cancelHoming();
@@ -216,11 +211,6 @@ public class Robot extends TimedRobot {
             CrashTracker.logTeleopInit();
             mDisabledLooper.stop();
             mClimber.setBrakeMode(true);
-
-
-            if (mAutoModeExecutor != null) {
-                mAutoModeExecutor.stop();
-            }
 
             mInfrastructure.setIsDuringAuto(false);
 
@@ -444,9 +434,6 @@ public class Robot extends TimedRobot {
             CrashTracker.logDisabledInit();
             mEnabledLooper.stop();
             mClimber.setBrakeMode(true);
-            if (mAutoModeExecutor != null) {
-                mAutoModeExecutor.stop();
-            }
 
           //  mRobotState.resetVision();
 
@@ -454,11 +441,6 @@ public class Robot extends TimedRobot {
 
             Swerve.getInstance().zeroSensors();
             RobotState.getInstance().reset(Timer.getFPGATimestamp(), Pose2d.identity());
-
-            // Reset all auto mode state.
-            mAutoModeSelector.reset();
-           // mAutoModeSelector.updateModeCreator();
-            mAutoModeExecutor = new AutoModeExecutor();
 
             mDisabledLooper.start();
 
@@ -492,14 +474,6 @@ public class Robot extends TimedRobot {
                 mLEDs.conformToState(LEDs.State.RAINBOW);
             } else {
                 mLEDs.conformToState(LEDs.State.BREATHING_PINK);
-            }
-
-           // mAutoModeSelector.updateModeCreator();
-
-            Optional<AutoModeBase> autoMode = mAutoModeSelector.getAutoMode();
-            if (autoMode.isPresent() && autoMode.get() != mAutoModeExecutor.getAutoMode()) {
-                System.out.println("Set auto mode to: " + autoMode.get().getClass().toString());
-                mAutoModeExecutor.setAutoMode(autoMode.get());
             }
 
             mLEDs.writePeriodicOutputs();
