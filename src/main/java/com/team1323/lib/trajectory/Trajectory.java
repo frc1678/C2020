@@ -14,7 +14,7 @@ public class Trajectory<S extends State<S>> implements CSVWritable {
     public void setDefaultVelocity(double default_velocity){
         this.default_velocity = default_velocity;
     }
-    public double defaultVelocity(){
+    public double defaultVelocity() {
         return default_velocity;
     }
     /**

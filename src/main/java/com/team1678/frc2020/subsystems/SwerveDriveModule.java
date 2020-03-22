@@ -78,11 +78,11 @@ public class SwerveDriveModule extends Subsystem {
 		rotationMotor.configMotionCruiseVelocity((int)maxSpeed, 0);
 	}
 
-	public synchronized void disableDriveEncoder(){
+	public synchronized void disableDriveEncoder() {
 		useDriveEncoder = false;
 	}
 	
-	private void configureMotors(){
+	private void configureMotors() {
     	rotationMotor.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Absolute, 0, 10);
     	rotationMotor.setSensorPhase(true);
     	rotationMotor.setInverted(false);
@@ -142,7 +142,7 @@ public class SwerveDriveModule extends Subsystem {
 		}
 	}
 
-	private boolean isRotationSensorConnected(){
+	private boolean isRotationSensorConnected() {
 		/*if(RobotBase.isReal()){
 			int pulseWidthPeriod = rotationMotor.getSensorCollection().getPulseWidthRiseToRiseUs();
 			return pulseWidthPeriod != 0;
@@ -150,7 +150,7 @@ public class SwerveDriveModule extends Subsystem {
 		return true;
 	}
 
-	private boolean isDriveSensorConnected(){
+	private boolean isDriveSensorConnected() {
 		/*if(RobotBase.isReal()){
 			int pulseWidthPeriod = driveMotor.getSensorCollection().getPulseWidthRiseToRiseUs();
 			return pulseWidthPeriod != 0;
@@ -158,11 +158,11 @@ public class SwerveDriveModule extends Subsystem {
 		return true;
 	}
 	
-	private double getRawAngle(){
+	private double getRawAngle() {
 		return encUnitsToDegrees(periodicIO.rotationPosition);
 	}
 	
-	public Rotation2d getModuleAngle(){
+	public Rotation2d getModuleAngle() {
 		return Rotation2d.fromDegrees(getRawAngle() - encUnitsToDegrees(encoderOffset));
 	}
 	
@@ -178,7 +178,7 @@ public class SwerveDriveModule extends Subsystem {
 		periodicIO.rotationDemand = setpoint;
 	}
 	
-	public boolean angleOnTarget(){
+	public boolean angleOnTarget() {
 		double error = encUnitsToDegrees(Math.abs(periodicIO.rotationDemand - periodicIO.rotationPosition));
 		return error < 4.5;
 	}
@@ -214,7 +214,7 @@ public class SwerveDriveModule extends Subsystem {
 		periodicIO.driveDemand = periodicIO.drivePosition + inchesToEncUnits(deltaDistanceInches);
 	}
 	
-	public boolean drivePositionOnTarget(){
+	public boolean drivePositionOnTarget() {
 		if(driveMotor.getControlMode() == ControlMode.MotionMagic)
 			return encUnitsToInches((int)Math.abs(periodicIO.driveDemand - periodicIO.drivePosition)) < 2.0;
 		return false;
@@ -226,7 +226,7 @@ public class SwerveDriveModule extends Subsystem {
 		periodicIO.driveDemand = inchesPerSecondToEncVelocity(inchesPerSecond);
 	}
 	
-	private double getDriveDistanceInches(){
+	private double getDriveDistanceInches() {
 		return encUnitsToInches(periodicIO.drivePosition);
 	}
 	
@@ -254,11 +254,11 @@ public class SwerveDriveModule extends Subsystem {
 		return encUnits/Constants.kSwerveRotationEncoderResolution*360.0;
 	}
 	
-	public Translation2d getPosition(){
+	public Translation2d getPosition() {
 		return position;
 	}
 	
-	public Pose2d getEstimatedRobotPose(){
+	public Pose2d getEstimatedRobotPose() {
 		return estimatedRobotPose;
 	}
 	
@@ -342,11 +342,11 @@ public class SwerveDriveModule extends Subsystem {
 		position = modulePosition;
 	}
 	
-	public synchronized void resetPose(){
+	public synchronized void resetPose() {
 		position = startingPosition;
 	}
 	
-	public synchronized void resetLastEncoderReading(){
+	public synchronized void resetLastEncoderReading() {
 		previousEncDistance = getDriveDistanceInches();
 	}
 
@@ -368,16 +368,16 @@ public class SwerveDriveModule extends Subsystem {
 	}
 	
 	@Override
-	public synchronized void stop(){
+	public synchronized void stop() {
 		setDriveOpenLoop(0.0);
 	}
 	
-	public synchronized void disable(){
+	public synchronized void disable() {
 		setDriveOpenLoop(0.0);
 		setRotationOpenLoop(0.0);
 	}
 	
-	public synchronized void resetRotationToAbsolute(){
+	public synchronized void resetRotationToAbsolute() {
 		/*rotationMotor.setSelectedSensorPosition(
 				encoderReverseFactor * (rotationMotor.getSensorCollection().getPulseWidthPosition() - encoderOffset), 0, 10);*/
 	}

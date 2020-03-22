@@ -22,12 +22,12 @@ public abstract class AutoModeBase {
 
     protected static TrajectoryGenerator.TrajectorySet trajectories = TrajectoryGenerator.getInstance().getTrajectorySet();
 
-    public List<Trajectory<TimedState<Pose2dWithCurvature>>> getPaths(){
+    public List<Trajectory<TimedState<Pose2dWithCurvature>>> getPaths() {
         return new ArrayList<>();
     }
 
     protected double startTime = 0.0;
-    protected double currentTime(){
+    protected double currentTime() {
         return Timer.getFPGATimestamp() - startTime;
     }
 

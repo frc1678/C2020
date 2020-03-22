@@ -255,11 +255,8 @@ public class Constants {
     // pigeon
     public static final int kPigeonIMUId = 16;
 
-    public static final boolean kUseDriveGamepad = false;
-    public static final int kDriveGamepadPort = 0;
-    public static final int kButtonGamepadPort = 2;
-    public static final int kMainThrottleJoystickPort = 1;
-    public static final int kMainTurnJoystickPort = 0;
+    public static final int kOperatorJoystickPort = 2;
+    public static final int kDriverJoystickPort = 0;
     public static final double kJoystickThreshold = 0.2;
 
     // Roller

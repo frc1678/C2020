@@ -145,7 +145,7 @@ public class TrajectoryGenerator {
             oppoTrenchToStart = getOppoTrenchToStart();
         }
         
-        private Trajectory<TimedState<Pose2dWithCurvature>> getStraightPath(){
+        private Trajectory<TimedState<Pose2dWithCurvature>> getStraightPath() {
             List<Pose2d> waypoints = new ArrayList<>();
             waypoints.add(Constants.kRobotStartingPose);
             waypoints.add(Constants.kRobotStartingPose.transformBy(Pose2d.fromTranslation(new Translation2d(72.0, 0.0))));
@@ -153,7 +153,7 @@ public class TrajectoryGenerator {
             return generateTrajectory(false, waypoints, Arrays.asList(), kMaxVelocity, kMaxAccel, kMaxDecel, kMaxVoltage, 60.0, 1);
         }
         
-        private Trajectory<TimedState<Pose2dWithCurvature>> getStartToGenerator1(){
+        private Trajectory<TimedState<Pose2dWithCurvature>> getStartToGenerator1() {
             List<Pose2d> waypoints = new ArrayList<>();
             waypoints.add(new Pose2d(autoStartingPose.getTranslation(), Rotation2d.fromDegrees(-30.0)));
             waypoints.add(generatorIntake1Pose);
@@ -161,7 +161,7 @@ public class TrajectoryGenerator {
             return generateTrajectory(false, waypoints, Arrays.asList(), kMaxVelocity, kMaxAccel, kMaxDecel, kMaxVoltage, 60.0, 1);
         }
         
-        private Trajectory<TimedState<Pose2dWithCurvature>> getGenerator1ToStart(){
+        private Trajectory<TimedState<Pose2dWithCurvature>> getGenerator1ToStart() {
             List<Pose2d> waypoints = new ArrayList<>();
             waypoints.add(generatorIntake1Pose);
             waypoints.add(new Pose2d(autoStartingPose.getTranslation(), Rotation2d.fromDegrees(-30.0)));
@@ -169,7 +169,7 @@ public class TrajectoryGenerator {
             return generateTrajectory(true, waypoints, Arrays.asList(), kMaxVelocity, kMaxAccel, kMaxDecel, kMaxVoltage, 60.0, 1);
         }
         
-        private Trajectory<TimedState<Pose2dWithCurvature>> getStartToTrenchRun(){
+        private Trajectory<TimedState<Pose2dWithCurvature>> getStartToTrenchRun() {
             List<Pose2d> waypoints = new ArrayList<>();
             waypoints.add(new Pose2d(autoStartingPose.getTranslation(), Rotation2d.fromDegrees(-50.0)));
             waypoints.add(firstTrenchIntakePose);
@@ -178,7 +178,7 @@ public class TrajectoryGenerator {
             return generateTrajectory(false, waypoints, Arrays.asList(), kMaxVelocity, kMaxAccel, kMaxDecel, kMaxVoltage, 60.0, 1);
         }
         
-        private Trajectory<TimedState<Pose2dWithCurvature>> getTrenchRunToStart(){
+        private Trajectory<TimedState<Pose2dWithCurvature>> getTrenchRunToStart() {
             List<Pose2d> waypoints = new ArrayList<>();
             waypoints.add(trenchPairIntakePose);
             waypoints.add(firstTrenchIntakePose);
@@ -187,7 +187,7 @@ public class TrajectoryGenerator {
             return generateTrajectory(true, waypoints, Arrays.asList(), kMaxVelocity, kMaxAccel, kMaxDecel, kMaxVoltage, 60.0, 1);
         }
 
-        private Trajectory<TimedState<Pose2dWithCurvature>> getTrenchRunToCorner(){
+        private Trajectory<TimedState<Pose2dWithCurvature>> getTrenchRunToCorner() {
             List<Pose2d> waypoints = new ArrayList<>();
             waypoints.add(trenchPairIntakePose);
             waypoints.add(thirdTrenchIntakePose);
@@ -196,7 +196,7 @@ public class TrajectoryGenerator {
             return generateTrajectory(true, waypoints, Arrays.asList(), kMaxVelocity, kMaxAccel, kMaxDecel, kMaxVoltage, 60.0, 1);
         }
 
-        private Trajectory<TimedState<Pose2dWithCurvature>> getGenerator1ToTrenchRun(){
+        private Trajectory<TimedState<Pose2dWithCurvature>> getGenerator1ToTrenchRun() {
             List<Pose2d> waypoints = new ArrayList<>();
             waypoints.add(new Pose2d(generatorIntake1Pose.getTranslation(), generatorIntake1Pose.getRotation().rotateBy(Rotation2d.fromDegrees(180.0))));
             waypoints.add(firstTrenchIntakePose);
@@ -205,7 +205,7 @@ public class TrajectoryGenerator {
             return generateTrajectory(false, waypoints, Arrays.asList(), kMaxVelocity, kMaxAccel, kMaxDecel, kMaxVoltage, 60.0, 1);
         }
 
-        private Trajectory<TimedState<Pose2dWithCurvature>> getGenerator1ToTrenchCorner(){
+        private Trajectory<TimedState<Pose2dWithCurvature>> getGenerator1ToTrenchCorner() {
             List<Pose2d> waypoints = new ArrayList<>();
             waypoints.add(new Pose2d(generatorIntake1Pose.getTranslation(), generatorIntake1Pose.getRotation().rotateBy(Rotation2d.fromDegrees(180.0))));
             waypoints.add(new Pose2d(trenchCornerPose.getTranslation(), Rotation2d.fromDegrees(-90.0)));
@@ -213,7 +213,7 @@ public class TrajectoryGenerator {
             return generateTrajectory(false, waypoints, Arrays.asList(), kMaxVelocity, kMaxAccel, kMaxDecel, kMaxVoltage, 60.0, 1);
         }
 
-        private Trajectory<TimedState<Pose2dWithCurvature>> getTrenchCornerToTrenchRun(){
+        private Trajectory<TimedState<Pose2dWithCurvature>> getTrenchCornerToTrenchRun() {
             List<Pose2d> waypoints = new ArrayList<>();
             waypoints.add(new Pose2d(trenchCornerPose.getTranslation(), Rotation2d.fromDegrees(-90.0)));
             waypoints.add(firstTrenchIntakePose);
@@ -222,7 +222,7 @@ public class TrajectoryGenerator {
             return generateTrajectory(false, waypoints, Arrays.asList(), kMaxVelocity, kMaxAccel, kMaxDecel, kMaxVoltage, 60.0, 1);
         }
 
-        private Trajectory<TimedState<Pose2dWithCurvature>> getStartToOppoTrench(){
+        private Trajectory<TimedState<Pose2dWithCurvature>> getStartToOppoTrench() {
             List<Pose2d> waypoints = new ArrayList<>();
             waypoints.add(new Pose2d(autoStartingPose.getTranslation(), Rotation2d.fromDegrees(90.0)));
             waypoints.add(trenchOppositePairIntakePose);
@@ -230,7 +230,7 @@ public class TrajectoryGenerator {
             return generateTrajectory(false, waypoints, Arrays.asList(), kMaxVelocity, kMaxAccel, kMaxDecel, kMaxVoltage, 60.0, 1);
         }
         
-        private Trajectory<TimedState<Pose2dWithCurvature>> getOppoTrenchToStart(){
+        private Trajectory<TimedState<Pose2dWithCurvature>> getOppoTrenchToStart() {
             List<Pose2d> waypoints = new ArrayList<>();
             waypoints.add(new Pose2d(autoStartingPose.getTranslation(), Rotation2d.fromDegrees(90.0)));
             waypoints.add(trenchOppositePairIntakePose);

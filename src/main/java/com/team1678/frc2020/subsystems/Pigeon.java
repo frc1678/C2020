@@ -10,7 +10,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Pigeon {
 	private static Pigeon instance = null;
-	public static Pigeon getInstance(){
+	public static Pigeon getInstance() {
 		if(instance == null){
 			instance = new Pigeon();
 		}
@@ -19,7 +19,7 @@ public class Pigeon {
 	
 	private PigeonIMU pigeon;
     
-	private Pigeon(){
+	private Pigeon() {
 		try{
 			pigeon = new PigeonIMU(Constants.kPigeonIMUId);
 		}catch(Exception e){
@@ -27,11 +27,11 @@ public class Pigeon {
 		}
 	}
 	
-	public boolean isGood(){
+	public boolean isGood() {
 		return (pigeon.getState() == PigeonState.Ready) ? true : false;
 	}
 	
-	public Rotation2d getYaw(){
+	public Rotation2d getYaw() {
 		if(RobotBase.isReal()){
 			PigeonIMU.FusionStatus fusionStatus = new PigeonIMU.FusionStatus();
 			return Rotation2d.fromDegrees(-pigeon.getFusedHeading(fusionStatus));
@@ -39,19 +39,19 @@ public class Pigeon {
 		return new Rotation2d();
 	}
 
-	public double getPitch(){
+	public double getPitch() {
 		double [] ypr = new double[3];
 		pigeon.getYawPitchRoll(ypr);
 		return ypr[1];
 	}
 
-	public double getRoll(){
+	public double getRoll() {
 		double [] ypr = new double[3];
 		pigeon.getYawPitchRoll(ypr);
 		return ypr[2];
 	}
 
-	public double[] getYPR(){
+	public double[] getYPR() {
 		double[] ypr = new double[3];
 		pigeon.getYawPitchRoll(ypr);
 		return ypr;
@@ -63,7 +63,7 @@ public class Pigeon {
 		System.out.println("Pigeon angle set to: " + angle);
 	}
 	
-	public void outputToSmartDashboard(){
+	public void outputToSmartDashboard() {
 		SmartDashboard.putString("Pigeon Good", pigeon.getState().toString());
 	}
 }

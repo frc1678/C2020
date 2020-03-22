@@ -16,13 +16,13 @@ public class RobotStateEstimator extends Subsystem {
 	Turret turret;
 
     private static RobotStateEstimator instance = null;
-	public static RobotStateEstimator getInstance(){
+	public static RobotStateEstimator getInstance() {
 		if(instance == null)
 			instance = new RobotStateEstimator();
 		return instance;
 	}
 	
-	RobotStateEstimator(){
+	RobotStateEstimator() {
 	}
 
     @Override

@@ -43,7 +43,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 public class Swerve extends Subsystem{
 	//Instance declaration
 	private static Swerve instance = null;
-	public static Swerve getInstance(){
+	public static Swerve getInstance() {
 		if(instance == null)
 			instance = new Swerve();
 		return instance;
@@ -59,7 +59,7 @@ public class Swerve extends Subsystem{
 	Translation2d counterClockwiseCenter = new Translation2d();
 	boolean evading = false;
 	boolean evadingToggled = false;
-	public void toggleEvade(){
+	public void toggleEvade() {
 		evading = !evading;
 		evadingToggled = true;
 	}
@@ -67,10 +67,10 @@ public class Swerve extends Subsystem{
 	//Heading controller methods
 	Pigeon pigeon;
 	SwerveHeadingController headingController = new SwerveHeadingController();
-	public void temporarilyDisableHeadingController(){
+	public void temporarilyDisableHeadingController() {
 		headingController.temporarilyDisable();
 	}
-	public double getTargetHeading(){
+	public double getTargetHeading() {
 		return headingController.getTargetHeading();
 	}
 
@@ -78,7 +78,7 @@ public class Swerve extends Subsystem{
 	RobotState robotState;
 	Rotation2d visionTargetHeading = new Rotation2d();
 	boolean visionUpdatesAllowed = true;
-	public void resetVisionUpdates(){
+	public void resetVisionUpdates() {
 		visionUpdatesAllowed = true;
 		visionUpdateCount = 0;
 		attemptedVisionUpdates = 0;
@@ -87,7 +87,7 @@ public class Swerve extends Subsystem{
 		visionCriteria.reset();
 	}
 	Translation2d visionTargetPosition = new Translation2d();
-	public Translation2d getVisionTargetPosition(){ return visionTargetPosition; }
+	public Translation2d getVisionTargetPosition() { return visionTargetPosition; }
 	int visionUpdateCount = 0;
 	int attemptedVisionUpdates = 0;
 	int visionVisibleCycles = 0;
@@ -106,7 +106,7 @@ public class Swerve extends Subsystem{
 	boolean visionTargetAcquired = false;
 
 	boolean needsToNotifyDrivers = false;
-	public boolean needsToNotifyDrivers(){
+	public boolean needsToNotifyDrivers() {
 		if(needsToNotifyDrivers){
 			needsToNotifyDrivers = false;
 			return true;
@@ -122,7 +122,7 @@ public class Swerve extends Subsystem{
 	double distanceTraveled;
 	double currentVelocity = 0;
 	double lastUpdateTimestamp = 0;
-	public UnwrappablePose2d getPose(){
+	public UnwrappablePose2d getPose() {
 		return pose;
 	}
 
@@ -135,10 +135,10 @@ public class Swerve extends Subsystem{
 	boolean modulesReady = false;
 	boolean alwaysConfigureModules = false;
 	boolean moduleConfigRequested = false;
-	public void requireModuleConfiguration(){
+	public void requireModuleConfiguration() {
 		modulesReady = false;
 	}
-	public void alwaysConfigureModules(){
+	public void alwaysConfigureModules() {
 		alwaysConfigureModules = true;
 	}
 	UnwrappablePose2d startingPose = Constants.kRobotStartingPose.unwrap();
@@ -148,7 +148,7 @@ public class Swerve extends Subsystem{
 
 	//Trajectory variables
 	DriveMotionPlanner motionPlanner;
-	public double getRemainingProgress(){
+	public double getRemainingProgress() {
 		if(motionPlanner != null && getState() == ControlState.TRAJECTORY){
 			return motionPlanner.getRemainingProgress();
 		}
@@ -157,17 +157,17 @@ public class Swerve extends Subsystem{
 	double rotationScalar;
 	double trajectoryStartTime = 0;
 	Translation2d lastTrajectoryVector = new Translation2d();
-	public Translation2d getLastTrajectoryVector(){ return lastTrajectoryVector; }
+	public Translation2d getLastTrajectoryVector() { return lastTrajectoryVector; }
 	boolean hasStartedFollowing = false;
 	boolean hasFinishedPath = false;
-	public boolean hasFinishedPath(){
+	public boolean hasFinishedPath() {
 		return hasFinishedPath;
 	}
 	
 	//Experimental
 	VectorField vf;
 	
-	private Swerve(){
+	private Swerve() {
 		frontRight = new SwerveDriveModule(Constants.FRONT_RIGHT_ROTATION, Constants.FRONT_RIGHT_DRIVE,
 				0, Constants.kFrontRightEncoderStartingPos, Constants.kVehicleToModuleZero);
 		frontLeft = new SwerveDriveModule(Constants.FRONT_LEFT_ROTATION, Constants.FRONT_LEFT_DRIVE,
@@ -238,7 +238,7 @@ Constants.kVehicleToModuleOne, Constants.kVehicleToModuleTwo, Constants.kVehicle
 		TRAJECTORY, VELOCITY
 	}
 	private ControlState currentState = ControlState.NEUTRAL;
-	public ControlState getState(){
+	public ControlState getState() {
 		return currentState;
 	}
 	public void setState(ControlState newState){
@@ -320,7 +320,7 @@ Constants.kVehicleToModuleOne, Constants.kVehicleToModuleTwo, Constants.kVehicle
 
 	//Possible new control method for rotation
 	public Rotation2d averagedDirection = Rotation2d.identity();
-	public void resetAveragedDirection(){ averagedDirection = pose.getRotation().wrap(); }
+	public void resetAveragedDirection() { averagedDirection = pose.getRotation().wrap(); }
 	public void setAveragedDirection(double degrees){ averagedDirection = Rotation2d.fromDegrees(degrees); }
 	public final double rotationDirectionThreshold = Math.toRadians(5.0);
 	public final double rotationDivision = 1.0;
@@ -370,7 +370,7 @@ Constants.kVehicleToModuleOne, Constants.kVehicleToModuleTwo, Constants.kVehicle
 	}
 
 	/** Locks drive motors in place with MotionMagic */
-	public void lockDrivePosition(){
+	public void lockDrivePosition() {
 		modules.forEach((m) -> m.setDrivePositionTarget(0.0));
 	}
 
@@ -451,7 +451,7 @@ Constants.kVehicleToModuleOne, Constants.kVehicleToModuleTwo, Constants.kVehicle
 	/**
 	 * @return Whether or not at least one module has reached its MotionMagic setpoint
 	 */
-	public boolean positionOnTarget(){
+	public boolean positionOnTarget() {
 		boolean onTarget = false;
 		for(SwerveDriveModule m : modules){
 			onTarget |= m.drivePositionOnTarget();
@@ -462,7 +462,7 @@ Constants.kVehicleToModuleOne, Constants.kVehicleToModuleTwo, Constants.kVehicle
 	/**
 	 * @return Whether or not all modules have reached their angle setpoints
 	 */
-	public boolean moduleAnglesOnTarget(){
+	public boolean moduleAnglesOnTarget() {
 		boolean onTarget = true;
 		for(SwerveDriveModule m : modules){
 			onTarget &= m.angleOnTarget();
@@ -522,7 +522,7 @@ Constants.kVehicleToModuleOne, Constants.kVehicleToModuleTwo, Constants.kVehicle
 	}
 	
 	/** Determines which wheels the robot should rotate about in order to perform an evasive maneuver */
-	public synchronized void determineEvasionWheels(){
+	public synchronized void determineEvasionWheels() {
 		Translation2d here = lastDriveVector.rotateBy(pose.getRotation().inverse().wrap());
 		List<Translation2d> wheels = Constants.kModulePositions;
 		clockwiseCenter = wheels.get(0);
@@ -586,7 +586,7 @@ Constants.kVehicleToModuleOne, Constants.kVehicleToModuleTwo, Constants.kVehicle
 	}
 
 	/** Playing around with different methods of odometry. This will require the use of all four modules, however. */
-	public synchronized void alternatePoseUpdate(){
+	public synchronized void alternatePoseUpdate() {
 		double x = 0.0;
 		double y = 0.0;
 		Rotation2d heading = pigeon.getYaw();
@@ -748,7 +748,7 @@ Constants.kVehicleToModuleOne, Constants.kVehicleToModuleTwo, Constants.kVehicle
 		}
 	}
 	
-	private final Loop loop = new Loop(){
+	private final Loop loop = new Loop() {
 
 		@Override
 		public void onStart(double timestamp) {
@@ -793,7 +793,7 @@ Constants.kVehicleToModuleOne, Constants.kVehicleToModuleTwo, Constants.kVehicle
 	}
 	
 	/** Sets the maximum rotation speed opf the modules, based on the robot's velocity */
-	public void setMaxRotationSpeed(){
+	public void setMaxRotationSpeed() {
 		double currentDriveSpeed = translationalVector.norm() * Constants.kSwerveMaxSpeedInchesPerSecond;
 		double newMaxRotationSpeed = Constants.kSwerveRotationMaxSpeed / 
 				((Constants.kSwerveRotationSpeedScalar * currentDriveSpeed) + 1.0);
@@ -824,7 +824,7 @@ Constants.kVehicleToModuleOne, Constants.kVehicleToModuleTwo, Constants.kVehicle
 	}
 	
 	/** Puts all rotation and drive motors into open-loop mode */
-	public synchronized void disable(){
+	public synchronized void disable() {
 		modules.forEach((m) -> m.disable());
 		setState(ControlState.DISABLED);
 	}

@@ -1,7 +1,9 @@
 package com.team1678.frc2020.controlboard;
 
 import com.team1678.frc2020.Constants;
-import edu.wpi.first.wpilibj.Joystick;
+import com.team1678.frc2020.controlboard.CustomXboxController.Button;
+
+import edu.wpi.first.wpilibj.GenericHID.Hand;
 
 public class MainDriveControlBoard {
     private static MainDriveControlBoard mInstance = null;
@@ -14,51 +16,69 @@ public class MainDriveControlBoard {
         return mInstance;
     }
 
-    private final Joystick mThrottleStick;
-    private final Joystick mTurnStick;
+    private final CustomXboxController mController;
 
     private int mDPadUp = -1;
     private int mDPadDown = -1;
 
     private MainDriveControlBoard() {
-        mThrottleStick = new Joystick(Constants.kMainThrottleJoystickPort);
-        mTurnStick = new Joystick(Constants.kMainTurnJoystickPort);
+        mController = new CustomXboxController(Constants.kDriverJoystickPort);
     }
 
-    public double getThrottle() {
-        return -mThrottleStick.getRawAxis(1);
+    public double getSwerveYInput() {
+        return mController.getJoystick(CustomXboxController.Side.LEFT, CustomXboxController.Axis.X);
     }
 
-    public double getTurn() {
-        return -mTurnStick.getRawAxis(0);
+    public double getSwerveXInput() {
+        return -mController.getJoystick(CustomXboxController.Side.LEFT, CustomXboxController.Axis.Y);
     }
 
-    public boolean getQuickTurn() {
-        return mTurnStick.getRawButton(5);
+    public double getSwerveRotation() {
+        return mController.getJoystick(CustomXboxController.Side.RIGHT, CustomXboxController.Axis.X);
     }
 
-    public boolean getShoot() {
-        return mTurnStick.getRawButton(2);
+    public boolean getSnapNorth() {
+        return mController.getController().getYButtonPressed();
+    }
+
+    public boolean getSnapEast() {
+        return mController.getController().getBButtonPressed();
+    }
+
+    public boolean getSnapSouth() {
+        return mController.getController().getAButtonPressed();
+    }
+
+    public boolean getSnapWest() {
+        return mController.getController().getXButtonPressed();
+    }
+
+    public boolean getResetGyro() {
+        return mController.getButton(Button.BACK);
+    }
+
+    public boolean getLowPowerDrive() {
+        return false; // TODO: create a held down in custom xbox controller
     }
 
     public boolean getTuck() {
-        return mThrottleStick.getRawButton(2);
+        return mController.getTrigger(CustomXboxController.Side.RIGHT) || mController.getTrigger(CustomXboxController.Side.LEFT);
     }
 
     public boolean getManualFastRoller() {
-        return mThrottleStick.getRawButton(4);
+        return mController.getController().getBumper(Hand.kRight);
     }
 
     public boolean getManualSlowRoller() {
-        return mThrottleStick.getRawButton(3);
+        return mController.getController().getBumper(Hand.kLeft);
     }
 
     public boolean getStopManualRoller() {
-        return mThrottleStick.getRawButtonReleased(3) || mThrottleStick.getRawButtonReleased(4);
+        return mController.getController().getBumperReleased(Hand.kLeft) || mController.getController().getBumperReleased(Hand.kRight);
     }
 
     public boolean getShotUp() {
-        int pov = mThrottleStick.getPOV();
+        int pov = mController.getDPad();
 
         if (pov != mDPadUp) {
             mDPadUp = pov;
@@ -68,7 +88,7 @@ public class MainDriveControlBoard {
     }
     
     public boolean getShotDown() {
-        int pov = mThrottleStick.getPOV();
+        int pov = mController.getDPad();
 
         if (pov != mDPadDown) {
             mDPadDown = pov;

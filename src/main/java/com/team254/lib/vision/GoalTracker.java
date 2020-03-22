@@ -133,7 +133,7 @@ public class GoalTracker {
         return rv;
     }
 
-    public synchronized void clearTracks(){
+    public synchronized void clearTracks() {
         mCurrentTracks = new ArrayList<>();
     }
 }
