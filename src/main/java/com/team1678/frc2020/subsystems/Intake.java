@@ -38,6 +38,11 @@ public class Intake extends Subsystem {
 
     private final TalonFX mMaster;
 
+    // Intake timestamp variables
+    private double mIntakeIntervalTimestamp;
+    private double mCurrentIntakeTimestamp;
+    private boolean mResetIntervalTimestamp;
+
     public static class PeriodicIO {
         // INPUTS
         public double timestamp;
@@ -108,11 +113,20 @@ public class Intake extends Subsystem {
     public void runStateMachine() {
         switch (mState) {
         case INTAKING:
-            if (mPeriodicIO.intake_out) {    
-                mPeriodicIO.demand = kIntakingVoltage;
+            mCurrentIntakeTimestamp = Timer.getFPGATimestamp();
+                
+            if (mCurrentIntakeTimestamp >= mIntakeIntervalTimestamp + 1 && mCurrentIntakeTimestamp <= mIntakeIntervalTimestamp + 1.2) {
+                mResetIntervalTimestamp = true;
+                mPeriodicIO.demand = -kIntakingVoltage;
             } else {
-                mPeriodicIO.demand = 0.0;
+                if (mResetIntervalTimestamp) {
+                    mIntakeIntervalTimestamp = mCurrentIntakeTimestamp;
+                    mResetIntervalTimestamp = false;
+                }
+
+                mPeriodicIO.demand = kIntakingVoltage;
             }
+
             mPeriodicIO.deploy = true;
             break;
         case RETRACTING:
@@ -148,6 +162,9 @@ public class Intake extends Subsystem {
             mState = State.IDLE;
             break;
         case INTAKE:
+            mIntakeIntervalTimestamp = Timer.getFPGATimestamp();
+            mResetIntervalTimestamp = false;
+
             mState = State.INTAKING;
             break;
         case RETRACT:
