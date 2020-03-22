@@ -115,18 +115,20 @@ public class Intake extends Subsystem {
         case INTAKING:
             mCurrentIntakeTimestamp = Timer.getFPGATimestamp();
                 
-            if (mCurrentIntakeTimestamp >= mIntakeIntervalTimestamp + 1 && mCurrentIntakeTimestamp <= mIntakeIntervalTimestamp + 1.2) {
-                mResetIntervalTimestamp = true;
-                mPeriodicIO.demand = -kIntakingVoltage;
-            } else {
-                if (mResetIntervalTimestamp) {
-                    mIntakeIntervalTimestamp = mCurrentIntakeTimestamp;
-                    mResetIntervalTimestamp = false;
+            if (mPeriodicIO.intake_out) {
+                if (mCurrentIntakeTimestamp >= mIntakeIntervalTimestamp + 1 && mCurrentIntakeTimestamp <= mIntakeIntervalTimestamp + 1.2) {
+                    mResetIntervalTimestamp = true;
+                    mPeriodicIO.demand = -kIntakingVoltage;
+                } else {
+                    if (mResetIntervalTimestamp) {
+                        mIntakeIntervalTimestamp = mCurrentIntakeTimestamp;
+                        mResetIntervalTimestamp = false;
+                    }
+    
+                    mPeriodicIO.demand = kIntakingVoltage;
                 }
-
-                mPeriodicIO.demand = kIntakingVoltage;
             }
-
+            
             mPeriodicIO.deploy = true;
             break;
         case RETRACTING:
