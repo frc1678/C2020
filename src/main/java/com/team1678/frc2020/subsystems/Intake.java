@@ -22,6 +22,9 @@ public class Intake extends Subsystem {
     private static Intake mInstance;
     private TimeDelayedBoolean mIntakeSolenoidTimer = new TimeDelayedBoolean();
 
+    private static double kOuttakeTime = 0.2;
+    private double mIntakingTimer = 0.0;
+
     private Solenoid mDeploySolenoid;
 
     public enum WantedAction {
@@ -106,10 +109,20 @@ public class Intake extends Subsystem {
     }
 
     public void runStateMachine() {
+        double now = Timer.getFPGATimestamp();
+        
         switch (mState) {
         case INTAKING:
-            if (mPeriodicIO.intake_out) {    
-                mPeriodicIO.demand = kIntakingVoltage;
+            if (mPeriodicIO.intake_out) {  
+                double mIntakeTimeDifference = now - mIntakingTimer;
+                
+                if (mIntakeTimeDifference > 1 + kOuttakeTime) {
+                    mIntakingTimer = now;
+                } else if (mIntakeTimeDifference > 1) {
+                    mPeriodicIO.demand = -kIntakingVoltage;
+                } else {
+                    mPeriodicIO.demand = kIntakingVoltage;
+                }
             } else {
                 mPeriodicIO.demand = 0.0;
             }
