@@ -20,7 +20,6 @@ public class Intake extends Subsystem {
     private static double kIdleVoltage = 0;
 
     private double mStartTime = 0.0;
-    private double mIntakeTime = 0.0;
     private double mDt;
 
     private static Intake mInstance;
@@ -86,6 +85,7 @@ public class Intake extends Subsystem {
             @Override
             public void onStart(double timestamp) {
                 // startLogging();
+                mStartTime = Timer.getFPGATimestamp();
                 mState = State.IDLE;
             }
 
@@ -108,20 +108,20 @@ public class Intake extends Subsystem {
     public synchronized State getState() {
         return mState;
     }
+    // to run the intake backwards every 1s for 0.2s while in the INTAKING state. Once you’ve made these modifications, open a PR with those changes.
 
     public void runStateMachine() {
         switch (mState) {
         case INTAKING:
-            mIntakeTime = Timer.getFPGATimestamp();
-            mDt = mIntakeTime - mStartTime;
             if (mPeriodicIO.intake_out) {    
-                if (mDt <= 0.8) {
+                if (mDt < 200) {
+                mPeriodicIO.demand = -kIntakingVoltage;
+                }
+                else if (mDt > 200 && mDt < 1000){
                     mPeriodicIO.demand = kIntakingVoltage;
-                } else if (mDt > 0.8 && mDt <= 1){
-                    mPeriodicIO.demand = -kIntakingVoltage;
-                } 
-                if (mDt > 1){
-                    mStartTime = mIntakeTime;
+                }
+                else {
+                    mStartTime = 0;
                 }
             } else {
                 mPeriodicIO.demand = 0.0;
@@ -161,7 +161,6 @@ public class Intake extends Subsystem {
             mState = State.IDLE;
             break;
         case INTAKE:
-            mStartTime = Timer.getFPGATimestamp();
             mState = State.INTAKING;
             break;
         case RETRACT:

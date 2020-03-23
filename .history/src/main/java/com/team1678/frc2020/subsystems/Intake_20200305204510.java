@@ -19,10 +19,6 @@ public class Intake extends Subsystem {
     private static double kIntakingVoltage = 9.0;
     private static double kIdleVoltage = 0;
 
-    private double mStartTime = 0.0;
-    private double mIntakeTime = 0.0;
-    private double mDt;
-
     private static Intake mInstance;
     private TimeDelayedBoolean mIntakeSolenoidTimer = new TimeDelayedBoolean();
 
@@ -112,17 +108,8 @@ public class Intake extends Subsystem {
     public void runStateMachine() {
         switch (mState) {
         case INTAKING:
-            mIntakeTime = Timer.getFPGATimestamp();
-            mDt = mIntakeTime - mStartTime;
             if (mPeriodicIO.intake_out) {    
-                if (mDt <= 0.8) {
-                    mPeriodicIO.demand = kIntakingVoltage;
-                } else if (mDt > 0.8 && mDt <= 1){
-                    mPeriodicIO.demand = -kIntakingVoltage;
-                } 
-                if (mDt > 1){
-                    mStartTime = mIntakeTime;
-                }
+                mPeriodicIO.demand = kIntakingVoltage;
             } else {
                 mPeriodicIO.demand = 0.0;
             }
@@ -161,7 +148,6 @@ public class Intake extends Subsystem {
             mState = State.IDLE;
             break;
         case INTAKE:
-            mStartTime = Timer.getFPGATimestamp();
             mState = State.INTAKING;
             break;
         case RETRACT:

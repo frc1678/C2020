@@ -57,7 +57,7 @@ public class SubsystemManager implements ILooper {
 
     private class EnabledLoop implements Loop {
         @Override
-        public void onStart(double ) {
+        public void onStart(double timestamp) {
             mLoops.forEach(l -> l.onStart(timestamp));
         }
 
