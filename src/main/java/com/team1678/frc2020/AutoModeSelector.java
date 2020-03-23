@@ -10,15 +10,7 @@ import java.util.Optional;
 public class AutoModeSelector {
     enum DesiredMode {
         DO_NOTHING, 
-        TEST_PATH, 
-        //TEN_BALL_AUTO, 
-        TEN_BALL_TRENCH_AUTO, 
-        LEFT_EIGHT_BALL_AUTO, 
-        LEFT_NEAR_EIGHT_BALL_AUTO,
-        RIGHT_EIGHT_BALL_AUTO, 
-        RIGHT_NEAR_EIGHT_BALL_AUTO,
-        CHARACTERIZE_DRIVE_TURN, 
-        CHARACTERIZE_DRIVE_STRAIGHT,
+        TEST,
     }
 
     private DesiredMode mCachedDesiredMode = null;
@@ -30,18 +22,32 @@ public class AutoModeSelector {
     public AutoModeSelector() {
         mModeChooser = new SendableChooser<>();
         mModeChooser.setDefaultOption("Do Nothing", DesiredMode.DO_NOTHING);
-        mModeChooser.addOption("Test Path", DesiredMode.TEST_PATH);
-        //mModeChooser.addOption("Ten Ball Auto", DesiredMode.TEN_BALL_AUTO);
-        mModeChooser.addOption("Ten Ball Trench Auto", DesiredMode.TEN_BALL_TRENCH_AUTO);
-        mModeChooser.addOption("Left Eight Ball Auto", DesiredMode.LEFT_EIGHT_BALL_AUTO);
-        mModeChooser.addOption("Left Near Eight Ball Auto", DesiredMode.LEFT_NEAR_EIGHT_BALL_AUTO);
-        mModeChooser.addOption("Right Eight Ball Auto", DesiredMode.RIGHT_EIGHT_BALL_AUTO);
-        mModeChooser.addOption("Right Near Eight Ball Auto", DesiredMode.RIGHT_NEAR_EIGHT_BALL_AUTO);
-        mModeChooser.addOption("Characterize Drive Turn", DesiredMode.CHARACTERIZE_DRIVE_TURN);
-        mModeChooser.addOption("Characterize Drive Straight", DesiredMode.CHARACTERIZE_DRIVE_STRAIGHT);
+        mModeChooser.addOption("Test Path", DesiredMode.TEST);
         SmartDashboard.putData("Auto mode", mModeChooser);
     }
 
+    public void updateModeCreator() {
+        DesiredMode desiredMode = mModeChooser.getSelected();
+        if (mCachedDesiredMode != desiredMode) {
+            System.out.println("Auto selection changed, updating creator: desiredMode->" + desiredMode.name());
+            mAutoMode = getAutoModeForParams(desiredMode);
+        }
+        mCachedDesiredMode = desiredMode;
+    }
+
+    private Optional<AutoModeBase> getAutoModeForParams(DesiredMode mode) {
+        switch (mode) {
+        case DO_NOTHING:
+            return Optional.of(new OppoTrenchAndThreeMode());
+        case TEST:
+        return Optional.of(new OppoTrenchAndThreeMode());
+        default:
+            break;
+        }
+
+        System.err.println("No valid auto mode found for  " + mode);
+        return Optional.empty();
+    }
 
     public void reset() {
         mAutoMode = Optional.empty();
