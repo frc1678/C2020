@@ -9,33 +9,34 @@ package com.team1678.frc2020;
 
 import java.util.Optional;
 
+import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.team1678.frc2020.auto.AutoModeExecutor;
 import com.team1678.frc2020.auto.modes.AutoModeBase;
 import com.team1678.frc2020.controlboard.ControlBoard;
 import com.team1678.frc2020.loops.Looper;
 import com.team1678.frc2020.paths.TrajectoryGenerator;
-import com.team1678.frc2020.controlboard.ControlBoard;
-import com.team1678.frc2020.controlboard.GamepadButtonControlBoard;
-import com.team1678.frc2020.logger.LoggingSystem;
-import com.team254.lib.wpilib.TimedRobot;
-import com.ctre.phoenix.motorcontrol.NeutralMode;
-import com.team1678.frc2020.SubsystemManager;
-import com.team1678.frc2020.subsystems.*;
-import com.team254.lib.util.*;
-import com.team254.lib.wpilib.TimedRobot;
-
-import java.util.Optional;
-
-import com.team1678.frc2020.SubsystemManager;
-import com.team1678.frc2020.subsystems.*;
-import com.team254.lib.util.*;
-import com.team254.lib.vision.AimingParameters;
-import com.team254.lib.geometry.Rotation2d;
-import com.team254.lib.geometry.Translation2d;
-import com.team1678.frc2020.subsystems.Indexer.WantedAction;
+import com.team1678.frc2020.subsystems.Canifier;
+import com.team1678.frc2020.subsystems.Climber;
+import com.team1678.frc2020.subsystems.Hood;
+import com.team1678.frc2020.subsystems.Indexer;
+import com.team1678.frc2020.subsystems.Infrastructure;
+import com.team1678.frc2020.subsystems.Intake;
+import com.team1678.frc2020.subsystems.LEDs;
+import com.team1678.frc2020.subsystems.Limelight;
+import com.team1678.frc2020.subsystems.RobotStateEstimator;
+import com.team1678.frc2020.subsystems.Roller;
+import com.team1678.frc2020.subsystems.Shooter;
+import com.team1678.frc2020.subsystems.Superstructure;
+import com.team1678.frc2020.subsystems.Swerve;
+import com.team1678.frc2020.subsystems.Trigger;
+import com.team1678.frc2020.subsystems.Turret;
+import com.team1678.frc2020.subsystems.Wrangler;
 import com.team254.lib.geometry.Pose2d;
 import com.team254.lib.geometry.Rotation2d;
+import com.team254.lib.geometry.Translation2d;
+import com.team254.lib.util.CheesyDriveHelper;
 import com.team254.lib.util.CrashTracker;
+import com.team254.lib.util.Util;
 import com.team254.lib.wpilib.TimedRobot;
 
 import edu.wpi.cscore.MjpegServer;

@@ -3,19 +3,16 @@ package com.team1323.lib.trajectory;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.team1323.lib.geometry.UnwrappableTwist2d;
 import com.team1323.lib.trajectory.timing.TimedState;
+import com.team1323.lib.util.Util;
 import com.team254.lib.geometry.IPose2d;
 import com.team254.lib.geometry.Pose2d;
 import com.team254.lib.geometry.Pose2dWithCurvature;
-import com.team254.lib.geometry.Twist2d;
 import com.team254.lib.geometry.State;
+import com.team254.lib.geometry.Twist2d;
 import com.team254.lib.spline.QuinticHermiteSpline;
 import com.team254.lib.spline.Spline;
 import com.team254.lib.spline.SplineGenerator;
-
-
-import com.team1323.lib.util.Util;
 
 public class TrajectoryUtil {
     public static <S extends IPose2d<S>> Trajectory<S> mirror(final Trajectory<S> trajectory) {

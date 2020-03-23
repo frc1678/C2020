@@ -4,16 +4,16 @@ import com.team1678.frc2020.subsystems.Swerve;
 
 public class SetTargetHeadingAction extends RunOnceAction{
 	double targetHeading;
-	Swerve swerve;
+	Swerve mSwerve;
 	
 	public SetTargetHeadingAction(double targetHeading){
 		this.targetHeading = targetHeading;
-		swerve = Swerve.getInstance();
+		mSwerve = Swerve.getInstance();
 	}
 	
 	@Override
 	public void runOnce() {
-		swerve.setAbsolutePathHeading(targetHeading);
+		mSwerve.setAbsolutePathHeading(targetHeading);
 	}
 
 }

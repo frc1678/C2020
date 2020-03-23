@@ -9,17 +9,17 @@ public class SetTrajectoryAction extends RunOnceAction{
 	Trajectory<TimedState<Pose2dWithCurvature>> trajectory;
     double goalHeading;
     double rotationScalar;
-	Swerve swerve;
+	Swerve mSwerve;
 	
 	public SetTrajectoryAction(Trajectory<TimedState<Pose2dWithCurvature>> trajectory, double goalHeading, double rotationScalar){
 		this.trajectory = trajectory;
         this.goalHeading = goalHeading;
         this.rotationScalar = rotationScalar;
-		swerve = Swerve.getInstance();
+		mSwerve = Swerve.getInstance();
 	}
 	
 	@Override
 	public synchronized void runOnce(){
-		swerve.setTrajectory(trajectory, goalHeading, rotationScalar);
+		mSwerve.setTrajectory(trajectory, goalHeading, rotationScalar);
 	}
 }

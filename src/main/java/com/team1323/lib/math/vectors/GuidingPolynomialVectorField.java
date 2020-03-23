@@ -2,7 +2,6 @@ package com.team1323.lib.math.vectors;
 
 import java.util.function.Function;
 
-import com.team1323.lib.geometry.UnwrappableTranslation2d;
 import com.team254.lib.geometry.Translation2d;
 
 public class GuidingPolynomialVectorField extends VectorField {

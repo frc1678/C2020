@@ -7,17 +7,17 @@ public class ResetPoseAction extends RunOnceAction{
 	private Pose2d newPose;
 	boolean leftStartingSide = true;
 
-	Swerve swerve;
+	Swerve mSwerve;
 	
 	public ResetPoseAction(Pose2d newPose){
 		this.newPose = newPose;
-		swerve = Swerve.getInstance();
+		mSwerve = Swerve.getInstance();
 	}
 
 	@Override
 	public void runOnce() {
-		swerve.setStartingPose(newPose.unwrap());
-		swerve.zeroSensors(newPose.unwrap());
+		mSwerve.setStartingPose(newPose.unwrap());
+		mSwerve.zeroSensors(newPose.unwrap());
 	}
 
 }

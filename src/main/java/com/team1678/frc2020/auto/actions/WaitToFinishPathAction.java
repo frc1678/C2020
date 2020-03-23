@@ -5,23 +5,23 @@ import com.team1678.frc2020.subsystems.Swerve;
 import edu.wpi.first.wpilibj.Timer;
 
 public class WaitToFinishPathAction implements Action{
-	Swerve swerve;
+	Swerve mSwerve;
 	double timeout;
 	double startTime;
 	
 	public WaitToFinishPathAction(){
-		swerve = Swerve.getInstance();
+		mSwerve = Swerve.getInstance();
 		timeout = 15.0;
 	}
 	
 	public WaitToFinishPathAction(double timeout){
-		swerve = Swerve.getInstance();
+		mSwerve = Swerve.getInstance();
 		this.timeout = timeout;
 	}
 	
 	@Override
 	public boolean isFinished(){
-		return swerve.hasFinishedPath() || ((Timer.getFPGATimestamp() - startTime) > timeout);
+		return mSwerve.hasFinishedPath() || ((Timer.getFPGATimestamp() - startTime) > timeout);
 	}
 	
 	@Override

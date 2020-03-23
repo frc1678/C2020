@@ -1,7 +1,6 @@
 package com.team1323.lib.geometry;
 
 import com.team254.lib.geometry.Pose2d;
-import com.team254.lib.geometry.Pose2dWithCurvature;
 import com.team254.lib.util.Util;
 
 /**

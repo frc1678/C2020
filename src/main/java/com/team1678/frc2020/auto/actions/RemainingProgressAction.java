@@ -7,17 +7,17 @@ import com.team1678.frc2020.subsystems.Swerve;
  * amount of time left before the completion of a trajectory.
  */
 public class RemainingProgressAction implements Action{
-    Swerve swerve;
+    Swerve mSwerve;
     double targetProgress = 0.0;
 
     public RemainingProgressAction(double targetProgress){
-        swerve = Swerve.getInstance();
+        mSwerve = Swerve.getInstance();
         this.targetProgress = targetProgress;
     }
 
     @Override
     public boolean isFinished() {
-        return swerve.getRemainingProgress() <= targetProgress;
+        return mSwerve.getRemainingProgress() <= targetProgress;
     }
 
     @Override

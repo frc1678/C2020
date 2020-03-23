@@ -168,13 +168,13 @@ public class Swerve extends Subsystem{
 	VectorField vf;
 	
 	private Swerve() {
-		frontRight = new SwerveDriveModule(Constants.FRONT_RIGHT_ROTATION, Constants.FRONT_RIGHT_DRIVE,
+		frontRight = new SwerveDriveModule(Constants.kFrontRightRotationId, Constants.kFrontRightDriveId,
 				0, Constants.kFrontRightEncoderStartingPos, Constants.kVehicleToModuleZero);
-		frontLeft = new SwerveDriveModule(Constants.FRONT_LEFT_ROTATION, Constants.FRONT_LEFT_DRIVE,
+		frontLeft = new SwerveDriveModule(Constants.kFrontLeftRotationId, Constants.kFrontLeftDriveId,
 				1, Constants.kFrontLeftEncoderStartingPos, Constants.kVehicleToModuleOne);
-		rearLeft = new SwerveDriveModule(Constants.REAR_LEFT_ROTATION, Constants.REAR_LEFT_DRIVE,
+		rearLeft = new SwerveDriveModule(Constants.kRearLeftRotationId, Constants.kRearLeftDriveId,
 				2, Constants.kRearLeftEncoderStartingPos, Constants.kVehicleToModuleTwo);
-		rearRight = new SwerveDriveModule(Constants.REAR_RIGHT_ROTATION, Constants.REAR_RIGHT_DRIVE,
+		rearRight = new SwerveDriveModule(Constants.kRearRightRotationId, Constants.kRearRightDriveId,
 				3, Constants.kRearRightEncoderStartingPos, Constants.kVehicleToModuleThree);
 		
 		modules = Arrays.asList(frontRight, frontLeft, rearLeft, rearRight);

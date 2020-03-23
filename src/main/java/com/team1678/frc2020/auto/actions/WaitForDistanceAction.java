@@ -13,19 +13,19 @@ import com.team254.lib.geometry.Translation2d;
  * 
  */
 public class WaitForDistanceAction implements Action{
-    Swerve swerve;
+    Swerve mSwerve;
     Translation2d pointOfInterest;
     double distance;
 
     public WaitForDistanceAction(Translation2d target, double distance){
-        swerve = Swerve.getInstance();
+        mSwerve = Swerve.getInstance();
         pointOfInterest = target;
         this.distance = distance;
     }
 
     @Override
     public boolean isFinished() {
-        return swerve.getPose().getTranslation().distance(pointOfInterest.unwrap()) <= distance;
+        return mSwerve.getPose().getTranslation().distance(pointOfInterest.unwrap()) <= distance;
     }
 
     @Override

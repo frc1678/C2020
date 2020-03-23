@@ -1,20 +1,18 @@
 package com.team1678.frc2020;
 
-import com.team1678.frc2020.subsystems.ServoMotorSubsystem.ServoMotorSubsystemConstants;
-import com.team1678.frc2020.subsystems.ServoMotorSubsystem.TalonFXConstants;
-import com.team254.lib.geometry.Pose2d;
-import com.team254.lib.geometry.Rotation2d;
-import com.team254.lib.geometry.Translation2d;
-import com.team1678.frc2020.subsystems.Limelight.LimelightConstants;
-import com.team254.lib.geometry.Pose2d;
-import com.team254.lib.geometry.Rotation2d;
-import com.team254.lib.geometry.Translation2d;
-import edu.wpi.first.wpilibj.Solenoid;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.List;
+
+import com.team1678.frc2020.subsystems.Limelight.LimelightConstants;
+import com.team1678.frc2020.subsystems.ServoMotorSubsystem.ServoMotorSubsystemConstants;
+import com.team254.lib.geometry.Pose2d;
+import com.team254.lib.geometry.Rotation2d;
+import com.team254.lib.geometry.Translation2d;
+
+import edu.wpi.first.wpilibj.Solenoid;
 
 /**
  * A list of constants used by the rest of the robot code. This includes physics
@@ -96,21 +94,14 @@ public class Constants {
     public static final double kDriveVoltageRampRate = 0.0;
 
     // Falcons
-    public static final int FRONT_RIGHT_ROTATION = 7;
-    public static final int FRONT_RIGHT_DRIVE = 3;
-    public static final int FRONT_LEFT_ROTATION = 8;
-    public static final int FRONT_LEFT_DRIVE = 12;
-    public static final int REAR_LEFT_ROTATION = 11;
-    public static final int REAR_LEFT_DRIVE = 15;
-    public static final int REAR_RIGHT_ROTATION = 4;
-    public static final int REAR_RIGHT_DRIVE = 0;
-    // Analog In
-    public static final int FRONT_RIGHT_ENCODER = 0;
-    public static final int FRONT_LEFT_ENCODER = 1;
-    public static final int REAR_LEFT_ENCODER = 2;
-    public static final int REAR_RIGHT_ENCODER = 3;
-    public static final int[] kModuleEncoders = new int[] { FRONT_RIGHT_ENCODER, FRONT_LEFT_ENCODER, REAR_LEFT_ENCODER,
-            REAR_RIGHT_ENCODER };
+    public static final int kFrontRightRotationId = 7;
+    public static final int kFrontRightDriveId = 3;
+    public static final int kFrontLeftRotationId = 8;
+    public static final int kFrontLeftDriveId = 12;
+    public static final int kRearLeftRotationId = 11;
+    public static final int kRearLeftDriveId = 15;
+    public static final int kRearRightRotationId = 4;
+    public static final int kRearRightDriveId = 0;
 
     // climber
     public static final int kWinchMasterId = 11;

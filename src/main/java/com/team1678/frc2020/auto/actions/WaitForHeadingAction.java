@@ -3,19 +3,19 @@ package com.team1678.frc2020.auto.actions;
 import com.team1678.frc2020.subsystems.Swerve;
 
 public class WaitForHeadingAction implements Action{
-	Swerve swerve;
+	Swerve mSwerve;
 	double lowThreshold;
 	double highThreshold;
 	
 	public WaitForHeadingAction(double lowThreshold, double highThreshold){
-		swerve = Swerve.getInstance();
+		mSwerve = Swerve.getInstance();
 		this.lowThreshold = lowThreshold;
 		this.highThreshold = highThreshold;
 	}
 	
 	@Override
 	public boolean isFinished(){
-		double heading = swerve.getPose().getRotation().getUnboundedDegrees();
+		double heading = mSwerve.getPose().getRotation().getUnboundedDegrees();
 		return heading >= lowThreshold && heading <= highThreshold;
 	}
 	
