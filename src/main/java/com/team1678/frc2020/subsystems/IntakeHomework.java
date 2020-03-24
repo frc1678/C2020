@@ -48,6 +48,7 @@ public class Intake extends Subsystem {
         // OUTPUTS
         public double demand;
         public boolean deploy;
+        public static double getFPGATimestamp;
     }
 
     private Intake() {
@@ -112,12 +113,15 @@ public class Intake extends Subsystem {
             if (mPeriodicIO.intake_out) {
                 if (current - intakeStartingTime < 0.2) {
                     mPeriodicIO.demand = -kIntakingVoltage;
+                    mPeriodicIO.deploy = true;
                 }  
                 mPeriodicIO.demand = kIntakingVoltage;
             } else if (current - intakeStartingTime < 1.0){
-                intakeStartTime = Timer.getFPGATimestamp();
+                intakeStartingTime = Timer.getFPGATimestamp();
+                mPeriodicIO.deploy = true;
             } else {
                 mPeriodicIO.demand = kIntakingVoltage;
+                mPeriodicIO.deploy = true;
             }
             mPeriodicIO.demand = 0.0;
             mPeriodicIO.deploy = true;
@@ -139,6 +143,7 @@ public class Intake extends Subsystem {
             mPeriodicIO.deploy = true;
             break;
         }
+    }
 
 
     public synchronized void setOpenLoop(final double percentage) {
