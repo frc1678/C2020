@@ -37,9 +37,7 @@ public class Intake extends Subsystem {
     private static PeriodicIO mPeriodicIO = new PeriodicIO();
 
     //Time variables
-    private double mCurrentTime;
     private double mIntakeTime = 0.0;
-    private boolean mResetIntakeTime;
 
 
     private final TalonFX mMaster;
@@ -121,10 +119,6 @@ public class Intake extends Subsystem {
                     mPeriodicIO.demand = -kIntakingVoltage;
                 } else if (mCurrentTime >= mIntakeTime + 1.2) {
                     mIntakeTime = Timer.getFPGATimestamp();
-                    mResetIntakeTime = true;
-                } else if (mResetIntakeTime) {
-                    mIntakeTime = mCurrentTime;
-                    mResetIntakeTime = false;
                 }
                 mPeriodicIO.demand = kIntakingVoltage;
             } else {
@@ -166,7 +160,6 @@ public class Intake extends Subsystem {
             break;
         case INTAKE:
             mIntakeTime = Timer.getFPGATimestamp();
-            mResetIntakeTime = false;
             mState = State.INTAKING;
             break;
         case RETRACT:
