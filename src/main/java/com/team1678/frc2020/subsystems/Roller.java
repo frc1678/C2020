@@ -313,7 +313,7 @@ public class Roller extends Subsystem {
 
     public synchronized void startLogging() {
         if (mCSVWriter == null) {
-            mCSVWriter = new ReflectingCSVWriter<>("/home/lvuser/DRIVE-LOGS.csv", PeriodicIO.class);
+            mCSVWriter = new ReflectingCSVWriter<>("/home/lvuser/ROLLER-LOGS.csv", PeriodicIO.class);
         }
     }
 
