@@ -113,10 +113,10 @@ public class Intake extends Subsystem {
 
     public void runStateMachine() {
         switch (mState) {
-        case INTAKING:
-            double currentIntakeTimestamp = Timer.getFPGATimestamp();
-                
+        case INTAKING:         
             if (mPeriodicIO.intake_out) {
+                double currentIntakeTimestamp = Timer.getFPGATimestamp();
+
                 if (currentIntakeTimestamp - mIntakeIntervalTimestamp >= 1) {
                     if (currentIntakeTimestamp - mIntakeIntervalTimestamp >= 1.2) {
                         mIntakeIntervalTimestamp = currentIntakeTimestamp;
