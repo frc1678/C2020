@@ -3,6 +3,7 @@ package com.team1678.frc2020;
 import com.team1678.frc2020.loops.ILooper;
 import com.team1678.frc2020.loops.Loop;
 import com.team1678.frc2020.loops.Looper;
+import com.team1678.frc2020.logger.LoggingSystem;
 import com.team1678.frc2020.subsystems.Subsystem;
 
 import java.util.ArrayList;

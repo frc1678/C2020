@@ -12,6 +12,9 @@ import com.ctre.phoenix.motorcontrol.can.BaseTalon;
 import com.team254.lib.drivers.BaseTalonChecker;
 
 import com.team254.lib.drivers.TalonUtil;
+import com.team254.lib.util.Util;
+
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import java.util.ArrayList;
 
@@ -29,6 +32,7 @@ public class Hood extends ServoMotorSubsystem {
 
     private Hood(final ServoMotorSubsystemConstants constants) {
         super(constants);
+        mMaster.setSelectedSensorPosition((int) unitsToTicks(17.66));
     }
 
     @Override
@@ -36,20 +40,25 @@ public class Hood extends ServoMotorSubsystem {
         return Canifier.getInstance().getHoodLimit();
     }
 
+    public synchronized boolean isHoming() {
+        return mHoming;
+    }
+    
     public synchronized double getAngle() {
         return getPosition();
+    }
+
+    public synchronized boolean getAtGoal() {
+        return Util.epsilonEquals(getAngle(), getSetpoint(), 5.0);
+    }
+
+    public synchronized boolean getTucked() {
+        return Util.epsilonEquals(getAngle(), Constants.kHoodConstants.kMinUnitsLimit, 5.0); 
     }
 
     @Override
     public synchronized void writePeriodicOutputs() {
         if (mHoming) {
-            if (atHomingLocation()) {
-                mMaster.setSelectedSensorPosition((int) unitsToTicks(0));
-                mMaster.overrideSoftLimitsEnable(true);
-                System.out.println("Homed!!!");
-                mHoming = false;
-            }
-
             if (mControlState == ControlState.OPEN_LOOP) {
                 mMaster.set(ControlMode.PercentOutput, mPeriodicIO.demand, DemandType.ArbitraryFeedForward, 0.0);
             } else {
@@ -58,6 +67,17 @@ public class Hood extends ServoMotorSubsystem {
         } else {
             super.writePeriodicOutputs();
         }
+    }
+
+    @Override
+    public synchronized void readPeriodicInputs() {
+        if (mHoming && atHomingLocation()) {
+            mMaster.setSelectedSensorPosition((int) unitsToTicks(17.66));
+            mMaster.overrideSoftLimitsEnable(true);
+            System.out.println("Homed!!!");
+            mHoming = false;
+        }
+        super.readPeriodicInputs();
     }
 
     @Override
@@ -79,5 +99,12 @@ public class Hood extends ServoMotorSubsystem {
                 mRPMSupplier = () -> mMaster.getSelectedSensorVelocity();
             }
         });
+    }
+
+    @Override
+    public void outputTelemetry() {
+        super.outputTelemetry();
+
+        SmartDashboard.putBoolean(mConstants.kName + " Calibrated", !mHoming);
     }
 }

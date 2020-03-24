@@ -5,6 +5,8 @@ import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.team1678.frc2020.Constants;
 import com.team1678.frc2020.loops.ILooper;
 import com.team1678.frc2020.loops.Loop;
+import com.team1678.frc2020.logger.LoggingSystem;
+import com.team1678.frc2020.logger.LogStorage;
 import com.team254.lib.drivers.TalonFXFactory;
 import com.team254.lib.drivers.TalonUtil;
 import com.team254.lib.motion.MotionProfileConstraints;
@@ -12,12 +14,13 @@ import com.team254.lib.motion.MotionProfileGoal;
 import com.team254.lib.motion.MotionState;
 import com.team254.lib.motion.SetpointGenerator;
 import com.team254.lib.motion.SetpointGenerator.Setpoint;
-import com.team254.lib.util.ReflectingCSVWriter;
 import com.team254.lib.util.Util;
 
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
+import java.util.ArrayList;
 
 /**
  * Abstract base class for a subsystem with a single sensored servo-mechanism.
@@ -246,11 +249,17 @@ public abstract class ServoMotorSubsystem extends Subsystem {
 
     protected PeriodicIO mPeriodicIO = new PeriodicIO();
     protected ControlState mControlState = ControlState.OPEN_LOOP;
-    protected ReflectingCSVWriter<PeriodicIO> mCSVWriter = null;
     protected boolean mHasBeenZeroed = false;
     protected StickyFaults mFaults = new StickyFaults();
     protected SetpointGenerator mSetpointGenerator = new SetpointGenerator();
     protected MotionProfileConstraints mMotionProfileConstraints;
+
+    public synchronized void setNeutralMode(NeutralMode mode) {
+        mMaster.setNeutralMode(mode);
+        for (int i = 0; i < mSlaves.length; ++i) {
+            mSlaves[i].setNeutralMode(mode);
+        }
+    }
 
     @Override
     public synchronized void readPeriodicInputs() {
@@ -320,10 +329,6 @@ public abstract class ServoMotorSubsystem extends Subsystem {
                 mPeriodicIO.encoder_wraps = new_wraps;
             }
         }
-
-        if (mCSVWriter != null) {
-            mCSVWriter.add(mPeriodicIO);
-        }
     }
 
     protected double getAbsoluteEncoderRawPosition(double pulseWidthPosition) {
@@ -353,11 +358,11 @@ public abstract class ServoMotorSubsystem extends Subsystem {
         mEnabledLooper.register(new Loop() {
             @Override
             public void onStart(double timestamp) {
-                // if (mCSVWriter == null) {
-                //     mCSVWriter = new ReflectingCSVWriter<>("/home/lvuser/"
-                //             + mConstants.kName.replaceAll("[^A-Za-z0-9]+", "").toUpperCase() + "-LOGS.csv",
-                //             PeriodicIO.class);
-                // }
+                /*if (mCSVWriter == null) {
+                    mCSVWriter = new ReflectingCSVWriter<>("/home/lvuser/"
+                            + mConstants.kName.replaceAll("[^A-Za-z0-9]+", "").toUpperCase() + "-LOGS.csv",
+                            PeriodicIO.class);
+                }*/
             }
 
             @Override
@@ -383,11 +388,6 @@ public abstract class ServoMotorSubsystem extends Subsystem {
 
             @Override
             public void onStop(double timestamp) {
-                if (mCSVWriter != null) {
-                    mCSVWriter.flush();
-                    mCSVWriter = null;
-                }
-
                 stop();
             }
         });
@@ -551,10 +551,5 @@ public abstract class ServoMotorSubsystem extends Subsystem {
     public void outputTelemetry() {
         SmartDashboard.putNumber(mConstants.kName + ": Position (units)", mPeriodicIO.position_units);
         SmartDashboard.putBoolean(mConstants.kName + ": Homing Location", atHomingLocation());
-        // synchronized (this) {
-        //     if (mCSVWriter != null) {
-        //         mCSVWriter.write();
-        //     }
-        // }
     }
 }

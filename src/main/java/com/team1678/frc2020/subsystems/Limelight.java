@@ -2,17 +2,21 @@ package com.team1678.frc2020.subsystems;
 
 import com.team1678.frc2020.Constants;
 import com.team1678.frc2020.RobotState;
+import com.team1678.frc2020.logger.LoggingSystem;
+import com.team1678.frc2020.logger.LogStorage;
+import com.team1678.frc2020.loops.Loop;
+import com.team1678.frc2020.loops.ILooper;
+
 import com.team254.lib.geometry.Pose2d;
 import com.team254.lib.geometry.Rotation2d;
 import com.team254.lib.geometry.Translation2d;
 import com.team254.lib.util.Util;
 import com.team254.lib.vision.TargetInfo;
+
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import com.team1678.frc2020.loops.Loop;
-import com.team1678.frc2020.loops.ILooper;
-import com.team1678.frc2020.RobotState;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -24,9 +28,11 @@ import java.util.List;
  */
 public class Limelight extends Subsystem {
     public final static int kDefaultPipeline = 0;
-    public final static int kSortTopPipeline = 1;
+    public final static int kZoomedInPipeline = 1;
 
     private static Limelight mInstance = null;
+
+    private int mLatencyCounter = 0;
 
     public static class LimelightConstants {
         public String kName = "";
@@ -39,7 +45,7 @@ public class Limelight extends Subsystem {
     private NetworkTable mNetworkTable;
 
     private Limelight() {
-        mConstants = Constants.kTopLimelightConstants;
+        mConstants = Constants.kLimelightConstants;
         mNetworkTable = NetworkTableInstance.getDefault().getTable(mConstants.kTableName);
     }
 
@@ -62,9 +68,13 @@ public class Limelight extends Subsystem {
             @Override
             public void onLoop(double timestamp) {
                 synchronized (this) {
-                    RobotState.getInstance().addVisionUpdate(
-                            timestamp - getLatency(),
-                            getTarget());
+                    if ((Hood.getInstance().getAtGoal() || Superstructure.getInstance().getScanningHood())
+                            && !Superstructure.getInstance().getTucked() && !Superstructure.getInstance().getWantSpit()
+                            && mPeriodicIO.has_comms && !Superstructure.getInstance().getDisableLimelight()) {
+                        RobotState.getInstance().addVisionUpdate(timestamp - getLatency(), getTarget());
+                    } else {
+                        RobotState.getInstance().addVisionUpdate(timestamp - getLatency(), null);
+                    }
                 }
 
             }
@@ -77,6 +87,10 @@ public class Limelight extends Subsystem {
         mEnabledLooper.register(mLoop);
     }
 
+    public synchronized boolean limelightOK() {
+        return mPeriodicIO.has_comms;
+    }
+
     public static class PeriodicIO {
         // INPUTS
         public double latency;
@@ -85,6 +99,7 @@ public class Limelight extends Subsystem {
         public double xOffset;
         public double yOffset;
         public double area;
+        public boolean has_comms;
 
         // OUTPUTS
         public int ledMode = 1; // 0 - use pipeline mode, 1 - off, 2 - blink, 3 - on
@@ -93,11 +108,11 @@ public class Limelight extends Subsystem {
         public int stream = 2; // sets stream layout if another webcam is attached
         public int snapshot = 0; // 0 - stop snapshots, 1 - 2 Hz
     }
-
+    
     private LimelightConstants mConstants = null;
     private PeriodicIO mPeriodicIO = new PeriodicIO();
     private boolean mOutputsHaveChanged = true;
-    private double[] mZeroArray = new double[]{0, 0, 0, 0, 0, 0, 0, 0};
+    private double[] mZeroArray = new double[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
     private List<TargetInfo> mTargets = new ArrayList<>();
     private boolean mSeesTarget = false;
 
@@ -115,23 +130,33 @@ public class Limelight extends Subsystem {
 
     @Override
     public synchronized void readPeriodicInputs() {
-        mPeriodicIO.latency = mNetworkTable.getEntry("tl").getDouble(0) / 1000.0 + Constants.kImageCaptureLatency;
+        final double latency = mNetworkTable.getEntry("tl").getDouble(0) / 1000.0 + Constants.kImageCaptureLatency;
         mPeriodicIO.givenLedMode = (int) mNetworkTable.getEntry("ledMode").getDouble(1.0);
         mPeriodicIO.givenPipeline = (int) mNetworkTable.getEntry("pipeline").getDouble(0);
         mPeriodicIO.xOffset = mNetworkTable.getEntry("tx").getDouble(0.0);
         mPeriodicIO.yOffset = mNetworkTable.getEntry("ty").getDouble(0.0);
         mPeriodicIO.area = mNetworkTable.getEntry("ta").getDouble(0.0);
+
+        if (latency == mPeriodicIO.latency) {
+            mLatencyCounter++;
+        } else {
+            mLatencyCounter = 0;
+        }
+
+        mPeriodicIO.latency = latency;
+        mPeriodicIO.has_comms = mLatencyCounter < 10;
+
         mSeesTarget = mNetworkTable.getEntry("tv").getDouble(0) == 1.0;
     }
 
     @Override
     public synchronized void writePeriodicOutputs() {
-        if (mPeriodicIO.givenLedMode != mPeriodicIO.ledMode ||
-                mPeriodicIO.givenPipeline != mPeriodicIO.pipeline) {
+        if (mPeriodicIO.givenLedMode != mPeriodicIO.ledMode || mPeriodicIO.givenPipeline != mPeriodicIO.pipeline) {
             System.out.println("Table has changed from expected, retrigger!!");
             mOutputsHaveChanged = true;
         }
         if (mOutputsHaveChanged) {
+
             mNetworkTable.getEntry("ledMode").setNumber(mPeriodicIO.ledMode);
             mNetworkTable.getEntry("camMode").setNumber(mPeriodicIO.camMode);
             mNetworkTable.getEntry("pipeline").setNumber(mPeriodicIO.pipeline);
@@ -143,7 +168,8 @@ public class Limelight extends Subsystem {
     }
 
     @Override
-    public void stop() {}
+    public void stop() {
+    }
 
     @Override
     public boolean checkSystem() {
@@ -153,6 +179,7 @@ public class Limelight extends Subsystem {
     @Override
     public synchronized void outputTelemetry() {
         SmartDashboard.putBoolean(mConstants.kName + ": Has Target", mSeesTarget);
+        SmartDashboard.putBoolean("Limelight Ok", mPeriodicIO.has_comms);
         SmartDashboard.putNumber(mConstants.kName + ": Pipeline Latency (ms)", mPeriodicIO.latency);
     }
 
@@ -169,7 +196,7 @@ public class Limelight extends Subsystem {
 
     public synchronized void setPipeline(int mode) {
         if (mode != mPeriodicIO.pipeline) {
-            RobotState.getInstance().resetVision();
+         //   RobotState.getInstance().resetVision();
             mPeriodicIO.pipeline = mode;
 
             System.out.println(mPeriodicIO.pipeline + ", " + mode);
@@ -190,10 +217,16 @@ public class Limelight extends Subsystem {
     }
 
     /**
+<<<<<<< HEAD
      * @ return two targets that make up one hatch/port or null if less than two targets are found
+=======
+     * @return two targets that make up one hatch/port or null if less than two
+     *         targets are found
+>>>>>>> c0f7ceb12ceaf38c08b8322bd2f8fd81ba250362
      */
     public synchronized List<TargetInfo> getTarget() {
-        List<TargetInfo> targets = getRawTargetInfos();
+        List<TargetInfo> targets = new ArrayList<TargetInfo>(); //getRawTargetInfos();
+        targets.add(new TargetInfo(Math.tan(Math.toRadians(-mPeriodicIO.xOffset)), Math.tan(Math.toRadians(mPeriodicIO.yOffset))));
         if (seesTarget() && targets != null) {
             return targets;
         }
@@ -209,8 +242,7 @@ public class Limelight extends Subsystem {
 
         double slope = 1.0;
         if (Math.abs(corners.get(1)[0] - corners.get(0)[0]) > Util.kEpsilon) {
-            slope = (corners.get(1)[1] - corners.get(0)[1]) /
-                    (corners.get(1)[0] - corners.get(0)[0]);
+            slope = (corners.get(1)[1] - corners.get(0)[1]) / (corners.get(1)[0] - corners.get(0)[0]);
         }
 
         mTargets.clear();
@@ -240,18 +272,31 @@ public class Limelight extends Subsystem {
      * @ return list of corners: index 0 - top left, index 1 - top right
      */
     private List<double[]> getTopCorners() {
-        double[] xCorners = mNetworkTable.getEntry("tcornx").getDoubleArray(mZeroArray);
-        double[] yCorners = mNetworkTable.getEntry("tcorny").getDoubleArray(mZeroArray);
+        double[] xyCorners = mNetworkTable.getEntry("tcornxy").getDoubleArray(mZeroArray);
+        ArrayList<Double> xCorners = new ArrayList<>();
+        ArrayList<Double> yCorners = new ArrayList<>();
+
+        for (int i = 0; i < xyCorners.length; i++) {
+            if (i % 2 == 0) {
+                xCorners.add(xyCorners[i]);
+            } else {
+                yCorners.add(xyCorners[i]);
+            }
+        }
+
         mSeesTarget = mNetworkTable.getEntry("tv").getDouble(0) == 1.0;
 
+        double[] xCornersArray = xCorners.stream().mapToDouble(Double::doubleValue).toArray();
+        double[] yCornersArray = yCorners.stream().mapToDouble(Double::doubleValue).toArray();
+
         // something went wrong
-        if (!mSeesTarget ||
-                Arrays.equals(xCorners, mZeroArray) || Arrays.equals(yCorners, mZeroArray)
-                || xCorners.length != 8 || yCorners.length != 8) {
+
+        if (!mSeesTarget || Arrays.equals(xCornersArray, mZeroArray) || Arrays.equals(yCornersArray, mZeroArray)
+                || xCornersArray.length < 4 || xCornersArray.length != yCornersArray.length) {
             return null;
         }
 
-        return extractTopCornersFromBoundingBoxes(xCorners, yCorners);
+        return extractTopCornersFromBoundingBoxes(xCornersArray, yCornersArray);
     }
 
     private static final Comparator<Translation2d> xSort = Comparator.comparingDouble(Translation2d::x);
@@ -270,8 +315,14 @@ public class Limelight extends Subsystem {
 
         corners.sort(xSort);
 
-        List<Translation2d> left = corners.subList(0, 4);
-        List<Translation2d> right = corners.subList(4, 8);
+        if (corners.size() > 4) {
+            for (int i = 0; i < corners.size() - 4; i++) {
+                corners.remove(1 + i);
+            }
+        }
+
+        List<Translation2d> left = corners.subList(0, 2);
+        List<Translation2d> right = corners.subList(2, 4);
 
         left.sort(ySort);
         right.sort(ySort);
@@ -285,7 +336,8 @@ public class Limelight extends Subsystem {
         Translation2d leftCorner = leftTop.get(0);
         Translation2d rightCorner = rightTop.get(1);
 
-        return List.of(new double[]{leftCorner.x(), leftCorner.y()}, new double[]{rightCorner.x(), rightCorner.y()});
+        return List.of(new double[] { leftCorner.x(), leftCorner.y() },
+                new double[] { rightCorner.x(), rightCorner.y() });
     }
 
     public double getLatency() {

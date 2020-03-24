@@ -1,72 +1,77 @@
 package com.team1678.frc2020.subsystems;
 
+import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.team1678.frc2020.Constants;
 import com.team1678.frc2020.loops.ILooper;
 import com.team1678.frc2020.loops.Loop;
 
-import com.team254.lib.drivers.SparkMaxFactory;
+import com.team254.lib.drivers.TalonFXFactory;
+import com.team254.lib.util.TimeDelayedBoolean;
 
-import com.team254.lib.drivers.LazySparkMax;
-import com.team254.lib.util.ReflectingCSVWriter;
-
+import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
+import java.util.ArrayList;
 
 public class Intake extends Subsystem {
-    public static double kIntakingVoltage = 12.0;
-    public static double kOuttakingVoltage = -12.0;
-    public static double kIdleVoltage = 0;
+    private static double kIntakingVoltage = 9.0;
+    private static double kIdleVoltage = 0;
 
-    public static Intake mInstanceIntake;
+    private static Intake mInstance;
+    private TimeDelayedBoolean mIntakeSolenoidTimer = new TimeDelayedBoolean();
+
+    private double mIntakeStopWatchGo = 0.0; 
+
+    private Solenoid mDeploySolenoid;
 
     public enum WantedAction {
-        NONE, INTAKE, OUTTAKE,
+        NONE, INTAKE, RETRACT, STAY_OUT,
     }
+
     public enum State {
-        IDLE, INTAKING, OUTTAKING,
+        IDLE, INTAKING, RETRACTING, STAYING_OUT,
     }
+
     private State mState = State.IDLE;
 
-    private boolean mRunningManual = false;
-
     private static PeriodicIO mPeriodicIO = new PeriodicIO();
-    
-    private final LazySparkMax mMaster;
 
-    private ReflectingCSVWriter<PeriodicIO> mCSVWriter = null;
+    private final TalonFX mMaster;
 
     public static class PeriodicIO {
-        //INPUTS
+        // INPUTS
         public double timestamp;
         public double current;
-        
-        //OUTPUTS
-        public static double demand;
+        public boolean intake_out;
+
+        // OUTPUTS
+        public double demand;
+        public boolean deploy;
     }
 
     private Intake() {
-        mMaster = SparkMaxFactory.createDefaultSparkMax(Constants.kIntakeRollerID);
+        mMaster = TalonFXFactory.createDefaultTalon(Constants.kIntakeRollerId);
+        mDeploySolenoid = Constants.makeSolenoidForId(Constants.kDeploySolenoidId);
     }
 
     public synchronized static Intake getInstance() {
-        if (mInstanceIntake == null) {
-            mInstanceIntake = new Intake();
+        if (mInstance == null) {
+            mInstance = new Intake();
         }
-        return mInstanceIntake;
+        return mInstance;
     }
 
     @Override
     public synchronized void outputTelemetry() {
         SmartDashboard.putNumber("Intake Current", mPeriodicIO.current);
-
-        if (mCSVWriter != null) {
-            mCSVWriter.write();
-        }
+        SmartDashboard.putString("Intake State", mState.toString());
     }
 
     @Override
     public void stop() {
-        mMaster.set(0);
+        mMaster.set(ControlMode.PercentOutput, 0);
     }
 
     @Override
@@ -79,53 +84,69 @@ public class Intake extends Subsystem {
             @Override
             public void onStart(double timestamp) {
                 // startLogging();
-                mRunningManual = false;
                 mState = State.IDLE;
             }
 
             @Override
             public void onLoop(double timestamp) {
                 synchronized (Intake.this) {
-                    if (mRunningManual) {
-                        runStateMachine(false);
-                        return;
-                    } else {
-                        runStateMachine(true);
-                    }
+                    runStateMachine();
+
                 }
             }
 
             @Override
             public void onStop(double timestamp) {
-                mRunningManual = false;
                 mState = State.IDLE;
                 stop();
-                stopLogging();
             }
         });
     }
 
-    public void runStateMachine(boolean modifyingOutputs) {
+    public synchronized State getState() {
+        return mState;
+    }
+
+    public void runStateMachine() {
         switch (mState) {
         case INTAKING:
-            if (modifyingOutputs) {
-                mPeriodicIO.demand = kIntakingVoltage;
+            final double CurrentTimer = Timer.getFPGATimestamp();
+            if (mPeriodicIO.intake_out) {    
+                if (CurrentTimer >= mIntakeStopWatchGo + 1.0) {
+                    // GO BACK! 
+                    mPeriodicIO.demand = -kIntakingVoltage;
+                } else if (CurrentTimer >= mIntakeStopWatchGo + 1.3) {
+                    // Reset Clock
+                    mIntakeStopWatchGo = Timer.getFPGATimestamp();
+                } else {
+                    // Go the opposite direction :P
+                    mPeriodicIO.demand = kIntakingVoltage;
+                }   
+            } else {
+                mPeriodicIO.demand = 0.0;
             }
+            mPeriodicIO.deploy = true;
             break;
-        case OUTTAKING:
-            if (modifyingOutputs) {
-                mPeriodicIO.demand = kOuttakingVoltage;
+        case RETRACTING:
+            if (mPeriodicIO.intake_out) {    
+                mPeriodicIO.demand = -kIntakingVoltage;
+            } else {
+                mPeriodicIO.demand = 0.0;
             }
+            mPeriodicIO.deploy = true;
             break;
         case IDLE:
-            if (modifyingOutputs) {
-                mPeriodicIO.demand = kIdleVoltage;
-            }
+            mPeriodicIO.demand = kIdleVoltage;
+            mPeriodicIO.deploy = false;
+            break;
+        case STAYING_OUT:
+            mPeriodicIO.demand = 0;
+            mPeriodicIO.deploy = true;
+            break;
         }
     }
 
     public synchronized void setOpenLoop(double percentage) {
-        mRunningManual = true;
         mPeriodicIO.demand = percentage;
     }
 
@@ -134,45 +155,36 @@ public class Intake extends Subsystem {
     }
 
     public void setState(WantedAction wanted_state) {
-        mRunningManual = false;
         switch (wanted_state) {
         case NONE:
             mState = State.IDLE;
             break;
         case INTAKE:
+            mIntakeStopWatchGo = Timer.getFPGATimestamp();
             mState = State.INTAKING;
             break;
-        case OUTTAKE:
-            mState = State.OUTTAKING;
+        case RETRACT:
+            mState = State.RETRACTING;
             break;
+        case STAY_OUT:
+            mState = State.STAYING_OUT;
         }
 
     }
 
     @Override
     public synchronized void readPeriodicInputs() {
-        if (mCSVWriter != null) {
-            mCSVWriter.add(mPeriodicIO);
-        }
+        mPeriodicIO.intake_out = mIntakeSolenoidTimer.update(mPeriodicIO.deploy, 0.2);
     }
 
     @Override
     public void writePeriodicOutputs() {
-        mMaster.set(mPeriodicIO.demand / 12.0);
+        mMaster.set(ControlMode.PercentOutput, mPeriodicIO.demand / 12.0);
+        mDeploySolenoid.set(mPeriodicIO.deploy);
     }
+
     @Override
     public boolean checkSystem() {
         return true;
     }
-    public synchronized void startLogging() {
-        if (mCSVWriter == null) {
-            mCSVWriter = new ReflectingCSVWriter<>("/home/lvuser/INTAKE-LOGS.csv", PeriodicIO.class); 
-        }
-    }
-    public synchronized void stopLogging() {
-        if (mCSVWriter != null) {
-            mCSVWriter.flush();
-            mCSVWriter = null;
-        }
-    }
- }
+}

@@ -3,7 +3,7 @@ package com.team1678.frc2020.planners;
 import com.team1678.frc2020.Constants;
 
 public class IndexerMotionPlanner {
-
+    private boolean[] slots = {false, false, false, false, false};
     public IndexerMotionPlanner() {}
 
     protected double WrapDegrees(double degrees) {
@@ -15,8 +15,8 @@ public class IndexerMotionPlanner {
     }
 
     public int findNearestSlot(double indexer_angle, double turret_angle) {
-        double wrappedTurretAngle = WrapDegrees(turret_angle);
         double wrappedIndexerAngle = WrapDegrees(indexer_angle);
+        double wrappedTurretAngle = WrapDegrees(turret_angle);
 
         double offset = 0; 
         
@@ -31,6 +31,23 @@ public class IndexerMotionPlanner {
         }
 
         int slotNumber = (int) Math.round(offset / Constants.kAnglePerSlot);
+
+        return wrapSlotNumber(slotNumber);
+    }
+
+    public int findNearestSlotToIntake(double indexer_angle) {
+        double wrappedIndexerAngle = WrapDegrees(indexer_angle);
+
+        if (wrappedIndexerAngle < 0) {
+            wrappedIndexerAngle += 360;
+        }
+
+        int slotNumber = (int) Math.round((wrappedIndexerAngle) / Constants.kAnglePerSlot);
+
+        return wrapSlotNumber(slotNumber);
+    }
+
+    public int wrapSlotNumber(int slotNumber) {
         if (slotNumber < 0) {
             slotNumber += 5;
         } else if (slotNumber > 4) {
@@ -40,30 +57,70 @@ public class IndexerMotionPlanner {
         return slotNumber;
     }
 
-    public int findNextSlot(double indexer_angle, double turret_angle) {
-        int currentSlot = findNearestSlot(indexer_angle, turret_angle);
-        int nextSlot;
+    public boolean[] updateSlotStatus(double indexer_angle, boolean[] raw_slots) {
+        int frontSlot = findNearestSlot(indexer_angle, 0);
 
-        if (currentSlot == 4) {
-            nextSlot = 0;
-        } else {
-            nextSlot = currentSlot + 1;
+        int idx = frontSlot;
+        for (int i = 0; i < 5; i++) {
+            slots[idx] = raw_slots[i];
+            idx++;
+            if (idx > 4) {
+                idx = 0;
+            }
         }
 
-        return nextSlot;
+        return slots;
+    }
+
+    public double findAngleToIntake(int slotNumber, double indexer_angle) {
+        double wrappedIndexerAngle = WrapDegrees(indexer_angle);
+
+        double slotAngle = WrapDegrees(slotNumber * Constants.kAnglePerSlot) - wrappedIndexerAngle;
+
+        double angleGoal = WrapDegrees(slotAngle);
+
+        return angleGoal;
+    }
+
+    public double findAngleGoalToIntake(int slotNumber, double indexer_angle) {
+        return findAngleToIntake(slotNumber, indexer_angle) + indexer_angle;
+    }
+
+    public double findSnappedAngleToGoal(double indexer_angle) {
+        double wrappedIndexerAngle = WrapDegrees(indexer_angle);
+        double angleGoal;
+
+        if (wrappedIndexerAngle >= 0) {
+            angleGoal = 72 - wrappedIndexerAngle % 72;
+        } else {
+            angleGoal = -72 - wrappedIndexerAngle % 72;
+        }
+
+        if (Math.abs(angleGoal) > 36) {
+            angleGoal -= 72 * Math.signum(angleGoal);
+        }
+
+        return angleGoal;
+    }
+
+    public double findSnappedAngleGoal(double indexer_angle) {
+        return findSnappedAngleToGoal(indexer_angle) + indexer_angle;
+    }
+
+    public boolean isSnapped(double indexer_angle) {
+        return Math.abs(indexer_angle % 72) < Constants.kIndexerDeadband;
+    }
+
+    public int findNextSlot(double indexer_angle, double turret_angle) {
+        int currentSlot = findNearestSlot(indexer_angle, turret_angle);
+
+        return wrapSlotNumber(currentSlot + 1);
     }
 
     public int findPreviousSlot(double indexer_angle, double turret_angle) {
         int currentSlot = findNearestSlot(indexer_angle, turret_angle);
-        int nextSlot;
 
-        if (currentSlot == 0) {
-            nextSlot = 4;
-        } else {
-            nextSlot = currentSlot - 1;
-        }
-
-        return nextSlot;
+        return wrapSlotNumber(currentSlot - 1);    
     }
 
     public double findAngleGoal(int slotNumber, double indexer_angle, double turret_angle) {
@@ -71,8 +128,8 @@ public class IndexerMotionPlanner {
     }
     
     public double findAngleToGoal(int slotNumber, double indexer_angle, double turret_angle) {
-        double wrappedTurretAngle = WrapDegrees(turret_angle);
         double wrappedIndexerAngle = WrapDegrees(indexer_angle);
+        double wrappedTurretAngle = WrapDegrees(turret_angle);
 
         double slotAngle = WrapDegrees(slotNumber * Constants.kAnglePerSlot) + wrappedIndexerAngle;
 
@@ -81,7 +138,45 @@ public class IndexerMotionPlanner {
         return angleGoal;
     }
 
+    public double findNearestDeadSpot(double indexer_angle, double turret_angle) {
+        double wrappedIndexerAngle = WrapDegrees(indexer_angle);
+        double wrappedTurretAngle = WrapDegrees(turret_angle);
+
+        int slotNumber = findNearestSlot(indexer_angle, turret_angle);
+        double slotAngle = WrapDegrees(slotNumber * Constants.kAnglePerSlot) + wrappedIndexerAngle;
+
+        double angleGoal = WrapDegrees(wrappedTurretAngle - slotAngle);
+
+        if (angleGoal >= 0) {
+            angleGoal -= 36;
+        } else {
+            angleGoal += 36;
+        }
+
+        return angleGoal;
+    }
+
     public boolean isAtGoal(int slotNumber, double indexer_angle, double turret_angle) {
-        return Math.abs(findAngleToGoal(slotNumber, indexer_angle, turret_angle)) <= Constants.kIndexerDeadband;
+        return Math.abs(findAngleToGoal(slotNumber, indexer_angle, turret_angle)) < Constants.kIndexerDeadband;
+    }
+
+    public boolean isAtDeadSpot(double indexer_angle, double turret_angle) {
+        return Math.abs(findNearestDeadSpot(indexer_angle, turret_angle)) < Constants.kIndexerDeadband;
+    }
+
+    public int findNearestOpenSlot(double indexer_angle) {
+        int currentSlot = findNearestSlot(indexer_angle, 0);
+        int idx = currentSlot;
+        for (int i = 0; i < 5; i++) {
+            if (!slots[idx]) {
+                return idx;
+            }
+            idx++;
+            if (idx > 4) {
+                idx = 0;
+            }
+        }
+
+        return currentSlot;
     }
 }

@@ -1,0 +1,72 @@
+package com.team1678.frc2020.auto.actions;
+import com.team1678.frc2020.Constants;
+import com.team1678.frc2020.ServoMotor
+import com.team1678.frc2020.RobotState;
+import com.team1678.frc2020.Shooter;
+import com.team1678.frc2020.subsystems.Limelight;
+import com.team1678.frc2020.subsystems.Turret;
+
+
+public class AimAndShoot implements Action {
+    public double kWantedSeeGoalTime = 0.5; //seconds
+    public double SeeGoalTime;
+    private boolean mSeesTarget = false; //TODO: find a way to change the value of this variable
+    public boolean seeGoal(){
+        if (mSeesTarget == true && SeeGoalTime >= kWantedSeeGoalTime ){
+            return true;
+        } else{
+            return false; 
+        }
+    }
+    public void shootGoal(){
+        if (seeGoal() == true){
+            - Aim and Adjust the Hood/Turret so it is in proper shooting position
+            - Launch the cells via Shooter.
+        }
+    }
+    @Override
+    public boolean isFinished() {
+        // TODO Auto-generated method stub
+        return false;
+    }
+    @Override
+    public void start() {
+        double t = Timer.getFPGATimestamp
+        - Begin functions above (shootGoal() and seeGoal(), par exemple) 
+    }
+
+    @Override
+    public void update() {
+        // TODO Auto-generated method stub
+        - Possible updates
+            - New Cells are in the Wheel of Doom
+                - Cells are going in while other Cells are being shot out
+            - Turret is in a certain direction
+            - Cells are stuck in the shooter (For whatever cursed reason)
+            - Wheel of Doom is Empty
+                - Cells are being shot out while Wheel of Doom is Empty
+            - Wheel of Doom is full.
+            - Number of Cells in the Wheel of Doom
+            - Cells coming out through the outtake
+            - Intake isn't functioning
+            - Wheel of Doom isn't functioning
+            - Turret isn't functioning
+            - Shooter isn't functioning
+            - Everything isn't functioning
+            
+
+    }
+    @Override
+    public void done() {
+        // TODO Auto-generated method stub
+        (When all cells have been accounted for in the Wheel of Doom)
+            - Possible Solutions
+                - Find new cells if Stage 1 or 2 isn't completed.
+                - Return turret to original position.
+                - 
+    }
+    @Override
+    public void start() {
+        // TODO Auto-generated method stub
+    }
+}
