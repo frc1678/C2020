@@ -38,10 +38,8 @@ public class Intake extends Subsystem {
 
     private final TalonFX mMaster;
 
-    // Intake timestamp variables
+    // Intake timestamp variable
     private double mIntakeIntervalTimestamp;
-    private double mCurrentIntakeTimestamp;
-    private boolean mResetIntervalTimestamp;
 
     public static class PeriodicIO {
         // INPUTS
@@ -57,6 +55,9 @@ public class Intake extends Subsystem {
     private Intake() {
         mMaster = TalonFXFactory.createDefaultTalon(Constants.kIntakeRollerId);
         mDeploySolenoid = Constants.makeSolenoidForId(Constants.kDeploySolenoidId);
+
+        // Set the time initially
+        mIntakeIntervalTimestamp = 0;
     }
 
     public synchronized static Intake getInstance() {
@@ -113,18 +114,16 @@ public class Intake extends Subsystem {
     public void runStateMachine() {
         switch (mState) {
         case INTAKING:
-            mCurrentIntakeTimestamp = Timer.getFPGATimestamp();
+            double currentIntakeTimestamp = Timer.getFPGATimestamp();
                 
             if (mPeriodicIO.intake_out) {
-                if (mCurrentIntakeTimestamp >= mIntakeIntervalTimestamp + 1 && mCurrentIntakeTimestamp <= mIntakeIntervalTimestamp + 1.2) {
-                    mResetIntervalTimestamp = true;
-                    mPeriodicIO.demand = -kIntakingVoltage;
-                } else {
-                    if (mResetIntervalTimestamp) {
-                        mIntakeIntervalTimestamp = mCurrentIntakeTimestamp;
-                        mResetIntervalTimestamp = false;
+                if (currentIntakeTimestamp - mIntakeIntervalTimestamp >= 1) {
+                    if (currentIntakeTimestamp - mIntakeIntervalTimestamp >= 1.2) {
+                        mIntakeIntervalTimestamp = currentIntakeTimestamp;
+                    } else {
+                        mPeriodicIO.demand = -kIntakingVoltage;
                     }
-    
+                } else {
                     mPeriodicIO.demand = kIntakingVoltage;
                 }
             }
@@ -164,9 +163,6 @@ public class Intake extends Subsystem {
             mState = State.IDLE;
             break;
         case INTAKE:
-            mIntakeIntervalTimestamp = Timer.getFPGATimestamp();
-            mResetIntervalTimestamp = false;
-
             mState = State.INTAKING;
             break;
         case RETRACT:
