@@ -109,12 +109,12 @@ public class Intake extends Subsystem {
         switch (mState) {
         case INTAKING:
             final double now = Timer.getFPGATimestamp();
-            double intakeStartTime = 0;
+            double mIntakeStartTime = 0;
             if (mPeriodicIO.intake_out) { 
-                if(now - intakeStartTime < 0.2) {
+                if(now - mIntakeStartTime < 0.2) {
                     mPeriodicIO.demand = -kIntakingVoltage;
-                } else if (now - intakeStartTime > 1.2) {
-                    intakeStartTime = Timer.getFPGATimestamp();
+                } else if (now - mIntakeStartTime > 1.2) {
+                    mIntakeStartTime = Timer.getFPGATimestamp();
                 } else {
                     mPeriodicIO.demand = kIntakingVoltage;
                 }
