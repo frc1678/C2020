@@ -22,7 +22,7 @@ public class Intake extends Subsystem {
     private static Intake mInstance;
     private TimeDelayedBoolean mIntakeSolenoidTimer = new TimeDelayedBoolean();
 
-    private static double kOuttakeTime = 0.2;
+    private static final double kOuttakeTime = 0.2;
     private double mIntakingTimer = 0.0;
 
     private Solenoid mDeploySolenoid;
@@ -114,11 +114,11 @@ public class Intake extends Subsystem {
         switch (mState) {
         case INTAKING:
             if (mPeriodicIO.intake_out) {  
-                double mIntakeTimeDifference = now - mIntakingTimer;
+                double intakeTimeDifference = now - mIntakingTimer;
                 
-                if (mIntakeTimeDifference > 1 + kOuttakeTime) {
+                if (intakeTimeDifference > 1 + kOuttakeTime) {
                     mIntakingTimer = now;
-                } else if (mIntakeTimeDifference > 1) {
+                } else if (intakeTimeDifference > 1) {
                     mPeriodicIO.demand = -kIntakingVoltage;
                 } else {
                     mPeriodicIO.demand = kIntakingVoltage;
