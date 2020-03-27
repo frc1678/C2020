@@ -44,6 +44,7 @@ import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.Joystick;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -94,6 +95,15 @@ public class Robot extends TimedRobot {
     private boolean mPivoted = false;
 
     // private LoggingSystem mLogger = LoggingSystem.getInstance();
+
+    private Joystick joystick = new Joystick(0);
+
+    private WheelDrive frontLeft = new WheelDrive(6, 7, 3);
+    private WheelDrive frontRight = new WheelDrive(4, 5, 2);
+    private WheelDrive backLeft = new WheelDrive(2, 3, 1);
+    private WheelDrive backRight = new WheelDrive(0, 1, 0);
+
+    private SwerveDrive swerveDrive = new SwerveDrive(backRight, backLeft, frontRight, frontLeft);
 
     public Robot() {
         CrashTracker.logRobotConstruction();
@@ -249,6 +259,8 @@ public class Robot extends TimedRobot {
             double turn = mControlBoard.getTurn();
             double hood_jog = mControlBoard.getJogHood();
             Rotation2d turret_jog = mControlBoard.getJogTurret();
+
+            swerveDrive.drive(joystick.getRawAxis(1), joystick.getRawAxis(0), joystick.getRawAxis(4));
 
             if (!climb_mode) {
                 if (!mLimelight.limelightOK()) {
