@@ -18,6 +18,7 @@ import com.team254.lib.util.*;
 import com.team254.lib.geometry.Rotation2d;
 import com.team254.lib.geometry.Pose2d;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.Joystick;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -43,6 +44,20 @@ public class Robot extends TimedRobot {
 
     private final RobotState mRobotState = RobotState.getInstance();
     private final RobotStateEstimator mRobotStateEstimator = RobotStateEstimator.getInstance();
+
+    //Swerve Drive
+    private WheelDrive backRight = new WheelDrive(0, 1, 0);
+    private WheelDrive backLeft = new WheelDrive(2, 3, 1);
+    private WheelDrive frontRight = new WheelDrive(4, 5, 2);
+    private WheelDrive frontLeft = new WheelDrive(6, 7, 3);
+
+    private Swerve swerveDrive = new Swerve(backRight, backLeft, frontRight, frontLeft);
+
+    private Joystick joystick = new Joystick(0);
+
+    public void teleopPeriodic () {
+        swerveDrive.drive (joystick.getRawAxis (1), jooystick.getRawAxis (0), joystick.getRawAxis(4));
+    }
 
     @Override
     public void robotInit() {
