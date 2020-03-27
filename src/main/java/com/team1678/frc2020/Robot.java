@@ -39,6 +39,7 @@ import com.team254.lib.wpilib.TimedRobot;
 
 import edu.wpi.cscore.MjpegServer;
 import edu.wpi.cscore.UsbCamera;
+import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.cscore.VideoMode;
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -94,6 +95,18 @@ public class Robot extends TimedRobot {
     private boolean mPivoted = false;
 
     // private LoggingSystem mLogger = LoggingSystem.getInstance();
+
+
+    // Swerve Drive Code from https://jacobmisirian.gitbooks.io/frc-swerve-drive-programming/content/chapter1.html, assuming that
+    // the code is the same for all swerve.
+    private WheelJackDrive backRight = new WheelJackDrive (0, 1, 0);
+    private WheelJackDrive backLeft = new WheelJackDrive (2, 3, 1);
+    private WheelJackDrive frontRight = new WheelJackDrive (4, 5, 2);
+    private WheelJackDrive frontLeft = new WheelJackDrive (6, 7, 3);
+
+    private SwerveDrive mSwerveDrive = new SwerveDrive (backRight, backLeft, frontRight, frontLeft);
+
+    private Joystick joystick = new Joystick (0);
 
     public Robot() {
         CrashTracker.logRobotConstruction();
@@ -249,6 +262,9 @@ public class Robot extends TimedRobot {
             double turn = mControlBoard.getTurn();
             double hood_jog = mControlBoard.getJogHood();
             Rotation2d turret_jog = mControlBoard.getJogTurret();
+
+            // Swerve Initiated
+            mSwerveDrive.drive(joystick.getRawAxis(1), joystick.getRawAxis(0), joystick.getRawAxis(4));
 
             if (!climb_mode) {
                 if (!mLimelight.limelightOK()) {
