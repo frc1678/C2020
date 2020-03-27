@@ -68,11 +68,10 @@ public class PIDController {
         return integral;
     }
 
+    //I added this just so I could avoid errors
 	public void setOutputRange(int minimumOutput, int maximumOutput) {
         if (minimumOutput > maximumOutput) {
-            
+           //Doesn't matter 
         }
-        //m_minimumOutput = minimumOutput;
-        //m_maximumOutput = maximumOutput;
 	}
 }
