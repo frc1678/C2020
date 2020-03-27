@@ -67,4 +67,12 @@ public class PIDController {
       //  prevError = error;
         return integral;
     }
+
+	public void setOutputRange(int minimumOutput, int maximumOutput) {
+        if (minimumOutput > maximumOutput) {
+            
+        }
+        //m_minimumOutput = minimumOutput;
+        //m_maximumOutput = maximumOutput;
+	}
 }
