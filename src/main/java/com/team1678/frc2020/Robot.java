@@ -42,6 +42,7 @@ import edu.wpi.cscore.UsbCamera;
 import edu.wpi.cscore.VideoMode;
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -70,6 +71,16 @@ public class Robot extends TimedRobot {
     private final Indexer mIndexer = Indexer.getInstance();
     private final Infrastructure mInfrastructure = Infrastructure.getInstance();
     private final Limelight mLimelight = Limelight.getInstance();
+
+    // Swerve
+    private Drivetrain mBackRight = new Drivetrain(0, 1, 0);
+    private Drivetrain mBackLeft = new Drivetrain(2, 3, 1);
+    private Drivetrain mFrontRight = new Drivetrain(4, 5, 2);
+    private Drivetrain mFrontLeft = new Drivetrain(6, 7, 3);
+
+    private SwerveDrive mSwerveDrive = new SwerveDrive(mBackRight, mBackLeft, mFrontRight, mFrontLeft); 
+
+    private Joystick mJoystick = new Joystick (0);
 
     private final Intake mIntake = Intake.getInstance();
     private final Superstructure mSuperstructure = Superstructure.getInstance();
@@ -125,12 +136,12 @@ public class Robot extends TimedRobot {
             mSubsystemManager.setSubsystems(
                 mRobotStateEstimator,
                 mCanifier,
-                mDrive, 
+                mDrive,
                 mHood,
-                mLimelight, 
-                mIntake, 
-                mIndexer, 
-                mWrangler, 
+                mLimelight,
+                mIntake,
+                mIndexer,
+                mWrangler,
                 mShooter,
                 mTrigger,
                 mSuperstructure,
@@ -150,7 +161,7 @@ public class Robot extends TimedRobot {
 
             mLimelight.setLed(Limelight.LedMode.OFF);
 
-           mRoller.setGameData(DriverStation.getInstance().getGameSpecificMessage());
+            mRoller.setGameData(DriverStation.getInstance().getGameSpecificMessage());
 
             mTrajectoryGenerator.generateTrajectories();
         } catch (Throwable t) {
@@ -249,6 +260,8 @@ public class Robot extends TimedRobot {
             double turn = mControlBoard.getTurn();
             double hood_jog = mControlBoard.getJogHood();
             Rotation2d turret_jog = mControlBoard.getJogTurret();
+
+            mSwerveDrive.drive (mJoystick.getRawAxis (1), mJoystick.getRawAxis (0), mJoystick.getRawAxis (4));
 
             if (!climb_mode) {
                 if (!mLimelight.limelightOK()) {
@@ -487,7 +500,7 @@ public class Robot extends TimedRobot {
         try {
             mLimelight.setLed(Limelight.LedMode.OFF);
             mLimelight.writePeriodicOutputs();
-           mRoller.setGameData(DriverStation.getInstance().getGameSpecificMessage());
+            mRoller.setGameData(DriverStation.getInstance().getGameSpecificMessage());
 
             if (!mLimelight.limelightOK()) {
                 mLEDs.conformToState(LEDs.State.EMERGENCY);
