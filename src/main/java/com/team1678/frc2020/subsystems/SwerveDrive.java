@@ -2,7 +2,7 @@ package com.team1678.frc2020.subsystems;
 
 import com.team1678.frc2020.subsystems.Drivetrain;
 
-public class SwerveDrive {
+public class SwerveDrive extends Subsystem {
     // length and width constants
     public final double WHEELBASE = 29.7;
     public final double TRACKWIDTH = 21.6;
@@ -52,5 +52,23 @@ public class SwerveDrive {
         mBackLeft.drive(backLeftSpeed, backLeftAngle);
         mFrontRight.drive(frontRightSpeed, frontRightAngle);
         mFrontLeft.drive(frontLeftSpeed, frontLeftAngle);
+    }
+
+    @Override
+    public void stop() {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public boolean checkSystem() {
+        // TODO Auto-generated method stub
+        return false;
+    }
+
+    @Override
+    public void outputTelemetry() {
+        // TODO Auto-generated method stub
+
     }
 }

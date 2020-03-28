@@ -4,7 +4,7 @@ import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.team1678.lib.control.PIDController;
 
-public class Drivetrain {
+public class Drivetrain extends Subsystem {
     private TalonFX mAngleMotor;
     private TalonFX mSpeedMotor;
     private PIDController mPIDController;
@@ -33,5 +33,23 @@ public class Drivetrain {
         }
     
         mPIDController.setGoal(setpoint);
+    }
+
+    @Override
+    public void stop() {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public boolean checkSystem() {
+        // TODO Auto-generated method stub
+        return false;
+    }
+
+    @Override
+    public void outputTelemetry() {
+        // TODO Auto-generated method stub
+
     }
 }
