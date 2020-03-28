@@ -26,6 +26,9 @@ public class Constants {
     public static final int kLongCANTimeoutMs = 100; // use for constructors
 
     /* ROBOT PHYSICAL CONSTANTS */
+    public static final double kRobotWidth = 100;
+    public static final double kRobotLength = 100;
+
     // Wheels
     public static final double kDriveWheelTrackWidthInches = 31.170;
     public static final double kDriveWheelDiameterInches = 5.67;

@@ -44,6 +44,7 @@ import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.Joystick;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -62,11 +63,13 @@ public class Robot extends TimedRobot {
     private final Looper mDisabledLooper = new Looper();
 
     private final ControlBoard mControlBoard = ControlBoard.getInstance();
+    private Joystick mJoystick = new Joystick(0); // Or whatever the actual port would be
     private CheesyDriveHelper mCheesyDriveHelper = new CheesyDriveHelper();
     private TrajectoryGenerator mTrajectoryGenerator = TrajectoryGenerator.getInstance();
 
     private final SubsystemManager mSubsystemManager = SubsystemManager.getInstance();
-    private final Drive mDrive = Drive.getInstance();
+    //private final Drive mDrive = Drive.getInstance();
+    private final Swerve mSwerve = Swerve.getInstance();
     private final Indexer mIndexer = Indexer.getInstance();
     private final Infrastructure mInfrastructure = Infrastructure.getInstance();
     private final Limelight mLimelight = Limelight.getInstance();
@@ -125,7 +128,8 @@ public class Robot extends TimedRobot {
             mSubsystemManager.setSubsystems(
                 mRobotStateEstimator,
                 mCanifier,
-                mDrive, 
+                //mDrive,
+                mSwerve, 
                 mHood,
                 mLimelight, 
                 mIntake, 
@@ -146,7 +150,7 @@ public class Robot extends TimedRobot {
 
             // Robot starts forwards.
             mRobotState.reset(Timer.getFPGATimestamp(), Pose2d.identity());
-            mDrive.setHeading(Rotation2d.identity());
+            //mDrive.setHeading(Rotation2d.identity());
 
             mLimelight.setLed(Limelight.LedMode.OFF);
 
@@ -274,8 +278,10 @@ public class Robot extends TimedRobot {
                 mSuperstructure.setAngleAdd(-1.0);
             }
 
-            mDrive.//setOpenLoop(mCheesyDriveHelper.cheesyDrive(throttle, turn, mControlBoard.getQuickTurn()));
-                setCheesyishDrive(throttle, turn, mControlBoard.getQuickTurn());
+            //mDrive.//setOpenLoop(mCheesyDriveHelper.cheesyDrive(throttle, turn, mControlBoard.getQuickTurn()));
+                //setCheesyishDrive(throttle, turn, mControlBoard.getQuickTurn());
+
+            mSwerve.drive(mJoystick.getRawAxis(1), mJoystick.getRawAxis(0), mJoystick.getRawAxis(4));
 
             //mLimelight.setLed(Limelight.LedMode.ON);        
             
@@ -428,7 +434,7 @@ public class Robot extends TimedRobot {
             mDisabledLooper.stop();
             mEnabledLooper.stop();
 
-            mDrive.checkSystem();
+            //mDrive.checkSystem();
 
         } catch (Throwable t) {
             CrashTracker.logThrowableCrash(t);
@@ -469,7 +475,7 @@ public class Robot extends TimedRobot {
 
             mTurret.setNeutralMode(NeutralMode.Coast);
             mHood.setNeutralMode(NeutralMode.Coast);
-            mDrive.setBrakeMode(false);
+            //mDrive.setBrakeMode(false);
             mLimelight.writePeriodicOutputs();
             mLEDs.conformToState(LEDs.State.RAINBOW);
         } catch (Throwable t) {
