@@ -4,6 +4,7 @@ package com.team1678.lib.control;
  * PID controller that controls a control loop
  */
 
+
 public class PIDController {
 
     private double kP;
@@ -16,6 +17,14 @@ public class PIDController {
 
     private double prevTime = 0.0;
     private double kDeadband = 0.0;
+
+    //added from edu.wpi.first.wpilibj.PIDController
+    private double m_maximumOutput = 1.0;	// |maximum output|
+    private double m_minimumOutput = -1.0;	// |minimum output|
+    private boolean m_continuous = false;	// do the endpoints wrap around? eg. Absolute encoder
+    private boolean m_enabled = false; 		//is the pid controller enabled
+    
+
     
     public PIDController(double p, double i, double d) {
         kP = p;
@@ -66,5 +75,27 @@ public class PIDController {
         integral += error * dt;
       //  prevError = error;
         return integral;
+    }
+
+    //added from edu.wpi.first.wpilibj.PIDController
+    public synchronized void setOutputRange(double minimumOutput, double maximumOutput) {
+        if (minimumOutput > maximumOutput) {
+            //throw new BoundaryException("Lower bound is greater than upper bound");
+        }
+        m_minimumOutput = minimumOutput;
+        m_maximumOutput = maximumOutput;
+    }
+
+    public synchronized void setContinuous(boolean continuous) {
+        m_continuous = continuous;
+    }
+
+    public synchronized void enable() {
+        m_enabled = true;
+
+        // Removed
+        //if (table != null) {
+        //    table.putBoolean("enabled", true);
+        }
     }
 }

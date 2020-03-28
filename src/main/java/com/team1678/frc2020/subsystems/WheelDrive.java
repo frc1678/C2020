@@ -17,10 +17,9 @@ public class WheelDrive extends Subsystem{
 
         pidController = new PIDController(1, 0, 0);
 
-        //this version of PIDController was removed
-        //pidController.setOutputRange (-1, 1);
-        //pidController.setContinuous ();
-        //pidController.enable ();
+        pidController.setOutputRange (-1, 1);
+        pidController.setContinuous (false);
+        pidController.enable ();
     }
 
     public void drive(double speed, double angle) {
