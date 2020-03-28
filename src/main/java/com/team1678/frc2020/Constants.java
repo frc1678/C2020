@@ -73,6 +73,49 @@ public class Constants {
 
     public static final int kIndexerId = 5;
 
+    // TODO naming & tune
+    // swerve drive
+    public static final int kFrontRightAngleSlot = 11;
+    public static final int kFrontRightDriveSlot = 10;
+    public static final int kFrontLeftAngleSlot = 2;
+    public static final int kFrontLeftDriveSlot = 1;
+    public static final int kRearLeftAngleSlot = 7;
+    public static final int kRearLeftDriveSlot = 6;
+    public static final int kRearRightAngleSlot = 4;
+    public static final int kRearRightDriveSlot = 5;
+
+    // TODO tune
+    // Swerve Module Wheel offsets (Rotation encoder values when the wheels are facing 0 degrees)
+    public static final int kFrontRightEncoderStartingPose = -262;
+    public static final int kFrontLeftEncoderStartingPose = -2213;
+    public static final int kRearLeftEncoderStartingPose = 3906;
+    public static final int kRearRightEncoderStartingPose = -2398;
+
+    // TODO tune
+    // The robot's dimensions
+    public static final double kWheelBaseLength = 30.0;
+    public static final double kWheelBaseWidth = 30.0;
+    public static final double kSwerveDiagonal = Math.hypot(kWheelBaseLength, kWheelBaseWidth);
+
+    // TODO tune
+    //Swerve Odometry Constants
+	public static final double kSwerveWheelDiameter = 4.0901; //inches (actual diamter is closer to 3.87, but secondary algorithm prefers 4.0901) 3.76
+	public static final double kSwerveDriveEncoderResolution = 4096.0;
+    /** The number of rotations the swerve drive encoder undergoes for every rotation of the wheel. */
+	public static final double kSwerveEncoderToWheelRatio = 6.0;
+	public static final double kSwerveEncUnitsPerWheelRev = kSwerveDriveEncoderResolution * kSwerveEncoderToWheelRatio;
+    public static final double kSwerveEncUnitsPerInch = kSwerveEncUnitsPerWheelRev / (Math.PI * kSwerveWheelDiameter);
+    
+    // TODO naming & should I have those
+    // Controller Ports
+    public static final int CONTROLLER_PORT = 0;
+    public static final int L_X_AXIS_ID = 0;
+    public static final int L_Y_AXIS_ID = 1;
+    public static final int L_TRIGGER_ID = 2;
+    public static final int R_TRIGGER_ID = 3;
+    public static final int R_X_AXIS_ID = 4;
+    public static final int R_Y_AXIS_ID = 5;
+
     // Intake
     public static final int kIntakeRollerId = 15;
     public static final int kDeploySolenoidId = 0;

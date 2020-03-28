@@ -44,6 +44,7 @@ import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.Joystick;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -70,6 +71,14 @@ public class Robot extends TimedRobot {
     private final Indexer mIndexer = Indexer.getInstance();
     private final Infrastructure mInfrastructure = Infrastructure.getInstance();
     private final Limelight mLimelight = Limelight.getInstance();
+
+    private final Joystick joystick = new Joystick(Constants.CONTROLLER_PORT);
+
+    private final Swerve mSwerve = Swerve.getInstance();
+    private final SwerveDriveModule frontRight = new SwerveDriveModule(Constants.kFrontRightAngleSlot, Constants.kFrontRightDriveSlot, 0, Constants.kFrontRightEncoderStartingPose);
+    private final SwerveDriveModule frontLeft = new SwerveDriveModule(Constants.kFrontLeftAngleSlot, Constants.kFrontLeftDriveSlot, 0, Constants.kFrontLeftEncoderStartingPose);
+    private final SwerveDriveModule rearLeft = new SwerveDriveModule(Constants.kRearLeftAngleSlot, Constants.kRearLeftDriveSlot, 0, Constants.kRearLeftEncoderStartingPose);
+    private final SwerveDriveModule rearRight = new SwerveDriveModule(Constants.kRearRightAngleSlot, Constants.kRearRightDriveSlot, 0, Constants.kRearRightEncoderStartingPose);
 
     private final Intake mIntake = Intake.getInstance();
     private final Superstructure mSuperstructure = Superstructure.getInstance();
@@ -138,7 +147,8 @@ public class Robot extends TimedRobot {
                 mInfrastructure,
                 mClimber,
                 mRoller,
-                mLEDs
+                mLEDs,
+                mSwerve
             );
 
             mSubsystemManager.registerEnabledLoops(mEnabledLooper);
@@ -249,6 +259,8 @@ public class Robot extends TimedRobot {
             double turn = mControlBoard.getTurn();
             double hood_jog = mControlBoard.getJogHood();
             Rotation2d turret_jog = mControlBoard.getJogTurret();
+
+            mSwerve.drive(joystick.getRawAxis(1), joystick.getRawAxis(0), joystick.getRawAxis(4));
 
             if (!climb_mode) {
                 if (!mLimelight.limelightOK()) {
