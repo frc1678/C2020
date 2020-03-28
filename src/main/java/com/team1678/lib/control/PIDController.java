@@ -1,5 +1,8 @@
 package com.team1678.lib.control;
 
+import edu.wpi.first.wpilibj.AnalogInput;
+import edu.wpi.first.wpilibj.Talon;
+
 /**
  * PID controller that controls a control loop
  */
@@ -30,7 +33,10 @@ public class PIDController {
         kDeadband = deadband;
     }
 
-    public void reset() {
+    public PIDController(int i, int j, int k, AnalogInput analogInput, Talon angleMotor) {
+	} //  constructor for swerve PID
+
+	public void reset() {
         prevError = 0;
         prevTime = 0;
         integral = 0;

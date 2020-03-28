@@ -44,6 +44,7 @@ import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.Joystick;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -64,6 +65,8 @@ public class Robot extends TimedRobot {
     private final ControlBoard mControlBoard = ControlBoard.getInstance();
     private CheesyDriveHelper mCheesyDriveHelper = new CheesyDriveHelper();
     private TrajectoryGenerator mTrajectoryGenerator = TrajectoryGenerator.getInstance();
+
+    Joystick joystick = new Joystick (0);
 
     private final SubsystemManager mSubsystemManager = SubsystemManager.getInstance();
     private final Drive mDrive = Drive.getInstance();
@@ -94,6 +97,13 @@ public class Robot extends TimedRobot {
     private boolean mPivoted = false;
 
     // private LoggingSystem mLogger = LoggingSystem.getInstance();
+
+    private Drivetrain backRight = new Drivetrain(0, 1, 0);
+    private Drivetrain backLeft = new Drivetrain(2, 3, 1);
+    private Drivetrain frontRight = new Drivetrain(4, 5, 2);
+    private Drivetrain frontLeft = new Drivetrain(6, 7, 3);
+
+    private Drivetrain mSwerveDrive = new Drivetrain(backLeft, backRight, frontLeft, frontRight);
 
     public Robot() {
         CrashTracker.logRobotConstruction();
@@ -243,6 +253,7 @@ public class Robot extends TimedRobot {
     
     @Override
     public void teleopPeriodic() {
+        Swerve.drive(joystick.getRawAxis (1), joystick.getRawAxis (0), joystick.getRawAxis (4));
         try {
             double timestamp = Timer.getFPGATimestamp();
             double throttle = mControlBoard.getThrottle();
