@@ -364,7 +364,6 @@ public class SwerveDriveModule extends Subsystem {
 		periodicIO.rotationPosition = rotationMotor.getSelectedSensorPosition(0);
 		if(useDriveEncoder) periodicIO.drivePosition = driveMotor.getSelectedSensorPosition(0);
 		periodicIO.velocity = driveMotor.getSelectedSensorVelocity();
-		periodicIO.absoluteEncoderAngle = (int) ((mAbsoluteEncoder.getOutputScaleFactor() / mAbsoluteEncoder.getOutputRaw()) * 2048.0);
 	}
 
 	@Override
@@ -384,7 +383,8 @@ public class SwerveDriveModule extends Subsystem {
 	}
 	
 	public synchronized void resetRotationToAbsolute() {
-        rotationMotor.setSelectedSensorPosition(encoderOffset + periodicIO.absoluteEncoderAngle, 0, 10);
+        int absoluteEncoderAngle = (int) ((mAbsoluteEncoder.getOutputScaleFactor() / mAbsoluteEncoder.getOutputRaw()) * 2048.0);
+        rotationMotor.setSelectedSensorPosition(encoderOffset + absoluteEncoderAngle, 0, 10);
     }
 
 	@Override
@@ -426,7 +426,6 @@ public class SwerveDriveModule extends Subsystem {
 		public int drivePosition = 0;
 		public int velocity = 0;
 		public double driveVoltage = 0.0;
-		public int absoluteEncoderAngle = 0;
 		
 
 		//Outputs
