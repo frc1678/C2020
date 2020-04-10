@@ -341,11 +341,6 @@ public class SwerveDriveModule extends Subsystem {
 		estimatedRobotPose =  robotPose;
 		previousEncDistance = currentEncDistance;
 	}
-
-	public synchronized void resetOffsetFromAbsoluteEncoder() {
-		double absoluteEncoderAngle = (mAbsoluteEncoder.getOutputScaleFactor() / mAbsoluteEncoder.getOutputRaw()) * 360.0;
-		encoderOffset += absoluteEncoderAngle;
-	}
 	
 	public synchronized void resetPose(Pose2d robotPose){
 		Translation2d modulePosition = robotPose.transformBy(Pose2d.fromTranslation(startingPosition)).getTranslation();
@@ -369,6 +364,7 @@ public class SwerveDriveModule extends Subsystem {
 		periodicIO.rotationPosition = rotationMotor.getSelectedSensorPosition(0);
 		if(useDriveEncoder) periodicIO.drivePosition = driveMotor.getSelectedSensorPosition(0);
 		periodicIO.velocity = driveMotor.getSelectedSensorVelocity();
+		periodicIO.absoluteEncoderAngle = (int) ((mAbsoluteEncoder.getOutputScaleFactor() / mAbsoluteEncoder.getOutputRaw()) * 2048.0);
 	}
 
 	@Override
@@ -388,9 +384,8 @@ public class SwerveDriveModule extends Subsystem {
 	}
 	
 	public synchronized void resetRotationToAbsolute() {
-		/*rotationMotor.setSelectedSensorPosition(
-				encoderReverseFactor * (rotationMotor.getSensorCollection().getPulseWidthPosition() - encoderOffset), 0, 10);*/
-	}
+        rotationMotor.setSelectedSensorPosition(encoderOffset + periodicIO.absoluteEncoderAngle, 0, 10);
+    }
 
 	@Override
 	public synchronized void zeroSensors() {
@@ -431,6 +426,7 @@ public class SwerveDriveModule extends Subsystem {
 		public int drivePosition = 0;
 		public int velocity = 0;
 		public double driveVoltage = 0.0;
+		public int absoluteEncoderAngle = 0;
 		
 
 		//Outputs

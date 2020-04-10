@@ -758,7 +758,7 @@ Constants.kVehicleToModuleOne, Constants.kVehicleToModuleTwo, Constants.kVehicle
 				rotationalInput = 0;
 				resetAveragedDirection();
 				headingController.temporarilyDisable();
-				modules.forEach((m) -> m.resetOffsetFromAbsoluteEncoder());
+				modules.forEach((m) -> m.resetRotationToAbsolute());
 				stop();
 				outputWpiPose = true;
 				lastUpdateTimestamp = timestamp;
