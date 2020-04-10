@@ -84,7 +84,7 @@ public class GamepadButtonControlBoard {
     private final CustomXboxController mController;
 
     private GamepadButtonControlBoard() {
-        mController = new CustomXboxController(Constants.kButtonGamepadPort);
+        mController = new CustomXboxController(Constants.kOperatorJoystickPort);
         reset();
     }
 
@@ -154,7 +154,7 @@ public class GamepadButtonControlBoard {
         return mController.getTrigger(CustomXboxController.Side.RIGHT);
     } 
     
-    public boolean getOuttake(){
+    public boolean getOuttake() {
         return mController.getTrigger(CustomXboxController.Side.LEFT);
     }
 

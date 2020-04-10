@@ -1,16 +1,11 @@
 package com.team1678.frc2020.controlboard;
 
-import com.team1678.frc2020.Constants;
-import com.team1678.frc2020.controlboard.GamepadButtonControlBoard;
 import com.team1678.frc2020.controlboard.GamepadButtonControlBoard.TurretCardinal;
 import com.team254.lib.geometry.Rotation2d;
-import com.team1678.frc2020.controlboard.CustomXboxController.Side;
 
 public class ControlBoard {
     private static ControlBoard mInstance = null;
-
-    private CustomXboxController mController;
-    
+  
     public static ControlBoard getInstance() {
         if (mInstance == null) {
             mInstance = new ControlBoard();
@@ -30,8 +25,40 @@ public class ControlBoard {
     public void reset() {
     }
 
-    public double getThrottle() {
-        return mDriveControlBoard.getThrottle();
+    public double getSwerveYInput() {
+        return mDriveControlBoard.getSwerveYInput();
+    }
+
+    public double getSwerveXInput() {
+        return mDriveControlBoard.getSwerveXInput();
+    }
+
+    public double getSwerveRotation() {
+        return mDriveControlBoard.getSwerveRotation();
+    }
+
+    public boolean getSnapNorth() {
+        return mDriveControlBoard.getSnapNorth();
+    }
+
+    public boolean getSnapEast() {
+        return mDriveControlBoard.getSnapEast();
+    }
+
+    public boolean getSnapSouth() {
+        return mDriveControlBoard.getSnapSouth();
+    }
+
+    public boolean getSnapWest() {
+        return mDriveControlBoard.getSnapWest();
+    }
+
+    public boolean getResetGyro() {
+        return mDriveControlBoard.getResetGyro();
+    }
+
+    public boolean getLowPowerDrive() {
+        return mDriveControlBoard.getLowPowerDrive();
     }
     
     public boolean getManualSlowRoller() {
@@ -52,13 +79,6 @@ public class ControlBoard {
     
     public boolean getShotDown() {
         return mDriveControlBoard.getShotDown();
-    }
-    public double getTurn() {
-        return mDriveControlBoard.getTurn();
-    }
-    
-    public boolean getQuickTurn(){
-        return mDriveControlBoard.getQuickTurn();
     }
  
     public boolean getRunIntake() {

@@ -1,5 +1,6 @@
 package com.team254.lib.geometry;
 
+import com.team1323.lib.geometry.UnwrappableTwist2d;
 import com.team254.lib.util.Util;
 
 import java.text.DecimalFormat;
@@ -25,6 +26,10 @@ public class Twist2d {
         this.dx = dx;
         this.dy = dy;
         this.dtheta = dtheta;
+    }
+
+    public UnwrappableTwist2d wrap() {
+        return new UnwrappableTwist2d(dx, dy, dtheta);
     }
 
     public Twist2d scaled(double scale) {

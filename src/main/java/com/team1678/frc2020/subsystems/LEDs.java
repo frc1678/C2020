@@ -27,7 +27,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
  */
 public class LEDs extends Subsystem{
     private static LEDs instance = null;
-    public static LEDs getInstance(){
+    public static LEDs getInstance() {
         if(instance == null)
             instance = new LEDs();
         return instance;
@@ -35,7 +35,7 @@ public class LEDs extends Subsystem{
 
     CANifier canifier;
 
-    public LEDs(){
+    public LEDs() {
         canifier = Canifier.getInstance().getCanifier();
     }
 
@@ -98,7 +98,7 @@ public class LEDs extends Subsystem{
     }
 
     private State currentState = State.OFF;
-    public State getState(){ return currentState; }
+    public State getState() { return currentState; }
     private void setState(State newState){
         if(newState != currentState){
             currentState = newState;
@@ -108,7 +108,7 @@ public class LEDs extends Subsystem{
         }
     }
 
-    private final Loop loop = new Loop(){
+    private final Loop loop = new Loop() {
 
         @Override
         public void onStart(double timestamp) {
@@ -148,7 +148,7 @@ public class LEDs extends Subsystem{
     public boolean resetBreath = false;
 
     @Override
-    public void writePeriodicOutputs(){
+    public void writePeriodicOutputs() {
         double timestamp = Timer.getFPGATimestamp();
         if (currentState == State.RAINBOW && currentState.isCycleColors == true) {
             stateHue += 2;

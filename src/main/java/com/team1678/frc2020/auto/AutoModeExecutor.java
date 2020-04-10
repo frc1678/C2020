@@ -64,24 +64,4 @@ public class AutoModeExecutor {
         return mAutoMode;
     }
 
-    public boolean isInterrupted() {
-        if (mAutoMode == null) {
-            return false;
-        }
-        return mAutoMode.getIsInterrupted();
-    }
-
-    public void interrupt() {
-        if (mAutoMode == null) {
-            return;
-        }
-        mAutoMode.interrupt();
-    }
-
-    public void resume() {
-        if (mAutoMode == null) {
-            return;
-        }
-        mAutoMode.resume();
-    }
 }

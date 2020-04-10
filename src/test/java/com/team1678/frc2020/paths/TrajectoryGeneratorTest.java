@@ -61,8 +61,6 @@ public class TrajectoryGeneratorTest {
     @Test
     public void test() {
         TrajectoryGenerator.getInstance().generateTrajectories();
-
-        verifyTrajectory(TrajectoryGenerator.getInstance().getTrajectorySet().secondBarIntakeToNearShot, true);
         //verifyTrajectory(TrajectoryGenerator.getInstance().getTrajectorySet().testPathReversed, true);
     }
 }
