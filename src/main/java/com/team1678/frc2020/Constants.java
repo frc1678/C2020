@@ -103,6 +103,12 @@ public class Constants {
     public static final int kRearRightRotationId = 4;
     public static final int kRearRightDriveId = 0;
 
+    // Absolute Encoders (DIO)
+    public static final int kFrontRightEncoderId = 0;
+    public static final int kFrontLeftEncoderId = 1;
+    public static final int kRearLeftEncoderId = 2;
+    public static final int kRearRightEncoderId = 3;
+
     // climber
     public static final int kWinchMasterId = 11;
     public static final int kWinchSlaveId = 12;

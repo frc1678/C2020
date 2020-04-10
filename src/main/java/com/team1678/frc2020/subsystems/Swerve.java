@@ -169,13 +169,13 @@ public class Swerve extends Subsystem{
 	
 	private Swerve() {
 		frontRight = new SwerveDriveModule(Constants.kFrontRightRotationId, Constants.kFrontRightDriveId,
-				0, Constants.kFrontRightEncoderStartingPos, Constants.kVehicleToModuleZero);
+				0, Constants.kFrontRightEncoderStartingPos, Constants.kFrontRightEncoderId, Constants.kVehicleToModuleZero);
 		frontLeft = new SwerveDriveModule(Constants.kFrontLeftRotationId, Constants.kFrontLeftDriveId,
-				1, Constants.kFrontLeftEncoderStartingPos, Constants.kVehicleToModuleOne);
+				1, Constants.kFrontLeftEncoderStartingPos, Constants.kFrontLeftEncoderId, Constants.kVehicleToModuleOne);
 		rearLeft = new SwerveDriveModule(Constants.kRearLeftRotationId, Constants.kRearLeftDriveId,
-				2, Constants.kRearLeftEncoderStartingPos, Constants.kVehicleToModuleTwo);
+				2, Constants.kRearLeftEncoderStartingPos, Constants.kRearLeftEncoderId, Constants.kVehicleToModuleTwo);
 		rearRight = new SwerveDriveModule(Constants.kRearRightRotationId, Constants.kRearRightDriveId,
-				3, Constants.kRearRightEncoderStartingPos, Constants.kVehicleToModuleThree);
+				3, Constants.kRearRightEncoderStartingPos, Constants.kRearRightEncoderId, Constants.kVehicleToModuleThree);
 		
 		modules = Arrays.asList(frontRight, frontLeft, rearLeft, rearRight);
 		positionModules = Arrays.asList(frontRight, frontLeft, rearLeft, rearRight);
@@ -758,6 +758,7 @@ Constants.kVehicleToModuleOne, Constants.kVehicleToModuleTwo, Constants.kVehicle
 				rotationalInput = 0;
 				resetAveragedDirection();
 				headingController.temporarilyDisable();
+				modules.forEach((m) -> m.resetOffsetFromAbsoluteEncoder());
 				stop();
 				outputWpiPose = true;
 				lastUpdateTimestamp = timestamp;

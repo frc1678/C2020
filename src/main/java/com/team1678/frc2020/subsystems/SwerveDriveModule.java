@@ -4,6 +4,7 @@ import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.StatusFrame;
+import com.ctre.phoenix.motorcontrol.TalonFXFeedbackDevice;
 import com.ctre.phoenix.motorcontrol.VelocityMeasPeriod;
 import com.team1678.frc2020.Constants;
 import com.team1678.frc2020.loops.ILooper;
@@ -14,11 +15,14 @@ import com.team1323.lib.util.Util;
 import com.team254.lib.drivers.LazyTalonFX;
 import com.wpilib.SwerveModuleState;
 
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DutyCycle;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class SwerveDriveModule extends Subsystem {
 	LazyTalonFX rotationMotor, driveMotor;
+	DutyCycle mAbsoluteEncoder;
 	int moduleID;
 	String name = "Module ";
 	int rotationSetpoint = 0;
@@ -39,10 +43,11 @@ public class SwerveDriveModule extends Subsystem {
 	PeriodicIO periodicIO = new PeriodicIO();
 	
 	public SwerveDriveModule(int rotationSlot, int driveSlot, int moduleID, 
-			int encoderOffset, Translation2d startingPose){
+			int encoderOffset,int absoluteEncoder, Translation2d startingPose){
 		name += (moduleID + " ");
 		rotationMotor = new LazyTalonFX(rotationSlot);
 		driveMotor = new LazyTalonFX(driveSlot);
+		mAbsoluteEncoder = new DutyCycle(new DigitalInput(absoluteEncoder));
 		configureMotors();
 		this.moduleID = moduleID;
 		this.encoderOffset = encoderOffset;
@@ -83,7 +88,7 @@ public class SwerveDriveModule extends Subsystem {
 	}
 	
 	private void configureMotors() {
-    	rotationMotor.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Absolute, 0, 10);
+    	rotationMotor.configSelectedFeedbackSensor(TalonFXFeedbackDevice.IntegratedSensor, 0, 10);
     	rotationMotor.setSensorPhase(true);
     	rotationMotor.setInverted(false);
     	rotationMotor.setStatusFramePeriod(StatusFrame.Status_2_Feedback0, 10, 10);
@@ -109,7 +114,7 @@ public class SwerveDriveModule extends Subsystem {
 			DriverStation.reportError(name + "rotation encoder not detected!", false);
 		}
 
-    	driveMotor.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, 0, 10);
+    	driveMotor.configSelectedFeedbackSensor(TalonFXFeedbackDevice.IntegratedSensor, 0, 10);
     	driveMotor.setSelectedSensorPosition(0, 0, 10);
     	driveMotor.setStatusFramePeriod(StatusFrame.Status_2_Feedback0, 10, 10);
     	driveMotor.configVelocityMeasurementPeriod(VelocityMeasPeriod.Period_10Ms, 10);
@@ -335,6 +340,11 @@ public class SwerveDriveModule extends Subsystem {
 		position = updatedPosition;
 		estimatedRobotPose =  robotPose;
 		previousEncDistance = currentEncDistance;
+	}
+
+	public synchronized void resetOffsetFromAbsoluteEncoder() {
+		double absoluteEncoderAngle = (mAbsoluteEncoder.getOutputScaleFactor() / mAbsoluteEncoder.getOutputRaw()) * 360.0;
+		encoderOffset += absoluteEncoderAngle;
 	}
 	
 	public synchronized void resetPose(Pose2d robotPose){
