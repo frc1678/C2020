@@ -79,6 +79,9 @@ public class Shooter extends Subsystem {
         SmartDashboard.putNumber("Flywheel Current", mPeriodicIO.flywheel_current);
         SmartDashboard.putNumber("Flywheel Goal", mPeriodicIO.flywheel_demand);
         SmartDashboard.putNumber("Flywheel Temperature", mPeriodicIO.flywheel_temperature);
+        if (mCSVWriter != null) {
+            mCSVWriter.write();
+        }
     }
 
     @Override
@@ -144,6 +147,9 @@ public class Shooter extends Subsystem {
         mPeriodicIO.flywheel_voltage = mMaster.getMotorOutputVoltage();
         mPeriodicIO.flywheel_current = mMaster.getStatorCurrent();
         mPeriodicIO.flywheel_temperature = mMaster.getTemperature();
+        if (mCSVWriter != null) {
+            mCSVWriter.add(mPeriodicIO);
+        }
     }
 
     @Override

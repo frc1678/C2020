@@ -68,6 +68,9 @@ public class Intake extends Subsystem {
     public synchronized void outputTelemetry() {
         SmartDashboard.putNumber("Intake Current", mPeriodicIO.current);
         SmartDashboard.putString("Intake State", mState.toString());
+        if (mCSVWriter != null) {
+            mCSVWriter.write();
+        }
     }
 
     @Override
@@ -166,6 +169,9 @@ public class Intake extends Subsystem {
     @Override
     public synchronized void readPeriodicInputs() {
         mPeriodicIO.intake_out = mIntakeSolenoidTimer.update(mPeriodicIO.deploy, 0.2);
+        if (mCSVWriter != null) {
+            mCSVWriter.add(mPeriodicIO);
+        }
     }
 
     @Override

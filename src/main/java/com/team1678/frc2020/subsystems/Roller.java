@@ -163,6 +163,9 @@ public class Roller extends Subsystem {
             mInitialColor = mOneColorAgo = mTwoColorsAgo = mMatch.color;
         }
         mSolenoidOut = solenoid_ret;
+        if (mCSVWriter != null) {
+            mCSVWriter.add(mPeriodicIO);
+        }
     }
 
     // Optional design pattern for caching periodic writes to avoid hammering the HAL/CAN.
@@ -339,6 +342,9 @@ public class Roller extends Subsystem {
         SmartDashboard.putString("Game Data", gameData);
 
         mColorSensor.outputToSmartDashboard();
+        if (mCSVWriter != null) {
+            mCSVWriter.write();
+        }
     }
 
     public void setState(WantedAction action) {

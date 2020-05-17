@@ -404,6 +404,9 @@ public class Drive extends Subsystem {
             SmartDashboard.putNumber("y err", mPeriodicIO.error.getTranslation().y());
             SmartDashboard.putNumber("theta err", mPeriodicIO.error.getRotation().getDegrees());
         }
+        if (mCSVWriter != null) {
+            mCSVWriter.write();
+        }
     }
 
     public synchronized void resetEncoders() {
@@ -589,6 +592,9 @@ public class Drive extends Subsystem {
         mPeriodicIO.right_current = mRightMaster.getOutputCurrent();
 
         // System.out.println("control state: " + mDriveControlState + ", left: " + mPeriodicIO.left_demand + ", right: " + mPeriodicIO.right_demand);
+        if (mCSVWriter != null) {
+            mCSVWriter.add(mPeriodicIO);
+        }
     }
 
     public synchronized boolean isDoneWithTurn() {

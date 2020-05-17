@@ -70,6 +70,9 @@ public class Wrangler extends Subsystem {
         SmartDashboard.putString("WranglerState", mState.name());
         SmartDashboard.putNumber("WranglerMotorSetpoint", mPeriodicOutputs.demand);
         SmartDashboard.putBoolean("WranglerOut", getWranglerOut());
+        if (mCSVWriter != null) {
+            mCSVWriter.write();
+        }
     }
 
     @Override
@@ -161,6 +164,9 @@ public class Wrangler extends Subsystem {
 
     @Override
     public synchronized void readPeriodicInputs() {
+        if (mCSVWriter != null) {
+            mCSVWriter.add(mPeriodicOutputs);
+        }
     }
 
     @Override

@@ -152,6 +152,9 @@ public class Limelight extends Subsystem {
         mPeriodicIO.has_comms = mLatencyCounter < 10;
 
         mSeesTarget = mNetworkTable.getEntry("tv").getDouble(0) == 1.0;
+        if (mCSVWriter != null) {
+            mCSVWriter.add(mPeriodicIO);
+        }
     }
 
     @Override
@@ -199,6 +202,9 @@ public class Limelight extends Subsystem {
         SmartDashboard.putBoolean(mConstants.kName + ": Has Target", mSeesTarget);
         SmartDashboard.putBoolean("Limelight Ok", mPeriodicIO.has_comms);
         SmartDashboard.putNumber(mConstants.kName + ": Pipeline Latency (ms)", mPeriodicIO.latency);
+        if (mCSVWriter != null) {
+            mCSVWriter.write();
+        }
     }
 
     public enum LedMode {
