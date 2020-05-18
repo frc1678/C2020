@@ -4,8 +4,6 @@ import com.ctre.phoenix.CANifier;
 import com.ctre.phoenix.CANifierStatusFrame;
 import edu.wpi.first.wpilibj.Timer;
 import com.team1678.frc2020.Constants;
-import com.team1678.frc2020.logger.LogStorage;
-import com.team1678.frc2020.logger.LoggingSystem;
 
 import java.util.ArrayList;
 

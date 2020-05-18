@@ -3,8 +3,7 @@ package com.team1678.frc2020.subsystems;
 import com.team1678.frc2020.Constants;
 import com.team1678.frc2020.loops.ILooper;
 import com.team1678.frc2020.loops.Loop;
-import com.team1678.frc2020.logger.LogStorage;
-import com.team1678.frc2020.logger.LoggingSystem;
+import com.team254.lib.util.ReflectingCSVWriter;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.StatorCurrentLimitConfiguration;
@@ -26,6 +25,8 @@ public class Shooter extends Subsystem {
     private static Shooter mInstance;
 
     private PeriodicIO mPeriodicIO = new PeriodicIO();
+    
+    private ReflectingCSVWriter<PeriodicIO> mCSVWriter = null;
 
     private final TalonFX mMaster;
     private final TalonFX mSlave;
@@ -76,6 +77,9 @@ public class Shooter extends Subsystem {
         SmartDashboard.putNumber("Flywheel Current", mPeriodicIO.flywheel_current);
         SmartDashboard.putNumber("Flywheel Goal", mPeriodicIO.flywheel_demand);
         SmartDashboard.putNumber("Flywheel Temperature", mPeriodicIO.flywheel_temperature);
+        if (mCSVWriter != null) {
+            mCSVWriter.write();
+        }
     }
 
     @Override
@@ -92,12 +96,14 @@ public class Shooter extends Subsystem {
         enabledLooper.register(new Loop() {
             @Override
             public void onStart(double timestamp) {
+                //startLogging();
             }
             @Override
             public void onLoop(double timestamp) {
             }
             @Override
             public void onStop(double timestamp) {
+                stopLogging();
             }
         });
     }
@@ -139,6 +145,9 @@ public class Shooter extends Subsystem {
         mPeriodicIO.flywheel_voltage = mMaster.getMotorOutputVoltage();
         mPeriodicIO.flywheel_current = mMaster.getStatorCurrent();
         mPeriodicIO.flywheel_temperature = mMaster.getTemperature();
+        if (mCSVWriter != null) {
+            mCSVWriter.add(mPeriodicIO);
+        }
     }
 
     @Override
@@ -153,6 +162,19 @@ public class Shooter extends Subsystem {
     @Override
     public synchronized boolean checkSystem() {
         return true;
+    }
+    
+    public synchronized void startLogging() {
+        if (mCSVWriter == null) {
+            mCSVWriter = new ReflectingCSVWriter<>("/home/lvuser/SHOOTER-LOGS.csv", PeriodicIO.class);
+        }
+    }
+
+    public synchronized void stopLogging() {
+        if (mCSVWriter != null) {
+            mCSVWriter.flush();
+            mCSVWriter = null;
+        }
     }
 
     public static Shooter getInstance() {

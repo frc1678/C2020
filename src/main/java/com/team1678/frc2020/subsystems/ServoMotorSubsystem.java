@@ -5,8 +5,7 @@ import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.team1678.frc2020.Constants;
 import com.team1678.frc2020.loops.ILooper;
 import com.team1678.frc2020.loops.Loop;
-import com.team1678.frc2020.logger.LoggingSystem;
-import com.team1678.frc2020.logger.LogStorage;
+
 import com.team254.lib.drivers.TalonFXFactory;
 import com.team254.lib.drivers.TalonUtil;
 import com.team254.lib.motion.MotionProfileConstraints;

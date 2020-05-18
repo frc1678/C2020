@@ -16,7 +16,6 @@ import com.team1678.frc2020.loops.Looper;
 import com.team1678.frc2020.paths.TrajectoryGenerator;
 import com.team1678.frc2020.controlboard.ControlBoard;
 import com.team1678.frc2020.controlboard.GamepadButtonControlBoard;
-import com.team1678.frc2020.logger.LoggingSystem;
 import com.team254.lib.wpilib.TimedRobot;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.team1678.frc2020.SubsystemManager;

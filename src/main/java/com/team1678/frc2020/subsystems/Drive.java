@@ -12,8 +12,7 @@ import com.team1678.frc2020.Kinematics;
 import com.team1678.frc2020.RobotState;
 import com.team1678.frc2020.loops.ILooper;
 import com.team1678.frc2020.loops.Loop;
-import com.team1678.frc2020.logger.LoggingSystem;
-import com.team1678.frc2020.logger.LogStorage;
+
 import com.team1678.frc2020.planners.DriveMotionPlanner;
 import com.team1678.lib.control.PIDController;
 
@@ -27,6 +26,7 @@ import com.team254.lib.geometry.Twist2d;
 import com.team254.lib.trajectory.TrajectoryIterator;
 import com.team254.lib.trajectory.timing.TimedState;
 import com.team254.lib.util.DriveSignal;
+import com.team254.lib.util.ReflectingCSVWriter;
 import com.team254.lib.util.Util;
 
 import edu.wpi.first.wpilibj.DriverStation;
@@ -49,6 +49,8 @@ public class Drive extends Subsystem {
     private PigeonIMU mPigeon;
     // Hardware states
     private PeriodicIO mPeriodicIO;
+    private ReflectingCSVWriter<PeriodicIO> mCSVWriter = null;
+    
     private boolean mIsBrakeMode;
     private DriveMotionPlanner mMotionPlanner;
     private Rotation2d mGyroOffset = Rotation2d.identity();
@@ -69,6 +71,7 @@ public class Drive extends Subsystem {
                 setBrakeMode(false);
                 mStartedResetTimer = false;
                 mHasResetSteering = false;
+                //startLogging();
             }
         }
 
@@ -96,6 +99,7 @@ public class Drive extends Subsystem {
         @Override
         public void onStop(double timestamp) {
             stop();
+            stopLogging();
         }
     };
 
@@ -399,6 +403,9 @@ public class Drive extends Subsystem {
             SmartDashboard.putNumber("y err", mPeriodicIO.error.getTranslation().y());
             SmartDashboard.putNumber("theta err", mPeriodicIO.error.getRotation().getDegrees());
         }
+        if (mCSVWriter != null) {
+            mCSVWriter.write();
+        }
     }
 
     public synchronized void resetEncoders() {
@@ -584,6 +591,9 @@ public class Drive extends Subsystem {
         mPeriodicIO.right_current = mRightMaster.getOutputCurrent();
 
         // System.out.println("control state: " + mDriveControlState + ", left: " + mPeriodicIO.left_demand + ", right: " + mPeriodicIO.right_demand);
+        if (mCSVWriter != null) {
+            mCSVWriter.add(mPeriodicIO);
+        }
     }
 
     public synchronized boolean isDoneWithTurn() {
@@ -651,6 +661,19 @@ public class Drive extends Subsystem {
                     }
                 });
         return leftSide && rightSide;
+    }
+
+    public synchronized void startLogging() {
+        if (mCSVWriter == null) {
+            mCSVWriter = new ReflectingCSVWriter<>("/home/lvuser/DRIVE-LOGS.csv", PeriodicIO.class);
+        }
+    }
+
+    public synchronized void stopLogging() {
+        if (mCSVWriter != null) {
+            mCSVWriter.flush();
+            mCSVWriter = null;
+        }
     }
 
     // The robot drivetrain's various states.

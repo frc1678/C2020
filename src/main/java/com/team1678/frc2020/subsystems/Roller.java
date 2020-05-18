@@ -6,6 +6,7 @@ import com.team1678.frc2020.loops.Loop;
 import com.team1678.lib.drivers.REVColorSensorV3Wrapper;
 import com.team1678.lib.drivers.REVColorSensorV3Wrapper.ColorSensorData;
 import com.team254.lib.util.TimeDelayedBoolean;
+import com.team254.lib.util.ReflectingCSVWriter;
 
 import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.I2C;
@@ -71,6 +72,8 @@ public class Roller extends Subsystem {
     private static Roller mInstance;
 
     private PeriodicIO mPeriodicIO = new PeriodicIO();
+
+    private ReflectingCSVWriter<PeriodicIO> mCSVWriter = null;
 
     private Roller() {
         mRollerMotor = new PWMSparkMax(Constants.kRollerId);
@@ -160,6 +163,9 @@ public class Roller extends Subsystem {
             mInitialColor = mOneColorAgo = mTwoColorsAgo = mMatch.color;
         }
         mSolenoidOut = solenoid_ret;
+        if (mCSVWriter != null) {
+            mCSVWriter.add(mPeriodicIO);
+        }
     }
 
     // Optional design pattern for caching periodic writes to avoid hammering the HAL/CAN.
@@ -180,6 +186,7 @@ public class Roller extends Subsystem {
             public void onStart(double timestamp) {
                 mState = State.IDLE;
                 mColorSensor.start();
+                //startLogging();
             } 
 
             @Override 
@@ -193,6 +200,7 @@ public class Roller extends Subsystem {
             public void onStop(double timestamp) {
                 mState = State.IDLE;
                 mColorSensor.stop();
+                stopLogging();
             }
 
         });
@@ -306,6 +314,19 @@ public class Roller extends Subsystem {
         return true;
     }
 
+    public synchronized void startLogging() {
+        if (mCSVWriter == null) {
+            mCSVWriter = new ReflectingCSVWriter<>("/home/lvuser/ROLLER-LOGS.csv", PeriodicIO.class);
+        }
+    }
+
+    public synchronized void stopLogging() {
+        if (mCSVWriter != null) {
+            mCSVWriter.flush();
+            mCSVWriter = null;
+        }
+    }
+
     @Override
     public synchronized void outputTelemetry() {
         SmartDashboard.putString("Color", colorString);
@@ -321,6 +342,9 @@ public class Roller extends Subsystem {
         SmartDashboard.putString("Game Data", gameData);
 
         mColorSensor.outputToSmartDashboard();
+        if (mCSVWriter != null) {
+            mCSVWriter.write();
+        }
     }
 
     public void setState(WantedAction action) {
