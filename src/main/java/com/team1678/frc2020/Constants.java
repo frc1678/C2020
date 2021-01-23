@@ -77,6 +77,13 @@ public class Constants {
     public static final int kIntakeRollerId = 15;
     public static final int kDeploySolenoidId = 0;
 
+    // TODO: check to real values for these
+    // SKywalker
+    public static final int kSkywalkerMasterId = 18;
+    public static final double kIdleVoltage = 0.0;
+    public static final double kShiftingRightVoltage = 12.0;
+    public static final double kShiftingLeftVoltage = -12.0;
+
     // Color Panel
     public static final int kColorPanelID = 14;
 
