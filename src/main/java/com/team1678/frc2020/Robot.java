@@ -76,6 +76,7 @@ public class Robot extends TimedRobot {
     private final Shooter mShooter = Shooter.getInstance();
     private final Trigger mTrigger = Trigger.getInstance();
     private final Climber mClimber = Climber.getInstance();
+    private final Skywalker mSkywalker = Skywalker.getInstance();
     private final Hood mHood = Hood.getInstance();
     private final Wrangler mWrangler = Wrangler.getInstance();
 
@@ -136,6 +137,7 @@ public class Robot extends TimedRobot {
                 mTurret,
                 mInfrastructure,
                 mClimber,
+                mSkywalker,
                 mRoller,
                 mLEDs
             );
